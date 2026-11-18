@@ -28,5 +28,11 @@
   },
   "T010": {
     "built_by": "claude-sonnet-5-5"
+  },
+  "T011": {
+    "built_by": "claude-opus-5"
+  },
+  "T012": {
+    "built_by": "claude-opus-5"
   }
 }
