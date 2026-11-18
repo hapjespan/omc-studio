@@ -30,7 +30,7 @@ export default [
         rules: { 'vue/multi-word-component-names': 'off' },
     },
     {
-        files: ['resources/js/support/history-key.ts'],
+        files: ['resources/js/security/history.ts'],
         rules: { 'no-restricted-globals': 'off', 'no-restricted-properties': 'off' },
     },
 ];

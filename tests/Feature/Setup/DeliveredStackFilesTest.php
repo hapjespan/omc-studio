@@ -65,4 +65,10 @@ class DeliveredStackFilesTest extends TestCase
         $this->assertMatchesRegularExpression('/^up:/m', $makefile);
         $this->assertMatchesRegularExpression('/^down:/m', $makefile);
     }
+
+    public function test_the_image_keeps_generated_state_and_argument_values_out(): void
+    {
+        $this->assertStringContainsString('storage/app.key', $this->read('.dockerignore'));
+        $this->assertStringContainsString('zend.exception_ignore_args=On', $this->read('Dockerfile'));
+    }
 }

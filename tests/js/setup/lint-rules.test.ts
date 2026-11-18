@@ -20,6 +20,6 @@ describe('lint rules', () => {
     });
 
     it('allows storage in the one history key file', async () => {
-        expect(await messages('sessionStorage.getItem("a");\n', 'resources/js/support/history-key.ts')).toEqual([]);
+        expect(await messages('sessionStorage.getItem("a");\n', 'resources/js/security/history.ts')).toEqual([]);
     });
 });

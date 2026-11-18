@@ -28,5 +28,29 @@
   },
   "T010": {
     "built_by": "claude-sonnet-5-5"
+  },
+  "T011": {
+    "built_by": "claude-opus-5"
+  },
+  "T012": {
+    "built_by": "claude-opus-5"
+  },
+  "T013": {
+    "built_by": "claude-opus-5"
+  },
+  "T014": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T015": {
+    "built_by": "claude-opus-5"
+  },
+  "T016": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T017": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T018": {
+    "built_by": "claude-sonnet-5-5"
   }
 }
