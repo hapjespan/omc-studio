@@ -28,8 +28,8 @@ A Cost record has **Yearly figures** per **Fiscal year**: a **Budget**, a
 **Forecast**, a **Run** and **Change** share and FTE. Per Canvas and Fiscal year, a
 Cost record has either no **Allocation set** or one whose **Allocation lines** add up
 to exactly 100% over **Targets**. Whatever a Cost record does not allocate in a
-Canvas sits in **Unknown allocation**, so the whole budget of the Organisation is
-always attributed. Amounts **Roll up** from Activity to Cluster to Domain to Area to
+Canvas sits in **Unknown allocation**, a fixed Domain the system keeps in Supporting
+activities, so the whole budget of the Organisation is always attributed. Amounts **Roll up** from Activity to Cluster to Domain to Area to
 Canvas; each Element has a **Direct amount** and a **Total amount**.
 
 A Fiscal year of a Canvas can be **Finalised**, which makes it read-only until it is
@@ -186,7 +186,7 @@ One Target with its percentage within an Allocation set.
 _Avoid_: allocation (alone), assignment
 
 **Unknown allocation** (Onbekende allocatie):
-The fixed holder of a Canvas, outside every Area and shown like a Domain, that holds every Cost record without an Allocation set in that Canvas and Fiscal year.
+The fixed, system-managed Domain of every Canvas in Supporting activities that holds every Cost record without an Allocation set in that Canvas and Fiscal year; it is not a Target and cannot be renamed, moved or deleted.
 _Avoid_: unassigned, unallocated, niet toegewezen
 
 **Redistribution** (Herverdelen):
@@ -214,7 +214,7 @@ A record of a failed Closing check or a damaged Snapshot, for the Administrator.
 _Avoid_: error log, alert
 
 **Share** (Aandeel):
-The Total amount of an Element divided by the total of its Canvas, Unknown allocation included.
+The Total amount of an Element divided by the total of its Canvas.
 _Avoid_: percentage (alone), ratio
 
 ### Views and history
@@ -277,18 +277,24 @@ _Avoid_: viewer, guest
 
 ## Three biggest unknowns
 
-1. **Unknown allocation as read by the orchestrator.** The product owner's answer
-   replaced "not allocated" with Unknown allocation; its placement outside the Areas
-   and the rule that a Fiscal year with amounts in it cannot be Finalised are
-   assumptions (ADR 0008). Answered by: the product owner, at the phase 2 gate.
-2. **Incident arrangement.** Who is told of a data or figures incident, within
-   which window and through which channel. Answered by: the product owner, through
-   separate arrangements.
-3. **The shape of the first Organisation's real data.** How many Cost records,
-   Fiscal years and Canvases it holds, and whether its budget lines map cleanly onto
-   the four Cost kinds and onto a single Owner each. This decides whether the
-   stated volume limits and the import columns fit practice. Answered by: the
-   product owner, from the client's budget files.
+Answered by the product owner at the phase 2 gate, 2026-11-18.
 
-Also open: the list of forbidden names for the reference-name check, supplied by the
-product owner as a local file outside version control.
+1. **Unknown allocation.** Decided: a fixed, system-managed Domain in Supporting
+   activities (ADR 0008, accepted). Still an assumption: a Fiscal year cannot be
+   Finalised while any amount sits in Unknown allocation.
+2. **Incident arrangement.** Decided: at an incident the product owner is warned
+   and starts the ISO notification policy of their organisation, which sets
+   windows and channels. The application only warns the Administrators visibly.
+3. **The shape of the first Organisation's real data.** Size still unknown; the
+   organisation chart shows a large landscape with two collective labour
+   agreements and a governance layer. The performance limits of the kickoff stand.
+
+Forbidden names: no list yet. The first client's name appears nowhere in the
+repository; the reference-name check reads a list file outside version control
+that starts with that name and can be extended.
+
+## Future wish, outside version 1
+
+After the picture of the whole Organisation, zooming into separate locations or
+units in a deeper layer. Explicitly not in version 1 and not prepared with extra
+abstractions.

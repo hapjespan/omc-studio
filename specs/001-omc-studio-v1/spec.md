@@ -14,7 +14,7 @@
 - **Deliveries**: every story carries its delivery. D1 is "create and assign the canvas" (kickoff WP0 to WP4), D2 is "financial layer visible" (WP5 to WP8), D3 is export, import, snapshots, sample data and final review (WP9 to WP11). A delivery contains no stub of a later one. `[SD-1]`
 - **Roles**: every write action is for the Administrator only; a Reader only reads, exports, signs in and out, and manages their own password and second factor (FR-009). "The server refuses" means the refusal also holds for a request sent directly to the server, bypassing the screens, and leaves stored data unchanged.
 - **Labels**: quoted Dutch text is the screen label. All screen text lives in the messages file; code and data use the English glossary terms of `docs/CONTEXT.md`.
-- **Gate markers**: `[GATE-U1]` to `[GATE-U4]` mark requirements that rest on an open unknown, `[GATE-D1]` the visual design choice; `[SD-n]` marks a decision this spec took under kickoff 20.4. Both are listed in "Open for the phase 2 gate" at the end.
+- **Gate markers**: `[GATE-U1]` to `[GATE-U4]` and `[GATE-D1]` mark requirements touched by the phase 2 gate answers; `[GATE-U1]` now marks only the Finalise rule, which remains an assumption; `[SD-n]` marks a decision this spec took under kickoff 20.4. Both are listed in "Open for the phase 2 gate" at the end.
 - **Formats** used in every scenario: amounts `€ 1.234,56`, percentages `33,33%`, FTE `1,50`, dates `18-11-2026`, times 24-hour, time zone Europe/Amsterdam.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -272,6 +272,7 @@ The server holds every structure rule of kickoff 6.2 and 6.4 for Domains, Cluste
 13. **Given** a Cluster with Activities, **When** deletion is chosen, **Then** the dialog offers "Activiteiten ook verwijderen" and "Activiteiten terugzetten onder het domein"; the second keeps the Activities with their Allocation lines and needs Redistribution only for lines on the Cluster itself, and it is refused, naming the Activities, when the Domain already holds an Activity with the same name.
 14. **Given** an Element with Allocation lines on itself or in its subtree (from D2), **When** deletion is chosen, **Then** plain deletion is refused and the Redistribution dialog of User Story 22 opens.
 15. **Given** an archived Element, **When** "Toon gearchiveerd" is on in the editor and "Terugzetten" is chosen, **Then** it returns under its former parent at the end of the order; it is refused with the reason when that parent is no longer active or its name is now taken there.
+16. **Given** the Domain "Onbekende allocatie" in Supporting activities, **When** a request renames, edits, moves, reorders, archives or deletes it, adds a child to it, moves an Element into it, or uses it as a Target, **Then** it is refused with "Onbekende allocatie wordt door het systeem beheerd" and nothing changes.
 
 **Accessibility**: refusal messages are shown and announced per WB5 and WB7 in the screens that send these requests (User Stories 11 and 12).
 
@@ -300,6 +301,7 @@ The editor shows the Canvas in its automatic layout; an Administrator adds, rena
 11. **Given** the canvas, **When** "Inzoomen", "Uitzoomen" or "Passend maken" is used, **Then** "Inzoomen" and "Uitzoomen" change the zoom in steps of 10% between 50% and 200%, and "Passend maken" fits the whole Canvas in the visible area at any zoom from 10% to 200%.
 12. **Given** a Canvas with 500 Elements, **When** the editor opens or an Element is added, **Then** the result is visible within one second.
 13. **Given** an archived Canvas or a Reader, **When** the editor address is requested, **Then** the view screen opens instead.
+14. **Given** any Canvas, **When** the editor opens, **Then** Supporting activities ends with the Domain card "Onbekende allocatie" marked "Systeem", without edit, add, drag or delete controls; its detail window explains "Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld".
 
 **Accessibility**: WB1 to WB12, plus: Tab moves between Areas and the toolbar; within an Area the arrow keys move between Elements as a tree (Up and Down within a parent, Right into children, Left to the parent); Enter opens the detail window; F2 starts renaming; Delete starts deletion; every Element has a visible actions button holding "Verplaatsen naar...", "Omhoog", "Omlaag" and "Verwijderen"; text colour on every Theme background meets WB3 (User Story 15); drop positions during dragging are announced.
 
@@ -316,7 +318,7 @@ An Administrator types many Elements at once as indented lines into one Area, se
 **Acceptance Scenarios**:
 
 1. **Given** "Snel invoeren" for an activity Area, **When** lines are typed where no indent is a Domain, one indent (a tab or two spaces) is a Cluster when lines with two indents follow it and an Activity otherwise, and two indents is an Activity in that Cluster, **Then** the preview shows the resulting tree with each line marked "nieuw" or "bestaat al".
-2. **Given** a first-level line naming an existing Domain of that Area, **When** previewed, **Then** it is marked "bestaat al" and its lines below are added to that Domain.
+2. **Given** a first-level line naming an existing Domain of that Area, **When** previewed, **Then** it is marked "bestaat al" and its lines below are added to that Domain; for "Onbekende allocatie" the line is marked "Regel 1: Onbekende allocatie wordt door het systeem beheerd" instead.
 3. **Given** a line with two indents directly under a line without indent, a line with three indents, or the first line indented, **When** previewed, **Then** that line is marked with "Regel 4: inspringing past niet bij de regel erboven" and saving is disabled.
 4. **Given** a list Area, **When** a line has two indents, **Then** it is refused with "Regel 6: in deze area bestaan geen clusters".
 5. **Given** two lines with the same name under the same parent, or a name containing ">", or a name over 150 characters, **When** previewed, **Then** each offending line is marked with its own message.
@@ -510,7 +512,7 @@ An Administrator allocates a Cost record per Canvas and Fiscal year over Targets
 
 ### User Story 21 - Figures that close to the cent (Priority: P1, D2)
 
-For a Canvas, Fiscal year and filter, the figures are calculated by a module without database access, with largest-remainder rounding, roll up, Unknown allocation, Shares and breakdowns, and are shown only when the closing check passes (kickoff 7.3, H7, ADR 0005, ADR 0008). `[GATE-U1]` `[SD-6]`
+For a Canvas, Fiscal year and filter, the figures are calculated by a module without database access, with largest-remainder rounding, roll up, Unknown allocation, Shares and breakdowns, and are shown only when the closing check passes (kickoff 7.3, H7, ADR 0005, ADR 0008). `[SD-6]`
 
 **Why this priority**: "figures that do not close" is the one defect the definition of done forbids outright.
 
@@ -520,7 +522,7 @@ For a Canvas, Fiscal year and filter, the figures are calculated by a module wit
 
 1. **Given** Budget € 230,00 allocated 33,33 / 33,33 / 33,34 to three Activities, **When** calculated, **Then** the line amounts are € 76,66 / € 76,66 / € 76,68, together exactly € 230,00.
 2. **Given** a Domain with an Activity, a Cluster with two Activities, and lines on the Domain itself and on one Activity of the Cluster, **When** calculated, **Then** each Element's Direct amount is its own lines, its Total amount is its Direct amount plus the Totals of its children, and the Area Total is the sum of its Domain Totals.
-3. **Given** two Cost records with Yearly figures, one without an Allocation set, **When** calculated, **Then** that one's Budget and Forecast sit in Unknown allocation, and the Canvas total equals the sum of all Area Totals plus Unknown allocation and equals the sum of all Budgets.
+3. **Given** two Cost records with Yearly figures, one without an Allocation set, **When** calculated, **Then** that one's Budget and Forecast are the Direct amount of the Unknown allocation Domain, the Supporting activities Area Total includes them, and the Canvas total equals the sum of all Area Totals and equals the sum of all Budgets.
 4. **Given** a Cost record with Budget € 1.000,00, Run 60% and Change 30% allocated 50/50, **When** calculated, **Then** each line holds Run € 300,00, Change € 150,00 and Undetermined € 50,00.
 5. **Given** Elements with Modalities and a Domain with Modality whose Activity also has one, **When** the Modality breakdown is calculated, **Then** each Modality holds the sum of Direct amounts of Elements with it, nothing is counted twice through parents, and the lines "Geen modaliteit" and "Onbekende allocatie" complete the Canvas total. `[SD-18]`
 6. **Given** an Organisation without Cost records, **When** calculated, **Then** all amounts are € 0,00, the check passes, and Shares show "-" instead of a division by zero.
@@ -579,7 +581,7 @@ An Administrator copies, in one Canvas, Allocation sets and optionally Yearly fi
 
 ### User Story 24 - Finalise and reopen a fiscal year (Priority: P2, D2)
 
-An Administrator finalises a Fiscal year per Canvas once nothing sits in Unknown allocation, which freezes the money inputs of that year, and can reopen it (kickoff 7.2 point 7, ADR 0007, ADR 0008). `[GATE-U1]` `[SD-3]`
+An Administrator finalises a Fiscal year per Canvas once nothing sits in Unknown allocation, which freezes the money inputs of that year, and can reopen it (kickoff 7.2 point 7, ADR 0007, ADR 0008). The rule that a year can only be Finalised when Unknown allocation is empty remains an assumption. `[GATE-U1]` `[SD-3]`
 
 **Why this priority**: acceptance criterion 11; finalised figures are what the product owner reports.
 
@@ -603,7 +605,7 @@ An Administrator finalises a Fiscal year per Canvas once nothing sits in Unknown
 
 ### User Story 25 - Financial overlay (Priority: P1, D2)
 
-On the view screen, the financial overlay shows per Domain its Total amount, Share and a Forecast-against-Budget bar, coloured by Share, with a breakdown per Cost record, and a side panel with totals; filters for year, Cost kind, Owner and Application (S9, acceptance 9 and 10). `[GATE-U1]`
+On the view screen, the financial overlay shows per Domain its Total amount, Share and a Forecast-against-Budget bar, coloured by Share, with a breakdown per Cost record, and a side panel with totals; filters for year, Cost kind, Owner and Application (S9, acceptance 9 and 10).
 
 **Why this priority**: the point of the product: what the organisation does and what that costs, in one picture.
 
@@ -614,9 +616,9 @@ On the view screen, the financial overlay shows per Domain its Total amount, Sha
 1. **Given** the overlay "Financieel" for 2026, **When** shown, **Then** each Domain card in an activity Area shows its Total amount, its Share as "12,40%", and a bar of Forecast against Budget with both amounts as text, and each activity Area header shows the Area Total.
 2. **Given** Domains with different Shares, **When** shown, **Then** the card colour intensity rises with Share while the amounts and Share stay readable per WB3.
 3. **Given** a Domain card, **When** the pointer rests on it or it receives focus, **Then** a breakdown lists each Cost record contributing to its Total with the amount and that amount as a percentage of the Domain's Total; selecting the card shows the same breakdown in the detail window, together with Direct amount, Total amount, Forecast, Run, Change, Undetermined and FTE.
-4. **Given** Cost records without a set, **When** the overlay shows, **Then** "Onbekende allocatie" appears as its own card outside the Area grid, below it, with its amount and Share, and as its own line in the side panel. `[GATE-U1]`
+4. **Given** Cost records without a set, **When** the overlay shows, **Then** the Domain card "Onbekende allocatie" in Supporting activities shows their amount and Share like any Domain, the Supporting activities Area Total includes it, and the side panel shows it as its own line.
 5. **Given** the side panel, **When** shown, **Then** it holds the Canvas total of Budget and Forecast, Unknown allocation, totals per Cost kind, per Modality (with "Geen modaliteit" and "Onbekende allocatie"), and Run, Change and Undetermined; each breakdown adds up to the Canvas total.
-6. **Given** all Cost records of the Organisation for 2026, **When** their Budgets are summed by hand, **Then** the sum equals the Canvas total shown (acceptance 9 and 10).
+6. **Given** all Cost records of the Organisation for 2026, **When** their Budgets are summed by hand, **Then** the sum equals the Canvas total shown, and equals the sum of the four activity Area Totals (acceptance 9 and 10).
 7. **Given** a filter on Owner "Afdeling ICT", **When** applied, **Then** every number recalculates for that subset, and the active filters show above the canvas.
 8. **Given** list Areas, **When** the overlay shows, **Then** they show no amounts.
 9. **Given** FTE on Cost records, **When** a Domain is selected, **Then** the detail window shows its FTE as the sum of each Cost record's FTE times its allocated percentage within the Domain's subtree, with two decimals. `[SD-19]`
@@ -800,8 +802,10 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 
 1. **Given** a failed closing check, **When** "Systeemmeldingen" opens, **Then** the newest notice shows date and time, "Cijfers sluiten niet", Canvas, Fiscal year, filter, the failed check and the difference in cents.
 2. **Given** a damaged Snapshot that was opened, **When** "Systeemmeldingen" opens, **Then** a notice shows "Momentopname beschadigd" with Canvas and Snapshot name.
-3. **Given** the list, **When** filtered on kind, Canvas or date range, **Then** only matching notices remain with the count; no notice can be edited or deleted through any route.
+3. **Given** the list, **When** filtered on kind, Canvas or date range, **Then** only matching notices remain with the count; no notice can be edited or deleted through any route; only "Gezien" can be set.
 4. **Given** a Reader, **When** the address is requested, **Then** "Geen toegang" is shown.
+5. **Given** a notice not yet marked "Gezien", **When** an Administrator opens any screen, **Then** the top menu shows "1 nieuwe systeemmelding" linking to the list; after "Gezien" on that notice the warning is gone for every Administrator.
+6. **Given** the same closing check failing on ten page loads, **When** "Systeemmeldingen" opens, **Then** there is one notice with "10 keer, laatst om 16:40", not ten notices.
 
 **Accessibility**: WB1 to WB10, on the shared list of User Story 4.
 
@@ -815,6 +819,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 - An Organisation with one Canvas whose last Canvas is deleted: its Cost records and Yearly figures stay; their Allocation sets in that Canvas go with it.
 - A new Canvas in an Organisation with 1000 Cost records: every Cost record sits in Unknown allocation of the new Canvas until allocated.
 - An Element moved between Areas of the same kind while a year is Finalised: Canvas total unchanged, Area Totals move with it.
+- Supporting activities without any Domain of the user's own: it still shows the Domain "Onbekende allocatie", and no warning is raised for it.
 - A Domain whose only children are empty Clusters: it shows both warnings, "Leeg cluster" and "Domein zonder activiteiten".
 - Two Administrators saving the same record: the last save wins, both saves are in the Audit log. `[SD-22]`
 - Two Administrators saving a set and finalising the same year at once: one of the two is refused, so a Finalised year never holds a Cost record in Unknown allocation.
@@ -863,7 +868,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 - **FR-020**: Audit log entries MUST NOT hold passwords, password hashes, second-factor keys or recovery codes; such changes MUST be recorded as an event name only.
 - **FR-021**: The Audit log MUST be read-only: no route changes or deletes an entry. Entries MUST be removed only together with the hard deletion of their Canvas or Organisation (grilling Q8); that deletion MUST leave one entry with actor, time, name and the counts of what was removed.
 - **FR-022**: A security log MUST record sign-in success and failure, refusal after too many attempts, sign-out, password change and reset, second factor on, off and reset, role change, user creation and deletion, refused access, imports and full exports, with time, event and user identifier, and without e-mail address, name, typed input, password, code or network address. It MUST be a file inside the application's storage on the machine, readable only by whoever operates the machine, not shown in any screen. Entries older than 90 days MUST be removed automatically. `[SD-20]`
-- **FR-023**: Closing-check failures and Snapshot checksum failures MUST be recorded as System notices (time, Canvas, year, filter or Snapshot, failed check, difference in cents), without personal data, listed read-only for Administrators under "Systeemmeldingen" (D2, User Story 34).
+- **FR-023**: Closing-check failures and Snapshot checksum failures MUST be recorded as System notices (time, Canvas, year, filter or Snapshot, failed check, difference in cents), without personal data, listed read-only for Administrators under "Systeemmeldingen" (D2, User Story 34). A failure that repeats records one notice per fact (Canvas, year, filter, check or Snapshot), updating its last occurrence and count. While a notice is not marked "Gezien", every Administrator MUST see a warning in the top menu on every screen. `[GATE-U2]`
 
 #### Organisations, Canvases and Templates (D1)
 
@@ -889,6 +894,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 - **FR-040**: The editor MUST list as warnings every Cluster without Activities and every Domain without Activities, counting Activities inside its Clusters.
 - **FR-041**: Quick entry MUST parse lines per User Story 12: a tab or two spaces per indent level, at most two levels, a level-1 line becoming a Cluster only when level-2 lines follow it, no Clusters in list Areas, existing names reused, every line error reported with its line number, and the whole input saved at once or not at all.
 - **FR-042**: A Canvas MUST hold at most one mission and one vision, and an ordered list of strategic goals of title and explanation.
+- **FR-043a**: Every Canvas MUST hold exactly one Unknown allocation Domain ("Onbekende allocatie"), created by the system with the Canvas by every route (new, copy, import, full import) and always shown last in Supporting activities. It MUST NOT be renamed, edited, moved, reordered, archived or deleted, MUST NOT receive children or moved-in Elements, MUST NOT be a Target or a Redistribution target, MUST NOT appear in Templates, MUST NOT raise a warning, and carries no Modality; every route doing any of these MUST be refused (ADR 0008).
 - **FR-043**: The four Modalities MUST be fixed: Common (C, green), Adaptive (A, blue), Specialized (S, orange), Distinct (D, purple). A Rationale MUST only be stored with a Modality; clearing the Modality clears the Rationale.
 
 #### Canvas layout and Theme (D1)
@@ -909,8 +915,8 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 
 #### Allocation (D2)
 
-- **FR-054**: An Allocation set MUST belong to one Canvas, Cost record and Fiscal year and MUST be either absent (the Cost record sits in Unknown allocation) or a list of lines whose whole basis points of 1 to 10000 add up to exactly 10000, without a repeated Target; the order of the lines MUST be stored (H5, ADR 0005, ADR 0008). `[GATE-U1]`
-- **FR-055**: A Target MUST be an active Domain, Cluster or Activity in an activity Area of the same Canvas (H6).
+- **FR-054**: An Allocation set MUST belong to one Canvas, Cost record and Fiscal year and MUST be either absent (the Cost record sits in Unknown allocation) or a list of lines whose whole basis points of 1 to 10000 add up to exactly 10000, without a repeated Target; the order of the lines MUST be stored (H5, ADR 0005, ADR 0008).
+- **FR-055**: A Target MUST be an active Domain, Cluster or Activity in an activity Area of the same Canvas, other than the Unknown allocation Domain (H6, ADR 0008).
 - **FR-056**: The server MUST refuse a set for a Cost record without Yearly figures in that year, for an archived Canvas or Organisation, and for a year Finalised in that Canvas. An archived Cost record MUST remain allocatable (FR-018).
 - **FR-057**: A set MUST only be written by replacing the whole set, or removing it, in one transaction; no route changes a single line.
 - **FR-058**: The allocation screen MUST show "Nog te verdelen", offer "Rest naar deze regel", keep "Opslaan" disabled unless the remainder is 0,00%, and offer "Gelijk verdelen" (10000 divided by the number of lines, the remainder in basis points one each to the first lines in set order) and "Verdelen over activiteiten van domein" (the screen's lines replaced by the Domain's active Activities, including those in its Clusters, divided the same way).
@@ -919,14 +925,14 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 
 - **FR-059**: The figures MUST be calculated by a module that reads no database and performs no other input or output, given the Elements, the included Cost records with Yearly figures and the Allocation sets, and MUST return the same result for the same input.
 - **FR-060**: For a Canvas, Fiscal year and filter, the included Cost records MUST be all Cost records of the Organisation, archived ones included, with Yearly figures in that year that match the filter on Cost kind, Owner and Application.
-- **FR-061**: A Cost record without a set MUST count as one line of 10000 basis points on Unknown allocation.
+- **FR-061**: A Cost record without a set MUST count as one line of 10000 basis points on the Unknown allocation Domain, which is that Domain's Direct amount.
 - **FR-062**: Line amounts MUST be Budget times basis points divided by 10000, rounded down to whole cents, after which the remaining cents go one each to the lines with the largest remainder, ties going to the earlier line in set order, so the lines add up to the Budget exactly. Forecast MUST be split the same way; a missing Forecast MUST count as equal to the Budget. `[SD-5]` `[SD-6]`
 - **FR-063**: Each line amount MUST be split into Run, Change and Undetermined by the same largest-remainder method using the Cost record's Run, Change and remaining basis points, ties in the order Run, Change, Undetermined.
-- **FR-064**: Each Element MUST get a Direct amount (its own lines) and a Total amount (Direct plus the Totals of its children); an Area Total MUST be the sum of its Domain Totals; the Canvas total MUST be the sum of Area Totals plus Unknown allocation. This MUST hold for Budget, Forecast, Run, Change and Undetermined.
-- **FR-065**: Share MUST be an Element's Total divided by the Canvas total including Unknown allocation, shown with two decimals rounded half up; with a Canvas total of 0 it MUST show "-".
-- **FR-066**: Breakdowns MUST be: per Cost kind; per Modality as the sum of Direct amounts of Elements with that Modality, plus "Geen modaliteit" and "Onbekende allocatie"; Run, Change and Undetermined; and per Element the contribution of each Cost record (amount and percentage). `[SD-18]`
+- **FR-064**: Each Element MUST get a Direct amount (its own lines) and a Total amount (Direct plus the Totals of its children); an Area Total MUST be the sum of its Domain Totals; the Canvas total MUST be the sum of Area Totals, Unknown allocation included through Supporting activities. This MUST hold for Budget, Forecast, Run, Change and Undetermined.
+- **FR-065**: Share MUST be an Element's Total divided by the Canvas total, shown with two decimals rounded half up; with a Canvas total of 0 it MUST show "-".
+- **FR-066**: Breakdowns MUST be: per Cost kind; per Modality as the sum of Direct amounts of Elements with that Modality, plus "Geen modaliteit" for other Elements and "Onbekende allocatie" for the Unknown allocation Domain; Run, Change and Undetermined; and per Element the contribution of each Cost record (amount and percentage). `[SD-18]`
 - **FR-067**: FTE per Element MUST be the sum, over the lines in its subtree, of the Cost record's FTE times the line's basis points divided by 10000, shown with two decimals rounded half up, outside the closing check (A6). `[SD-19]`
-- **FR-068**: After every calculation a closing check MUST verify, to the cent: the sum of included Budgets equals the sum of all line amounts on Targets plus Unknown allocation (H7 as restated in ADR 0008); the same for Forecast; every Total equals its Direct amount plus its children's Totals; the Canvas total equals the Area Totals plus Unknown allocation; each breakdown adds up to the Canvas total; Run plus Change plus Undetermined equals the Canvas total. On any failure no figure MUST be shown and a System notice MUST be recorded. `[GATE-U1]`
+- **FR-068**: After every calculation a closing check MUST verify, to the cent: the sum of included Budgets equals the sum of all line amounts on Targets plus the Direct amount of the Unknown allocation Domain (H7 as restated in ADR 0008); the same for Forecast; every Total equals its Direct amount plus its children's Totals; the Canvas total equals the sum of the Area Totals; each breakdown adds up to the Canvas total; Run plus Change plus Undetermined equals the Canvas total. On any failure no figure MUST be shown and a System notice MUST be recorded.
 
 #### Redistribution, Carry over, Finalise (D2)
 
@@ -940,7 +946,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 
 - **FR-074**: The view screen MUST offer the overlays "Geen", "Modaliteit" and "Financieel", and, for the financial overlay, a required single Fiscal year (default: the current calendar year when it is a Fiscal year of the Organisation, otherwise its latest) and filters on Cost kind, Owner and Application, each a single choice including "Alle".
 - **FR-075**: The financial overlay MUST show per Domain card in activity Areas its Total amount, Share and a Forecast against Budget bar with both amounts as text, a colour intensity rising with Share, per activity Area its Total, on hover or focus the per Cost record breakdown, and in the side panel the figures of User Story 25 scenario 5.
-- **FR-076**: Unknown allocation MUST appear in the financial overlay as its own card outside and below the Area grid and as its own line in the side panel and breakdowns; it MUST NOT be an Element, a Target or anything a user can rename, move, archive or delete. `[GATE-U1]`
+- **FR-076**: In the financial overlay the Unknown allocation Domain MUST show its amount and Share like any Domain card, count in the Supporting activities Area Total, and appear as its own line in the side panel and breakdowns (ADR 0008).
 - **FR-077**: The modality overlay MUST show per Element its Modality mark with colour and letter, a legend, and per Domain card the count of its Clusters and Activities per Modality and without one.
 
 #### Snapshots (D3)
@@ -975,7 +981,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 - **FR-096**: An end-to-end browser test MUST create a Canvas, fill its structure, enter a Cost record, allocate it, check the overlay figures and export (kickoff 16.4), and every screen MUST pass an automated WCAG 2.2 AA scan without violations in it.
 - **FR-097**: Import tests with faulty files MUST prove the report is right and nothing was written (kickoff 16.5).
 - **FR-098**: A check MUST fail when the built front-end assets contain an outside URL (kickoff 16.6).
-- **FR-099**: A check MUST search the repository for the names in a forbidden-names file kept outside version control at a configured path, and MUST report a visible skip, not a pass, when that file is absent (kickoff 16.7). `[GATE-U4]`
+- **FR-099**: A check MUST search every file under version control (code, tests, seed, documentation) for each name in a forbidden-names file, ignoring case, and MUST fail on any hit. The file MUST live outside version control at a configured path, hold one name per line, start with the first client's name and be extendable later; when it is absent the check MUST report a visible skip, not a pass (kickoff 16.7). Client data exists only as data in the database, never in seed, fixtures or tests (kickoff 13.5). `[GATE-U4]`
 
 ### Key Entities *(include if feature involves data)*
 
@@ -984,7 +990,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 - **Canvas**: name, status (active, archived, template), optional Organisation (absent for a Template), Theme with version; holds Statements, Elements, Allocation sets, Finalised years and Snapshots.
 - **Area**: one of eight fixed records with key, label, kind, order, level labels and whether it carries costs.
 - **Statement**: of a Canvas; mission, vision or strategic goal; title, text and order.
-- **Element**: of a Canvas and an Area; kind Domain, Cluster or Activity; parent; name, description, Modality, Rationale, icon, width, order, archive status; stable identifier that survives moves.
+- **Element**: of a Canvas and an Area; kind Domain, Cluster or Activity; parent; name, description, Modality, Rationale, icon, width, order, archive status; whether it is the system-managed Unknown allocation Domain; stable identifier that survives moves.
 - **Modality**: one of four fixed records with key, name, letter, colour and order.
 - **Owner**, **Application**: list entries of an Organisation; an Application has an optional Supplier.
 - **Cost record**: of an Organisation; stable identifier, code, name, Cost kind, Supplier, Owner, cost centre, Application, description, archive status.
@@ -1015,7 +1021,7 @@ Each criterion maps to a kickoff acceptance criterion where one exists and is de
 - **SC-011** (D2, acc. 7): Budget € 230,00 at 33,33 / 33,33 / 33,34 gives amounts adding up to exactly € 230,00.
 - **SC-012** (D2, acc. 8): Sets of 99,99% and 100,01% are refused by the server, also on a direct request.
 - **SC-013** (D2, acc. 9): The overlay shows each Domain's Total including its Clusters and Activities, and the Canvas total equals the sum of all Cost records of the year.
-- **SC-014** (D2, acc. 10): Cost records without a set appear as Unknown allocation in the side panel and count in the total. `[GATE-U1]`
+- **SC-014** (D2, acc. 10): Cost records without a set appear in the Unknown allocation Domain of Supporting activities and as its own line in the side panel, and count in the Area and Canvas totals.
 - **SC-015** (D2, acc. 11): A year with a Cost record in Unknown allocation cannot be Finalised. `[GATE-U1]`
 - **SC-016** (D2, acc. 12): Deleting an allocated Activity opens Redistribution, after which every affected Cost record is at 0% or 100%.
 - **SC-017** (D3, acc. 13): Full export, wiping all Organisations and full import give identical figures to the cent for every Canvas, year and filter.
@@ -1036,21 +1042,22 @@ Each criterion maps to a kickoff acceptance criterion where one exists and is de
 - No password-forgotten flow exists, because the application sends no e-mail (H1); an Administrator resets passwords, and the console command covers the last Administrator. `[SD-21]`
 - The PII inventory is `specs/001-omc-studio-v1/pii-inventory.md`.
 - Everything in the kickoff "Not in version 1" list stays out: free positioning, sizes, layers and guides; intermediate cost layers; links with source systems; simultaneous editing; per-Canvas permissions.
-- Incident notification (who, which window, which channel) is arranged by the product owner outside this spec (grilling Q9); this spec only requires the technical side, FR-022 and FR-023. `[GATE-U2]`
+- At an incident the product owner is warned and starts the ISO notification policy of their organisation, which sets windows and channels. The application only warns the Administrators visibly (FR-023, User Story 34); it names no window or contact. `[GATE-U2]`
+- Future wish, explicitly not in version 1 and not prepared with extra abstractions (kickoff 20.5): after the picture of the whole Organisation, zooming into separate locations or units in a deeper layer. `[GATE-U3]`
 
-## Open for the phase 2 gate
+## Phase 2 gate
 
-The product owner decides these at the gate. Everything marked builds on the recorded assumption until then.
+The product owner answered the gate items on 2026-11-18. The gate itself stays open until the product owner approves it.
 
-### Open unknowns (from `docs/CONTEXT.md`)
+### Answers to the open unknowns
 
-| Marker | Unknown | Assumption this spec builds on | Where it lands | Owner |
+| Marker | Unknown | Product owner's answer | What it means in this spec | Status |
 |---|---|---|---|---|
-| `[GATE-U1]` | Unknown allocation as read by the orchestrator (ADR 0008, proposed) | (1) No separate "niet toegewezen" item; a Cost record without a set in a Canvas and year counts 100% in Unknown allocation. (2) A year with any amount in Unknown allocation cannot be Finalised. (3) Unknown allocation belongs to the Canvas, outside the eight Areas, is not a Target and cannot be renamed, moved, archived or deleted; it shows as its own card below the Area grid and as its own side-panel line. (4) H7 reads: sum of Cost records = sum on Targets + Unknown allocation, to the cent; storage stays 0 lines or exactly 10000 basis points. (5) Labels: "Terug naar onbekende allocatie", filter value "Onbekende allocatie", acceptance criterion 10 restated | User Stories 20, 21, 24, 25; FR-054, FR-061, FR-068, FR-071, FR-076; SC-014, SC-015 | Product owner |
-| `[GATE-U2]` | Incident arrangement: who is told, in which window, through which channel (grilling Q9) | Not invented. The spec only requires the technical side: closing-check failures as System notices without personal data (FR-023), security log (FR-022). The incident plan follows in phase 3 once the product owner supplies the arrangement | FR-022, FR-023; phase 3 | Product owner |
-| `[GATE-U3]` | Shape of the first Organisation's real data | Volume limits of kickoff 18.3 (500 Elements, 1000 Cost records per Canvas) fit; budget lines map onto the four Cost kinds and onto one Owner each; Budgets are never negative; a missing Forecast means "as budgeted"; CSV columns of kickoff 12.3 fit the client's files | FR-048, FR-049, FR-062, User Story 19 scenario 4, SC-020 | Product owner, from the client's budget files |
-| `[GATE-U4]` | Forbidden names list for the H8 check (kickoff 16.7) | Supplied later as a local file outside version control; until then the check reports a visible skip | FR-099 | Product owner |
-| `[GATE-D1]` | Visual design (phase 2 action 3) | None supplied: a sober house style of its own, every colour pair checked against WCAG 2.2 AA contrast before it becomes a token; Canvas colours adjustable per Canvas through the Theme. Chosen by the orchestrator on behalf of the product owner | `specs/PROFILE.md` scope note; WB3; User Story 15 | Product owner, may replace it with a house style or reference |
+| `[GATE-U1]` | Unknown allocation (ADR 0008) | Verbatim: "ja, tot ik hem indeel mag hij onder support activiteiten vallen" | The reading holds, but Unknown allocation is not outside the Areas: it is a fixed, system-managed Domain in Supporting activities that cannot be renamed, moved or deleted and is not a Target (FR-043a, FR-055, FR-061, FR-064, FR-068, FR-076). Its amount counts in the Supporting activities Area Total. ADR 0008 accepted | Decided. The rule that a year can only be Finalised when Unknown allocation is empty (FR-071, User Story 24, SC-015) was not named separately and stays an assumption |
+| `[GATE-U2]` | Incident arrangement (grilling Q9) | At an incident the product owner is warned and starts the ISO notification policy of their organisation, which governs windows and channels | The application warns Administrators visibly through System notices and a top-menu warning (FR-023, User Story 34); no window or contact is invented | Decided |
+| `[GATE-U3]` | Shape of the first Organisation's real data | Size unknown; the organisation chart shows a large landscape with two collective labour agreements and a governance layer. Wish for later, not version 1: zoom from the whole Organisation into separate locations or units in a deeper layer | Performance requirement of kickoff 18.3 stays (SC-020). The deeper layer is recorded as a future wish outside scope, not prepared (kickoff 20.5). SD-4, SD-5 and SD-7 stand until real data says otherwise | Answered |
+| `[GATE-U4]` | Forbidden names for the H8 check | No list exists yet. Only rule: the client's name appears nowhere in code, tests, seed or documentation of the repository; client data exists only as data in the database | FR-099: a list file outside version control, starting with the client's name, extendable later. The name was removed from every document in the repository | Decided |
+| `[GATE-D1]` | Visual design | No reaction | A sober house style of its own, every colour pair checked against WCAG 2.2 AA contrast; Canvas colours per Canvas through the Theme (`specs/PROFILE.md`) | Stands |
 
 ### Decisions this spec took under kickoff 20.4
 
