@@ -119,7 +119,15 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     areas, growing cards; 0021 Tekenen saves automatically; 0022 SQLite in dev and tests, PostgreSQL
     once more in CI; 0023 no Redis or extra services; 0024 transport via
     loopback and SSH tunnel; 0025 ASVS 5.0 level 2 with two exemptions;
-    0026 manual backup, no availability target; 0027 no outgoing connections
+    0026 manual backup, no availability target; 0027 no outgoing connections;
+    0028 calculation as a pure server module; 0029 layout engine in the browser;
+    0030 own authentication on Laravel primitives; 0031 one messages file
+    lang/nl.json; 0032 serialised writes with IMMEDIATE transactions; 0033 undo
+    from a short-lived table; 0034 audit through a model observer; 0035 one container on
+    php-apache (0028 to 0035 proposed, phase 4)
+- `docs/architecture.md`: module and seam map (phase 4)
+- `specs/001-omc-studio-v1/plan.md`, `research.md`, `data-model.md`, `contracts/`,
+  `quickstart.md`: the phase 4 plan, with the open questions for the product owner
 - `docs/constraints.md`: non-functionals with numbers, ASVS requirements,
   logging and incident plan (phase 3)
 - `docs/CONTEXT.md` — domain narrative, glossary, open unknowns

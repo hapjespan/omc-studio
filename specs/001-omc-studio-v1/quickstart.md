@@ -1,0 +1,60 @@
+# Quickstart: validating OMC Studio version 1
+
+How to prove each delivery works end to end. Commands run inside the development container unless stated; the delivered start runs on a machine with only Docker. Details of routes, data and formats: [contracts/](contracts/), [data-model.md](data-model.md).
+
+## Prerequisites
+
+- Development: the project container (`docker exec -it omc-studio-dev bash`), PHP 8.4, Node 24, SQLite.
+- Delivered start: Docker with Compose, a copy of the repository, nothing else.
+
+## Checks every delivery must pass
+
+| Check | Command | Expected |
+|---|---|---|
+| PHP tests on SQLite | `composer test` | green |
+| PHP tests on PostgreSQL | CI job `tests-postgresql` | green |
+| Static PHP | `composer verify` (Pint, Larastan) | no findings |
+| Front end | `npm run verify` (vue-tsc, ESLint, Vitest) | green |
+| Browser | `npm run e2e` (Playwright on Chromium, Firefox, WebKit) | green, with zero outside requests, zero CSP violations, zero axe violations |
+| Built assets | `npm run build && npm run check:assets` | no outside URL (FR-098) |
+| Forbidden names | `npm run check:names` | pass, or a visible skip when the list file is absent (FR-099) |
+| Audits | `composer audit`, `npm audit --audit-level=high` | no high or critical |
+
+## Delivery 1
+
+1. Clean start (SC-001): on a machine with only Docker, `cp env.example .env` and `docker compose up -d` (file locations per Q-6 in `plan.md`). Within 3 minutes `http://localhost:8080` shows "Inloggen"; `docker compose logs` shows the Administrator e-mail and one-time password once. Restart: no new password.
+2. Sign in, replace the password, enable the second factor, sign out and in with a code (US1, US2).
+3. As Administrator: create a Reader, an Organisation with a logo, a Canvas from "Leeg canvas" (US5, US6, US8).
+4. Invoeren with the keyboard only: a Domain, three Activities, a Cluster, move an Activity into it through "Hangt onder", reorder with the arrows (SC-003); quick entry of 3 Domains with 15 Activities within a minute (SC-005).
+5. Bekijken: the eight Areas on the A3 Artboard, the Unknown allocation card last in Supporting activities, zoom and "Passend maken" (US16).
+6. As Reader: only Bekijken; a direct POST to any write route returns 403 (US5.7).
+7. Logboek shows the rename with old and new value (US7).
+8. Performance dataset: `php artisan app:dev-dataset --elements=500 --cost-records=1000` (a development-only command), then the end-to-end timing suite reports p95 under 1000 ms per screen (P-1).
+
+## WP-E0 (after WP1)
+
+Run the proof page, collect the report per point P1 to P9 with screenshot, test or log, and hand it to the product owner for go or no-go (spec, "Technical proof WP-E0").
+
+## Delivery DT
+
+1. Tekenen: drag and resize a Domain, reload, compare with Bekijken within 1 pixel (SC-025); the picture comparison suite passes for the three reference Canvases.
+2. Add an Element in Invoeren; it appears in Tekenen with "nieuw" without handwork (SC-026).
+3. Send the faulty payloads of US37.2 directly; each is refused and nothing is stored.
+4. "Alles automatisch opmaken" equals a new Canvas with the same content (SC-028).
+5. A full Tekenen session records no request outside the own server (SC-027).
+
+## Delivery 2
+
+1. Fiscal year 2026, Owners, a Cost record with Yearly figures, CSV import of 20 lines with a dry run (US17 to US19).
+2. Allocate € 230,00 at 33,33 / 33,33 / 33,34: € 76,66 / € 76,66 / € 76,68 (SC-011); 99,99% sent directly is refused (SC-012).
+3. Overlay "Financieel": the Canvas total equals the hand sum of all Budgets; Unknown allocation is its own card and line (SC-013, SC-014).
+4. Finalise with one Cost record unallocated is refused (SC-015, GATE-U1 pending); Redistribution leaves every set at 0% or 100% (SC-016).
+5. The property test of FR-095 passes with 1000 cases.
+
+## Delivery 3
+
+1. Full export, delete every Organisation, full import: figures identical for every Canvas, year and filter; every Snapshot passes its checksum (SC-017).
+2. A Snapshot shows the old structure and amounts after changes (SC-018).
+3. PNG and print of a 120-Element Canvas with the overlay: every text at least 6 pt on A3 (SC-019).
+4. `make backup`, change data, `make restore`: the backed-up state returns.
+5. A fresh start shows "Voorbeeld BV"; "Voorbeelddata verwijderen" removes it for good (US32).
