@@ -1,9 +1,19 @@
+# This stack is the development container, not the delivered one. The host runs
+# `docker compose up -d` in the project folder, so the local, uncommitted .env at
+# the repository root points Compose here:
+# COMPOSE_FILE=.devcontainer/docker-compose.yml
+# COMPOSE_PROJECT_NAME=omc-studio
+# See .devcontainer/README.md for those lines and the DEV_* variables.
 services:
   dev:
-    build: .
+    # Context is the repository root, so .dockerignore stays there; every other
+    # relative path in this file resolves from .devcontainer/.
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
     container_name: "omc-studio-dev"
     volumes:
-      - .:/workspace/omc-studio
+      - ..:/workspace/omc-studio
       # Claude Code writes sessions, history and project state here, so this one
       # cannot be read-only. It carries .credentials.json: see the security note
       # in the claude-config README before adding an untrusted dependency.

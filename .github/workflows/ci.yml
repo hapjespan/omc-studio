@@ -163,7 +163,7 @@ jobs:
       - name: Prepare the app
         if: steps.probe.outputs.found == 'true'
         run: |
-          cp .env.example .env
+          cp env.example .env
           php artisan key:generate
 
       - name: Run migrations
