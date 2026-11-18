@@ -1,6 +1,6 @@
 # Handoff orchestrator: OMC Studio (lokaal canvas met financiele laag)
 
-Versie 1.1, 18 november 2026 (1.1: volledige CRUD toegevoegd, zie hoofdstuk 8A). Opdrachtgever en product owner: Martien (Indicia). Project: canvas-model.
+Versie 1.2, 18 november 2026 (1.1: volledige CRUD toegevoegd, zie hoofdstuk 8A; 1.2: correcties van de product owner uit fase 1, zie `specs/grilling-phase-1.md` en ADR 0006 t/m 0010 in `docs/adr/`; die gaan voor bij verschillen, ADR 0008 is nog een aanname tot de poort na fase 2). Opdrachtgever en product owner: Martien (Indicia). Project: canvas-model.
 Werktitel applicatie: **OMC Studio**. De naam is een instelling, geen vaste tekst in de code.
 
 ## 0. Opdracht in het kort

@@ -105,6 +105,13 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
 
 - `specs/` — what is being built: kickoff.md, PROFILE.md, spec and tasks
 - `docs/adr/` — every architecture and tooling decision, one file each
+  - 0001 automatic canvas layout; 0002 costs flow directly to canvas targets;
+    0003 one element tree for every area; 0004 stack; 0005 integer basis points
+    and cents; 0006 cost records per organisation, allocations per canvas;
+    0007 finalise fiscal years per canvas; 0008 Unknown allocation replaces
+    unassigned (proposed); 0009 supplier is free text; 0010 optional TOTP
+- `docs/CONTEXT.md` — domain narrative, glossary, open unknowns
+- `specs/grilling-phase-1.md` — phase 1 grilling output, feeds phase 2
 - `docs/process/workflow.md` — the phase graph and all its rules
 - `.workflow/state.json` — current phase and gate state (never edit by hand)
 
