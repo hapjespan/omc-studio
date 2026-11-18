@@ -116,7 +116,12 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     0015 HTML rendering outside Tekenen; 0016 layout as own data per element,
     drawing library behind one adapter; 0017 fixed font list; 0018 no theme
     screen; 0019 design navigation mapping; 0020 fixed A3 artboard, free
-    areas, growing cards; 0021 Tekenen saves automatically
+    areas, growing cards; 0021 Tekenen saves automatically; 0022 SQLite in dev and tests, PostgreSQL
+    once more in CI; 0023 no Redis or extra services; 0024 transport via
+    loopback and SSH tunnel; 0025 ASVS 5.0 level 2 with two exemptions;
+    0026 manual backup, no availability target; 0027 no outgoing connections
+- `docs/constraints.md`: non-functionals with numbers, ASVS requirements,
+  logging and incident plan (phase 3)
 - `docs/CONTEXT.md` — domain narrative, glossary, open unknowns
 - `specs/grilling-phase-1.md` — phase 1 grilling output, feeds phase 2
 - `specs/001-omc-studio-v1/`: spec.md, pii-inventory.md, design-contract.md and

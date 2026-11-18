@@ -26,6 +26,7 @@ There are no processors: the application runs on one machine, makes no outgoing 
 
 - Network addresses and browser identification: not stored in sessions or logs (SD-20).
 - E-mail addresses typed at a failed sign-in: not logged (FR-022).
+- System notices, the repeated-lockout notice included: no user identifier, name or e-mail address (FR-023).
 - Users, second-factor data and the Audit log: not in any export, full export included (SD-12).
 - Element layout (DT): place, size and style of Elements; no personal data. Its Audit log entries name the actor, covered by the Audit log row above.
 - No intermediate state is kept in the browser: Tekenen saves automatically (ADR 0021).

@@ -218,7 +218,7 @@ The check, after every calculation, that the figures of a Canvas add up to the c
 _Avoid_: validation, reconciliation
 
 **System notice** (Systeemmelding):
-A record of a failed Closing check or a damaged Snapshot, for the Administrator.
+A record of a failed Closing check, a damaged Snapshot or repeated sign-in lockouts, for the Administrator.
 _Avoid_: error log, alert
 
 **Share** (Aandeel):

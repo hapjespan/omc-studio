@@ -802,7 +802,7 @@ The product owner makes and restores a backup with one command each, and reads a
 
 ### User Story 34 - System notices (Priority: P2, D2)
 
-An Administrator reads the System notices: closing-check failures and damaged Snapshots, recorded without personal data (FR-023, grilling Q9).
+An Administrator reads the System notices: closing-check failures, damaged Snapshots and repeated lockouts, recorded without personal data (FR-023, grilling Q9).
 
 **Why this priority**: the technical side of the incident arrangement; a figures failure must be visible, not only logged.
 
@@ -816,6 +816,7 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 4. **Given** a Reader, **When** the address is requested, **Then** "Geen toegang" is shown.
 5. **Given** a notice not yet marked "Gezien", **When** an Administrator opens any screen, **Then** the top bar shows "1 nieuwe systeemmelding" linking to the list; after "Gezien" on that notice the warning is gone for every Administrator.
 6. **Given** the same closing check failing on ten page loads, **When** "Systeemmeldingen" opens, **Then** there is one notice with "10 keer, laatst om 16:40", not ten notices.
+7. **Given** 10 lockouts of FR-004 within 60 minutes, for any e-mail addresses, **When** "Systeemmeldingen" opens, **Then** one notice "Herhaalde blokkades bij inloggen" shows the count and the time of the last one, without any e-mail address or user; nine lockouts within 60 minutes give no notice. `[SD-41]`
 
 **Accessibility**: WB1 to WB10, on the shared list of User Story 4.
 
@@ -1022,7 +1023,7 @@ Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of
 - **FR-020**: Audit log entries MUST NOT hold passwords, password hashes, second-factor keys or recovery codes; such changes MUST be recorded as an event name only.
 - **FR-021**: The Audit log MUST be read-only: no route changes or deletes an entry. Entries MUST be removed only together with the hard deletion of their Canvas or Organisation (grilling Q8); that deletion MUST leave one entry with actor, time, name and the counts of what was removed.
 - **FR-022**: A security log MUST record sign-in success and failure, refusal after too many attempts, sign-out, password change and reset, second factor on, off and reset, role change, user creation and deletion, refused access, imports and full exports, with time, event and user identifier, and without e-mail address, name, typed input, password, code or network address. It MUST be a file inside the application's storage on the machine, readable only by whoever operates the machine, not shown in any screen. Entries older than 90 days MUST be removed automatically. `[SD-20]`
-- **FR-023**: Closing-check failures and Snapshot checksum failures MUST be recorded as System notices (time, Canvas, year, filter or Snapshot, failed check, difference in cents), without personal data, listed read-only for Administrators under "Systeemmeldingen" (D2, User Story 34). A failure that repeats records one notice per fact (Canvas, year, filter, check or Snapshot), updating its last occurrence and count. While a notice is not marked "Gezien", every Administrator MUST see a warning in the top bar on every screen. `[GATE-U2]`
+- **FR-023**: Closing-check failures, Snapshot checksum failures and repeated lockouts (10 sign-in or second-factor lockouts of FR-004 within 60 minutes across the application, no user identifier or e-mail address recorded) MUST be recorded as System notices (time, Canvas, year, filter or Snapshot, failed check, difference in cents, or for lockouts their count), without personal data, listed read-only for Administrators under "Systeemmeldingen" (D2, User Story 34). A failure that repeats records one notice per fact (Canvas, year, filter, check or Snapshot; for lockouts one notice while it is not marked "Gezien"), updating its last occurrence and count. While a notice is not marked "Gezien", every Administrator MUST see a warning in the top bar on every screen. `[GATE-U2]` `[SD-41]`
 
 #### Organisations, Canvases and Templates (D1)
 
@@ -1249,7 +1250,7 @@ After the gate answers, the product owner supplied kickoff v1.2, addendum A1 and
 
 ### Decisions this spec took under kickoff 20.4
 
-Kickoff 20.4 lets the orchestrator resolve gaps within the H rules and K choices and report each in one line. These are those lines. SD-1 to SD-24 were open for reversal at the gate; SD-25 to SD-40 were added after the gate was approved and are reported to the product owner, who can reverse each one.
+Kickoff 20.4 lets the orchestrator resolve gaps within the H rules and K choices and report each in one line. These are those lines. SD-1 to SD-24 were open for reversal at the gate; SD-25 to SD-40 were added after the gate was approved and SD-41 in phase 3 (`docs/constraints.md`); they are reported to the product owner, who can reverse each one.
 
 | Marker | Decision | Gap it closes |
 |---|---|---|
@@ -1293,3 +1294,4 @@ Kickoff 20.4 lets the orchestrator resolve gaps within the H rules and K choices
 | `[SD-38]` | The Automatic layout uses the fixed Artboard already in D1, so it does not change when DT arrives | Decision 36 with H11 |
 | `[SD-39]` | Content beyond the Artboard is drawn below a line "Rand A3" on a hatched background with a notice for every role | The recorded reading of decision 51 says to show it, not how |
 | `[SD-40]` | Direction band text that does not fit its fixed height is cut off with "…", shown in full on hover, focus and in the detail panel, and warned | The band is locked (decision 35) and the Artboard fixed (decision 36); the band height of 180 pixels follows design board 2 scaled to the Artboard |
+| `[SD-41]` | Repeated lockouts (10 within 60 minutes, application-wide) become a System notice without personal data | Phase 3: the product owner asked for lockouts as an incident signal; without it a guessing attack shows only in the security log nobody reads unprompted |
