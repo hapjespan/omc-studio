@@ -1,0 +1,32 @@
+{
+  "T001": {
+    "built_by": "claude-opus-5"
+  },
+  "T002": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T003": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T004": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T005": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T006": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T007": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T008": {
+    "built_by": "claude-opus-5"
+  },
+  "T009": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T010": {
+    "built_by": "claude-sonnet-5-5"
+  }
+}

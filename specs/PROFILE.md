@@ -6,9 +6,9 @@ mode later by editing both, or by re-running the sync step in `/start-project`.
 
 ```
 gate_mode: standard
-deliverable_type: proof-of-value
+deliverable_type: tracer-bullet
 project_type: greenfield
-risk_class: minimal
+risk_class: standard
 deploy_target: none
 tracker: github
 ```
@@ -70,7 +70,16 @@ override, because they are enforced elsewhere: gate reviews run on the
 reviewer equal to a task's recorded builder. `python3 .workflow/routing.py doctor`
 shows what actually resolves.
 
+**Decisions (2026-11-18)**
+
+`deliverable_type: tracer-bullet`. The kickoff requires figures to be correct to the cent (H5, H7) and nothing is delivered that is not finished and tested, so depth is never cut. Breadth is cut instead: the work ships in four deliveries (kickoff chapter 14, addendum A1 chapter 9, see "Deliveries" below). Delivery 1 is WP0 to WP4 (Invoeren and Bekijken on automatic layout), delivery DT is Tekenen (WP-E0 to WP-E4), delivery 2 is WP5 to WP8 (financial layer visible), delivery 3 is WP9 to WP11 (export, import, snapshots, sample data, final review). Each delivery runs through every production layer (data model, server rules, UI, tests). It excludes: features of a later delivery, any stub or half-implemented rule, any amount or percentage path without full tests, and everything in the kickoff "Not in version 1" list.
+
+`risk_class: standard`. Real financial data of a client and multiple users with login, so the full PII inventory, logging and incident plan, WCAG criteria per user-facing story and ten OWASP verdicts in phase 7 apply.
+
 ## Scope note
 
-One paragraph, written during phase 0: what this project is for, and the sharpest
-thing it is explicitly not for. Phase 7 checks the result against this paragraph.
+OMC Studio is a locally running web application with which the product owner builds an Operating Model Canvas and assigns cost items fully (100%) to domain, cluster and/or activity, with a financial overlay. It is explicitly not a hosted or external service, not a free drawing tool (Tekenen changes the layout of existing Elements only, never structure, and draws no free shapes, texts or images) and not a link to source systems.
+
+**Visual design (2026-11-18, phase 2)**: answer A to `[GATE-D1]`: the product owner supplied a design, `specs/design/omc-studio-design.html` (five boards, screenshots next to it). The earlier "sober own style" lapses. The design contract derived from it is `specs/001-omc-studio-v1/design-contract.md`; its navigation is mapped onto the product in ADR 0019. The design is a visual reference only: its React code is not taken over, and the file never enters the build. Differences between the design, kickoff v1.2, addendum A1 and the spec are in `specs/001-omc-studio-v1/source-conflicts.md`; the open ones wait for the phase 2 gate.
+
+**Deliveries (2026-11-18, product owner)**: delivery 1 is Invoeren and Bekijken on automatic layout; the technical proof WP-E0 for Tekenen runs right after the project setup, with go or no-go; Tekenen is its own delivery after delivery 1 (DT); then delivery 2 (financial layer) and delivery 3 (export, import, Snapshots, sample data, final review). A no-go stops DT only.
