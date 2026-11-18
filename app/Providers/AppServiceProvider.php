@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Operations\InstallSteps;
 use App\Support\Session\DatabaseSessionHandler;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Session;
@@ -14,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(InstallSteps::class);
     }
 
     /**
