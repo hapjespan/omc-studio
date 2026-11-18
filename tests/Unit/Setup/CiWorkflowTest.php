@@ -1,0 +1,115 @@
+<?php
+
+namespace Tests\Unit\Setup;
+
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Yaml\Yaml;
+
+class CiWorkflowTest extends TestCase
+{
+    /**
+     * @return array<string, mixed>
+     */
+    private function parse(string $path): array
+    {
+        return (array) Yaml::parseFile(dirname(__DIR__, 3).'/'.$path);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function job(string $name): array
+    {
+        $jobs = (array) $this->parse('.github/workflows/ci.yml')['jobs'];
+
+        $this->assertArrayHasKey($name, $jobs);
+
+        return (array) $jobs[$name];
+    }
+
+    private function commands(string $name): string
+    {
+        $runs = array_map(
+            static fn (array $step): string => (string) ($step['run'] ?? ''),
+            (array) $this->job($name)['steps'],
+        );
+
+        return implode("\n", $runs);
+    }
+
+    public function test_every_pillar_of_the_pipeline_has_its_own_job(): void
+    {
+        $jobs = (array) $this->parse('.github/workflows/ci.yml')['jobs'];
+
+        $this->assertSame(
+            ['php-sqlite', 'php-postgres', 'js', 'e2e', 'audit', 'image'],
+            array_keys($jobs),
+        );
+    }
+
+    public function test_the_second_run_uses_a_reachable_postgres_with_the_project_database(): void
+    {
+        $job = $this->job('php-postgres');
+        $service = (array) $job['services']['postgres'];
+
+        $this->assertSame('omc-studio', $service['env']['POSTGRES_DB']);
+        $this->assertSame('pgsql', $job['env']['DB_CONNECTION']);
+        $this->assertStringContainsString('artisan migrate', $this->commands('php-postgres'));
+    }
+
+    public function test_the_first_run_keeps_the_sqlite_connection_of_phpunit(): void
+    {
+        $this->assertArrayNotHasKey('DB_CONNECTION', (array) ($this->job('php-sqlite')['env'] ?? []));
+    }
+
+    public function test_playwright_installs_the_three_engines(): void
+    {
+        $commands = $this->commands('e2e');
+
+        $this->assertMatchesRegularExpression(
+            '/playwright install .*chromium firefox webkit/',
+            $commands,
+        );
+        $this->assertStringContainsString('playwright test', $commands);
+    }
+
+    public function test_both_audits_run(): void
+    {
+        $commands = $this->commands('audit');
+
+        $this->assertStringContainsString('composer audit', $commands);
+        $this->assertStringContainsString('npm audit --audit-level=high', $commands);
+    }
+
+    public function test_the_static_checks_run(): void
+    {
+        $this->assertStringContainsString('npm run check', $this->commands('js'));
+    }
+
+    public function test_the_delivered_image_is_built(): void
+    {
+        $this->assertStringContainsString('docker build', $this->commands('image'));
+    }
+
+    public function test_no_step_tolerates_its_own_failure(): void
+    {
+        $workflow = (string) file_get_contents(dirname(__DIR__, 3).'/.github/workflows/ci.yml');
+
+        $this->assertStringNotContainsString('continue-on-error', $workflow);
+    }
+
+    public function test_dependabot_only_reports(): void
+    {
+        $updates = (array) $this->parse('.github/dependabot.yml')['updates'];
+
+        $this->assertNotEmpty($updates);
+
+        foreach ($updates as $update) {
+            $this->assertSame(
+                0,
+                $update['open-pull-requests-limit'] ?? null,
+                (string) $update['package-ecosystem'],
+            );
+        }
+    }
+}
