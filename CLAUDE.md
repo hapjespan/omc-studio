@@ -83,6 +83,20 @@ before writing code.
 
 <!-- e.g. Next.js 15, Prisma, Tailwind. Fill in after scaffolding the app. -->
 
+## Skills
+
+Chosen at kickoff from `skills-inventory.md`. The inventory holds no Laravel,
+Inertia or React skill, so the stack itself runs on the docs (context7).
+
+- `mattpocock-skills:tdd`: test-first is the convention in a workflow project, and the calculation module (kickoff 7.3) needs full unit tests.
+- `mattpocock-skills:diagnosing-bugs`: the debugging skill for a workflow project.
+- `mattpocock-skills:code-review`: always qualified; the bare name is ambiguous.
+- `chrome-devtools` and `a11y-debugging`: verify screens in a real browser; keyboard operation is a requirement (kickoff 18.4).
+
+Not installed, candidates from `autoskills` (2026-11-18): `laravel-specialist`,
+`laravel-patterns`, `php-pro`, `tailwind-css-patterns`, `vite`, `accessibility`.
+Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
+
 ## Commands
 
 <!-- e.g. npm run dev / npm test / npm run build. Fill in after scaffolding. -->
