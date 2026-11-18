@@ -1,0 +1,105 @@
+{
+  "_comment": [
+    "Context trim, measured 2026-11-16 on a fresh nextjs project: 31.1k -> 17.8k",
+    "input tokens per turn together with the lean plugin set. A bare tool name in",
+    "deny removes the definition from the request; a scoped rule only blocks calls.",
+    "A project session is driven through tmux by the orchestrator, so it has no use",
+    "for dialogs, plan mode, scheduling, connectors or artifacts. Bundled skills go",
+    "too: their code-review collides with mattpocock-skills:code-review.",
+    "Quality loop: check-edit.py checks the edited file after every Edit or Write,",
+    "verify-on-stop.py runs the project's checks before a phase 6 or 7 session may",
+    "stop. impeccable owns design, so frontend-design is off: one tool per job."
+  ],
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false
+  },
+  "skillOverrides": {
+    "swift-codable": "off",
+    "swiftui-expert-skill": "off",
+    "xcode-project-setup": "off",
+    "orchestrator": "off",
+    "project-kickoff": "off",
+    "next": "off",
+    "nextjs-developer": "off",
+    "nextjs-cache-architecture": "off",
+    "next-cache-components-adoption": "off",
+    "next-cache-components-optimizer": "off",
+    "next-dev-loop": "off",
+    "next-partial-prefetching-adoption": "off",
+    "clerk-nextjs-patterns": "off"
+  },
+  "permissions": {
+    "deny": [
+      "Bash(python3 .workflow/approve-gate.py:*)",
+      "Bash(python .workflow/approve-gate.py:*)",
+      "Bash(./.workflow/approve-gate.py:*)",
+      "Bash(.workflow/approve-gate.py:*)",
+      "EnterPlanMode",
+      "ExitPlanMode",
+      "AskUserQuestion",
+      "DesignSync",
+      "NotebookEdit",
+      "PushNotification",
+      "RemoteTrigger",
+      "ScheduleWakeup",
+      "CronCreate",
+      "CronDelete",
+      "CronList"
+    ]
+  },
+  "disableBundledSkills": true,
+  "disableWorkflows": true,
+  "disableRemoteControl": true,
+  "disableClaudeAiConnectors": true,
+  "disableArtifact": true,
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.workflow/hooks/next-phase.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking whether the next workflow phase starts"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.workflow/hooks/verify-on-stop.py\"",
+            "timeout": 900,
+            "statusMessage": "Running the project's checks before stopping"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.workflow/hooks/check-model.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking the session model against the phase routing"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.workflow/hooks/check-edit.py\"",
+            "timeout": 60,
+            "statusMessage": "Checking the edited file"
+          }
+        ]
+      }
+    ]
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
+}
