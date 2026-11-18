@@ -337,8 +337,8 @@ Index: (canvas_id, archived_at, created_at) for "Versies".
 | Allocation set | absent (Unknown allocation), complete (10000) | replaced whole or removed; refused while its year is Finalised in that Canvas |
 | Fiscal year in a Canvas | open, Finalised | Finalise when no Cost record of the year lacks a set in the Canvas (GATE-U1, confirmed) and the closing check passes; Reopen by an Administrator |
 | System notice | new, seen | "Gezien" only |
-| Element Layout (DT) | automatic (no row), manual (row) | manual on any Tekenen change; back to automatic per Element, Domain or Canvas; removed on a move through "Hangt onder", archive and delete; removed after a Shift move too (addendum 6.2) unless QS-4 says otherwise; restored by its undo |
-| Element parent | under one Domain or Cluster | changed by "Hangt onder" (Invoeren) or a Shift move (Tekenen, ADR 0036), both through `ElementTree::move` with the same rules |
+| Element Layout (DT) | automatic (no row), manual (row) | manual on any Tekenen change; back to automatic per Element, Domain or Canvas; removed on a move through "Hangt onder", archive and delete; after a Shift move the block keeps its Layout at the released place (ADR 0036); restored by undo |
+| Element parent | under one Domain or Cluster | changed by "Hangt onder" (Invoeren) or a confirmed Shift move of a Cluster, Activity or Item (Tekenen, ADR 0036), both through `ElementTree::move` with the same rules, same kind of Area only |
 
 ## Calculation input and output (FR-059)
 

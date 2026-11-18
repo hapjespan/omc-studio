@@ -242,9 +242,17 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
 
 **53. Verplaatsen naar een ander domein in Tekenen.** v1.2 6.5.7 zegt: "Slepen in de tekening verandert nooit de ouder van een element." De aanvulling (H12, 6.3) zegt: Edit verplaatst geen elementen in de structuur, en de ouder in de scene is gelijk aan de ouder in het model.
 - Besluit van de PO, letterlijk: "Een domein kun je verplaatsen; een cluster en activiteit met shift uit een domein naar een ander domein verplaatsen". Nagevraagd en bevestigd: in Tekenen verplaatst Shift-slepen een cluster of activiteit naar een ander domein. Dat wijzigt de ouder, en de toewijzingen verhuizen mee. H12 wordt aangepast: Tekenen maakt, verwijdert en hernoemt nog steeds niets, maar verplaatsen naar een ander domein kan met Shift. Zonder Shift blijft een blok binnen zijn domein.
-- Gevolg: dezelfde structuurregels als "Hangt onder" in Invoeren (naam uniek binnen de ouder, niet in Onbekende allocatie, geen cluster in een cluster, een cluster met zijn activiteiten). De verplaatsing is een eigen verzoek met versiecontrole, logboekregel en undo. Als toetsenbordroute komt een veld "Verplaatsen naar domein" (SD-42, gemeld). ADR 0036.
-- Open (vragen QS-1 t/m QS-7 in `plan.md`): mag Shift ook in of uit een cluster, naar een domein in een andere area, met items in lijst-area's, met een domein zelf, met meerdere blokken tegelijk, en waar landt het blok in zijn nieuwe domein? Wat gebeurt er in een definitief jaar?
-- Status: **beslist door PO, AFWIJKEND** van v1.2 6.5.7 en aanvulling H12, K13 en 6.3; tot de vragen beantwoord zijn accepteert de server alleen een cluster of activiteit naar een ander domein in dezelfde area, zonder definitief jaar, en vervalt de handmatige opmaak (aanvulling 6.2); reikwijdte deels open (`[GATE-C53]`).
+- Gevolg (bijgewerkt na QS-1 t/m QS-7): een blok blijft zonder Shift binnen zijn ouder; dezelfde structuurregels als "Hangt onder" in Invoeren (naam uniek binnen de ouder, niet in Onbekende allocatie, geen cluster in een cluster, een cluster met zijn activiteiten). De verplaatsing is een eigen verzoek met versiecontrole, logboekregel en undo. Als toetsenbordroute komt een veld "Verplaatsen naar" (SD-42, gemeld). ADR 0036.
+- Vervolgbesluiten van de PO op QS-1 t/m QS-7 (18 november 2026), een voor een gegeven:
+  - QS-1: een activiteit mag met Shift in een cluster en uit een cluster, ook binnen hetzelfde domein.
+  - QS-2: naar een domein in een andere area van dezelfde soort (de vier activiteiten-area's onderling, de drie lijst-area's onderling), nooit van soort wisselen.
+  - QS-3: toegestaan, ook bij een definitief jaar.
+  - QS-4: het blok blijft op de plek waar je het loslaat, met zijn maat en stijl. **AFWIJKEND** van aanvulling 6.2 en SD-29, die blijven gelden voor "Hangt onder" in Invoeren.
+  - QS-5: items in Actoren, Kanalen en Waardeproposities mogen met Shift naar een andere groep.
+  - QS-6, letterlijk: "een domein alleen schuiven binnen zijn eigen area; Shift verplaatst steeds een blok (cluster of activiteit); een heel domein naar een andere area gaat via Invoeren". Een item is in de code een activiteit in een lijst-area (QS-5), dus het geldt ook voor items.
+  - QS-7, letterlijk: "ja, altijd bevestigen; na het loslaten een dialoog 'Verplaatsen naar <doel>?' voordat er iets wordt opgeslagen, ook via de toetsenbordroute". **AFWIJKEND van het advies**. Uit de opdracht bij de antwoorden: annuleren zet het blok terug op zijn oude plek, en de dialoog is met het toetsenbord te bedienen.
+  - Daaruit volgden twee nieuwe vragen, QS-8 (blok breder dan het doel) en QS-9 (bevestigen bij undo en redo), in `plan.md`.
+- Status: **beslist door PO, AFWIJKEND** van v1.2 6.5.7, aanvulling H12, K13, 6.2 en 6.3, en van SD-29 voor de Shift-verplaatsing (`[GATE-C53]`).
 
 **54. Buurblokken bij handmatige opmaak.** Krijgt één element in Tekenen handmatige opmaak, wat doen dan zijn broertjes en zusjes met automatische opmaak?
 - Advies was: ze vastzetten op hun plek op dat moment.

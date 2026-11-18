@@ -35,7 +35,7 @@ Canvas; each Element has a **Direct amount** and a **Total amount**.
 A Canvas is worked on in three modes. In **Entry mode** an Administrator builds the
 structure and fills in fields, Area by Area, as a tree. In **Drawing mode** they
 arrange the picture: the **Layout** of each Element, its place, size and **Element
-style** on the **Artboard**, without touching structure, except that a Cluster or Activity can be moved to another Domain by dragging it with Shift (ADR 0036). In **View mode** anyone
+style** on the **Artboard**, without touching structure, except that one Cluster, Activity or Item can be moved to another parent in the same kind of Area by dragging it with Shift and confirming (ADR 0036). In **View mode** anyone
 reads the Canvas with its overlays. Every Canvas starts in **Automatic layout** and
 can always go back to it; an Element changed in Drawing mode keeps its **Manual
 layout**. Where an Element has no style of its own, the **Default colours** apply.
@@ -236,11 +236,11 @@ The mode in which an Administrator creates, changes, orders and moves Elements a
 _Avoid_: edit mode, editor, Bewerk
 
 **Drawing mode** (Tekenen):
-The mode in which an Administrator changes the Layout of existing Areas and Elements; the only structure change it allows is moving a Cluster or Activity to another Domain with Shift, under the structure rules of Entry mode (ADR 0036).
+The mode in which an Administrator changes the Layout of existing Areas and Elements; the only structure change it allows is the Shift move, under the structure rules of Entry mode (ADR 0036).
 _Avoid_: edit mode, Edit, design mode, editor
 
 **Shift move** (Verplaatsen met Shift):
-Moving a Cluster or Activity to another Domain in Drawing mode by dragging it with Shift held, or through "Verplaatsen naar domein"; a structure change under the same rules as "Hangt onder".
+Moving one Cluster, Activity or Item to another parent in the same kind of Area in Drawing mode, by dragging it with Shift held or through "Verplaatsen naar", always after the confirmation "Verplaatsen naar <doel>?"; a structure change under the same rules as "Hangt onder", except that the block keeps its place, size and style.
 _Avoid_: reparent (in screen text), drag-and-drop move
 
 **View mode** (Bekijken):

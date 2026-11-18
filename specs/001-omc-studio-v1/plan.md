@@ -2,11 +2,11 @@
 
 **Branch**: `docs/phase-4-architecture` | **Date**: 2026-11-18 | **Spec**: [spec.md](spec.md)
 
-**Input**: `spec.md`, `source-conflicts.md`, `design-contract.md`, `pii-inventory.md`, `docs/constraints.md` (phase 3), ADR 0001 to 0027. Revised the same day with the product owner's answers to Q-1 to Q-13 (section "Answers to the phase 4 questions"): `[GATE-U1]`, ADR 0011 and `[SD-25]` to `[SD-41]` are now confirmed, and the Shift move in Tekenen (`[GATE-C53]`, ADR 0036) was added; its open scope is QS-1 to QS-7.
+**Input**: `spec.md`, `source-conflicts.md`, `design-contract.md`, `pii-inventory.md`, `docs/constraints.md` (phase 3), ADR 0001 to 0027. Revised the same day with the product owner's answers to Q-1 to Q-13 and QS-1 to QS-7: `[GATE-U1]`, ADR 0011 and `[SD-25]` to `[SD-41]` are confirmed, and the Shift move in Tekenen (`[GATE-C53]`, ADR 0036) was added with its scope.
 
 ## Summary
 
-A locally running Laravel 13 application with an Inertia and Vue 3 front end, one SQLite file, one container. The server owns every rule and every figure: a pure PHP calculation module produces the figures and the closing check (ADR 0028), and services per module enforce the structure, allocation and Finalise rules inside serialised transactions (ADR 0032). The browser owns the picture: one pure TypeScript layout engine computes the Automatic layout and breaks text into lines, and both the HTML view and, in DT, the drawing adapter draw exactly those lines (ADR 0029), which is how H11 becomes reachable. In Tekenen a Cluster or Activity can be moved to another Domain with Shift; that move is a separate structure request through the same structure service as Invoeren, never part of the Layout save (ADR 0036). Delivered in four slices, each through every layer: D1, then WP-E0 right after the project setup, then DT, D2, D3 (PROFILE "Deliveries").
+A locally running Laravel 13 application with an Inertia and Vue 3 front end, one SQLite file, one container. The server owns every rule and every figure: a pure PHP calculation module produces the figures and the closing check (ADR 0028), and services per module enforce the structure, allocation and Finalise rules inside serialised transactions (ADR 0032). The browser owns the picture: one pure TypeScript layout engine computes the Automatic layout and breaks text into lines, and both the HTML view and, in DT, the drawing adapter draw exactly those lines (ADR 0029), which is how H11 becomes reachable. In Tekenen one Cluster, Activity or Item can be moved to another parent of the same kind of Area with Shift, after a confirmation; that move is a separate structure request through the same structure service as Invoeren, never part of the Layout save (ADR 0036). Delivered in four slices, each through every layer: D1, then WP-E0 right after the project setup, then DT, D2, D3 (PROFILE "Deliveries").
 
 ## Technical Context
 
@@ -115,7 +115,7 @@ docker-compose.yml, env.example, Makefile    the delivered stack at the root (AD
 | 1 | WP1 project setup | Vue 3, Inertia, Tailwind, test stack and CI (SQLite and PostgreSQL), delivered image and compose at the root with the development container moved to `.devcontainer/` and a local `.env` setting `COMPOSE_FILE` (ADR 0038): WP1 proves that this machine still starts the development container and a clean clone starts the delivered stack, and stops and reports if either needs a change to the host tooling; `app:install`, CSP, security log, messages file; verification point Secure cookie on `http://localhost` per browser (constraints section 6) | none |
 | 2 | WP-E0 | Technical proof P1 to P9 on top of WP1; report with evidence | product owner go or no-go; a no-go stops DT only (FR-115) |
 | 3 | D1 rest (WP2 to WP4) | Accounts and second factor, shell, list component, Users, Organisations, Audit log, overview, Canvas lifecycle, Templates, Structure, Invoeren, quick entry, Direction, Modality, layout engine, Bekijken | delivery 1 acceptance |
-| 4 | DT (WP-E1 to WP-E4) | Layout table and versions, Manual layout in the engine, adapter, Tekenen, saving, reset, Shift move, Layout in copies | after a go only; the Shift move needs QS-1 to QS-7 answered |
+| 4 | DT (WP-E1 to WP-E4) | Layout table and versions, Manual layout in the engine, adapter, Tekenen, saving, reset, Shift move, Layout in copies | after a go only |
 | 5 | D2 (WP5 to WP8) | Fiscal years, Cost records, lists, CSV import, calculation, Toewijzen, Redistribution, Carry over, Finalise, overlays, System notices | none (ADR 0011 and GATE-U1 confirmed) |
 | 6 | D3 (WP9 to WP11) | Snapshots, JSON and CSV exchange, PNG and print, sample data, backup, README, final review | none |
 
@@ -206,7 +206,7 @@ Each with the constraint that killed it; detail in research.md and the ADRs.
 
 ## Items confirmed after the plan
 
-The product owner confirmed on 2026-11-18: ADR 0011 (now accepted), GATE-U1 (Finalise only with an empty Unknown allocation), SD-25 to SD-41, and the risks K-3, K-5, K-6 and K-7. Nothing in this plan rests on an unconfirmed item any more, except the scope of the Shift move (QS-1 to QS-7 below), which blocks only that part of DT.
+The product owner confirmed on 2026-11-18: ADR 0011 (now accepted), GATE-U1 (Finalise only with an empty Unknown allocation), SD-25 to SD-41, and the risks K-3, K-5, K-6 and K-7. Nothing in this plan rests on an unconfirmed item any more.
 
 ## Risks with an owner
 
@@ -232,26 +232,52 @@ The product owner confirmed on 2026-11-18: ADR 0011 (now accepted), GATE-U1 (Fin
 | Q-5 | Current password for one's own e-mail change | orchestrator choice | ADR 0037, FR-005, US5.10 |
 | Q-6 | Delivered stack at the root, development container in `.devcontainer/`, local `.env` sets `COMPOSE_FILE` and `COMPOSE_PROJECT_NAME`; host tooling unchanged; proven in WP1 | orchestrator choice | ADR 0038 |
 | Q-7 | `img-src 'self' data: blob:` | orchestrator choice | ADR 0039, FR-090 |
-| Q-8 | (a) Shift-drag moves a Cluster or Activity to another Domain; H12 amended. (b) Automatic siblings stay automatic under the lowest Manual child and may jump | PO | ADR 0036, source points 53 and 54, FR-101a, FR-106a |
+| Q-8 | (a) Shift-drag moves a Cluster or Activity to another Domain; H12 amended; scope settled by QS-1 to QS-7 below. (b) Automatic siblings stay automatic under the lowest Manual child and may jump | PO | ADR 0036, source points 53 and 54, FR-101a, FR-106a |
 | Q-9 | GATE-U1 confirmed; ADR 0011 accepted; SD-25 to SD-41 confirmed | PO | spec, ADR 0008, ADR 0011 |
 | Q-10 | Constitution PATCH 1.0.1, including the H12 change in principle III | PO | `.specify/memory/constitution.md` |
 | Q-11 | Wording of FR-103 and FR-108 amended | orchestrator choice | spec |
 | Q-12 | Local build; 3 minutes count from a built image; README states the build time | orchestrator choice | ADR 0035, SC-001, P-5 |
 | Q-13 | K-3, K-5, K-6, K-7 accepted, owner PO | PO | risks below |
 
+## Answers on the Shift move (QS-1 to QS-7)
+
+Given by the product owner one by one on 2026-11-18; recorded in `source-conflicts.md` point 53, ADR 0036, FR-101a and US35 scenarios 16 to 25. The interim rule of the previous revision is gone.
+
+| Id | Answer | Deviation |
+|---|---|---|
+| QS-1 | An Activity may be Shift-moved into and out of a Cluster, also within its own Domain | |
+| QS-2 | To a parent in another Area of the same kind (activity Areas among themselves, list Areas among themselves), never across kinds | |
+| QS-3 | Allowed in a Finalised year | |
+| QS-4 | The block stays where it is released, with its size and style | from addendum 6.2 and SD-29 (which keep holding for "Hangt onder") |
+| QS-5 | Items in the list Areas may be Shift-moved to another Group | |
+| QS-6 | A Domain is only slid within its own Area; Shift moves one block (Cluster, Activity or Item); a whole Domain to another Area goes through Invoeren | |
+| QS-7 | Always confirm: "Verplaatsen naar <doel>?" after release and before anything is stored, also through the keyboard route | from the advice |
+
+Technical consequences settled by the orchestrator, one line each:
+
+- A block released partly outside its target at a side is pushed inside the target's width, keeping its size; released below, the target grows (ADR 0020).
+- A Cluster keeps its Activities' Layout, which is relative to the Cluster, so they move with it unchanged.
+- Automatic siblings in the target stay automatic under the lowest Manual child and may jump (source point 54); overlaps become Warnings.
+- The keyboard route places the block at the target's left edge under its lowest Manual child, or at the top when it has none, keeping size and style.
+- Cancelling puts the block back and leaves nothing on the undo stack.
+- A Shift-drag acts on the block under the pointer alone (the selection becomes that block); a Shift-drag of a Domain, over its current parent or over no valid target is a plain drag.
+- `ElementTree::move` changes structure only; "Hangt onder" resets the subtree's Layout, the Shift move writes the block's row and keeps the subtree's rows.
+- Undo of a move restores the former Layout, Automatic included (no row); the adapter's undo of a move emits a move intent instead of changing the scene.
+- While the dialog is open or a move is being sent, Tekenen takes no other action; a move lost to a version conflict says so, and a re-sent move asks again.
+- The Layout audit entry is never merged across a parent change.
+
 ## Open questions for the product owner
 
-All on the Shift move of `[GATE-C53]`; the PO's words name moving a Cluster or Activity "uit een domein naar een ander domein" and nothing more. Until answered, the server accepts only that core (FR-101a: a Cluster or Activity of an activity Area to another Domain of the same Area, no Finalised year, landing in Automatic layout per addendum 6.2) and refuses the rest; DT builds none of the open cases. Each with an advice.
+Two collisions that came out of applying the answers; each needs your choice.
 
-| Id | Question | Advice |
-|---|---|---|
-| QS-1 | May Shift move an Activity into a Cluster, or out of a Cluster to Domain level, in the same Domain or another one? | Yes for both: "Hangt onder" in Invoeren allows the same parents |
-| QS-2 | May the target Domain lie in another Area (of the same kind, as "Hangt onder" allows by FR-037)? Moving it there changes that Area's Total. | Yes, same kind only, as in Invoeren |
-| QS-3 | In a Fiscal year that is Finalised: by the current rules structure stays editable and the figures follow the new structure with the same Canvas total (FR-072, US24.7). Does that hold for a Shift move too, or should a Shift move be refused while a year is Finalised? | Allow, as in Invoeren |
-| QS-4 | Where does the block land in its new Domain? Addendum 6.2 and SD-29 say: a moved Element and its subtree go back to Automatic layout in the new parent, which is what "Hangt onder" does and what the plan builds until you answer. Keep that for the Shift move, or keep the block at the spot where it was dropped (Manual layout), which deviates from addendum 6.2? | At the drop spot, its own children keeping their place inside it |
-| QS-5 | In the list Areas (Actoren, Kanalen, Waardeproposities): may an Item be moved to another Group with Shift? | Yes, same rule |
-| QS-6 | Your words begin "Een domein kun je verplaatsen". Does that mean only moving a Domain's place within its Area (as now), or also moving a Domain to another Area with Shift? And may several selected blocks be moved at once? | Place only; one block at a time |
-| QS-7 | Should a Shift move ask for confirmation first, since it moves amounts between Domains? | No dialog: the move is announced with its new Domain and can be undone |
+| Id | Question | Until answered | Advice |
+|---|---|---|---|
+| QS-8 | QS-4 says the block keeps its size; QS-1 and QS-2 let it go into a Cluster or another Area. A target is often narrower than the block: an Activity at Domain level is as wide as the inside of its Domain, so it is always wider than a Cluster in that Domain, and Domain cards differ in width between Areas. When the block is wider than its target: refuse the move (you resize first in Tekenen), make the block exactly as wide as the target (its height, style and place otherwise kept, and announced), or something else? | refused with "Kan hier niet: <blok> is breder dan <doel>" | Make it as wide as the target; otherwise moving into a Cluster almost never works |
+| QS-9 | QS-7 says "altijd bevestigen" after releasing and through the keyboard route. Should undo and redo of a move (Ctrl+Z, Ctrl+Shift+Z, the buttons) also show "Verplaatsen naar <doel>?"? | they ask | Yes, they move amounts between Domains just the same |
+
+## Grilling record, third pass (after QS-1 to QS-7)
+
+14 findings: the shared move would have dropped a Cluster's Activity Layout (move now changes structure only); the adapter lacked commit, revert and preview commands and an undo hook for moves; undo could not restore an automatic block (`layout: null`); the keyboard landing ignored point 54 (now under the lowest Manual child); a Cluster-onto-Cluster refusal was unreachable; selection, in-flight moves, re-sent moves, audit merging, dialog focus, scenario 6's wording, the verbatim record in `source-conflicts.md` and stale citations were fixed. Two were product choices and are now QS-8 and QS-9.
 
 ## Complexity Tracking
 
@@ -259,7 +285,7 @@ No open deviation: constitution 1.0.1 aligned the wording on the messages file, 
 
 ## Grilling record, second pass (after the phase 4 answers)
 
-A second independent pass over the revision returned 11 findings: the server already allowed open Shift-move cases through FR-037 (now an interim core with refusals, FR-101a, US35.16 to 23); QS-4 hid addendum 6.2 (now the default, QS-4 reframed); the drop target contradicted itself and some gestures had no rule (target is the innermost Domain at release; everything else is a plain drag, US35.17); the `COMPOSE_FILE` route needed a project name, `..` paths and the DEV variables' place (ADR 0038); the 12-hour limit lacked a WCAG 2.2.1 extension (re-authentication dialog, ADR 0037); versions, undo and the move were worked through (US35.20, 21; `position` is a plain optional field); question ids, stale statuses, provenance of ADR 0037 to 0039 and 0025, the constraints legend, the constitution's impact note and the build's one-time internet need were corrected.
+A second independent pass over the revision returned 11 findings: the server already allowed open Shift-move cases through FR-037 (then an interim core with refusals, since replaced by the answers to QS-1 to QS-7); QS-4 hid addendum 6.2 (QS-4 reframed); the drop target contradicted itself and some gestures had no rule (now US35.16 and 21); the `COMPOSE_FILE` route needed a project name, `..` paths and the DEV variables' place (ADR 0038); the 12-hour limit lacked a WCAG 2.2.1 extension (re-authentication dialog, ADR 0037); versions, undo and the move were worked through (now US35.23 and 24; `position` is a plain optional field); question ids, stale statuses, provenance of ADR 0037 to 0039 and 0025, the constraints legend, the constitution's impact note and the build's one-time internet need were corrected.
 
 ## Grilling record
 

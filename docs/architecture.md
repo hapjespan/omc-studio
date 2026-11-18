@@ -27,7 +27,7 @@ Laravel's own directories hold framework types (`app/Models`, `app/Http/Controll
 |---|---|---|---|
 | Accounts | `SignInService`, `PasswordService`, `SecondFactorService`, `UserAdministration`, `SessionTerminator` | throttling per e-mail hash, one-time password expiry, TOTP replay window, recovery-code hashing, 12-hour lifetime, ending sessions on factor changes and by an Administrator, last-Administrator lock (ADR 0037) | D1 |
 | Canvas | `CanvasLifecycle` (create from Template, copy, save as Template, archive, delete) | which records go with a copy (FR-028), creating the Unknown allocation Domain on every route (FR-043a), deletion counts | D1 |
-| Structure | `ElementTree` (create, update, move, reorder, archive, restore, delete), `QuickEntryParser`; `move` is the one entry point for "Hangt onder" and the Shift move | every rule of FR-033 to FR-043a, name uniqueness under lock, structure version (DT), Layout removal on move, archive and delete (DT) | D1 |
+| Structure | `ElementTree` (create, update, move, reorder, archive, restore, delete), `QuickEntryParser`; `move` is the one entry point for "Hangt onder" and the Shift move and changes structure only | every rule of FR-033 to FR-043a, name uniqueness under lock, structure version (DT), Layout removal on archive and delete (DT); on a move the caller decides the Layout: "Hangt onder" resets the subtree to automatic (SD-29), `DrawingMove` writes the block's row and keeps the subtree's rows (ADR 0036) | D1 |
 | Statements | `DirectionStatements` | one mission, one vision, ordered goals | D1 |
 | Audit | `Audited` trait and observer, `AuditContext`, `AuditTrail` for explicit entries, `SecurityLog` | old and new values, secret fields excluded, pseudonymisation at user deletion, removal with Canvas or Organisation | D1 |
 | Undo | `UndoStore` (remember, restore) | `undo_records` rows with expiry, re-validation at restore, clean-up during requests | D1 |
@@ -35,7 +35,7 @@ Laravel's own directories hold framework types (`app/Models`, `app/Http/Controll
 | Allocation | `AllocationSets` (replace, clear), `Redistribution`, `CarryOver`, `Finalisation` | the 100% rule, Target rule, Finalise guard under lock, one-step writes | D2 |
 | Calculation | `FigureCalculator::calculate()` | largest remainder, roll up, Unknown allocation, breakdowns, closing check | D2 |
 | Notices | `SystemNotices::record()` | one notice per fact, counts, lockout window (SD-41) | D2 |
-| Layout | `LayoutStore` (save whole Layout, reset), `LayoutValidator`, `AutomaticWidths`, `DrawingMove` (Shift move: version check, then `ElementTree::move`, then the moved Layout rows, one transaction; ADR 0036) | version checks, containment against stored or automatic parent widths, style and contrast rules, merged audit | DT |
+| Layout | `LayoutStore` (save whole Layout, reset), `LayoutValidator`, `AutomaticWidths`, `DrawingMove` (confirmed Shift move: version check, then `ElementTree::move`, then the block's Layout validated against the new parent, one transaction; ADR 0036) | version checks, containment against stored or automatic parent widths, style and contrast rules, merged audit | DT |
 | Snapshot | `Snapshots` (take, read, rename, archive, delete) | content assembly, checksum, damage notice | D3 |
 | Exchange | `CanvasExport`, `CanvasImport`, `FullExport`, `FullImport`, `CostRecordCsv`, `AllocationCsv`, `StructureCsv` | formats of `contracts/exchange-formats.md`; every import is `preview()` then `commit()` over the same validator and the same services as the screens | D2 (cost CSV import), D3 |
 | Operations | `app:install`, `app:reset-admin-password`, `app:backup`, `app:restore` | idempotent first start, last-resort reset, consistent copy with `VACUUM INTO` | D1, D3 |
@@ -67,12 +67,12 @@ The seams below are the ones phase 6 tests use and the ones a later change uses.
 
 | Id | Seam | Tests through it | Changes through it later |
 |---|---|---|---|
-| S1 | HTTP routes (Laravel feature tests) | every refusal of the spec (FR-094), the move rules once through "Hangt onder" and once through the Shift move route (FR-101a), Reader 403 on every write route by router enumeration, audit entries, undo, imports writing nothing on error (FR-097) | new screens use the same routes |
+| S1 | HTTP routes (Laravel feature tests) | every refusal of the spec (FR-094), the move rules once through "Hangt onder" and once through the Shift move route, with every valid and refused target and the Layout checks of the moved block (FR-101a), Reader 403 on every write route by router enumeration, audit entries, undo, imports writing nothing on error (FR-097) | new screens use the same routes |
 | S2 | `FigureCalculator::calculate()` | FR-093 unit tests, FR-095 property test, injected discrepancy | new breakdowns |
 | S3 | Functions that exist in PHP and TypeScript, each pair over one fixture: `LargestRemainder` (`largest-remainder.json`), `AutomaticWidths` (`automatic-widths.json`, DT), contrast with opacity (`contrast.json`, DT); Default colours in one JSON file read by both | both languages against one fixture | none expected |
 | S4 | Services per module | unit tests where a rule is intricate: `QuickEntryParser`, CSV readers, `LayoutValidator`, `Finalisation` guards | importers and screens share them |
 | S5 | `TextMeasurer` port of the layout engine | Vitest with a fixed-width fake; browser tests with the real measurer | another font, another measuring method |
-| S6 | `DrawingEngine` adapter | round trip, restrictions, Shift move intent and no library reparenting, undo, picture comparison, upgrade script | a library upgrade or replacement touches this directory only (H14) |
+| S6 | `DrawingEngine` adapter | round trip, restrictions, Shift move intent, target choice, push-back, cancel and no library reparenting, undo, picture comparison, upgrade script | a library upgrade or replacement touches this directory only (H14) |
 | S7 | Clock (`now()` with Carbon's test time) | one-time password expiry, TOTP steps, lockouts, 60-second merge, lockout window | none |
 | S8 | Browser (Playwright) with three guards: request outside the own origin fails the test, `securitypolicyviolation` fails the test, axe violations fail the test | end-to-end (FR-096), keyboard scenarios, SC-021, SC-022, SC-027, H11 picture comparison | none |
 | S9 | Exchange `preview()` and `commit()` | dry-run reports per line, all-or-nothing | new file formats |

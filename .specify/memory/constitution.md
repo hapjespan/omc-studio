@@ -45,8 +45,8 @@ The areas are fixed in code (seed) and MUST NOT be added, removed or renamed by 
 (H2). Inside an area the structure is always domain > activity; an activity hangs
 directly under a domain or under a cluster within that domain, and never without a
 domain (H3). A cluster is optional, belongs to exactly one domain, contains one or
-more activities and cannot be nested (H4). Structure changes from every mode, including moving a
-Cluster or Activity to another Domain with Shift in Drawing mode (ADR 0036), go
+more activities and cannot be nested (H4). Structure changes from every mode, including the Shift move
+of a Cluster, Activity or Item in Drawing mode (ADR 0036), go
 through the same rules. Rules live in the model and service layer,
 not in the screens.
 Rationale: every figure on the canvas traces to one unambiguous place.

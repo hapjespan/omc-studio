@@ -79,7 +79,7 @@ Bekijken (`GET /canvases/{canvas}/view`) gains the query parameters `overlay`, `
 | GET /canvases/{canvas}/drawing | A | Tekenen; Reader, archived Canvas or Snapshot redirected to view, Template to entry | US35.15 |
 | PUT /canvases/{canvas}/layout | A | Save the whole Layout; see `layout-payload.md` | FR-103 |
 | POST /canvases/{canvas}/layout/reset | A | Back to automatic: `scope` element, domain or canvas | FR-107 |
-| POST /canvases/{canvas}/drawing/moves | A | Shift move or "Verplaatsen naar domein": `element_id`, `target_id`, `structure_version`, `layout_version`, optional `position` and `layout` (the former place and Layout rows, sent by undo); interim scope of FR-101a, then the same rules as the Element move | FR-101a, ADR 0036 |
+| POST /canvases/{canvas}/drawing/moves | A | Confirmed Shift move or "Verplaatsen naar": `element_id`, `target_id` (a Domain, or for an Activity also a Cluster; in a list Area a Domain, shown as Groep), `structure_version`, `layout_version`, `layout` (the block's place, size and style relative to the target; null on an undo back to Automatic layout), optional `position` (sent by undo); the move rules of the Element move plus the Layout checks; parent, order and Layout in one transaction; returns both versions | FR-101a, ADR 0036 |
 
 ## Delivery 3
 
