@@ -251,7 +251,7 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
   - QS-5: items in Actoren, Kanalen en Waardeproposities mogen met Shift naar een andere groep.
   - QS-6, letterlijk: "een domein alleen schuiven binnen zijn eigen area; Shift verplaatst steeds een blok (cluster of activiteit); een heel domein naar een andere area gaat via Invoeren". Een item is in de code een activiteit in een lijst-area (QS-5), dus het geldt ook voor items.
   - QS-7, letterlijk: "ja, altijd bevestigen; na het loslaten een dialoog 'Verplaatsen naar <doel>?' voordat er iets wordt opgeslagen, ook via de toetsenbordroute". **AFWIJKEND van het advies**. Uit de opdracht bij de antwoorden: annuleren zet het blok terug op zijn oude plek, en de dialoog is met het toetsenbord te bedienen.
-  - Daaruit volgden twee nieuwe vragen, QS-8 (blok breder dan het doel) en QS-9 (bevestigen bij undo en redo), in `plan.md`.
+  - Daaruit volgden twee nieuwe vragen. De PO was niet bereikbaar, dus het advies staat er als **AANNAME, nog te bevestigen door de PO**. QS-8: een blok dat breder is dan het doel wordt zo breed als het doel, en dat wordt gemeld. QS-9: undo en redo van een verplaatsing tonen de dialoog ook.
 - Status: **beslist door PO, AFWIJKEND** van v1.2 6.5.7, aanvulling H12, K13, 6.2 en 6.3, en van SD-29 voor de Shift-verplaatsing (`[GATE-C53]`).
 
 **54. Buurblokken bij handmatige opmaak.** Krijgt één element in Tekenen handmatige opmaak, wat doen dan zijn broertjes en zusjes met automatische opmaak?

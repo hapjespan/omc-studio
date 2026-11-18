@@ -266,18 +266,22 @@ Technical consequences settled by the orchestrator, one line each:
 - While the dialog is open or a move is being sent, Tekenen takes no other action; a move lost to a version conflict says so, and a re-sent move asks again.
 - The Layout audit entry is never merged across a parent change.
 
+## Assumptions awaiting the product owner
+
+Two collisions came out of applying QS-1 to QS-7. The product owner was unreachable; on the instruction of 2026-11-18 the orchestrator's advice is recorded as an ASSUMPTION so that phase 5 has a complete plan. Both stay the product owner's choice and are to be confirmed; a reversal touches only the Shift move of DT.
+
+| Id | Collision | Assumption (to be confirmed by the PO) | Cost of a reversal |
+|---|---|---|---|
+| QS-8 | QS-4 keeps the block's size, while QS-1 and QS-2 let it go into a narrower target (an Activity at Domain level is always wider than a Cluster in that Domain) | `[ASSUMPTION QS-8]` A block wider than its target is made exactly as wide as the target; height, style and place otherwise kept; Manual children pushed left, then narrowed; automatic children re-flow; shown while dragging ("wordt smaller") and announced after the move | Low: one branch in the adapter's drop handling and its tests; refusing instead means replacing the narrowing by the "Kan hier niet" label |
+| QS-9 | QS-7 names releasing and the keyboard route; undo and redo are neither | `[ASSUMPTION QS-9]` Undo and redo of a move ask "Verplaatsen naar <doel>?" too; "Annuleren" leaves the undo history unchanged | Low: the page skips the dialog for undo and redo |
+
 ## Open questions for the product owner
 
-Two collisions that came out of applying the answers; each needs your choice.
-
-| Id | Question | Until answered | Advice |
-|---|---|---|---|
-| QS-8 | QS-4 says the block keeps its size; QS-1 and QS-2 let it go into a Cluster or another Area. A target is often narrower than the block: an Activity at Domain level is as wide as the inside of its Domain, so it is always wider than a Cluster in that Domain, and Domain cards differ in width between Areas. When the block is wider than its target: refuse the move (you resize first in Tekenen), make the block exactly as wide as the target (its height, style and place otherwise kept, and announced), or something else? | refused with "Kan hier niet: <blok> is breder dan <doel>" | Make it as wide as the target; otherwise moving into a Cluster almost never works |
-| QS-9 | QS-7 says "altijd bevestigen" after releasing and through the keyboard route. Should undo and redo of a move (Ctrl+Z, Ctrl+Shift+Z, the buttons) also show "Verplaatsen naar <doel>?"? | they ask | Yes, they move amounts between Domains just the same |
+None besides confirming the two assumptions above.
 
 ## Grilling record, third pass (after QS-1 to QS-7)
 
-14 findings: the shared move would have dropped a Cluster's Activity Layout (move now changes structure only); the adapter lacked commit, revert and preview commands and an undo hook for moves; undo could not restore an automatic block (`layout: null`); the keyboard landing ignored point 54 (now under the lowest Manual child); a Cluster-onto-Cluster refusal was unreachable; selection, in-flight moves, re-sent moves, audit merging, dialog focus, scenario 6's wording, the verbatim record in `source-conflicts.md` and stale citations were fixed. Two were product choices and are now QS-8 and QS-9.
+14 findings: the shared move would have dropped a Cluster's Activity Layout (move now changes structure only); the adapter lacked commit, revert and preview commands and an undo hook for moves; undo could not restore an automatic block (`layout: null`); the keyboard landing ignored point 54 (now under the lowest Manual child); a Cluster-onto-Cluster refusal was unreachable; selection, in-flight moves, re-sent moves, audit merging, dialog focus, scenario 6's wording, the verbatim record in `source-conflicts.md` and stale citations were fixed. Two were product choices; they are recorded as assumptions QS-8 and QS-9, awaiting the product owner.
 
 ## Complexity Tracking
 

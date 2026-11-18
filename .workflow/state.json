@@ -2,7 +2,8 @@
   "gate_mode": "standard",
   "last_completed_phase": 4,
   "gates_approved": [
-    2
+    2,
+    4
   ],
   "last_hook_advance": 3,
   "completed_at": {
@@ -12,5 +13,5 @@
     "3": "2026-11-18T20:27:45+00:00",
     "4": "2026-11-18T20:59:06+00:00"
   },
-  "last_model_stall": 0
+  "last_model_stall": 4
 }

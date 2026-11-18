@@ -42,7 +42,7 @@ Run the proof page, collect the report per point P1 to P9 with screenshot, test 
 3. Send the faulty payloads of US37.2 directly; each is refused and nothing is stored.
 4. "Alles automatisch opmaken" equals a new Canvas with the same content (SC-028).
 5. A full Tekenen session records no request outside the own server (SC-027).
-6. Shift-drag an Activity into a Cluster of another activity Area, cancel the dialog (it returns), repeat and confirm (it stays where released, same size and style); do the same through "Verplaatsen naar" with the keyboard only; the Logboek shows the old and new "Hangt onder"; undo asks and moves it back; a name clash, a list Area target and a too-wide target are refused (FR-101a).
+6. Shift-drag an Activity into a Cluster of another activity Area, cancel the dialog (it returns), repeat and confirm (it stays where released, same size and style); do the same through "Verplaatsen naar" with the keyboard only; the Logboek shows the old and new "Hangt onder"; undo asks and moves it back; a name clash and a list Area target are refused; an Activity at Domain level dropped into a narrower Cluster is narrowed to its width with a message (FR-101a, assumption QS-8).
 
 ## Delivery 2
 

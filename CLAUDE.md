@@ -124,7 +124,7 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     0030 own authentication on Laravel primitives; 0031 one messages file
     lang/nl.json; 0032 serialised writes with IMMEDIATE transactions; 0033 undo
     from a short-lived table; 0034 audit through a model observer; 0035 one container on
-    php-apache (0028 to 0035 proposed, phase 4); 0036 Shift move in Tekenen;
+    php-apache; 0036 Shift move in Tekenen;
     0037 session lifetime and termination; 0038 delivered stack at the root, dev
     container in .devcontainer; 0039 CSP image sources for PNG export
 - `docs/architecture.md`: module and seam map (phase 4)

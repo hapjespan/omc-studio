@@ -1,7 +1,7 @@
 # 0029: Compute the canvas layout and its text lines in one TypeScript engine in the browser
 
 Date: 2026-11-18
-Status: proposed (orchestrator, phase 4); confirmation at the phase 4 gate
+Status: accepted (orchestrator, phase 4; phase 4 gate approved by the product owner, 2026-11-18)
 
 ## Decision
 

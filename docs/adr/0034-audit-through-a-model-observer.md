@@ -1,7 +1,7 @@
 # 0034: Write the Audit log through a model observer, with explicit entries for sets and Layout
 
 Date: 2026-11-18
-Status: proposed (orchestrator, phase 4); confirmation at the phase 4 gate
+Status: accepted (orchestrator, phase 4; phase 4 gate approved by the product owner, 2026-11-18)
 
 ## Decision
 
