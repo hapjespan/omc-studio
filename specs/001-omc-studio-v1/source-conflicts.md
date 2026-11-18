@@ -8,7 +8,7 @@ Datum: 18 november 2026. Vergeleken: kickoff v1.2 van de PO (`specs/kickoff-v1.2
 2. Voor schermen en namen leiden v1.2 en het design. De drie modi heten Invoeren, Tekenen en Bekijken.
 3. Voor de techniek leidt de aanvulling. Dat betekent geheel Vue 3, opmaak als eigen gegevens per element en geen tekendocument als waarheid. OpenPencil zit achter de adapter met vastgepinde versies, eerst komt de technische proef met go of no-go, en H11 t/m H15 gelden.
 4. In de aanvulling lees je "Bewerk" als Invoeren en "Edit" als Tekenen.
-5. Waar deze regels een punt niet eenduidig beslissen, staat het op **open**. De punten 32 t/m 50 stonden open en zijn later door de PO beslist. In de spec verwijst `[GATE-Cn]` naar het punt met hetzelfde nummer hieronder.
+5. Waar deze regels een punt niet eenduidig beslissen, staat het op **open**. De punten 32 t/m 52 stonden open en zijn later door de PO beslist; er staat niets meer open. In de spec verwijst `[GATE-Cn]` naar het punt met hetzelfde nummer hieronder.
 
 Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advies en de status.
 
@@ -212,7 +212,7 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
 - Advies: dan alsnog een eenvoudig kleurenscherm, als apart besluit.
 - Status: **beslist door PO**: bij een no-go volgt een apart besluit; nu wordt niets voorbereid.
 
-## Open (volgt uit de besluiten)
+## Beslist na de vervolgvragen (18 november 2026)
 
 **51. Inhoud die niet op het vaste tekenvlak past.** Het tekenvlak is vast (36), lange namen laten kaarten meegroeien (48), en de spec vraagt tot 500 elementen per canvas. Een area kan daardoor groeien tot voorbij de rand van het tekenvlak, ook bij automatische opmaak en dus al in oplevering 1. Bij 500 elementen gebeurt dat zeker.
 - Mogelijkheden:
@@ -220,11 +220,20 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
   - de inhoud schaalt kleiner;
   - de opmaak wordt geweigerd met een melding;
   - de inhoud loopt over de rand en er komt een waarschuwing.
-- Status: **open**. De spec vult dit niet in (`[GATE-C51]`). Ook de tekst van het koersblok, met een vaste hoogte, valt hieronder. Het moet beslist zijn voordat oplevering 1 wordt gebouwd, omdat de automatische opmaak al op het vaste vlak staat.
+- Status: **beslist door PO**, in twee delen (`[GATE-C51]`).
+  - Lange namen, letterlijk: "Hij moet een tweede regel pakken binnen de breedte van het blok". De naam breekt af binnen de breedte van het blok; het blok wordt hoger, nooit breder.
+  - Vol tekenvlak, letterlijk: "Daarom moeten domein, met daar binnen clusters en of activiteiten al dan niet binnen clusters aanpasbaar zijn in grootte".
+  - **Lezing van de orchestrator** (een lezing, geen letterlijk besluit): het tekenvlak blijft vast liggend A3 en groeit en schaalt niet. Raakt het vol, dan lost de gebruiker dat zelf op door domeinen, clusters en activiteiten in Tekenen kleiner of anders te maken. Het systeem weigert niets en verkleint niets automatisch; het toont wat niet past en zet het in de lijst Waarschuwingen.
+  - **Uitwerking door de orchestrator** (geen besluit van de PO; staat in de spec als SD-24, SD-39 en SD-40), het gevolg in oplevering 1, waar Tekenen nog niet bestaat:
+    - Bekijken toont het vaste A3-vlak met de rand als lijn ("Rand A3"); wat niet past, staat daaronder op een gearceerde achtergrond.
+    - Een melding voor iedereen zegt hoeveel blokken erbuiten vallen, en Invoeren noemt ze in Waarschuwingen. Oplossen kan pas met Tekenen.
+    - De afdruk zet het A3-vlak één op één op een A3-pagina; wat erbuiten valt, komt op volgende A3-pagina's, met eerst een waarschuwing. De PNG bevat alles.
+    - Het koersblok is 180 pixels hoog; tekst die niet past, wordt afgekapt met drie puntjes, staat volledig bij aanwijzen en komt in Waarschuwingen.
+  - De prestatie-eis van 500 elementen blijft gelden voor de snelheid, los van of ze op A3 passen (opdracht van de orchestrator).
 
 **52. Hele euro's en zichtbaar optellen.** Op het canvas en in de overlay staan hele euro's (40). Een bedrag kan op een kaart staan en ook in een lijst met een totaal, zoals de uitsplitsing per modaliteit of "Totalen sluiten".
 - Keuze a: elk bedrag wordt los afgerond en is overal hetzelfde. Een lijst kan dan een paar euro naast haar getoonde totaal uitkomen.
 - Keuze b: elke lijst wordt zo afgerond dat ze zichtbaar optelt. Hetzelfde bedrag kan dan één euro verschillen tussen kaart en lijst.
 - Rekenen en de sluitcontrole blijven in beide gevallen op de cent.
 - Advies: keuze a, met de regel "Totalen sluiten" in centen.
-- Status: **open** (`[GATE-C52]`).
+- Status: **beslist door PO**: keuze a. Elk bedrag wordt los afgerond en is overal gelijk; de regel "Totalen sluiten" toont in centen dat het klopt (`[GATE-C52]`).

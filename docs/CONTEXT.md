@@ -264,7 +264,7 @@ The colours per Area and level the application ships, shown wherever an Element 
 _Avoid_: theme, palette
 
 **Artboard** (Tekenvlak):
-The fixed drawing surface of one Canvas, landscape A3 at 1680 by 1188 pixels, on which every Layout is measured in whole pixels.
+The fixed drawing surface of one Canvas, landscape A3 at 1680 by 1188 pixels, on which every Layout is measured in whole pixels; it never grows or scales, and content that does not fit is shown beyond its edge.
 _Avoid_: page, stage, canvas (alone)
 
 **Font list** (Fontlijst):
@@ -290,7 +290,7 @@ Checking an import file and reporting every problem in it without writing anythi
 _Avoid_: preview, validation run
 
 **Warning** (Waarschuwing):
-A remark in Entry mode on something allowed but probably unfinished: an empty Cluster, a Domain without Activities, or Elements that overlap on the Artboard.
+A remark in Entry mode on something allowed but probably unfinished: an empty Cluster, a Domain without Activities, Elements that overlap on the Artboard, or a block that does not fit on the Artboard.
 _Avoid_: error, notice
 
 **Replace by** (Vervangen door):

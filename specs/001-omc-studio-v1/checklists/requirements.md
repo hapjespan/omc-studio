@@ -33,7 +33,7 @@
 
 - [x] Every story has acceptance criteria a test can be written from directly
 - [x] Every user-facing story carries WCAG 2.2 AA criteria (baseline WB1 to WB12 plus story-specific items; User Story 33 records that it is not an application screen)
-- [x] Desired layout or visual design asked and recorded in `specs/PROFILE.md` (answer A: the product owner's design in `specs/design/`, contract in `design-contract.md`, navigation in ADR 0019; source differences 32 to 50 decided by the product owner)
+- [x] Desired layout or visual design asked and recorded in `specs/PROFILE.md` (answer A: the product owner's design in `specs/design/`, contract in `design-contract.md`, navigation in ADR 0019; source differences 32 to 52 decided by the product owner)
 - [x] No story contains "etc", "and so on" or a trailing list
 - [x] PII inventory covers every personal data element with lawful basis and retention (`pii-inventory.md`)
 
@@ -42,4 +42,4 @@
 - Named commands (`cp env.example .env`, `docker compose up -d`, `make backup`) come from kickoff H9 and 10.6/10.7, which the product owner fixed as user-facing behaviour; they are kept as acceptance facts, not as design choices.
 - Open unknowns are not clarification markers: they build on recorded assumptions marked `[GATE-U1]` to `[GATE-U4]`, decided at the phase 2 gate.
 - The addendum's hard rules H13 and H14 (own Layout data, one adapter directory with pinned versions) and the drawing library's name are kept as fixed facts set by the product owner, like the H9 commands, not as design choices of this spec.
-- Source differences are not clarification markers: `[GATE-C32]` to `[GATE-C50]` are decided by the product owner and applied; `[GATE-C51]` (content beyond the fixed Artboard) and `[GATE-C52]` (whole euros in lists) are open, and the requirements they touch state only what is decided.
+- Source differences are not clarification markers: `[GATE-C32]` to `[GATE-C52]` are decided by the product owner and applied; for `[GATE-C51]` the full-Artboard part is recorded as the orchestrator's reading of the product owner's words.

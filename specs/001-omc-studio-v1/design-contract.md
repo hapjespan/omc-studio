@@ -2,7 +2,7 @@
 
 Date: 2026-11-18. Source: the product owner's design `specs/design/omc-studio-design.html` (answer A to `[GATE-D1]`), five boards 1440 pixels wide, captured offline as `specs/design/board-*.png`. Values were measured from the rendered boards (computed styles), not guessed. The design is a visual reference: its React code is not taken over (ADR 0012), and the file stays in `specs/design/` only (FR-090, FR-098).
 
-Where this contract and the spec differ, the spec wins. The product owner's decisions on the differences (`source-conflicts.md`, points 32 to 50) are applied below; where they change the design, the contract says so. The navigation mapping is ADR 0019.
+Where this contract and the spec differ, the spec wins. The product owner's decisions on the differences (`source-conflicts.md`, points 32 to 52) are applied below; where they change the design, the contract says so. The navigation mapping is ADR 0019.
 
 ## Boards
 
@@ -87,8 +87,8 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
   - the tabs Canvas, Kostenposten, Toewijzen, Versies and Beheer, where the active tab is ink with a 2-pixel underline;
   - the Fiscal year selector "Boekjaar 2026 open";
   - the user's role and menu on the right.
-- Direction band: fixed place and height across the top, locked in Tekenen, one arrangement in every mode, four columns side by side: logo, mission, vision, strategic goals (decision 38; board 1b stacks the goals below, which does not apply).
-- Artboard: fixed, 1680 by 1188 pixels, landscape A3 (ADR 0020).
+- Direction band: fixed place across the top, 180 pixels high on the Artboard, locked in Tekenen, one arrangement in every mode, four columns side by side: logo, mission, vision, strategic goals (decision 38; board 1b stacks the goals below, which does not apply).
+- Artboard: fixed, 1680 by 1188 pixels, landscape A3, never growing or scaling (ADR 0020). Content beyond its bottom edge sits below a 1-pixel ink line labelled "Rand A3" (11 px muted text) on a hatch of ink at 6% in 45-degree lines, and a warning callout above the canvas reads "Niet alles past op het A3-tekenvlak: <n> blokken vallen erbuiten".
 - Page header: the title, then the mode switch Invoeren | Tekenen | Bekijken (a segmented control; the active segment is ink with white text), then the save state and the actions on the right.
 - Body: a left panel of 210 to 225 pixels (Area list, Layers, cost record list), the main work area, and a detail panel of 320 to 390 pixels on the right. All three are white panels on the page background.
 
@@ -130,4 +130,4 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 
 ## Formats seen in the design
 
-On the canvas and in the overlay amounts are whole euros ("€ 84.000") and percentages have one decimal ("2,8%"); the detail panel, tables, forms and Toewijzen show cents ("€ 54.000,00") and two decimals (decision 40). How whole euros behave in a list shown with its total is open (`[GATE-C52]`). The financial overlay draws its figures inside the card at the card's place and size (decision 39). The Cost record form also shows Supplier, cost centre, description and remark (decision 42). Long names wrap and cards grow (decision 48).
+On the canvas and in the overlay amounts are whole euros ("€ 84.000") and percentages have one decimal ("2,8%"); the detail panel, tables, forms and Toewijzen show cents ("€ 54.000,00") and two decimals (decision 40). Each amount is rounded on its own and shows the same everywhere; the line "Totalen sluiten" shows its amounts in cents (decision 52). The financial overlay draws its figures inside the card at the card's place and size (decision 39). The Cost record form also shows Supplier, cost centre, description and remark (decision 42). Long names wrap and cards grow (decision 48).
