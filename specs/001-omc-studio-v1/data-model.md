@@ -78,7 +78,6 @@ Screen and level labels live in `lang/nl.json` under `areas.<key>.*` (ADR 0031).
 | name, name_normalised | string(150) | unique on normalised |
 | slug | string | lowercase letters, digits, hyphens; unique (FR-024) |
 | logo_path | string null | random name under `storage/app/private/logos` |
-| is_sample | boolean | the "Voorbeelddata" badge and its removal (US3.1, US32; set in D3) |
 | archived_at | datetime null | |
 | created_at, updated_at | datetime | |
 
@@ -270,7 +269,7 @@ The sum of 10000 is enforced by the allocation service, which replaces the whole
 | index(kind, last_occurred_at) | list and filters |
 | index(canvas_id) | filter by Canvas, removal with the Canvas |
 
-Lockout counting for SD-41 (still a proposal) uses the cache table: a list of lockout times kept for 60 minutes under one key, no user identifier.
+Lockout counting for SD-41 (still a proposal) uses the file cache (R-9): a list of lockout times kept for 60 minutes under one key, no user identifier.
 
 ## Delivery DT (Tekenen)
 
@@ -322,6 +321,10 @@ Invariant checked by the server on every save: an Element's stored x plus width 
 | checksum | char(64) | SHA-256 of `content`, verified on every read (FR-079) |
 
 Index: (canvas_id, archived_at, created_at) for "Versies".
+
+### organisations (column added in D3)
+
+`is_sample` boolean, default false: the "Voorbeelddata" badge and its removal (US3.1, US32).
 
 ### application_state (D3)
 

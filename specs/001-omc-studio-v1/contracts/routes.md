@@ -19,6 +19,7 @@ Responses: Inertia pages for GET; for writes, a redirect back with flash data, o
 | POST /account/second-factor/recovery-codes | R | Regenerate | US2.7 |
 | DELETE /account/second-factor | R | Turn off | US2.8 |
 | POST /session/keep-alive | R | "Sessie verlengen" | US1.9 |
+| POST /session/reauthenticate | R | Confirm the password (and the code) within the last 10 minutes of the 12 hour lifetime, starting a new period | US1.9a, ADR 0037 |
 | GET /overview | R | Organisations, Canvases, Templates (A only) | US8, US9 |
 | GET /admin | A | Beheer index | US3.3 |
 | GET /admin/users; POST; PATCH /admin/users/{user}; DELETE | A | Users list; on one's own row a changed e-mail address needs `current_password` | US5, US5.10 |

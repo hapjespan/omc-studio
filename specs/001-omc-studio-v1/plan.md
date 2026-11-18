@@ -113,7 +113,7 @@ docker-compose.yml, env.example, Makefile    the delivered stack at the root (AD
 | Order | Slice | Content | Gate |
 |---|---|---|---|
 | 1 | WP1 project setup | Vue 3, Inertia, Tailwind, test stack and CI (SQLite and PostgreSQL), delivered image and compose at the root with the development container moved to `.devcontainer/` and a local `.env` setting `COMPOSE_FILE` (ADR 0038): WP1 proves that this machine still starts the development container and a clean clone starts the delivered stack, and stops and reports if either needs a change to the host tooling; `app:install`, CSP, security log, messages file; verification point Secure cookie on `http://localhost` per browser (constraints section 6) | none |
-| 2 | WP-E0 | Technical proof P1 to P9 on top of WP1; report with evidence | product owner go or no-go; a no-go stops DT only (FR-115) |
+| 2 | WP-E0 | Technical proof P1 to P10 on top of WP1; report with evidence | product owner go or no-go; a no-go stops DT only (FR-115) |
 | 3 | D1 rest (WP2 to WP4) | Accounts and second factor, shell, list component, Users, Organisations, Audit log, overview, Canvas lifecycle, Templates, Structure, Invoeren, quick entry, Direction, Modality, layout engine, Bekijken | delivery 1 acceptance |
 | 4 | DT (WP-E1 to WP-E4) | Layout table and versions, Manual layout in the engine, adapter, Tekenen, saving, reset, Shift move, Layout in copies | after a go only |
 | 5 | D2 (WP5 to WP8) | Fiscal years, Cost records, lists, CSV import, calculation, Toewijzen, Redistribution, Carry over, Finalise, overlays, System notices | none (ADR 0011 and GATE-U1 confirmed) |
