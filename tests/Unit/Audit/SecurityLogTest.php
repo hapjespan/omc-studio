@@ -70,6 +70,17 @@ class SecurityLogTest extends TestCase
         $this->assertStringContainsString('probe.error', $this->serialised());
     }
 
+    public function test_an_exception_reported_during_a_console_boot_without_a_request_is_logged(): void
+    {
+        $this->capture();
+        $this->app->forgetInstance('request');
+        unset($this->app['request']);
+
+        report(new \RuntimeException('console failure'));
+
+        $this->assertStringContainsString('console failure', $this->serialised());
+    }
+
     public function test_the_security_channel_rotates_at_ninety_days_and_the_error_log_at_fourteen(): void
     {
         $this->assertSame('daily', config('logging.channels.security.driver'));
