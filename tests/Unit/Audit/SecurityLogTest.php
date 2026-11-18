@@ -2,10 +2,13 @@
 
 namespace Tests\Unit\Audit;
 
+use App\Models\User;
 use App\Services\Audit\SecurityLog;
 use Illuminate\Database\QueryException;
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Monolog\Formatter\JsonFormatter;
 use Tests\TestCase;
 
 class SecurityLogTest extends TestCase
@@ -36,6 +39,35 @@ class SecurityLogTest extends TestCase
         $this->assertStringContainsString('"user_id":7', $line);
         $this->assertStringNotContainsString('@', $line);
         $this->assertStringNotContainsString('10.0.0.1', $line);
+    }
+
+    public function test_the_security_channel_writes_json_lines_and_survives_invalid_utf8(): void
+    {
+        $this->assertSame(JsonFormatter::class, config('logging.channels.security.formatter'));
+
+        $this->capture();
+        SecurityLog::record('sign_in_failed', ['note' => "bad \xB1 byte"]);
+
+        $this->assertNotEmpty($this->logged);
+    }
+
+    public function test_the_signed_in_user_is_recorded_without_being_passed(): void
+    {
+        $this->capture();
+        $this->actingAs(new User(['id' => 5]));
+
+        SecurityLog::record('sign_out');
+
+        $this->assertStringContainsString('"user_id":', $this->serialised());
+    }
+
+    public function test_an_exception_context_carries_the_route_name(): void
+    {
+        $this->capture();
+        Route::get('/probe-error', fn () => throw new \RuntimeException('boom'))->name('probe.error');
+
+        $this->get('/probe-error');
+        $this->assertStringContainsString('probe.error', $this->serialised());
     }
 
     public function test_the_security_channel_rotates_at_ninety_days_and_the_error_log_at_fourteen(): void

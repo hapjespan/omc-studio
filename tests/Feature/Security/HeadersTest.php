@@ -11,6 +11,12 @@ class HeadersTest extends TestCase
 {
     private const POLICY = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 
+    public function test_the_health_route_and_an_unknown_route_carry_the_policy_too(): void
+    {
+        $this->get('/up')->assertHeader('Content-Security-Policy', self::POLICY);
+        $this->get('/no-such-page')->assertNotFound()->assertHeader('Content-Security-Policy', self::POLICY);
+    }
+
     public function test_a_page_carries_the_content_security_policy_and_the_other_headers(): void
     {
         $this->withoutVite();

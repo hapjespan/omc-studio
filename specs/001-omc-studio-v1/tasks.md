@@ -44,6 +44,7 @@ Built as written; both are the orchestrator's advice recorded while the product 
 |---|---|---|---|
 | `[GAP R-19 dev]` | The Vite dev server origin relaxation of R-19 is not built in T011: `npm run dev` with HMR is blocked by the narrow policy; the built assets and the delivered image are unaffected. Advice: a local-only relaxation (script-src and connect-src for the dev origin, `'unsafe-inline'` in style-src) in a small follow-up task | WP1.2 follow-up | low: one middleware branch behind `app()->isLocal()` |
 | `[GAP R-18 key]` | `storage/app.key` is exported as `APP_KEY` by the entrypoint only; an `artisan` run through `docker exec` does not see it. T055, T356 and T357 read `storage/app.key` themselves when they must decrypt | T055, T356, T357 | low: one reader per command |
+| `[GAP V3 cookies]` | The framework's `XSRF-TOKEN` cookie is not HttpOnly, because Inertia's HTTP client reads it; the session cookie is HttpOnly. Static files served by Apache directly carry no CSP header; the policy matters on documents, which all pass the application | none | none unless the product owner wants `mod_headers` for static files |
 | `[ASSUMPTION QS-8]` | A Shift-moved block wider than its target is made exactly as wide as the target | DT.5 | low: one adapter branch and its tests |
 | `[ASSUMPTION QS-9]` | Undo and redo of a Shift move ask "Verplaatsen naar <doel>?" too | DT.5 | low: the page skips the dialog |
 

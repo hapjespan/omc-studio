@@ -34,3 +34,8 @@ bootstrap/cache
 .workflow
 .devcontainer
 .specify
+
+# Generated at first start on the volume, never part of an image
+storage/app.key
+storage/*.sqlite
+storage/logs

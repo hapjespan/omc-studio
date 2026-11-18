@@ -23,6 +23,7 @@ COPY --from=assets /build/public/build public/build
 RUN composer dump-autoload --optimize --no-dev \
     && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
+RUN echo 'zend.exception_ignore_args=On' > "$PHP_INI_DIR/conf.d/zz-app.ini"
 ENV APP_ENV=production APP_DEBUG=false
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

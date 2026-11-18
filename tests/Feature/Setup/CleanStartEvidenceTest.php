@@ -26,7 +26,7 @@ class CleanStartEvidenceTest extends TestCase
         parent::tearDown();
     }
 
-    private function run_script(): Process
+    private function runScript(): Process
     {
         file_put_contents($this->workspace.'/evidence.md', "# Evidence WP1\n");
         $process = new Process(['sh', base_path('scripts/prove-clean-start.sh')], base_path(), [
@@ -41,7 +41,7 @@ class CleanStartEvidenceTest extends TestCase
 
     public function test_the_script_builds_starts_and_records_both_times(): void
     {
-        $process = $this->run_script();
+        $process = $this->runScript();
 
         $this->assertSame(0, $process->getExitCode(), $process->getErrorOutput());
         $evidence = (string) file_get_contents($this->workspace.'/evidence.md');

@@ -1,5 +1,6 @@
 <?php
 
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -76,6 +77,7 @@ return [
         'security' => [
             'driver' => 'daily',
             'path' => storage_path('logs/security.log'),
+            'formatter' => JsonFormatter::class,
             'level' => 'info',
             'days' => 90,
             'replace_placeholders' => true,

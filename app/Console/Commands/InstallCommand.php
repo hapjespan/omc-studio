@@ -26,7 +26,7 @@ class InstallCommand extends Command
     {
         $path = storage_path('app.key');
 
-        if (! file_exists($path)) {
+        if (! file_exists($path) || filesize($path) === 0) {
             touch($path);
             chmod($path, 0600);
             file_put_contents($path, 'base64:'.base64_encode(Encrypter::generateKey((string) config('app.cipher'))));

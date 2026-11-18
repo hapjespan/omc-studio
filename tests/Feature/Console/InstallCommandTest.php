@@ -51,6 +51,15 @@ class InstallCommandTest extends TestCase
         $this->assertStringNotContainsString(substr($key, 7), $secondOutput);
     }
 
+    public function test_an_empty_key_file_from_an_interrupted_start_is_replaced(): void
+    {
+        touch($this->keyPath());
+
+        $this->artisan('app:install')->assertSuccessful();
+
+        $this->assertStringStartsWith('base64:', (string) file_get_contents($this->keyPath()));
+    }
+
     public function test_the_stored_key_file_is_the_authority_for_the_run(): void
     {
         $key = 'base64:'.base64_encode(random_bytes(32));
