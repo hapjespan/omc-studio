@@ -34,7 +34,7 @@ interface TextMeasurer {
 
 ## Rules it implements
 
-FR-106a (names wrap inside the width, a word longer than the width breaks; blocks grow in height, never in width; parents grow; growth never moves a Manual Element), FR-107 (Automatic layout of kickoff 6.5, deterministic), FR-108 placement of Elements without a Layout row (R-6), and the miniature mode of R-21 (`depth: 'domains'`).
+FR-106a (names wrap inside the width, a word longer than the width breaks; blocks grow in height, never in width; parents grow; growth never moves a Manual Element), FR-107 (Automatic layout of kickoff 6.5, deterministic), FR-108 placement of Elements without a Layout row (R-6), automatic siblings under the lowest Manual child (source point 54), and the miniature mode of R-21 (`depth: 'domains'`).
 
 ## Consumers
 

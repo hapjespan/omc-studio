@@ -35,7 +35,7 @@ Canvas; each Element has a **Direct amount** and a **Total amount**.
 A Canvas is worked on in three modes. In **Entry mode** an Administrator builds the
 structure and fills in fields, Area by Area, as a tree. In **Drawing mode** they
 arrange the picture: the **Layout** of each Element, its place, size and **Element
-style** on the **Artboard**, without touching structure. In **View mode** anyone
+style** on the **Artboard**, without touching structure, except that a Cluster or Activity can be moved to another Domain by dragging it with Shift (ADR 0036). In **View mode** anyone
 reads the Canvas with its overlays. Every Canvas starts in **Automatic layout** and
 can always go back to it; an Element changed in Drawing mode keeps its **Manual
 layout**. Where an Element has no style of its own, the **Default colours** apply.
@@ -236,8 +236,12 @@ The mode in which an Administrator creates, changes, orders and moves Elements a
 _Avoid_: edit mode, editor, Bewerk
 
 **Drawing mode** (Tekenen):
-The mode in which an Administrator changes the Layout of existing Areas and Elements and nothing else.
+The mode in which an Administrator changes the Layout of existing Areas and Elements; the only structure change it allows is moving a Cluster or Activity to another Domain with Shift, under the structure rules of Entry mode (ADR 0036).
 _Avoid_: edit mode, Edit, design mode, editor
+
+**Shift move** (Verplaatsen met Shift):
+Moving a Cluster or Activity to another Domain in Drawing mode by dragging it with Shift held, or through "Verplaatsen naar domein"; a structure change under the same rules as "Hangt onder".
+_Avoid_: reparent (in screen text), drag-and-drop move
 
 **View mode** (Bekijken):
 The read-only mode with overlays, Snapshots and export; the only mode a Reader sees.
@@ -324,7 +328,7 @@ _Avoid_: viewer, guest
 Answered by the product owner at the phase 2 gate, 2026-11-18.
 
 1. **Unknown allocation.** Decided: a fixed, system-managed Domain in Supporting
-   activities (ADR 0008, accepted). Still an assumption: a Fiscal year cannot be
+   activities (ADR 0008, accepted). Confirmed on 2026-11-18: a Fiscal year cannot be
    Finalised while any amount sits in Unknown allocation.
 2. **Incident arrangement.** Decided: at an incident the product owner is warned
    and starts the ISO notification policy of their organisation, which sets

@@ -1,7 +1,7 @@
 # 0014: Work on a canvas in three modes: Invoeren, Tekenen and Bekijken
 
 Date: 2026-11-18
-Status: accepted (product owner, kickoff v1.2 and design, 2026-11-18)
+Status: accepted (product owner, kickoff v1.2 and design, 2026-11-18); amended by 0036: Tekenen may move a Cluster or Activity to another Domain with Shift
 
 ## Decision
 

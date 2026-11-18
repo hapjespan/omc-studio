@@ -22,8 +22,8 @@ How to prove each delivery works end to end. Commands run inside the development
 
 ## Delivery 1
 
-1. Clean start (SC-001): on a machine with only Docker, `cp env.example .env` and `docker compose up -d` (file locations per Q-6 in `plan.md`). Within 3 minutes `http://localhost:8080` shows "Inloggen"; `docker compose logs` shows the Administrator e-mail and one-time password once. Restart: no new password.
-2. Sign in, replace the password, enable the second factor, sign out and in with a code (US1, US2).
+1. Clean start (SC-001): on a machine with only Docker, `cp env.example .env` and `docker compose up -d` (the delivered stack at the root, ADR 0038; on the development machine the local `.env` points `COMPOSE_FILE` at `.devcontainer/`, and the same command starts the development container). Once the image is built, within 3 minutes `http://localhost:8080` shows "Inloggen"; `docker compose logs` shows the Administrator e-mail and one-time password once. Restart: no new password.
+2. Sign in, replace the password, enable the second factor, sign out and in with a code (US1, US2); a second session ends when the factor is turned on; a session older than 12 hours ends (ADR 0037).
 3. As Administrator: create a Reader, an Organisation with a logo, a Canvas from "Leeg canvas" (US5, US6, US8).
 4. Invoeren with the keyboard only: a Domain, three Activities, a Cluster, move an Activity into it through "Hangt onder", reorder with the arrows (SC-003); quick entry of 3 Domains with 15 Activities within a minute (SC-005).
 5. Bekijken: the eight Areas on the A3 Artboard, the Unknown allocation card last in Supporting activities, zoom and "Passend maken" (US16).
@@ -42,6 +42,7 @@ Run the proof page, collect the report per point P1 to P9 with screenshot, test 
 3. Send the faulty payloads of US37.2 directly; each is refused and nothing is stored.
 4. "Alles automatisch opmaken" equals a new Canvas with the same content (SC-028).
 5. A full Tekenen session records no request outside the own server (SC-027).
+6. Shift-drag an Activity to another Domain of the same Area, then do the same through "Verplaatsen naar domein" with the keyboard; the Logboek shows the old and new "Hangt onder", undo moves it back, a name clash is refused (FR-101a).
 
 ## Delivery 2
 

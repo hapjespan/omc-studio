@@ -8,7 +8,7 @@ Datum: 18 november 2026. Vergeleken: kickoff v1.2 van de PO (`specs/kickoff-v1.2
 2. Voor schermen en namen leiden v1.2 en het design. De drie modi heten Invoeren, Tekenen en Bekijken.
 3. Voor de techniek leidt de aanvulling. Dat betekent geheel Vue 3, opmaak als eigen gegevens per element en geen tekendocument als waarheid. OpenPencil zit achter de adapter met vastgepinde versies, eerst komt de technische proef met go of no-go, en H11 t/m H15 gelden.
 4. In de aanvulling lees je "Bewerk" als Invoeren en "Edit" als Tekenen.
-5. Waar deze regels een punt niet eenduidig beslissen, staat het op **open**. De punten 32 t/m 52 stonden open en zijn later door de PO beslist; er staat niets meer open. In de spec verwijst `[GATE-Cn]` naar het punt met hetzelfde nummer hieronder.
+5. Waar deze regels een punt niet eenduidig beslissen, staat het op **open**. De punten 32 t/m 52 stonden open en zijn later door de PO beslist. De punten 53 en 54 beslist de PO na het plan van fase 4; bij 53 staan nog vragen open. In de spec verwijst `[GATE-Cn]` naar het punt met hetzelfde nummer hieronder.
 
 Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advies en de status.
 
@@ -57,7 +57,7 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
 - Status: **beslist door PO**: plaatsing volgens de aanvulling (techniek), markering "nieuw" volgens v1.2 en het design (scherm).
 
 **12. Tekenen verandert geen structuur.** Alle bronnen zijn het eens (v1.2 6.5.7, aanvulling H12).
-- Status: **beslist**: geen verschil.
+- Status: **beslist**: geen verschil. Later gewijzigd door punt 53.
 
 **13. Lagenpaneel in Tekenen.** v1.2 en het design hebben links "Lagen", één laag per element. De aanvulling noemt het niet, en de kickoff 1.3 sloot een lagenpaneel uit.
 - Gevolg: het paneel is ook de manier om met het toetsenbord te selecteren.
@@ -237,3 +237,15 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
 - Rekenen en de sluitcontrole blijven in beide gevallen op de cent.
 - Advies: keuze a, met de regel "Totalen sluiten" in centen.
 - Status: **beslist door PO**: keuze a. Elk bedrag wordt los afgerond en is overal gelijk; de regel "Totalen sluiten" toont in centen dat het klopt (`[GATE-C52]`).
+
+## Beslist na het plan van fase 4 (18 november 2026)
+
+**53. Verplaatsen naar een ander domein in Tekenen.** v1.2 6.5.7 zegt: "Slepen in de tekening verandert nooit de ouder van een element." De aanvulling (H12, 6.3) zegt: Edit verplaatst geen elementen in de structuur, en de ouder in de scene is gelijk aan de ouder in het model.
+- Besluit van de PO, letterlijk: "Een domein kun je verplaatsen; een cluster en activiteit met shift uit een domein naar een ander domein verplaatsen". Nagevraagd en bevestigd: in Tekenen verplaatst Shift-slepen een cluster of activiteit naar een ander domein. Dat wijzigt de ouder, en de toewijzingen verhuizen mee. H12 wordt aangepast: Tekenen maakt, verwijdert en hernoemt nog steeds niets, maar verplaatsen naar een ander domein kan met Shift. Zonder Shift blijft een blok binnen zijn domein.
+- Gevolg: dezelfde structuurregels als "Hangt onder" in Invoeren (naam uniek binnen de ouder, niet in Onbekende allocatie, geen cluster in een cluster, een cluster met zijn activiteiten). De verplaatsing is een eigen verzoek met versiecontrole, logboekregel en undo. Als toetsenbordroute komt een veld "Verplaatsen naar domein" (SD-42, gemeld). ADR 0036.
+- Open (vragen QS-1 t/m QS-7 in `plan.md`): mag Shift ook in of uit een cluster, naar een domein in een andere area, met items in lijst-area's, met een domein zelf, met meerdere blokken tegelijk, en waar landt het blok in zijn nieuwe domein? Wat gebeurt er in een definitief jaar?
+- Status: **beslist door PO, AFWIJKEND** van v1.2 6.5.7 en aanvulling H12, K13 en 6.3; tot de vragen beantwoord zijn accepteert de server alleen een cluster of activiteit naar een ander domein in dezelfde area, zonder definitief jaar, en vervalt de handmatige opmaak (aanvulling 6.2); reikwijdte deels open (`[GATE-C53]`).
+
+**54. Buurblokken bij handmatige opmaak.** Krijgt één element in Tekenen handmatige opmaak, wat doen dan zijn broertjes en zusjes met automatische opmaak?
+- Advies was: ze vastzetten op hun plek op dat moment.
+- Status: **beslist door PO, AFWIJKEND van het advies**: ze blijven automatisch en komen onder het laagste handmatige kind. Ze mogen daarbij verspringen (`[GATE-C54]`).

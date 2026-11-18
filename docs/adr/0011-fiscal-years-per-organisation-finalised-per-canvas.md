@@ -1,7 +1,7 @@
 # 0011: Keep fiscal years per organisation and their finalised state per canvas
 
 Date: 2026-11-18
-Status: proposed; confirmation by the product owner at the phase 2 gate
+Status: accepted (product owner, 2026-11-18, answers to the phase 4 questions)
 
 ## Decision
 

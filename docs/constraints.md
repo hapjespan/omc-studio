@@ -2,7 +2,7 @@
 
 Date: 2026-11-18, phase 3. Input: `specs/001-omc-studio-v1/spec.md` (commit c79175d), `specs/001-omc-studio-v1/pii-inventory.md`, kickoff v1.2, addendum A1. Risk class `standard`.
 
-Every entry carries a number or a verdict and its origin: **PO** (product owner decision), **orch** (orchestrator choice, confirmed by the product owner in phase 3), or the spec item it restates. Still not product owner decisions and not treated as such here: GATE-U1 (Finalise only with an empty Unknown allocation), ADR 0011, and SD-25 to SD-41.
+Every entry carries a number or a verdict and its origin: **PO** (product owner decision), **orch** (orchestrator choice, confirmed by the product owner in phase 3, or in phase 4 where the row says so), or the spec item it restates. GATE-U1 (Finalise only with an empty Unknown allocation), ADR 0011 and SD-25 to SD-41 were confirmed by the product owner on 2026-11-18, after phase 3. The session rows of V7, the image sources of V3 and P-5 were settled in phase 4 (ADR 0037, ADR 0039, ADR 0035).
 
 ## 1. Load and performance
 
@@ -14,7 +14,7 @@ Every entry carries a number or a verdict and its origin: **PO** (product owner 
 | P-2 | Tekenen | First use within 3 s; every action, saving included, within 1 s on a Canvas of 500 Elements | FR-114, SC-029 |
 | P-3 | CSV import | Dry run and commit of a 5 MB file each within 10 s | orch |
 | P-4 | JSON import (Canvas or full) | Dry run and commit of a 50 MB file each within 60 s | orch |
-| P-5 | Clean start | Sign-in screen answers within 3 minutes of `docker compose up -d` | SC-001 |
+| P-5 | Clean start | Sign-in screen answers within 3 minutes of `docker compose up -d`, once the image has been built on that machine; the README states the one-time build time | SC-001, orch (phase 4, Q-12) |
 | P-6 | PNG and print export | No separate bound; accepted unknown, measured once in D3 and reported | orch |
 | P-7 | Tekenen change notice from the drawing library | Within 100 ms of the action | WP-E0 P4 |
 
@@ -82,11 +82,11 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 |---|---|---|
 | V1 Encoding and sanitization | All output escaped by the template layer; user data never rendered as raw HTML. All queries through parameter binding, no input concatenated into SQL. CSV export neutralises formula prefixes. | FR-084 |
 | V2 Validation and business logic | Every field rule and every business rule (structure, 100%, Finalised year, last Administrator) checked on the server, also on direct requests and on import commit; concurrent requests on the last Administrator are serialised in a transaction. | FR-010, FR-014, FR-015, FR-085, FR-094 |
-| V3 Web frontend security | Content security policy own origin only, `wasm-unsafe-eval` as the only relaxation; nosniff, no-referrer, framing refused; cookies HttpOnly and SameSite=Lax; no intermediate state or personal data in browser storage. | FR-005, FR-090, ADR 0021 |
+| V3 Web frontend security | Content security policy own origin only, plus `data:` and `blob:` image sources for the PNG export (ADR 0039), `wasm-unsafe-eval` for the Tekenen page only; nosniff, no-referrer, framing refused; cookies HttpOnly and SameSite=Lax; no intermediate state or personal data in browser storage. | FR-005, FR-090, ADR 0021 |
 | V4 API and web service | No public API; only the application's own Inertia routes. Every state-changing request needs a POST, PUT, PATCH or DELETE with an anti-forgery token. | FR-005 |
 | V5 File handling | Size and type limits verified on content; logos re-encoded, stored under random names outside the public files, served with a fixed content type; generated file names from neutral words, slugs and dates only; no user-supplied path is used. | FR-024, FR-086, FR-088 |
 | V6 Authentication | Local accounts only; passwords 12 to 128 characters, checked against a bundled list of 10,000 common passwords, slow salted hash; one-time passwords of 16 random characters, 24 hours; 5 failures per minute locks 60 s, same message for wrong e-mail and wrong password; optional TOTP with replay protection and 8 hashed recovery codes. **Exemption**: multi-factor authentication is optional per account, not required (ADR 0010). | FR-001 to FR-008 |
-| V7 Session management | New session identifier at sign-in; 120 minutes idle timeout with a warning; sessions end at sign-out, password change (other sessions), reset and deletion. Phase 4 checks the level 2 session requirements one by one against FR-005 and brings any gap to the product owner, rather than adding a rule here. | FR-005, FR-011 |
+| V7 Session management | New session identifier at sign-in; 120 minutes idle timeout with a warning; 12 hours absolute lifetime (7.3.2); any number of sessions per account, documented (7.1.2); sessions end at sign-out, password change (other sessions), second factor on or off and new recovery codes (other sessions, 7.4.3), reset and deletion; an Administrator can end all sessions of another user (7.4.5); changing one's own e-mail address needs the current password (7.5.1). **Exemption** 7.5.2: users cannot list and end their own sessions; few users, short idle timeout and the Administrator action cover it (ADR 0025, ADR 0037). | FR-005, FR-011, orch (phase 4, Q-1 to Q-5) |
 | V8 Authorization | Two roles valid for every Organisation; every write route checks the Administrator role on the server; a test per write route proves the Reader is refused. Per-Canvas or per-Organisation permissions are out of version 1. | FR-009, FR-094 |
 | V9 Self-contained tokens | Out of scope: no tokens are issued; sessions are server-side. | |
 | V10 OAuth and OIDC | Out of scope: no outside identity provider (H1). | FR-001 |

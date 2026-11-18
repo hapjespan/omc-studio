@@ -1,7 +1,7 @@
 # 0021: Save Tekenen automatically after every finished action
 
 Date: 2026-11-18
-Status: accepted (product owner, decision 32, 2026-11-18)
+Status: accepted (product owner, decision 32, 2026-11-18); amended by 0036: a Shift move is its own request in the same one-at-a-time order, and a Layout save still never changes a parent
 
 ## Decision
 

@@ -21,9 +21,10 @@ Responses: Inertia pages for GET; for writes, a redirect back with flash data, o
 | POST /session/keep-alive | R | "Sessie verlengen" | US1.9 |
 | GET /overview | R | Organisations, Canvases, Templates (A only) | US8, US9 |
 | GET /admin | A | Beheer index | US3.3 |
-| GET /admin/users; POST; PATCH /admin/users/{user}; DELETE | A | Users list | US5 |
+| GET /admin/users; POST; PATCH /admin/users/{user}; DELETE | A | Users list; on one's own row a changed e-mail address needs `current_password` | US5, US5.10 |
 | POST /admin/users/{user}/password-reset | A | New one-time password | US5.3 |
 | DELETE /admin/users/{user}/second-factor | A | Reset another user's factor | US2.9 |
+| DELETE /admin/users/{user}/sessions | A | "Sessies beëindigen" for another user; refused on one's own row | US5.9 |
 | GET /admin/organisations; POST; PATCH /{organisation}; DELETE | A | Organisations list | US6 |
 | POST /admin/organisations/{organisation}/archive, /restore | A | | US6.6 |
 | GET /organisations/{organisation}/logo | R | Logo with fixed content type | FR-024 |
@@ -36,7 +37,7 @@ Responses: Inertia pages for GET; for writes, a redirect back with flash data, o
 | GET /canvases/{canvas}/entry | A | Invoeren; Reader or archived Canvas is redirected to view | US11 |
 | GET /canvases/{canvas}/view | R | Bekijken | US16 |
 | POST /canvases/{canvas}/elements | A | Create Domain, Cluster or Activity | US10, US11 |
-| PATCH /canvases/{canvas}/elements/{element} | A | Fields and "Hangt onder" (move) | US11.6, US11.8 |
+| PATCH /canvases/{canvas}/elements/{element} | A | Fields and "Hangt onder" (move, through the same move service as the Shift move) | US11.6, US11.8 |
 | POST /canvases/{canvas}/elements/{element}/reorder | A | `direction`: up or down | US11.5 |
 | POST /canvases/{canvas}/elements/{element}/archive, /restore | A | | FR-040a, US10.15 |
 | DELETE /canvases/{canvas}/elements/{element} | A | With `cluster_children`: delete or lift | US10.11 to 13 |
@@ -78,6 +79,7 @@ Bekijken (`GET /canvases/{canvas}/view`) gains the query parameters `overlay`, `
 | GET /canvases/{canvas}/drawing | A | Tekenen; Reader, archived Canvas or Snapshot redirected to view, Template to entry | US35.15 |
 | PUT /canvases/{canvas}/layout | A | Save the whole Layout; see `layout-payload.md` | FR-103 |
 | POST /canvases/{canvas}/layout/reset | A | Back to automatic: `scope` element, domain or canvas | FR-107 |
+| POST /canvases/{canvas}/drawing/moves | A | Shift move or "Verplaatsen naar domein": `element_id`, `target_id`, `structure_version`, `layout_version`, optional `position` and `layout` (the former place and Layout rows, sent by undo); interim scope of FR-101a, then the same rules as the Element move | FR-101a, ADR 0036 |
 
 ## Delivery 3
 

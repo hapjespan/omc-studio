@@ -43,7 +43,7 @@ Each table is created in the delivery that first needs it; no table or column ex
 
 ### sessions, cache, cache_locks (Laravel)
 
-Laravel's `sessions` table without the `ip_address` and `user_agent` columns (R-28): `id` primary key, `user_id` (index, to end a user's sessions), `payload`, `last_activity` (index, for expiry). Throttle keys live in the file cache (R-7, R-9), so the skeleton's `cache` and `cache_locks` tables are removed together with `jobs`, `job_batches`, `failed_jobs` and `password_reset_tokens`: no queue (ADR 0023) and no e-mail reset (SD-21).
+Laravel's `sessions` table without the `ip_address` and `user_agent` columns (R-28): `id` primary key, `user_id` (index, to end a user's sessions), `payload` (holds the sign-in time for the 12-hour limit, ADR 0037), `last_activity` (index, for expiry). Throttle keys live in the file cache (R-7, R-9), so the skeleton's `cache` and `cache_locks` tables are removed together with `jobs`, `job_batches`, `failed_jobs` and `password_reset_tokens`: no queue (ADR 0023) and no e-mail reset (SD-21).
 
 ### undo_records
 
@@ -168,7 +168,7 @@ Uniqueness of active names under one parent and the single Unknown allocation Do
 
 ## Delivery 2
 
-### fiscal_years (ADR 0011, still proposed)
+### fiscal_years (ADR 0011)
 
 `id`, `organisation_id` (fk cascade), `year` (integer 2000 to 2100). Index: unique(organisation_id, year). Deletion is checked explicitly by the service ("Dit boekjaar heeft nog jaarwaarden"); the `restrict` keys from `yearly_figures`, `allocation_sets` and `finalised_years` are a safety net only.
 
@@ -335,9 +335,10 @@ Index: (canvas_id, archived_at, created_at) for "Versies".
 | Second factor | off, pending, on | on only after a valid code; off by the user (password), by an Administrator reset, or by the console command |
 | Organisation, Canvas, Cost record, Element, Snapshot | active, archived | archive and restore; Element archive only without lines in its subtree (FR-040a), else Redistribution |
 | Allocation set | absent (Unknown allocation), complete (10000) | replaced whole or removed; refused while its year is Finalised in that Canvas |
-| Fiscal year in a Canvas | open, Finalised | Finalise when no Cost record of the year lacks a set in the Canvas (GATE-U1, assumption) and the closing check passes; Reopen by an Administrator |
+| Fiscal year in a Canvas | open, Finalised | Finalise when no Cost record of the year lacks a set in the Canvas (GATE-U1, confirmed) and the closing check passes; Reopen by an Administrator |
 | System notice | new, seen | "Gezien" only |
-| Element Layout (DT) | automatic (no row), manual (row) | manual on any Tekenen change; back to automatic per Element, Domain or Canvas; removed on reparent, archive, delete |
+| Element Layout (DT) | automatic (no row), manual (row) | manual on any Tekenen change; back to automatic per Element, Domain or Canvas; removed on a move through "Hangt onder", archive and delete; removed after a Shift move too (addendum 6.2) unless QS-4 says otherwise; restored by its undo |
+| Element parent | under one Domain or Cluster | changed by "Hangt onder" (Invoeren) or a Shift move (Tekenen, ADR 0036), both through `ElementTree::move` with the same rules |
 
 ## Calculation input and output (FR-059)
 

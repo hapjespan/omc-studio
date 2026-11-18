@@ -1,6 +1,14 @@
 <!--
 Sync Impact Report
-Version change: template (unversioned) -> 1.0.0
+Version change: 1.0.0 -> 1.0.1 (PATCH, approved by the product owner, 2026-11-18)
+Modified: Principle III (structure changes from every mode, including the Shift
+  move in Drawing mode, go through the same service rules; H12 amended, ADR 0036),
+  Principle IV and House Convention 1 (messages file is lang/nl.json, ADR 0031),
+  Principle V (four deliveries, with DT), Base Slice (left panel per screen, ADR 0019)
+Effect on specifications: principle III records the behaviour change already decided in ADR 0036 (the Shift move); the rest is wording; spec.md already follows these decisions
+Deferred items: none
+
+Earlier: template (unversioned) -> 1.0.0
 Modified principles: none (initial ratification)
 Added sections: Core Principles I-V, House Conventions, Compliance Articles,
   Engineering Baseline, Base Slice, Governance
@@ -37,7 +45,9 @@ The areas are fixed in code (seed) and MUST NOT be added, removed or renamed by 
 (H2). Inside an area the structure is always domain > activity; an activity hangs
 directly under a domain or under a cluster within that domain, and never without a
 domain (H3). A cluster is optional, belongs to exactly one domain, contains one or
-more activities and cannot be nested (H4). Rules live in the model and service layer,
+more activities and cannot be nested (H4). Structure changes from every mode, including moving a
+Cluster or Activity to another Domain with Shift in Drawing mode (ADR 0036), go
+through the same rules. Rules live in the model and service layer,
 not in the screens.
 Rationale: every figure on the canvas traces to one unambiguous place.
 
@@ -46,13 +56,14 @@ Rationale: every figure on the canvas traces to one unambiguous place.
 Everything a user enters MUST be creatable, viewable, editable and deletable through
 the screens, per the CRUD matrix of the kickoff, without a database tool, seed or
 import (H10). Screen texts are plain Dutch and live only in the i18n messages file
-`messages/nl.ts`.
+`lang/nl.json` (ADR 0031).
 Rationale: the product owner is not a developer.
 
 ### V. Delivered Slices Are Finished and Tested
 
 The deliverable type is tracer-bullet: breadth is cut, depth never is. Work ships in
-three deliveries (WP0 to WP4, WP5 to WP8, WP9 to WP11), each running through every
+four deliveries (D1: WP0 to WP4; DT, Drawing mode: WP-E0 to WP-E4; D2: WP5 to WP8;
+D3: WP9 to WP11), each running through every
 production layer: data model, server rules, UI and tests. A delivery MUST NOT contain
 stubs, half-implemented rules, or any amount or percentage path without full tests.
 Features of a later delivery and everything in the kickoff "Not in version 1" list
@@ -67,7 +78,7 @@ one is not done.
 1. **OOP, English everywhere in code.** Every variable, reference, function,
    class, path and route name is English and object-oriented in structure.
    Dutch exists in exactly one place: user-facing labels in the i18n messages
-   file (`messages/nl.ts` or the stack's equivalent). A Dutch identifier in
+   file (`lang/nl.json` in this project, ADR 0031). A Dutch identifier in
    code is a blocking finding.
 2. **Every database table carries an index.** A table ships with at least the
    index its access pattern needs, chosen and named in the migration that
@@ -120,7 +131,7 @@ and server-side request forgery each get an explicit verdict in phase 7.
 - One atomic commit per task, with a conventional commit message.
 - The specification starts from the base slice: data model (each table with its
   index), CRUD for the core entities, authentication with optional TOTP 2FA, and the
-  UI shell (top menu, sidebar, detail window), built once as a story of its own.
+  UI shell (top menu, left panel per screen, detail window), built once as a story of its own.
 
 ## Governance
 
@@ -133,4 +144,4 @@ compliance with the principles, house conventions and compliance articles above,
 any deviation MUST be justified in writing in an ADR under `docs/adr/`. Lowering the
 risk class is a decision that is written down with its reason.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-18 | **Last Amended**: 2026-11-18
+**Version**: 1.0.1 | **Ratified**: 2026-11-18 | **Last Amended**: 2026-11-18
