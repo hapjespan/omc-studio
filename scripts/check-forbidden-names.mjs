@@ -4,12 +4,13 @@ import { versionedFiles, relativeTo } from './walk.mjs';
 const root = process.argv[2] ?? '.';
 const listPath = process.argv[3] ?? process.env.FORBIDDEN_NAMES_FILE ?? '.forbidden-names';
 
-if (!existsSync(listPath)) {
+const names = existsSync(listPath) ? readFileSync(listPath, 'utf8').split('\n').map((line) => line.trim().toLowerCase()).filter(Boolean) : [];
+
+if (names.length === 0) {
     console.log('overgeslagen: lijst verboden namen ontbreekt');
     process.exit(0);
 }
 
-const names = readFileSync(listPath, 'utf8').split('\n').map((line) => line.trim().toLowerCase()).filter(Boolean);
 let failed = false;
 for (const file of versionedFiles(root)) {
     let content;

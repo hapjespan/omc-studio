@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectNoAxeViolations, installGuards } from '../support/guards';
+import { expectNoAxeViolations, installGuards, test as guarded } from '../support/guards';
 
 const origin = 'http://app.test';
 const csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'";
@@ -42,4 +42,17 @@ test('a clean page passes every guard', async ({ page }) => {
     guards.assertNoOutsideRequest();
     await guards.assertNoCspViolation();
     await expectNoAxeViolations(page);
+});
+
+guarded('the automatic fixture fails a test that reaches outside', async ({ page, baseURL }) => {
+    guarded.fail();
+    await page.route('**/*', (route) => {
+        const url = route.request().url();
+        if (url.startsWith(baseURL as string)) {
+            return route.fulfill({ contentType: 'text/html', body: '<!doctype html><html lang="nl"><head><title>T</title></head><body><main><img src="https://cdn.example.org/x.png" alt=""></main></body></html>' });
+        }
+        return route.fulfill({ status: 200, contentType: 'text/plain', body: '' });
+    });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
 });

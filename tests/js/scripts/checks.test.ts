@@ -29,6 +29,11 @@ describe('check-assets', () => {
         expect(run('check-assets.mjs', [root]).status).toBe(0);
     });
 
+    it('fails on a look-alike host', () => {
+        const root = tree({ 'app.js': 'x("http://localhost.evil.example/a");' });
+        expect(run('check-assets.mjs', [root]).status).toBe(1);
+    });
+
     it('fails on an outside URL', () => {
         const root = tree({ 'app.js': 'fetch("https://cdn.example.org/x.js");' });
         expect(run('check-assets.mjs', [root]).status).toBe(1);
@@ -44,6 +49,11 @@ describe('check-forbidden-names', () => {
     it('passes when no name occurs', () => {
         const root = tree({ 'a.txt': 'hello' });
         expect(run('check-forbidden-names.mjs', [root, list('acme\n')]).status).toBe(0);
+    });
+
+    it('prints a visible skip when the list is empty', () => {
+        const root = tree({ 'a.txt': 'hello' });
+        expect(run('check-forbidden-names.mjs', [root, list('\n')]).stdout).toContain('overgeslagen');
     });
 
     it('prints a visible skip when the list is missing', () => {

@@ -16,7 +16,7 @@ let failed = false;
 for (const file of allFiles(root)) {
     const urls = readFileSync(file, 'utf8').match(/https?:\/\/[^\s"'`)\\]+/g) ?? [];
     for (const url of urls) {
-        if (identifiers.some((identifier) => url.startsWith(identifier))) continue;
+        if (identifiers.some((identifier) => url.startsWith(identifier) && /^([/:#?]|$)/.test(url.slice(identifier.length)) || identifier.endsWith('/') && url.startsWith(identifier))) continue;
         console.error(`outside URL in ${relativeTo(root, file)}: ${url}`);
         failed = true;
     }
