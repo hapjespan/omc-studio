@@ -128,8 +128,16 @@ The free-text name of the party a Cost record pays.
 _Avoid_: vendor, actor
 
 **Fiscal year** (Boekjaar):
-A calendar year in which a Canvas holds Yearly figures and Allocation sets.
+A calendar year of an Organisation in which its Cost records hold Yearly figures; Finalised per Canvas.
 _Avoid_: period, year (alone)
+
+**Cost centre** (Kostenplaats):
+The free-text accounting code of a Cost record in the Organisation's own books.
+_Avoid_: cost center code, ledger
+
+**Reference date** (Peildatum):
+The date on which the Yearly figures of a Cost record were known to be right.
+_Avoid_: as-of date, snapshot date
 
 **Yearly figures** (Jaarwaarden):
 The Budget, Forecast, Run, Change, FTE, reference date and remark of one Cost record in one Fiscal year.
@@ -197,6 +205,14 @@ _Avoid_: rolled-up amount, sum
 Adding amounts from Activity to Cluster to Domain to Area to Canvas.
 _Avoid_: aggregate, consolidate
 
+**Closing check** (Sluitcontrole):
+The check, after every calculation, that the figures of a Canvas add up to the cent; when it fails no figure is shown.
+_Avoid_: validation, reconciliation
+
+**System notice** (Systeemmelding):
+A record of a failed Closing check or a damaged Snapshot, for the Administrator.
+_Avoid_: error log, alert
+
 **Share** (Aandeel):
 The Total amount of an Element divided by the total of its Canvas, Unknown allocation included.
 _Avoid_: percentage (alone), ratio
@@ -223,6 +239,20 @@ _Avoid_: version, backup, export
 The record of every create, change and delete, with old and new value and who did it.
 _Avoid_: history, activity log
 
+### Working with data
+
+**Dry run** (Proefrun):
+Checking an import file and reporting every problem in it without writing anything.
+_Avoid_: preview, validation run
+
+**Warning** (Waarschuwing):
+A remark in the editor on structure that is allowed but probably unfinished: an empty Cluster or a Domain without Activities.
+_Avoid_: error, notice
+
+**Replace by** (Vervangen door):
+Moving every Cost record from an Owner or Application to another one so the first can be deleted.
+_Avoid_: merge, reassign
+
 ### People
 
 **User** (Gebruiker):
@@ -232,6 +262,14 @@ _Avoid_: account, member
 **Administrator** (Beheerder):
 The role that may change everything.
 _Avoid_: admin, owner, editor
+
+**Second factor** (Tweede factor):
+A six-digit code from an authenticator app, asked after the password when a User has turned it on.
+_Avoid_: 2FA, MFA, token
+
+**Recovery code** (Herstelcode):
+A single-use code that replaces the Second factor once, when the app is not at hand.
+_Avoid_: backup code
 
 **Reader** (Lezer):
 The role that may only view and export.
