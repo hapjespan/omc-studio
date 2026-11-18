@@ -4,7 +4,7 @@ Date: 2026-11-18. Risk class `standard`. Source: `spec.md` in this directory, gr
 
 The application holds Organisation and cost data, not data about children, parents or staff (kickoff 18.2). Owner and Supplier are organisation names or roles; the Owner field carries the hint "Afdeling of rol, geen persoonsnaam". The only intended personal data is about the people who use the application.
 
-There are no processors: the application runs on one machine, makes no outgoing connection (H1) and shares data with no third party.
+There are no processors: the application runs on one machine, makes no outgoing connection (H1) and shares data with no third party. The drawing library of Tekenen runs inside the browser and sends nothing out (H15, FR-111), so it is no processor either.
 
 ## Elements
 
@@ -27,6 +27,8 @@ There are no processors: the application runs on one machine, makes no outgoing 
 - Network addresses and browser identification: not stored in sessions or logs (SD-20).
 - E-mail addresses typed at a failed sign-in: not logged (FR-022).
 - Users, second-factor data and the Audit log: not in any export, full export included (SD-12).
+- Element layout (DT): place, size and style of Elements; no personal data. Its Audit log entries name the actor, covered by the Audit log row above.
+- A local intermediate state of Tekenen in the browser, if the product owner chooses it (`[GATE-C32]`), would hold Layout values and Element identifiers only, no names, amounts or personal data; this inventory is updated in the same change that decides it.
 
 ## Residual risk
 

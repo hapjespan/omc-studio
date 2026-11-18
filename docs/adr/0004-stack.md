@@ -1,7 +1,7 @@
 # 0004: Build on Laravel, Inertia, React, TypeScript, Tailwind and SQLite
 
 Date: 2026-11-18
-Status: accepted
+Status: superseded by 0012
 
 ## Decision
 

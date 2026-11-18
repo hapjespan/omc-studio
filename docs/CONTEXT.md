@@ -32,6 +32,14 @@ Canvas sits in **Unknown allocation**, a fixed Domain the system keeps in Suppor
 activities, so the whole budget of the Organisation is always attributed. Amounts **Roll up** from Activity to Cluster to Domain to Area to
 Canvas; each Element has a **Direct amount** and a **Total amount**.
 
+A Canvas is worked on in three modes. In **Entry mode** an Administrator builds the
+structure and fills in fields, Area by Area, as a tree. In **Drawing mode** they
+arrange the picture: the **Layout** of each Element, its place, size and **Element
+style** on the **Artboard**, without touching structure. In **View mode** anyone
+reads the Canvas with its overlays. Every Canvas starts in **Automatic layout** and
+can always go back to it; an Element changed in Drawing mode keeps its **Manual
+layout**. Where an Element has no style of its own, the **Default colours** apply.
+
 A Fiscal year of a Canvas can be **Finalised**, which makes it read-only until it is
 **Reopened**. Removing an Element that carries allocations requires
 **Redistribution** first, after which the Element is **Archived**. A **Snapshot**
@@ -220,12 +228,48 @@ _Avoid_: percentage (alone), ratio
 ### Views and history
 
 **Overlay** (Overlay):
-A layer drawn over the Canvas: none, Modality or financial.
-_Avoid_: view mode, filter
+A layer drawn over the Canvas in View mode: none, Modality or financial.
+_Avoid_: view mode (that is Bekijken), filter
 
-**Theme** (Thema):
-The colours per Area and level of one Canvas.
-_Avoid_: style, skin
+**Entry mode** (Invoeren):
+The mode in which an Administrator creates, changes, orders and moves Elements and their fields in a tree per Area, without a drawing surface.
+_Avoid_: edit mode, editor, Bewerk
+
+**Drawing mode** (Tekenen):
+The mode in which an Administrator changes the Layout of existing Elements and nothing else.
+_Avoid_: edit mode, Edit, design mode, editor
+
+**View mode** (Bekijken):
+The read-only mode with overlays, Snapshots and export; the only mode a Reader sees.
+_Avoid_: preview, Bekijk
+
+**Layout** (Opmaak):
+Where an Element sits on the Artboard, how large it is, and its Element style.
+_Avoid_: drawing, design, position (alone)
+
+**Automatic layout** (Automatische opmaak):
+The Layout the application computes from the structure alone; the start of every Canvas and the fallback.
+_Avoid_: default layout, auto-position
+
+**Manual layout** (Handmatige opmaak):
+The Layout of an Element as last set in Drawing mode, kept until it is set back to automatic.
+_Avoid_: custom layout, free layout
+
+**Element style** (Stijl):
+The colours and other visual properties one Element has of its own, over the Default colours.
+_Avoid_: theme, skin
+
+**Default colours** (Standaardkleuren):
+The colours per Area and level the application ships, shown wherever an Element has no Element style.
+_Avoid_: theme, palette
+
+**Artboard** (Tekenvlak):
+The drawing surface of one Canvas on which every Layout is measured in whole pixels.
+_Avoid_: page, stage, canvas (alone)
+
+**Font list** (Fontlijst):
+The fixed set of fonts shipped with the application that canvas text may use.
+_Avoid_: fonts (alone), typeface library
 
 **Quick entry** (Snel invoeren):
 Creating many Elements at once from indented lines of text.
@@ -246,7 +290,7 @@ Checking an import file and reporting every problem in it without writing anythi
 _Avoid_: preview, validation run
 
 **Warning** (Waarschuwing):
-A remark in the editor on structure that is allowed but probably unfinished: an empty Cluster or a Domain without Activities.
+A remark in Entry mode on something allowed but probably unfinished: an empty Cluster or a Domain without Activities.
 _Avoid_: error, notice
 
 **Replace by** (Vervangen door):
@@ -298,3 +342,12 @@ that starts with that name and can be extended.
 After the picture of the whole Organisation, zooming into separate locations or
 units in a deeper layer. Explicitly not in version 1 and not prepared with extra
 abstractions.
+
+## Sources and precedence
+
+Four documents describe what is built: kickoff repo version 1.3 (`specs/kickoff.md`),
+the product owner's kickoff v1.2 (`specs/kickoff-v1.2-po.md`), addendum A1
+(`specs/kickoff-addendum-edit-mode.md`) and the design (`specs/design/`). The
+product owner's gate answers recorded in repo version 1.3 go first; for screens and
+names v1.2 and the design lead; for technique the addendum leads. Every difference
+and its status is in `specs/001-omc-studio-v1/source-conflicts.md`.

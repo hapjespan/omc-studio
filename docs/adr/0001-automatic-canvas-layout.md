@@ -1,7 +1,7 @@
 # 0001: Lay out the canvas automatically, without a free drawing editor
 
 Date: 2026-11-18
-Status: accepted
+Status: superseded by 0013
 
 ## Decision
 
