@@ -71,4 +71,14 @@ class DeliveredStackFilesTest extends TestCase
         $this->assertStringContainsString('storage/app.key', $this->read('.dockerignore'));
         $this->assertStringContainsString('zend.exception_ignore_args=On', $this->read('Dockerfile'));
     }
+
+    public function test_the_writable_directories_exist_before_the_autoload_scripts_run(): void
+    {
+        $dockerfile = $this->read('Dockerfile');
+
+        $this->assertLessThan(
+            strpos($dockerfile, 'composer dump-autoload'),
+            strpos($dockerfile, 'mkdir -p storage/framework/cache'),
+        );
+    }
 }

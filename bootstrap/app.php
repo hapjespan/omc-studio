@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [HandleInertiaRequests::class, EncryptHistoryMiddleware::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->context(fn () => ['route' => request()->route()?->getName()]);
+        $exceptions->context(fn () => app()->bound('request') ? ['route' => request()->route()?->getName()] : []);
         $exceptions->map(fn (QueryException $e) => new RuntimeException($e->getSql(), (int) $e->getCode()));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
