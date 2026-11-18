@@ -2,7 +2,7 @@
 
 Date: 2026-11-18. Source: the product owner's design `specs/design/omc-studio-design.html` (answer A to `[GATE-D1]`), five boards 1440 pixels wide, captured offline as `specs/design/board-*.png`. Values were measured from the rendered boards (computed styles), not guessed. The design is a visual reference: its React code is not taken over (ADR 0012), and the file stays in `specs/design/` only (FR-090, FR-098).
 
-Where this contract and the spec differ, the spec wins; every difference the product owner still has to decide is listed in `source-conflicts.md` and marked `[GATE-Cn]` in the spec. The navigation mapping is ADR 0019.
+Where this contract and the spec differ, the spec wins. The product owner's decisions on the differences (`source-conflicts.md`, points 32 to 50) are applied below; where they change the design, the contract says so. The navigation mapping is ADR 0019.
 
 ## Boards
 
@@ -26,16 +26,17 @@ Roles, with the contrast measured against their usual background (WCAG 2.2: 4.5:
 | Page background | `#F2F3F1` | |
 | Panel and canvas surface | `#F6F7F5` | |
 | Surface (cards, panels, inputs) | `#FFFFFF` | |
-| Hairline borders of cards, panels and secondary buttons | `#DCDFE2` | 1.3:1 on white, `[GATE-C45]` |
-| Input, select and textarea borders | `#AEB4BC` | 2.1:1 on white, `[GATE-C45]` |
+| Hairline borders of cards and panels (decorative) | `#DCDFE2` | 1.3:1 on white, not a control edge |
+| Borders of secondary buttons | `#848B95` (design: `#DCDFE2`) | 3.4:1 on white, 3.1:1 on page, decision 45 |
+| Input, select and textarea borders | `#848B95` (design: `#AEB4BC`) | 3.4:1 on white, decision 45 |
 | Dashed borders (add lines, drop zones) | `#8A919B` | 3.2:1 on white |
 | Success text and check ("Alles opgeslagen", 100%) | `#1F7A4D` | 5.3:1 on white |
 | Success callout background | `#E7F3EC` | |
 | Warning text (Concept, empty Cluster) | `#8A5200` | 5.8:1 on `#FFF3D6` |
 | Warning callout background | `#FFF3D6` | |
-| Danger text and outline (Verwijderen) | `#A12A1E` on white, outline `#D9B4AF` | text 7.3:1; outline 1.9:1, `[GATE-C45]` |
+| Danger text and outline (Verwijderen) | `#A12A1E` on white, outline `#C0645A` (design: `#D9B4AF`) | text 7.3:1; outline 4.0:1, decision 45 |
 | Focus and selection accent | `#2459D6` | 6.0:1 on white; selected layer row `#E3EBFB` |
-| Forecast above budget (bar part) | `#C9A227` | 2.4:1 on white, `[GATE-C45]` |
+| Forecast above budget (bar part) | `#9A7811` (design: `#C9A227`) | 4.1:1 on white, 3.1:1 on the track, decision 45 |
 | Bar track | `#DCDFE2` | |
 | Modality Common, Adaptive, Specialized, Distinct | `#1F7A4D`, `#1E5FBF`, `#B4540A`, `#6B3FB5` | white letter on each: 5.3, 6.1, 5.0, 7.0 :1 |
 
@@ -54,7 +55,7 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 
 ## Typography
 
-- Body: Inter. Headings, amounts and canvas titles: Space Grotesk. Both are bundled with the application, never loaded from outside (H1). Whether Space Grotesk joins the font list for canvas text is `[GATE-C37]`.
+- Body: Inter. Headings, amounts and canvas titles: Space Grotesk. Both are bundled with the application, never loaded from outside (H1), and both are the font list for canvas text (ADR 0017).
 - Weights 400, 500, 600 and 700.
 
 | Use | Face | Size / line height | Weight |
@@ -86,6 +87,8 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
   - the tabs Canvas, Kostenposten, Toewijzen, Versies and Beheer, where the active tab is ink with a 2-pixel underline;
   - the Fiscal year selector "Boekjaar 2026 open";
   - the user's role and menu on the right.
+- Direction band: fixed place and height across the top, locked in Tekenen, one arrangement in every mode, four columns side by side: logo, mission, vision, strategic goals (decision 38; board 1b stacks the goals below, which does not apply).
+- Artboard: fixed, 1680 by 1188 pixels, landscape A3 (ADR 0020).
 - Page header: the title, then the mode switch Invoeren | Tekenen | Bekijken (a segmented control; the active segment is ink with white text), then the save state and the actions on the right.
 - Body: a left panel of 210 to 225 pixels (Area list, Layers, cost record list), the main work area, and a detail panel of 320 to 390 pixels on the right. All three are white panels on the page background.
 
@@ -97,7 +100,7 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 - **Filter chips**: a select button showing "Soort Alle".
 - **Badges**: modality letter square, 16 by 16 pixels. Pills "Voorbeelddata", "nieuw" and "leeg" (warning colour).
 - **Status**: a dot plus text, never the dot alone: "● 100%", "○ Niet toegewezen" (to be read as "Onbekende allocatie", decision 26), "○ Concept 80%".
-- **Tree row (Invoeren)**: type label, name, modality badge, then the up and down arrow buttons. Children are indented by 24 pixels per level. Each Domain ends with a dashed add line, "Activiteit of cluster toevoegen aan <domein>, Enter om op te slaan" (`[GATE-C44]`).
+- **Tree row (Invoeren)**: type label, name, modality badge, then the up and down arrow buttons. Children are indented by 24 pixels per level. Each Domain ends with a dashed add line, "Activiteit of cluster toevoegen aan <domein>, Enter om op te slaan", with the choice "Activiteit | Cluster" next to it (decision 44).
 - **Area list item**: name plus a count line ("4 domeinen · 13 activiteiten"). The selected item has a 2-pixel ink border.
 - **Callouts**: warning (amber background, triangle icon, bold kind plus name), success (green background, check, "Totalen sluiten: ...").
 - **Summary card** (Kostenposten): small label, large amount, sub line.
@@ -107,7 +110,7 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 - **Allocation**: an amber "Nog te verdelen" block with the percentage and amount, and a stacked bar of the lines plus a dashed rest. Each line card shows its colour stripe, kind and path, name, percentage input, amount, "Rest naar deze regel" and remove. Below them sits a dashed drop zone.
 - **Target tree** (Toewijzen): the Area heading with its total, rows of kind, name, amount and a "+" button, and "In set" for Targets already in the set.
 - **Layers panel** (Tekenen): the Element tree with disclosure arrows, the selected row in accent tint, and the "nieuw" pill.
-- **Property panel** (Tekenen): "Plek en grootte" with X, Y, B and H in a 2-by-2 grid; "Kleur" with Vulling, Rand and Tekst, each a swatch plus a hex field; "Hoeken"; "Stijl naar alle domeinen hier" and "Terug naar automatische plek"; and a note linking to Invoeren. The full set of properties is `[GATE-C33]`.
+- **Property panel** (Tekenen): "Plek en grootte" with X, Y, B and H in a 2-by-2 grid; "Kleur" with Vulling, Rand and Tekst, each a swatch plus a hex field; "Hoeken"; "Stijl naar alle domeinen hier" and "Terug naar automatische plek"; and a note linking to Invoeren. Beyond the board it holds the full list of addendum chapter 5 (decision 33): fill opacity, border width and style, font, size, weight, italic, text alignment, order, copy and paste style, same size, grid.
 - **Bottom toolbar** (Tekenen): floating and centred, with "Selecteren en verplaatsen", "Schuiven", "Uitlijnen", "Gelijk verdelen" and "Zoom 78%". The selection shows a 1-pixel accent frame with square handles and a size label ("286 × 204").
 
 ## States
@@ -117,13 +120,14 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 | Selected row, area or card | 2-pixel ink border |
 | Active tab | ink text, 2-pixel ink underline |
 | Active segment | ink fill, white text |
-| Saved | green check and "Alles opgeslagen" or "Opmaak opgeslagen" (Tekenen save model `[GATE-C32]`) |
+| Saved | green check and "Alles opgeslagen" or "Opmaak opgeslagen"; Tekenen saves automatically (ADR 0021), shows "Opslaan…" while sending and "Opmaak niet opgeslagen" with "Opnieuw proberen" on failure |
 | Unsaved allocation | "Concept 80%" in warning colour, never stored (H5) |
 | Disabled | grey fill, lock icon, explanation next to it |
 | Empty | muted sentence ("Geen kosten toegewezen in 2026", "leeg") |
 | Warning | amber callout or pill |
-| Focus | design shows a single 2-pixel `#2459D6` outline; the spec keeps the dark and light double ring of WB2 (`[GATE-C46]`) |
+| Focus | a dark and a light ring of 2 pixels each (WB2, decision 46), replacing the design's single `#2459D6` outline |
+| Checkbox | 16-pixel box inside a 24-pixel target (WB4, decision 46) |
 
 ## Formats seen in the design
 
-Amounts appear as whole euros in overviews ("€ 84.000") and with cents in Toewijzen and forms ("€ 54.000,00"); Share appears with one decimal ("2,8%"). The spec's formats stand until `[GATE-C40]` is decided.
+On the canvas and in the overlay amounts are whole euros ("€ 84.000") and percentages have one decimal ("2,8%"); the detail panel, tables, forms and Toewijzen show cents ("€ 54.000,00") and two decimals (decision 40). How whole euros behave in a list shown with its total is open (`[GATE-C52]`). The financial overlay draws its figures inside the card at the card's place and size (decision 39). The Cost record form also shows Supplier, cost centre, description and remark (decision 42). Long names wrap and cards grow (decision 48).

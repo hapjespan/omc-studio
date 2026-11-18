@@ -28,7 +28,7 @@ There are no processors: the application runs on one machine, makes no outgoing 
 - E-mail addresses typed at a failed sign-in: not logged (FR-022).
 - Users, second-factor data and the Audit log: not in any export, full export included (SD-12).
 - Element layout (DT): place, size and style of Elements; no personal data. Its Audit log entries name the actor, covered by the Audit log row above.
-- A local intermediate state of Tekenen in the browser, if the product owner chooses it (`[GATE-C32]`), would hold Layout values and Element identifiers only, no names, amounts or personal data; this inventory is updated in the same change that decides it.
+- No intermediate state is kept in the browser: Tekenen saves automatically (ADR 0021).
 
 ## Residual risk
 

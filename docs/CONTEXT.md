@@ -236,7 +236,7 @@ The mode in which an Administrator creates, changes, orders and moves Elements a
 _Avoid_: edit mode, editor, Bewerk
 
 **Drawing mode** (Tekenen):
-The mode in which an Administrator changes the Layout of existing Elements and nothing else.
+The mode in which an Administrator changes the Layout of existing Areas and Elements and nothing else.
 _Avoid_: edit mode, Edit, design mode, editor
 
 **View mode** (Bekijken):
@@ -244,7 +244,7 @@ The read-only mode with overlays, Snapshots and export; the only mode a Reader s
 _Avoid_: preview, Bekijk
 
 **Layout** (Opmaak):
-Where an Element sits on the Artboard, how large it is, and its Element style.
+Where an Element or Area sits on the Artboard, how large it is, and its Element style.
 _Avoid_: drawing, design, position (alone)
 
 **Automatic layout** (Automatische opmaak):
@@ -252,7 +252,7 @@ The Layout the application computes from the structure alone; the start of every
 _Avoid_: default layout, auto-position
 
 **Manual layout** (Handmatige opmaak):
-The Layout of an Element as last set in Drawing mode, kept until it is set back to automatic.
+The Layout of an Element or Area as last set in Drawing mode, kept until it is set back to automatic; its height is a minimum, because an Element always grows to hold its name and children.
 _Avoid_: custom layout, free layout
 
 **Element style** (Stijl):
@@ -264,7 +264,7 @@ The colours per Area and level the application ships, shown wherever an Element 
 _Avoid_: theme, palette
 
 **Artboard** (Tekenvlak):
-The drawing surface of one Canvas on which every Layout is measured in whole pixels.
+The fixed drawing surface of one Canvas, landscape A3 at 1680 by 1188 pixels, on which every Layout is measured in whole pixels.
 _Avoid_: page, stage, canvas (alone)
 
 **Font list** (Fontlijst):
@@ -290,7 +290,7 @@ Checking an import file and reporting every problem in it without writing anythi
 _Avoid_: preview, validation run
 
 **Warning** (Waarschuwing):
-A remark in Entry mode on something allowed but probably unfinished: an empty Cluster or a Domain without Activities.
+A remark in Entry mode on something allowed but probably unfinished: an empty Cluster, a Domain without Activities, or Elements that overlap on the Artboard.
 _Avoid_: error, notice
 
 **Replace by** (Vervangen door):

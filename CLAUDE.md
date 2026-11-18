@@ -115,7 +115,8 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     position (supersedes 0001); 0014 three modes Invoeren, Tekenen, Bekijken;
     0015 HTML rendering outside Tekenen; 0016 layout as own data per element,
     drawing library behind one adapter; 0017 fixed font list; 0018 no theme
-    screen; 0019 design navigation mapping
+    screen; 0019 design navigation mapping; 0020 fixed A3 artboard, free
+    areas, growing cards; 0021 Tekenen saves automatically
 - `docs/CONTEXT.md` — domain narrative, glossary, open unknowns
 - `specs/grilling-phase-1.md` — phase 1 grilling output, feeds phase 2
 - `specs/001-omc-studio-v1/`: spec.md, pii-inventory.md, design-contract.md and

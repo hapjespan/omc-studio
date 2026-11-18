@@ -9,4 +9,4 @@ There is no theme screen. The application ships default colours per Area and lev
 
 ## Motivation
 
-Kickoff v1.2 and the design drop the theme screen and move colour into Tekenen; one place for colour avoids two layers of settings that can contradict each other. Consequence: until Tekenen ships, and when the technical proof ends in no-go, colours cannot be changed (open questions 49 and 50 in `specs/001-omc-studio-v1/source-conflicts.md`). Rejected: a per-Canvas Theme screen as a default under the per-Element style (addendum 6.1.4, kickoff 1.3 6.5.4).
+Kickoff v1.2 and the design drop the theme screen and move colour into Tekenen; one place for colour avoids two layers of settings that can contradict each other. Consequence, accepted by the product owner (decisions 49 and 50 in `specs/001-omc-studio-v1/source-conflicts.md`): until Tekenen ships colours cannot be changed; after a no-go on the technical proof a separate decision follows, and nothing is prepared for it. Rejected: a per-Canvas Theme screen as a default under the per-Element style (addendum 6.1.4, kickoff 1.3 6.5.4).

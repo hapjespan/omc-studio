@@ -8,7 +8,7 @@ Datum: 18 november 2026. Vergeleken: kickoff v1.2 van de PO (`specs/kickoff-v1.2
 2. Voor schermen en namen leiden v1.2 en het design. De drie modi heten Invoeren, Tekenen en Bekijken.
 3. Voor de techniek leidt de aanvulling. Dat betekent geheel Vue 3, opmaak als eigen gegevens per element en geen tekendocument als waarheid. OpenPencil zit achter de adapter met vastgepinde versies, eerst komt de technische proef met go of no-go, en H11 t/m H15 gelden.
 4. In de aanvulling lees je "Bewerk" als Invoeren en "Edit" als Tekenen.
-5. Waar deze regels een punt niet eenduidig beslissen, staat het op **open**. Open punten staan in de spec als `[GATE-Cn]`, met hetzelfde nummer als hieronder.
+5. Waar deze regels een punt niet eenduidig beslissen, staat het op **open**. De punten 32 t/m 50 stonden open en zijn later door de PO beslist. In de spec verwijst `[GATE-Cn]` naar het punt met hetzelfde nummer hieronder.
 
 Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advies en de status.
 
@@ -124,63 +124,63 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
 **31. Knop "Importeren uit CSV" in Invoeren.**
 - Status: **beslist door PO** (plek): de knop staat in Invoeren. Hij verschijnt pas in oplevering 3, waar de structuurimport zit, dus zonder stub in oplevering 1.
 
-## Open
+## Beslist na de poort (18 november 2026)
 
 **32. Opslaan in Tekenen.** Het design toont "Opmaak opgeslagen", wat op automatisch opslaan lijkt. De aanvulling heeft een knop Opslaan, de tekst "niet opgeslagen" en elke 30 seconden een lokale tussenstand.
 - Gevolg: automatisch opslaan betekent veel kleine serverchecks en geen bewuste stap.
 - Advies: knop en tussenstand uit de aanvulling, met de statusteksten uit het design.
-- Status: **open**.
+- Status: **beslist door PO, AFWIJKEND**: Tekenen slaat automatisch op, zonder knop Opslaan; de kop toont "Opmaak opgeslagen".
 
 **33. Wat in Tekenen instelbaar is.** Het design toont plek, grootte, vulling, rand, tekstkleur en hoeken. De aanvulling (hoofdstuk 5) heeft ook font, randdikte en randstijl, tekstuitlijning, volgorde, stijl kopiëren, gelijke maat en een raster.
 - Advies: de lijst van de aanvulling; het design is een schets.
-- Status: **open**.
+- Status: **beslist door PO**: de ruime lijst uit de aanvulling, hoofdstuk 5.
 
 **34. Area's in Tekenen.** In de aanvulling (K13, A9) zijn ze vergrendeld. In v1.2 6.5.3 mag de gebruiker "alles vrij verplaatsen en vergroten".
 - Advies: vergrendeld, want area's liggen vast (H2).
-- Status: **open**.
+- Status: **beslist door PO, AFWIJKEND**: area's zijn in Tekenen vrij te verplaatsen en van maat te veranderen. H2 blijft gelden voor toevoegen, verwijderen en hernoemen.
 
 **35. Koersblok en logo in Tekenen.** In v1.2 6.5.8 zijn ze verplaatsbaar, en het design toont een laag "Koers". In de aanvulling 7.2 zijn ze een vergrendelde achtergrond.
 - Advies: vergrendeld.
-- Status: **open**.
+- Status: **beslist door PO**: koersblok en logo zijn vergrendeld.
 
 **36. Tekenvlak.** De aanvulling (A10) heeft een vast vlak van 1680 bij 1188, liggend A3. Het design toont een hoog, staand canvas.
 - Gevolg: bij een vast vlak passen 500 elementen niet.
 - Advies: een vaste breedte van 1680 waarbij de hoogte meegroeit met de inhoud.
-- Status: **open**.
+- Status: **beslist door PO, AFWIJKEND**: een vast tekenvlak, liggend A3, 1680 bij 1188.
 
 **37. Fontlijst.** De aanvulling (A8) noemt Inter, Arimo en Gelasio. Het design gebruikt Inter en Space Grotesk, die laatste voor koppen, bedragen en titels op het canvas.
 - Advies: Inter en Space Grotesk, beide lokaal meegeleverd.
-- Status: **open**.
+- Status: **beslist door PO**: Inter en Space Grotesk.
 
 **38. Koersblok verschilt tussen modi.** In Tekenen staan de doelen onder missie en visie; in Bekijken staan ze in vier kolommen. Dat botst met H11.
 - Advies: één indeling, die van Bekijken.
-- Status: **open**.
+- Status: **beslist door PO**: het koersblok staat overal in vier kolommen naast elkaar.
 
 **39. Financiële overlay.** Het design toont in Bekijken andere kaartmaten dan in Tekenen, en geen activiteiten. Dat botst met H11.
 - Advies: dezelfde plek en maat houden en de overlay binnen de kaart tekenen.
-- Status: **open**.
+- Status: **beslist door PO**: de overlay staat op dezelfde plek en maat, binnen de kaart.
 
 **40. Bedragen en percentages.** Het design toont hele euro's (€ 84.000) en een aandeel met één decimaal (2,8%). De spec heeft overal € 1.234,56 en 12,40%.
 - Gevolg: afgeronde getallen kunnen optellen tot een ander totaal dan getoond.
 - Advies: overal centen en twee decimalen.
-- Status: **open**.
+- Status: **beslist door PO, AFWIJKEND**: op het canvas en in de overlay hele euro's en één decimaal, zoals het design. In het detailpaneel en in de tabellen staat het exacte bedrag in centen. Rekenen en controleren (H7) blijft op de cent.
 
 **41. Uitsplitsing per modaliteit.** Het design laat Onbekende allocatie weg ("telt hier niet mee"). De spec (SD-18) telt haar mee, zodat de uitsplitsing optelt tot het totaal.
 - Advies: meetellen.
-- Status: **open**.
+- Status: **beslist door PO**: Onbekende allocatie telt mee als eigen regel.
 
 **42. Velden van een kostenpost.** Het formulier in het design mist leverancier, kostenplaats, omschrijving en opmerking. v1.2 7.1 en de spec hebben ze.
 - Advies: de velden blijven.
-- Status: **open**.
+- Status: **beslist door PO**: de vier velden blijven.
 
 **43. Kostenposten zonder canvas.** Het design toont Kostenposten alleen binnen een canvas.
 - Gevolg: een organisatie zonder canvas heeft dan geen plek voor haar kostenposten.
 - Advies: ook bereikbaar vanuit het overzicht, per organisatie.
-- Status: **open**.
+- Status: **beslist door PO**: kostenposten zijn bereikbaar binnen een canvas en per organisatie vanuit het overzicht.
 
 **44. Invoerregel "Activiteit of cluster toevoegen".** Het design laat niet zien hoe je voor een cluster kiest.
 - Advies: een keuze "Activiteit | Cluster" naast de regel, met Activiteit als standaard.
-- Status: **open**.
+- Status: **beslist door PO**: een keuze "Activiteit | Cluster" naast de invoerregel.
 
 **45. Contrast in het design.** Gemeten op de borden, tegen de spec WB3 (minstens 3:1):
 - randen van invoervelden #AEB4BC: 2,1:1;
@@ -188,27 +188,43 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
 - het gele deel van de prognosebalk #C9A227: 2,4:1;
 - de rand van de knop Verwijderen #D9B4AF: 1,9:1.
 - Advies: donkerder maken, bijvoorbeeld #8A919B (3,2:1).
-- Status: **open**.
+- Status: **beslist door PO**: de randen en de gele balk worden donkerder, tot ze aan de contrasteis voldoen.
 
 **46. Focus en klikvlak.** Het design heeft één blauwe focusrand, waar WB2 een donkere en een lichte rand vraagt. De selectievakjes zijn 16 px, waar WB4 24 px of ruimte eromheen vraagt.
 - Advies: WB2 en WB4 houden.
-- Status: **open**.
+- Status: **beslist door PO**: WB2 en WB4 blijven gelden.
 
 **47. Terug naar automatisch.** Het design heeft "Terug naar automatische plek" en "Alles automatisch opmaken". De aanvulling heeft dit per element, per domein en voor het hele canvas, en zet ook de stijl terug.
 - Advies: plek, maat en stijl terugzetten, en "per domein" toevoegen.
-- Status: **open**.
+- Status: **beslist door PO**: plek, maat en stijl gaan terug, op drie niveaus (element, domein, canvas).
 
 **48. Lange namen.** Het design laat namen in Tekenen doorlopen op een volgende regel. De aanvulling (6.2, risico's) kapt ze af met drie puntjes, zodat beide weergaven gelijk blijven (H11).
 - Gevolg: bij doorlopen moet een element meegroeien, en dat kan niet bij een vaste handmatige maat.
 - Advies: doorlopen bij automatische opmaak, en afkappen met een waarschuwing als een handmatige maat te klein is.
-- Status: **open**.
+- Status: **beslist door PO, AFWIJKEND**: lange namen lopen altijd door en de kaart groeit mee, ook bij een handmatige maat.
 
-## Nieuwe vragen die volgen uit de besluiten
 
 **49. Kleuren in oplevering 1.** Zonder themascherm, en met Tekenen pas later, zijn kleuren in oplevering 1 niet aan te passen.
 - Advies: accepteren.
-- Status: **open**.
+- Status: **beslist door PO**: accepteren dat kleuren in oplevering 1 niet aan te passen zijn.
 
 **50. Kleuren bij een no-go op WP-E0.** Dan komt Tekenen er niet, en zijn kleuren in versie 1 nooit aan te passen.
 - Advies: dan alsnog een eenvoudig kleurenscherm, als apart besluit.
-- Status: **open**.
+- Status: **beslist door PO**: bij een no-go volgt een apart besluit; nu wordt niets voorbereid.
+
+## Open (volgt uit de besluiten)
+
+**51. Inhoud die niet op het vaste tekenvlak past.** Het tekenvlak is vast (36), lange namen laten kaarten meegroeien (48), en de spec vraagt tot 500 elementen per canvas. Een area kan daardoor groeien tot voorbij de rand van het tekenvlak, ook bij automatische opmaak en dus al in oplevering 1. Bij 500 elementen gebeurt dat zeker.
+- Mogelijkheden:
+  - het vlak wordt hoger, waardoor het geen A3 meer is;
+  - de inhoud schaalt kleiner;
+  - de opmaak wordt geweigerd met een melding;
+  - de inhoud loopt over de rand en er komt een waarschuwing.
+- Status: **open**. De spec vult dit niet in (`[GATE-C51]`). Ook de tekst van het koersblok, met een vaste hoogte, valt hieronder. Het moet beslist zijn voordat oplevering 1 wordt gebouwd, omdat de automatische opmaak al op het vaste vlak staat.
+
+**52. Hele euro's en zichtbaar optellen.** Op het canvas en in de overlay staan hele euro's (40). Een bedrag kan op een kaart staan en ook in een lijst met een totaal, zoals de uitsplitsing per modaliteit of "Totalen sluiten".
+- Keuze a: elk bedrag wordt los afgerond en is overal hetzelfde. Een lijst kan dan een paar euro naast haar getoonde totaal uitkomen.
+- Keuze b: elke lijst wordt zo afgerond dat ze zichtbaar optelt. Hetzelfde bedrag kan dan één euro verschillen tussen kaart en lijst.
+- Rekenen en de sluitcontrole blijven in beide gevallen op de cent.
+- Advies: keuze a, met de regel "Totalen sluiten" in centen.
+- Status: **open** (`[GATE-C52]`).

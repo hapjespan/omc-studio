@@ -4,9 +4,9 @@
 
 **Created**: 2026-11-18
 
-**Status**: Draft. The phase 2 gate was approved on 2026-11-18 while kickoff v1.2, addendum A1 and the design were being processed; the items marked `[GATE-Cn]` are still open with the product owner
+**Status**: Draft. The phase 2 gate was approved on 2026-11-18 while kickoff v1.2, addendum A1 and the design were being processed; the product owner then decided the source differences marked `[GATE-Cn]`; only `[GATE-C51]` and `[GATE-C52]` are open
 
-**Input**: Phase 1 grilling output (`specs/grilling-phase-1.md`), kickoff repo version 1.3 (`specs/kickoff.md`), the product owner's kickoff v1.2 (`specs/kickoff-v1.2-po.md`), addendum A1 (`specs/kickoff-addendum-edit-mode.md`), the design (`specs/design/`, contract in `design-contract.md`), `docs/CONTEXT.md`, ADR 0001 to 0019, constitution v1.0.0. Differences between the sources: `source-conflicts.md`.
+**Input**: Phase 1 grilling output (`specs/grilling-phase-1.md`), kickoff repo version 1.3 (`specs/kickoff.md`), the product owner's kickoff v1.2 (`specs/kickoff-v1.2-po.md`), addendum A1 (`specs/kickoff-addendum-edit-mode.md`), the design (`specs/design/`, contract in `design-contract.md`), `docs/CONTEXT.md`, ADR 0001 to 0021, constitution v1.0.0. Differences between the sources: `source-conflicts.md`.
 
 ## Reading guide
 
@@ -16,8 +16,8 @@
 - **Labels**: quoted Dutch text is the screen label. All screen text lives in the messages file; code and data use the English glossary terms of `docs/CONTEXT.md`. The modes are "Invoeren" (Entry mode), "Tekenen" (Drawing mode) and "Bekijken" (View mode) (ADR 0014).
 - **Look**: every screen follows `design-contract.md`, also screens the design does not show.
 - **Hard rules added by addendum A1** (H1 to H10 of the kickoff stand): H11 the three modes show the same canvas, within 1 pixel at 100% zoom; H12 Tekenen changes Layout only, never structure or text; H13 the database is the only source, Layout is the application's own data; H14 the drawing library sits behind one adapter in one directory, versions pinned exactly; H15 Tekenen makes no request outside the application's own server.
-- **Gate markers**: `[GATE-U1]` to `[GATE-U4]` and `[GATE-D1]` mark requirements touched by the phase 2 gate answers; `[GATE-U1]` now marks only the Finalise rule, which remains an assumption. `[GATE-Cn]` marks a difference between the sources the product owner has not decided yet, numbered as in `source-conflicts.md`; until decided, the requirement it marks states only what is decided. `[SD-n]` marks a decision this spec took under kickoff 20.4. All are listed in "Phase 2 gate" at the end.
-- **Formats** used in every scenario, except where `[GATE-C40]` decides otherwise for overviews: amounts `€ 1.234,56`, percentages `33,33%`, FTE `1,50`, dates `18-11-2026`, times 24-hour, time zone Europe/Amsterdam.
+- **Gate markers**: `[GATE-U1]` to `[GATE-U4]` and `[GATE-D1]` mark requirements touched by the phase 2 gate answers; `[GATE-U1]` now marks only the Finalise rule, which remains an assumption. `[GATE-Cn]` marks a difference between the sources, numbered as in `source-conflicts.md`; points 32 to 50 were decided by the product owner after the gate, `[GATE-C51]` and `[GATE-C52]` are open and the requirements they mark state only what is decided. `[SD-n]` marks a decision this spec took under kickoff 20.4. All are listed in "Phase 2 gate" at the end.
+- **Formats** `[GATE-C40]`: on the canvas and in the overlay (cards, Area headers, side panel, hover breakdown) amounts show as whole euros `€ 1.235` and percentages with one decimal `12,4%`; in the detail panel, tables, forms and Toewijzen amounts show as `€ 1.234,56` and percentages as `33,33%`. Every calculation and the closing check stay to the cent (H7). Other formats:  FTE `1,50`, dates `18-11-2026`, times 24-hour, time zone Europe/Amsterdam.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -26,9 +26,9 @@
 Every user-facing story below lists the baseline items it must pass plus its own criteria. Each item is a test.
 
 - **WB1 Keyboard**: every function of the screen is operable with the keyboard alone, in a logical focus order, without a keyboard trap (2.1.1, 2.1.2, 2.4.3). A "Naar hoofdinhoud" skip link is the first focusable element (2.4.1).
-- **WB2 Visible focus** `[GATE-C46]`: the focused element shows an outline of at least 2 CSS pixels with a contrast of at least 3:1 against the colours next to it, drawn as a dark and a light ring so it stays visible on every canvas colour; a sticky menu or open side panel never covers the focused element entirely (2.4.7, 2.4.11).
-- **WB3 Contrast** `[GATE-C45]`: text has a contrast of at least 4.5:1, large text (24 px, or 18.66 px bold) at least 3:1; borders of inputs and buttons, state indicators, focus indicators and chart bars at least 3:1 against their background (1.4.3, 1.4.11).
-- **WB4 Target size** `[GATE-C46]`: every pointer target is at least 24 by 24 CSS pixels, or has 24 pixels of clear space around its centre (2.5.8).
+- **WB2 Visible focus**: the focused element shows an outline of at least 2 CSS pixels with a contrast of at least 3:1 against the colours next to it, drawn as a dark and a light ring so it stays visible on every canvas colour; a sticky menu or open side panel never covers the focused element entirely (2.4.7, 2.4.11).
+- **WB3 Contrast**: text has a contrast of at least 4.5:1, large text (24 px, or 18.66 px bold) at least 3:1; borders of inputs and buttons, state indicators, focus indicators and chart bars at least 3:1 against their background (1.4.3, 1.4.11).
+- **WB4 Target size**: every pointer target is at least 24 by 24 CSS pixels, or has 24 pixels of clear space around its centre (2.5.8).
 - **WB5 Form errors**: every input has a visible label (3.3.2); on a refused save, each invalid field shows a message next to it that names the field and says how to fix it ("Budget: vul een bedrag in van € 0,00 tot € 999.999.999,99, met een komma voor de centen"), the message is programmatically tied to the field, and focus moves to the first invalid field (3.3.1, 3.3.3, 4.1.2). Entered values stay in the form after a refusal (3.3.7).
 - **WB6 Colour is not the only carrier**: every meaning shown by colour is also shown by text, a letter or an icon with a text alternative (1.4.1).
 - **WB7 Status messages**: success, refusal, undo and progress messages are announced to assistive technology without moving focus (4.1.3); the only exception is the undo button of FR-017, which receives focus because the deleted row it replaces is gone.
@@ -104,7 +104,7 @@ Every screen renders inside one frame built once: a top bar with tabs, a left pa
 1. **Given** a signed-in user, **When** any screen opens, **Then** the top bar shows the application name (a setting, default "OMC Studio") linking to "Overzicht", the breadcrumb "<organisatie> / <canvas>" when a Canvas is open (the Organisation links to "Overzicht"), the badge "Voorbeelddata" on the sample Organisation, and on the right the user's role with a menu holding "Mijn account" and "Uitloggen".
 2. **Given** an Administrator with an open Canvas, **When** the top bar is shown, **Then** it holds the tabs "Canvas", "Kostenposten" (from D2), "Toewijzen" (from D2), "Versies" (from D3) and "Beheer"; the active tab is marked by a 2-pixel underline and by `aria-current`. `[GATE-C43]`
 2a. **Given** no Canvas is open (the overview, Beheer, Mijn account), **When** the top bar is shown, **Then** it holds the tabs "Overzicht" and, for an Administrator, "Beheer". `[SD-31]`
-2b. **Given** any user with an open Canvas (from D2), **When** the top bar is shown, **Then** it holds one selector "Boekjaar <jaar>" showing that year's state for this Canvas, "open" or "definitief"; Kostenposten, Toewijzen and the financial overlay all use this year.
+2b. **Given** any user with an open Canvas, or an Administrator on "Kostenposten" of an Organisation (from D2), **When** the top bar is shown, **Then** it holds one selector "Boekjaar <jaar>", with an open Canvas showing that year's state for it, "open" or "definitief"; Kostenposten, Toewijzen and the financial overlay all use this year.
 3. **Given** an Administrator, **When** "Beheer" opens, **Then** it lists "Gebruikers", "Organisaties", "Eigenaren" and "Applicaties" (both from D2), "Logboek", "Systeemmeldingen" (from D2), "Volledige export en import" and "Voorbeelddata verwijderen" (both from D3).
 4. **Given** a Reader, **When** a Canvas is open, **Then** the tabs are only "Canvas" (with Bekijken only) and "Versies" (from D3), and no write control appears in any screen outside "Mijn account".
 5. **Given** "Canvas", **When** it opens, **Then** the page header shows the Canvas name and the mode switch "Invoeren", "Tekenen" (from DT) and "Bekijken" for an Administrator, with the chosen mode in the address, so reloading keeps the mode (ADR 0014).
@@ -217,7 +217,7 @@ The overview shows Organisations with their Canvases as cards with a miniature; 
 
 **Acceptance Scenarios**:
 
-1. **Given** two Organisations with Canvases, **When** "Overzicht" opens, **Then** each Organisation is a section with its active Canvases as cards showing a miniature of the eight Areas and their Domains, the name, and the date of last change.
+1. **Given** two Organisations with Canvases, **When** "Overzicht" opens, **Then** each Organisation is a section with its active Canvases as cards showing a miniature of the eight Areas and their Domains, the name, and the date of last change, and, for an Administrator (from D2), a link "Kostenposten" to that Organisation's Cost records, also for an Organisation without Canvases. `[GATE-C43]`
 2. **Given** "Nieuw canvas", **When** an Administrator enters name "Operating model 2027", chooses the Organisation and start "Sjabloon: Leeg canvas", **Then** Invoeren opens on the new Canvas with the eight Areas, and Bekijken shows them in the fixed arrangement with the Default colours.
 3. **Given** a Canvas name already used in that Organisation, ignoring case and surrounding spaces, **When** it is saved, **Then** it is refused with "Naam: dit canvas bestaat al in deze organisatie".
 4. **Given** a Canvas with Elements, Statements, Allocation sets and a Finalised year, **When** it is copied within its Organisation, **Then** the copy holds the same active Elements with all their fields, Statements and Allocation sets, and from DT their Layout, no year of the copy is Finalised, no Snapshot is copied, and archived Elements are not copied.
@@ -295,7 +295,7 @@ In Invoeren an Administrator builds the structure of one Area at a time as a tre
 
 1. **Given** a Canvas, **When** Invoeren opens, **Then** the left panel lists the eight Areas, each with a count line ("4 domeinen · 13 activiteiten", "3 groepen", "3 teksten" for Direction), and the first activity Area is chosen.
 2. **Given** a chosen activity Area, **When** "+ Domein" is used and "Inkoop" is typed and Enter pressed, **Then** a Domain row "Inkoop" appears at the end of the tree and focus moves to its add line.
-3. **Given** a Domain, **When** a name is typed in its add line "Activiteit of cluster toevoegen aan <domein>, Enter om op te slaan" and Enter is pressed, **Then** a new Activity row appears at the end of that Domain's Activities, and the line is empty and focused again. How a Cluster is chosen there is `[GATE-C44]`.
+3. **Given** a Domain, **When** a name is typed in its add line "Activiteit of cluster toevoegen aan <domein>, Enter om op te slaan" and Enter is pressed, **Then** a new Activity row appears at the end of that Domain's Activities, and the line is empty and focused again; with the choice "Cluster" next to the line (default "Activiteit") a Cluster row appears at the end of its Clusters instead. `[GATE-C44]`
 4. **Given** the tree, **When** it shows, **Then** each row shows its kind ("Domein", "Cluster", "Activiteit", or "Groep" and the Item label in list Areas), its name, its Modality letter, and the buttons "Omhoog" and "Omlaag"; Activities of a Domain come first, then its Clusters with their Activities indented one level deeper.
 5. **Given** a row, **When** "Omhoog" or "Omlaag" is activated, **Then** it swaps with its neighbour of the same kind within the same parent (Activities among Activities, Clusters among Clusters), the change is saved and audited, and focus stays on the same button of the moved row, or moves to its other arrow when that button became disabled; the first row of a kind has "Omhoog" disabled and the last has "Omlaag" disabled.
 6. **Given** a selected Activity, **When** "Hangt onder" in the detail panel is set to the Cluster "Contracten" of the same Domain and "Opslaan" is chosen, **Then** the Activity moves to the end of that Cluster; the list of "Hangt onder" offers every allowed parent by path ("Primaire activiteiten > Opvang > Peuters").
@@ -387,7 +387,7 @@ Every Canvas shows the Default colours of the design; there is no theme screen (
 
 1. **Given** any Canvas, **When** Bekijken shows it, **Then** every Area, Domain, Cluster and Activity without Element style has the Default colour of its Area and level from `design-contract.md`.
 2. **Given** any background colour on the canvas, **When** text without a text colour of its own is drawn on it, **Then** it is ink `#171B21` or white, whichever has the higher contrast, so it meets 4.5:1; the labels of the Direction band use `#C9CED6` per `design-contract.md`.
-3. **Given** any route, **When** a request tries to change a Default colour, **Then** no such route exists. `[GATE-C49]` `[GATE-C50]`
+3. **Given** any route, **When** a request tries to change a Default colour, **Then** no such route exists; in D1 colours cannot be changed at all, and after a no-go on WP-E0 a separate decision follows (nothing is prepared). `[GATE-C49]` `[GATE-C50]`
 
 **Accessibility**: WB3 holds for every Default colour pair; the pairs and their measured contrast are listed in `design-contract.md`.
 
@@ -403,7 +403,7 @@ Any user opens a Canvas read-only in Bekijken with zoom and a detail panel; over
 
 **Acceptance Scenarios**:
 
-1. **Given** a Canvas in Automatic layout, **When** Bekijken opens, **Then** it draws the Automatic layout of kickoff 6.5 as in design board 2: the Direction band with logo, mission, vision and strategic goals on top (the same in every mode by H11; which arrangement is `[GATE-C38]`); Richten and Beheersen next to each other; Actors, Channels and Value propositions as three columns on the left; Primary and Supporting activities stacked on the right. Domain cards of one Area have equal width and flow in rows; inside a card come its Activities, then its Clusters as tinted blocks with their Activities. How long names are drawn is `[GATE-C48]`.
+1. **Given** a Canvas in Automatic layout, **When** Bekijken opens, **Then** it draws the Automatic layout of kickoff 6.5 on the Artboard of 1680 by 1188 pixels as in design board 2: the Direction band on top in four columns side by side, logo, mission, vision and strategic goals, the same in every mode `[GATE-C38]`; Richten and Beheersen next to each other; Actors, Channels and Value propositions as three columns on the left; Primary and Supporting activities stacked on the right. Domain cards of one Area have equal width and flow in rows; inside a card come its Activities, then its Clusters as tinted blocks with their Activities. Names wrap and Elements grow in height to hold them `[GATE-C48]`; content beyond the Artboard is `[GATE-C51]`. `[SD-38]`
 2. **Given** Supporting activities, **When** Bekijken shows it, **Then** its last card is "Onbekende allocatie".
 3. **Given** the view, **When** an Element is selected, **Then** the detail panel shows its fields read-only.
 4. **Given** the view, **When** "Inzoomen" or "Uitzoomen" is used, **Then** the zoom changes in steps of 10% between 50% and 200%, and "Passend maken" fits the whole Canvas in the visible area at any zoom from 10% to 200%.
@@ -449,7 +449,7 @@ An Administrator keeps the Organisation's Fiscal years and Cost records with the
 1. **Given** "Kostenposten" of an Organisation, **When** "Boekjaar toevoegen" is used with 2026, **Then** 2026 becomes selectable; 1999, 2101 and a year already present are refused with "Boekjaar: kies een jaar van 2000 tot en met 2100 dat nog niet bestaat".
 2. **Given** a Fiscal year with Yearly figures, **When** its deletion is attempted, **Then** it is refused with "Dit boekjaar heeft nog jaarwaarden"; without Yearly figures it is deleted after confirmation.
 3. **Given** the table for 2026, **When** it opens, **Then** it lists every active Cost record with code, name, Budget, Forecast and allocation status, with search and filters on Cost kind, Owner, Application and allocation status; a Cost record without Yearly figures in 2026 shows "geen jaarwaarden".
-4. **Given** "Kostenposten" opened from a Canvas, **When** the table shows, **Then** the column "Toegewezen" shows the status for that Canvas as a dot with the text "100%" or "Onbekende allocatie", and above the table the cards "Totaal budget" (with the Forecast), "Toegewezen" (amount and "8 van 10 kostenposten"), "Onbekende allocatie" (amount, count and Share) and the Finalise card of User Story 24 are shown. How the Cost records of an Organisation without a Canvas are reached is `[GATE-C43]`. Which fields of FR-048 and FR-049 the form shows is `[GATE-C42]`; the fields themselves stand.
+4. **Given** "Kostenposten" opened from a Canvas, **When** the table shows, **Then** the column "Toegewezen" shows the status for that Canvas as a dot with the text "100%" or "Onbekende allocatie", and above the table the cards, in cents like the table, "Totaal budget" (with the Forecast), "Toegewezen" (amount and "8 van 10 kostenposten"), "Onbekende allocatie" (amount, count and Share) and the Finalise card of User Story 24 are shown. Opened from "Overzicht" for an Organisation, the table has no "Toegewezen" column, no allocation cards and no Finalise card. `[GATE-C43]` The form shows every field of FR-048 and FR-049, Supplier, cost centre, description and remark included. `[GATE-C42]`
 5. **Given** "Nieuw", **When** an Administrator enters code "LC-001", name "Licentie planning", Cost kind "Leverancierscontract", Supplier "Leverancier X", Owner "Afdeling ICT", cost centre "4100", Application "Planningssysteem" and a description, **Then** the Cost record is saved; name, Cost kind and Owner are required.
 6. **Given** code "LC-001" in the Organisation, **When** another Cost record is saved with "lc-001", **Then** it is refused with "Code: deze code bestaat al in deze organisatie"; an empty code is allowed on any number of Cost records.
 7. **Given** a Cost record, **When** Yearly figures for 2026 are entered with Budget "€ 12.500,00", Forecast "13.000", Run "60" and Change "30", FTE "1,5", reference date and remark, **Then** they are saved and the Undetermined share shows "10,00%".
@@ -532,7 +532,7 @@ For a Canvas, Fiscal year and filter, the figures are calculated by a module wit
 2. **Given** a Domain with an Activity, a Cluster with two Activities, and lines on the Domain itself and on one Activity of the Cluster, **When** calculated, **Then** each Element's Direct amount is its own lines, its Total amount is its Direct amount plus the Totals of its children, and the Area Total is the sum of its Domain Totals.
 3. **Given** two Cost records with Yearly figures, one without an Allocation set, **When** calculated, **Then** that one's Budget and Forecast are the Direct amount of the Unknown allocation Domain, the Supporting activities Area Total includes them, and the Canvas total equals the sum of all Area Totals and equals the sum of all Budgets.
 4. **Given** a Cost record with Budget € 1.000,00, Run 60% and Change 30% allocated 50/50, **When** calculated, **Then** each line holds Run € 300,00, Change € 150,00 and Undetermined € 50,00.
-5. **Given** Elements with Modalities and a Domain with Modality whose Activity also has one, **When** the Modality breakdown is calculated, **Then** each Modality holds the sum of Direct amounts of Elements with it, nothing is counted twice through parents, and the line "Geen modaliteit" holds the Direct amounts of Elements without one; whether "Onbekende allocatie" is a line of this breakdown, so that it adds up to the Canvas total, is `[GATE-C41]`. `[SD-18]`
+5. **Given** Elements with Modalities and a Domain with Modality whose Activity also has one, **When** the Modality breakdown is calculated, **Then** each Modality holds the sum of Direct amounts of Elements with it, nothing is counted twice through parents, the line "Geen modaliteit" holds the Direct amounts of Elements without one, and the line "Onbekende allocatie" completes the Canvas total. `[GATE-C41]` `[SD-18]`
 6. **Given** an Organisation without Cost records, **When** calculated, **Then** all amounts are € 0,00, the check passes, and Shares show "-" instead of a division by zero.
 7. **Given** a Cost record with 100% on one Target, **When** calculated, **Then** that Target's Direct amount equals the Budget exactly.
 8. **Given** a Cost record without Forecast, **When** calculated, **Then** its Forecast counts as equal to its Budget. `[SD-5]` `[GATE-U3]`
@@ -622,12 +622,12 @@ In Bekijken, the financial overlay shows per Domain its Total amount, Share and 
 
 **Acceptance Scenarios**:
 
-1. **Given** the overlay "Financieel" for 2026, **When** shown, **Then** each Domain card in an activity Area shows its Total amount, its Share ("van totaal"), a bar whose fill is the Forecast and whose stripe marks the Budget, the line "Prognose € … · <n>% van budget", and its number of Activities and Clusters; a Domain without costs reads "Geen kosten toegewezen in 2026"; each activity Area header shows the Area Total and Share; a legend line explains the colour scale, the bar and that list Areas carry no costs. Number formats are `[GATE-C40]`; whether cards keep their place and size under the overlay is `[GATE-C39]`.
+1. **Given** the overlay "Financieel" for 2026, **When** shown, **Then** each Domain card in an activity Area shows its Total amount, its Share ("van totaal"), a bar whose fill is the Forecast and whose stripe marks the Budget, the line "Prognose € … · <n>% van budget", and its number of Activities and Clusters; a Domain without costs reads "Geen kosten toegewezen in 2026"; each activity Area header shows the Area Total and Share; a legend line explains the colour scale, the bar and that list Areas carry no costs. Amounts show as whole euros and percentages with one decimal `[GATE-C40]`. Every card keeps its place and size and the figures are drawn inside it, covering its Activities; figures that do not fit are left out in the order counts, forecast line, bar, Share, and the full figures show on hover, focus and in the detail panel. `[GATE-C39]` `[SD-33]`
 2. **Given** Domains with different Shares, **When** shown, **Then** the card colour intensity rises with Share while the amounts and Share stay readable per WB3.
-3. **Given** a Domain card, **When** the pointer rests on it or it receives focus, **Then** a breakdown "Uitsplitsing per kostenpost" lists each Cost record contributing to its Total with the percentage of that Cost record allocated within the Domain's subtree and the amount; selecting the card shows the same breakdown in the detail panel, together with Direct amount, Total amount, Forecast, Run, Change, Undetermined and FTE.
+3. **Given** a Domain card, **When** the pointer rests on it or it receives focus, **Then** a breakdown "Uitsplitsing per kostenpost" lists each Cost record contributing to its Total with the percentage of that Cost record allocated within the Domain's subtree and the amount in whole euros; selecting the card shows the same breakdown in cents in the detail panel, together with Direct amount, Total amount, Forecast, Run, Change, Undetermined and FTE.
 4. **Given** Cost records without a set, **When** the overlay shows, **Then** the Domain card "Onbekende allocatie" in Supporting activities shows their amount and Share like any Domain, the Supporting activities Area Total includes it, and the side panel shows it as its own line.
-5. **Given** the side panel, **When** shown, **Then** it holds the Canvas total of Budget and Forecast with the Forecast as a percentage of the Budget, "Toegewezen" and "Onbekende allocatie" each with count and amount, a link "Nu toewijzen" (Administrator only), the line "Totalen sluiten: <toegewezen> + <onbekende allocatie> = <totaal>", totals per Cost kind, per Modality, and Run, Change and Undetermined. Whether the Modality breakdown includes "Onbekende allocatie" is `[GATE-C41]`.
-6. **Given** all Cost records of the Organisation for 2026, **When** their Budgets are summed by hand, **Then** the sum equals the Canvas total shown, and equals the sum of the four activity Area Totals (acceptance 9 and 10).
+5. **Given** the side panel, **When** shown, **Then** it holds the Canvas total of Budget and Forecast with the Forecast as a percentage of the Budget, "Toegewezen" and "Onbekende allocatie" each with count and amount, a link "Nu toewijzen" (Administrator only), the line "Totalen sluiten: <toegewezen> + <onbekende allocatie> = <totaal>", totals per Cost kind, per Modality (with "Geen modaliteit" and "Onbekende allocatie" `[GATE-C41]`), and Run, Change and Undetermined. Whether every list shown with its total visibly adds up, or every figure keeps one rounded value everywhere, is `[GATE-C52]`.
+6. **Given** all Cost records of the Organisation for 2026, **When** their Budgets are summed by hand, **Then** the sum equals to the cent the card "Totaal budget" on "Kostenposten" for 2026 without filters, and the calculated Canvas total and sum of the four activity Area Totals, and the overlay shows that total in whole euros (acceptance 9 and 10).
 7. **Given** a filter on Owner "Afdeling ICT", **When** applied, **Then** every number recalculates for that subset, and the active filters show above the canvas.
 8. **Given** list Areas, **When** the overlay shows, **Then** they show no amounts.
 9. **Given** FTE on Cost records, **When** a Domain is selected, **Then** the detail panel shows its FTE as the sum of each Cost record's FTE times its allocated percentage within the Domain's subtree, with two decimals. `[SD-19]`
@@ -665,7 +665,7 @@ Any user exports a Canvas as one JSON file with everything needed to rebuild it;
 
 **Acceptance Scenarios**:
 
-1. **Given** a Canvas, **When** "Exporteren als JSON" is used, **Then** a file `<organisatie-slug>-<canvas-slug>-2026-11-18.json` downloads holding a format version, the Canvas, its Statements, all Elements including archived ones and, from DT, its Layout and Artboard, the Organisation's Owners, Applications, Fiscal years, Cost records with Yearly figures, this Canvas's Allocation sets with line order, and its Finalised years.
+1. **Given** a Canvas, **When** "Exporteren als JSON" is used, **Then** a file `<organisatie-slug>-<canvas-slug>-2026-11-18.json` downloads holding a format version, the Canvas, its Statements, all Elements including archived ones and, from DT, its Layout, the Organisation's Owners, Applications, Fiscal years, Cost records with Yearly figures, this Canvas's Allocation sets with line order, and its Finalised years.
 2. **Given** "Importeren" on the overview with a JSON file, **When** the Administrator chooses a target Organisation or "Nieuwe organisatie" with a name, and a Canvas name, **Then** a dry run reports format version, structure rules, references, the 100% rule, name conflicts and Cost record conflicts, each with its location in the file.
 3. **Given** a Cost record in the file whose identifier exists in the target Organisation, **When** the dry run runs, **Then** it is reused if its fields and the Yearly figures in the file are equal, and reported as "Kostenpost LC-001 verschilt van de bestaande" otherwise; a code held by a different Cost record of the target Organisation is an error too.
 4. **Given** Yearly figures in the file for a year Finalised in a Canvas of the target Organisation, that would be created or changed, **When** the dry run runs, **Then** it is an error.
@@ -822,77 +822,85 @@ An Administrator reads the System notices: closing-check failures and damaged Sn
 
 ### User Story 35 - Tekenen: select, move and resize (Priority: P1, DT)
 
-In Tekenen an Administrator arranges existing Elements on the Artboard: select, move, resize, align and distribute, with undo and redo; nothing in the structure changes (H12, ADR 0013, ADR 0016, design board 1b).
+In Tekenen an Administrator arranges existing Areas and Elements on the fixed Artboard: select, move, resize, align, distribute and order, with undo and redo; nothing in the structure changes (H12, ADR 0013, ADR 0016, ADR 0020, design board 1b).
 
 **Why this priority**: the reason for the Tekenen delivery.
 
-**Independent Test**: move and resize a Domain, move a Cluster with five Activities, align three Activities, undo, all once with the pointer and once with the keyboard only.
+**Independent Test**: move and resize an Area and a Domain, move a Cluster with five Activities, align three Activities, undo, all once with the pointer and once with the keyboard only.
 
 **Acceptance Scenarios**:
 
-1. **Given** an Administrator on a Canvas, **When** "Tekenen" is chosen, **Then** the left panel "Lagen" shows the Element tree, the middle shows the Artboard on an 8-pixel dot grid, the right panel shows the properties of the selection, and the bottom toolbar holds "Selecteren en verplaatsen", "Schuiven", "Uitlijnen", "Gelijk verdelen" and the zoom; the header shows undo, redo, the save state, "Tekenvlak: OpenPencil, lokaal meegeleverd", "Alles automatisch opmaken" and "Passend maken".
+1. **Given** an Administrator on a Canvas, **When** "Tekenen" is chosen, **Then** the left panel "Lagen" shows the seven Areas other than Direction with their Element trees, the middle shows the Artboard of 1680 by 1188 pixels on an 8-pixel dot grid, the right panel shows the properties of the selection, and the bottom toolbar holds "Selecteren en verplaatsen", "Schuiven", "Uitlijnen", "Gelijk verdelen" and the zoom; the header shows undo, redo, the save state, "Tekenvlak: OpenPencil, lokaal meegeleverd", "Alles automatisch opmaken" and "Passend maken".
 2. **Given** a Domain, **When** it is dragged and resized, **Then** its place and size follow, a label shows its size ("286 × 204"), and "Plek en grootte" shows X, Y, B and H in whole pixels relative to its parent.
-3. **Given** a selected Element, **When** X, Y, B or H is typed in the panel, or an arrow key is pressed (moves 1 pixel, with Shift 8 pixels; with Alt the arrow keys change width and height instead), **Then** it moves or resizes the same way as by dragging.
-4. **Given** a Cluster with five Activities, **When** the Cluster is moved, **Then** its Activities move with it.
-5. **Given** a width below 40 or a height below 24 pixels, **When** it is entered or dragged, **Then** the width stops at 40 and the height at 24, each on its own.
-6. **Given** an Activity dragged partly outside its Domain, **When** the change is saved, **Then** it is pushed back inside its Domain and the user is told which Elements were pushed back.
-7. **Given** a selection by Shift-click, by a selection frame, or in "Lagen" by Space on a row and Ctrl+Space to add or remove further rows, **When** "Uitlijnen" with "links" is used on three Activities and then "Gelijk verdelen" vertically, **Then** they get equal X and equal spacing, and one undo restores the state before "Gelijk verdelen".
-8. **Given** Tekenen, **When** any shortcut the drawing library defines for a new shape, text, pen, component, image, AI or collaboration (the list WP-E0 records) is used, or Delete or Backspace is pressed, **Then** nothing is created, deleted or renamed, and those tools are not shown.
-9. **Given** a double-click on an Element's text, **When** it happens, **Then** the text stays unchanged and the hint "Tekst wijzig je in Invoeren" appears and is announced.
-10. **Given** an Element added in Invoeren since Tekenen was last saved, **When** "Lagen" shows, **Then** its row carries the pill "nieuw" until the next save from Tekenen. `[SD-26]`
-11. **Given** "Undo" and "Redo" (buttons and Ctrl+Z, Ctrl+Shift+Z), **When** used, **Then** each undoes or redoes one finished action: a drag, a resize, a property change, an alignment.
-12. **Given** a Reader, an archived Canvas or a Snapshot (from D3), **When** Tekenen is requested, **Then** Bekijken opens instead; a Template opens Invoeren; a Finalised year (from D2) does not block Tekenen.
-13. **Given** Areas, the Direction band and the logo, **When** they are dragged or resized, **Then** what happens is `[GATE-C34]` and `[GATE-C35]`; the size of the Artboard is `[GATE-C36]`.
+3. **Given** a selected Area (not Direction) or Element, **When** X, Y, B or H is typed in the panel, or an arrow key is pressed (moves 1 pixel, with Shift 8 pixels; with Alt the arrow keys change width and height instead), **Then** it moves or resizes the same way as by dragging.
+4. **Given** a Cluster with five Activities, or an Area with its Domains, **When** it is moved, **Then** its children move with it.
+5. **Given** a width below 40 or a height below 24 pixels, or a width below the right edge of its widest child, **When** it is entered or dragged, **Then** the width and the height each stop at their limit.
+6. **Given** an Activity dragged partly outside its Domain to the left, right or top, a Domain outside its Area to the left, right or top, or an Area outside the Artboard or onto the Direction band on its stored place and size, **When** the action ends, **Then** it is pushed back inside and the user is told which were pushed back; a child dragged below its parent makes the parent grow instead. `[SD-34]`
+7. **Given** a selection by Shift-click, by a selection frame, or in "Lagen" by Space on a row and Ctrl+Space to add or remove further rows, **When** "Uitlijnen" with "links" is used on three Activities and then "Gelijk verdelen" vertically, **Then** they get equal X and equal spacing, and one undo restores the state before "Gelijk verdelen". Aligning works on one or more selected items, relative to the selection or to the parent; distributing needs three or more; "Gelijke breedte" and "Gelijke hoogte" need two or more and follow the first selected.
+8. **Given** a selected Element, **When** "Naar voren" or "Naar achteren" is used, **Then** it moves one step in front of or behind its siblings within the same parent.
+9. **Given** "Raster" on, **When** an item is moved or resized, **Then** its place and size snap to the 8-pixel grid; with "Raster" off they do not. Snapping to other items is offered only if WP-E0 shows the drawing library provides it.
+10. **Given** Tekenen, **When** any shortcut the drawing library defines for a new shape, text, pen, component, image, AI or collaboration (the list WP-E0 records) is used, or Delete or Backspace is pressed, **Then** nothing is created, deleted or renamed, and those tools are not shown.
+11. **Given** a double-click on an Element's text, **When** it happens, **Then** the text stays unchanged and the hint "Tekst wijzig je in Invoeren" appears and is announced.
+12. **Given** the Direction band (the Area Direction with its Statements) or the logo, **When** a drag, resize or move by keyboard is tried, **Then** nothing changes; they cannot be selected for Layout, and the server refuses any Layout for Direction. The band has a fixed place and height across the top; its text wraps inside it, and text that does not fit is `[GATE-C51]`.
+13. **Given** an Element added in Invoeren since Tekenen last saved, **When** "Lagen" shows, **Then** its row carries the pill "nieuw" until that Element is selected or changed in Tekenen. `[SD-26]`
+14. **Given** "Undo" and "Redo" (buttons and Ctrl+Z, Ctrl+Shift+Z), **When** used, **Then** each undoes or redoes one finished action: a drag, a resize, a property change, an alignment.
+15. **Given** a Reader, an archived Canvas or a Snapshot (from D3), **When** Tekenen is requested, **Then** Bekijken opens instead; a Template opens Invoeren; a Finalised year (from D2) does not block Tekenen.
 
-**Accessibility**: WB1 to WB12; for WB10 the panels reflow and the Artboard scrolls in both directions like the canvas. "Lagen" is the text alternative of the drawing (1.1.1): every Element can be selected there with the keyboard, and selection in the drawing and in "Lagen" stay the same. Every drag has a keyboard and single-pointer alternative through the X, Y, B and H fields and the arrow keys (2.5.7). Resize handles may be smaller than 24 pixels because the fields are an equivalent control (2.5.8 exception). Results of push-back, alignment and undo are announced (WB7).
+**Accessibility**: WB1 to WB12; for WB10 the panels reflow and the Artboard scrolls in both directions like the canvas. "Lagen" is the text alternative of the drawing (1.1.1): every Area other than Direction and every Element can be selected there with the keyboard, and selection in the drawing and in "Lagen" stay the same. Every drag has a keyboard and single-pointer alternative through the X, Y, B and H fields and the arrow keys (2.5.7). Resize handles may be smaller than 24 pixels because the fields are an equivalent control (2.5.8 exception). Push-back, alignment, undo and failed or refused saves are announced (WB7); a successful automatic save is shown but not announced, so it does not interrupt after every nudge.
 
 ---
 
-### User Story 36 - Tekenen: colours and style (Priority: P2, DT)
+### User Story 36 - Tekenen: colours, fonts and style (Priority: P2, DT)
 
-An Administrator sets fill, border, text colour and corner radius per Element, or for all Domains of an Area at once; the Default colours stay underneath (ADR 0018). `[GATE-C33]`
+An Administrator sets the style of an Area or Element, copies it, or applies it to all Activities of a Domain or all Domains of an Area; the Default colours stay underneath (ADR 0018, addendum chapter 5). `[GATE-C33]`
 
 **Why this priority**: colour is the other half of arranging the picture, and with no theme screen the only place to set it.
 
-**Independent Test**: colour a Domain, apply its style to all Domains of its Area, set a text colour that fails contrast, see it refused.
+**Independent Test**: style a Domain, copy its style to another, apply it to all Domains of its Area, set a text colour that fails contrast, see it refused.
 
 **Acceptance Scenarios**:
 
-1. **Given** a selected Element, **When** "Kleur" shows, **Then** it holds "Vulling", "Rand" and "Tekst", each a colour swatch with a hex field (`#RRGGBB`), and "Hoeken" in pixels.
-2. **Given** a changed fill of a Domain, **When** it is saved and Bekijken opens, **Then** the Domain shows that fill in Tekenen and Bekijken alike, and (from D3) in the PNG export.
-3. **Given** a Domain with a style, **When** "Stijl naar alle domeinen hier" is confirmed, **Then** every Domain of that Area gets the same style, and their places and sizes are unchanged.
-4. **Given** a text colour with a contrast below 4.5:1 on the Element's fill, **When** it is saved, **Then** saving is refused with "Tekst <naam>: kies een tekstkleur met meer contrast, nu <x>:1, minstens 4,5:1" and the panel shows the ratio next to the field while choosing. `[SD-27]`
-5. **Given** a value "#12345" or "rood", **When** saved, **Then** it is refused with "Vulling <naam>: gebruik de vorm #RRGGBB".
+1. **Given** a selected Area or Element, **When** "Kleur" shows, **Then** it holds "Vulling" (colour with opacity 0 to 100%), "Rand" (colour, width 0 to 8 pixels, "doorgetrokken" or "gestreept"), "Hoeken" (0 to 64 pixels), and, for the title of a Domain or Cluster and the text of an Activity, "Tekst" (font Inter or Space Grotesk, size 10 to 48 pixels, "normaal" or "vet", "cursief", colour) and "Uitlijning" (left, centre, right; top, middle, bottom). Each colour is a swatch with a hex field (`#RRGGBB`). `[SD-37]`
+2. **Given** a changed fill of a Domain, **When** the change is saved, **Then** the Domain shows that fill in Tekenen and Bekijken alike, and (from D3) in the PNG export.
+3. **Given** a Domain with a style, **When** "Stijl kopiëren" is used on it and "Stijl plakken" on another Domain, **Then** the second gets the same style; pasting onto another kind is not offered.
+4. **Given** a Domain with a style, **When** "Stijl naar alle domeinen hier" or, for an Activity, "Stijl naar alle activiteiten in dit domein" is confirmed, **Then** all of them get the same style, and their places and sizes are unchanged.
+5. **Given** a text colour with a contrast below 4.5:1 on the Element's fill (after opacity, over the fill behind it), **When** it is chosen, **Then** the panel shows the ratio, keeps the chosen value in the field marked invalid with focus on it, and the server refuses the save with "Tekst <naam>: kies een tekstkleur met meer contrast, nu <x>:1, minstens 4,5:1". `[SD-27]`
+6. **Given** a value "#12345" or "rood", **When** typed, **Then** the field keeps it, shows "Vulling <naam>: gebruik de vorm #RRGGBB" and nothing is saved.
+7. **Given** an Element with its own dark text colour on a light fill, **When** its fill is changed to a dark colour, **Then** its text colour returns to automatic (white) in the same action and the user is told, so a dark fill with white text is reachable. `[SD-27]`
 
-**Accessibility**: WB1 to WB10. Every colour field is labelled with property and Element name; the contrast ratio is text.
+**Accessibility**: WB1 to WB10. Every field is labelled with property and name; the contrast ratio is text.
 
 ---
 
-### User Story 37 - Tekenen: save and back to automatic (Priority: P1, DT)
+### User Story 37 - Tekenen: saving and back to automatic (Priority: P1, DT)
 
-The Layout is saved whole, checked by the server, and can be set back to automatic per Element or for the whole Canvas (addendum 6.3, design board 1b). `[GATE-C32]` `[GATE-C47]`
+Tekenen saves automatically after every finished action; the server checks the whole Layout; Layout can go back to automatic for an Element, a Domain or the whole Canvas (ADR 0021, addendum 6.3, design board 1b). `[GATE-C32]` `[GATE-C47]`
 
 **Why this priority**: a Layout the server did not check could break H11, H12 or H13.
 
-**Independent Test**: save a changed Layout, send faulty Layouts directly to the server, set the whole Canvas back to automatic and compare with a new Canvas of the same content.
+**Independent Test**: make changes and reload, send faulty Layouts directly to the server, open Tekenen twice, and set the whole Canvas back to automatic and compare with a new Canvas of the same content.
 
 **Acceptance Scenarios**:
 
-1. **Given** changes in Tekenen, **When** they are saved, **Then** the whole Layout of the Canvas is sent at once and written in one transaction, and the header shows "Opmaak opgeslagen". When saving happens (a button or automatically, and the local intermediate state) is `[GATE-C32]`.
-2. **Given** a request sent directly to the server with an unknown or archived Element, an Element of another Canvas, an Element missing from the Canvas, a parent different from the structure, a child outside its parent, a size below 40 by 24, or a style key or value outside FR-104, **When** it arrives, **Then** the whole save is refused with the reason and nothing is stored.
-3. **Given** a Layout missing an Element or holding an extra one while the structure version is unchanged, **When** saved, **Then** it is refused because H12 was bypassed, and Tekenen rebuilds its drawing from the stored data.
-4. **Given** someone changed the structure after Tekenen was opened (a newer structure version), **When** saving, **Then** the user chooses between "Opmaak toepassen op wat nog bestaat" and "Opnieuw laden".
-5. **Given** a selected Element, **When** "Terug naar automatische plek" is used, **Then** it returns to its place in the Automatic layout. Whether size and style return too, and whether a per-Domain variant exists, is `[GATE-C47]`.
-6. **Given** a Canvas with Manual layout, **When** "Alles automatisch opmaken" is confirmed, **Then** the place and size of every Element equal exactly those of a new Canvas with the same content; whether Element style is reset too is `[GATE-C47]`.
-7. **Given** a saved Layout, **When** the Audit log is read, **Then** one entry per changed Element shows its old and new place, size and style. `[SD-28]`
+1. **Given** a finished action in Tekenen, **When** it ends, **Then** the whole Layout of the Canvas is sent with the structure version and the Layout version Tekenen last loaded or last saved successfully, written in one transaction, and the header shows "Opmaak opgeslagen"; while sending it shows "Opslaan…". There is no Save button.
+2. **Given** a request sent directly to the server with an unknown or archived Element, an Element of another Canvas, an Element missing from the Canvas, a parent different from the structure, a child outside its parent's width, an Area outside the Artboard or overlapping the Direction band, a size below the limits of User Story 35, or a style key or value outside FR-104, **When** it arrives, **Then** the whole save is refused with the reason and nothing is stored.
+3. **Given** a save refused for a rule of FR-103 to FR-105, **When** the refusal arrives, **Then** the drawing undoes that action, a value typed in the panel stays in its field marked invalid with focus on it (WB5), and the reason is shown and announced.
+4. **Given** a Layout missing an Element or holding an extra one while the structure version is unchanged, **When** it is saved, **Then** it is refused because H12 was bypassed, and Tekenen rebuilds its drawing from the stored data.
+5. **Given** someone changed the structure after Tekenen was opened (a newer structure version), **When** the next save is sent, **Then** saving pauses and the user chooses between "Opmaak toepassen op wat nog bestaat" and "Opnieuw laden".
+6. **Given** two Administrators in Tekenen on the same Canvas, **When** one saves after the other did (a newer Layout version), **Then** that save is refused, the drawing reloads with the stored Layout, and the message "Iemand anders heeft de opmaak gewijzigd. De tekening is opnieuw geladen" appears. `[SD-35]`
+7. **Given** a save that fails because the server cannot be reached or the session ended, **When** it fails, **Then** the header shows "Opmaak niet opgeslagen" with "Opnieuw proberen", and leaving Tekenen asks "Opnieuw proberen" or "Wijziging weggooien".
+8. **Given** a selected Element or Area, **When** "Terug naar automatische plek" is confirmed, **Then** its place, size and style return to the Automatic layout.
+9. **Given** a selected Domain, **When** "Domein terug naar automatisch" is confirmed, **Then** the Domain and every Element in it return to automatic place, size and style. `[SD-36]`
+10. **Given** a Canvas with Manual layout, **When** "Alles automatisch opmaken" is confirmed, **Then** every Area other than Direction and every Element has exactly the place, size and style of a new Canvas with the same content.
+11. **Given** a saved Layout, **When** the Audit log is read, **Then** one entry per changed Area or Element shows its old and new place, size and style. `[SD-28]`
 
-**Accessibility**: WB1 to WB10. Refusals name the Element and are announced; the confirmation of "Alles automatisch opmaken" is a dialog per WB8.
+**Accessibility**: WB1 to WB10. The save state is shown; only failures and refusals are announced (WB7), naming the Element; each confirmation is a dialog per WB8.
 
 ---
 
 ### User Story 38 - Layout in Invoeren and Bekijken (Priority: P1, DT)
 
-Bekijken draws the stored Layout equal to Tekenen, and structure changes in Invoeren place Elements in the drawing without handwork (H11, addendum 6.2, kickoff v1.2 6.5.7).
+Bekijken draws the stored Layout equal to Tekenen; names always wrap and Elements grow to hold them; structure changes in Invoeren place Elements in the drawing without handwork (H11, ADR 0020, addendum 6.2, kickoff v1.2 6.5.7). `[GATE-C48]`
 
 **Why this priority**: the three modes must show one Canvas.
 
@@ -900,14 +908,15 @@ Bekijken draws the stored Layout equal to Tekenen, and structure changes in Invo
 
 **Acceptance Scenarios**:
 
-1. **Given** a Domain dragged and resized in Tekenen and saved, **When** Bekijken opens, **Then** the Domain is at the same place and size within 1 pixel at 100% zoom, and its text lines are the same.
+1. **Given** an Area and a Domain moved and resized in Tekenen, **When** Bekijken opens, **Then** both are at the same place and size within 1 pixel at 100% zoom, with the same text lines.
 2. **Given** a parent whose children are all in Automatic layout, **When** a new Element is added in Invoeren, **Then** it is placed automatically.
-3. **Given** a parent with a child in Manual layout, **When** a new Element is added in Invoeren, **Then** it is placed under the lowest child at the size Automatic layout gives that kind of Element; when it does not fit, the parent grows in height and the message "Opmaak aangepast" appears.
+3. **Given** a parent with a child in Manual layout, **When** a new Element is added in Invoeren, **Then** it is placed under the lowest child at the size Automatic layout gives that kind of Element, and the parent grows in height when needed with the message "Opmaak aangepast".
 4. **Given** an Element moved to another parent through "Hangt onder", **When** it arrives, **Then** it and its subtree lose their Manual layout and are placed as a new Element would be. `[SD-29]`
 5. **Given** an Element archived or deleted, **When** that happens, **Then** its Layout goes with it; undo of a deletion restores it; an Element restored from archive is placed as a new Element would be.
-6. **Given** a renamed Element, **When** Tekenen or Bekijken opens, **Then** the new name shows at once.
-7. **Given** a name longer than its Element's size allows, **When** drawn, **Then** what happens is `[GATE-C48]`.
-8. **Given** the overview, **When** a Canvas card shows its miniature, **Then** it is drawn from the stored Layout and colours.
+6. **Given** a name longer than its Element's width, **When** drawn in any mode, **Then** it wraps onto further lines and the Element grows in height, also when its size was set by hand; its parents grow with it; Elements with a Manual layout do not move, Elements in Automatic layout re-flow.
+7. **Given** growth or a move that makes Elements or Areas overlap, **When** Invoeren shows "Waarschuwingen", **Then** it lists "Overlapt: <naam> en <naam>". `[SD-34]`
+8. **Given** content that grows beyond the bottom of the Artboard, **When** drawn, **Then** what happens is `[GATE-C51]`.
+9. **Given** the overview, **When** a Canvas card shows its miniature, **Then** it is drawn from the stored Layout and colours.
 
 **Accessibility**: as User Story 16.
 
@@ -943,13 +952,13 @@ Before any further Tekenen work, a minimal working example in the project setup 
 | P2 | Build a drawing from our data: 3 Domains, 1 Cluster, 10 Activities with text, colour and font | The picture matches the input |
 | P3 | Read back place, size and style per node with the Element identifier | Round trip without difference |
 | P4 | Notice changes from the host | By an event or by comparing, within 100 ms of the action |
-| P5 | Restrict: no creating, deleting or reparenting nodes; locked background | Through the SDK or the adapter, shown by a test |
+| P5 | Restrict: no creating, deleting or reparenting nodes; Direction band and logo locked; children kept inside their parent | Through the SDK or the adapter, shown by a test |
 | P6 | No outgoing traffic while loading and using, under the content security policy of FR-090, and the asset check of FR-098 on the Tekenen bundle | Network log shows only the own server, the asset check passes |
-| P7 | Equal to the HTML view | Place and size within 1 pixel; same text lines with the font list |
+| P7 | Equal to the HTML view | Place and size within 1 pixel; the same wrapped text lines with Inter and Space Grotesk, and the same growth of Elements |
 | P8 | Undo and redo over drag, size, style and alignment | Works per action |
 | P9 | Load time of the Tekenen bundle | First use within 3 seconds on an ordinary laptop |
 
-Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of User Story 35 may be met in the adapter instead of the SDK. No-go: P2, P3, P6 or P7 not achievable. Any other point not met (P1, P8 or P9) goes to the product owner with the report, who decides go or no-go. Before WP-E0 starts, `[GATE-C34]` and `[GATE-C35]` (what P5 locks) and `[GATE-C37]` (the fonts for P2 and P7) must be decided. A no-go stops DT and goes to the product owner with the report; D1 to D3 continue on Automatic layout, and no other drawing library is chosen without the product owner.
+Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of User Story 35 may be met in the adapter instead of the SDK. No-go: P2, P3, P6 or P7 not achievable. Any other point not met (P1, P8 or P9) goes to the product owner with the report, who decides go or no-go. A no-go stops DT and goes to the product owner with the report; D1 to D3 continue on Automatic layout, and no other drawing library is chosen without the product owner.
 
 ---
 
@@ -971,7 +980,7 @@ Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of
 - A JSON import of the same file twice into one Organisation: the second creates a second Canvas and reuses the Cost records.
 - A Snapshot of a year that is not Finalised: allowed; the Snapshot records its moment.
 - A list Area Domain moved to an activity Area: refused, same kind only. `[SD-11]`
-- Two Administrators saving a Layout of the same Canvas: the last save wins, both are in the Audit log (DT). `[SD-22]`
+- Two Administrators in Tekenen on the same Canvas: the later save on an older Layout version is refused and that drawing reloads (DT, User Story 37 scenario 6). `[SD-35]`
 - The Unknown allocation Domain in Tekenen: its Layout and style can be changed like any Domain; its structure cannot (DT). `[SD-30]`
 - The forbidden names file for the H8 check absent: the check reports "overgeslagen: lijst verboden namen ontbreekt" visibly and does not count as passed. `[GATE-U4]`
 
@@ -996,7 +1005,7 @@ Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of
 #### Shell and presentation (D1)
 
 - **FR-012**: Every screen MUST render inside the shell of User Story 3: top bar with tabs, a left panel where the screen has one, main area and detail panel, laid out per `design-contract.md` (ADR 0019). The application name MUST come from a setting, default "OMC Studio".
-- **FR-013**: Every screen text MUST come from the Dutch messages file. Amounts MUST show as `€ 1.234,56`, percentages as `33,33%`, FTE as `1,50`, dates as `18-11-2026`, in time zone Europe/Amsterdam. Whether overviews show whole euros and Share with one decimal is `[GATE-C40]`.
+- **FR-013**: Every screen text MUST come from the Dutch messages file. Amounts MUST show as `€ 1.234,56`, percentages as `33,33%`, FTE as `1,50`, dates as `18-11-2026`, in time zone Europe/Amsterdam. On the canvas and in the overlay, amounts MUST show as whole euros (`€ 1.235`; how they are rounded where they appear in a list with its total is `[GATE-C52]`) and percentages with one decimal (`12,4%`); the detail panel, tables, forms and Toewijzen MUST show cents and two decimals. `[GATE-C40]`
 - **FR-014**: Amount input MUST accept digits with an optional decimal comma and at most two decimals, with optional dots as thousands separators only in groups of three; percentage input MUST accept 0 to 100 with at most two decimals; FTE input 0 to 9.999,99 with at most two decimals. Anything else MUST be refused with the expected format in the message.
 - **FR-015**: Text input MUST be trimmed; a value empty after trimming is empty. Lengths: every name and title 1 to 150 characters, code and cost centre at most 50, Supplier at most 150, descriptions, Rationales, remarks, mission, vision and goal explanations at most 2000.
 
@@ -1044,39 +1053,40 @@ Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of
 
 #### Canvas layout and colours (D1)
 
-- **FR-044**: In D1 the canvas MUST be drawn in Automatic layout per kickoff 6.5 and User Story 16, with zoom from 50% to 200% in 10% steps and "Passend maken", which may set any zoom from 10% to 200%. From DT an Element MAY have a Manual layout set in Tekenen (ADR 0013). No layers, guides, free shapes, free texts or images exist beyond FR-100 to FR-116.
+- **FR-044**: In D1 the canvas MUST be drawn in Automatic layout on the Artboard per kickoff 6.5, FR-107 and User Story 16, with zoom from 50% to 200% in 10% steps and "Passend maken", which may set any zoom from 10% to 200%. From DT an Area or Element MAY have a Manual layout set in Tekenen (ADR 0013). No layers, guides, free shapes, free texts or images exist beyond FR-100 to FR-116.
 - **FR-045**: Keyboard operation MUST follow User Story 11 in Invoeren (Tab through rows, named arrow buttons) and User Story 16 in Bekijken (Tab between Areas and toolbar, arrow keys through the tree, Enter for the detail panel); Tekenen follows User Story 35.
-- **FR-046**: The application MUST ship Default colours per Area and per level (Domain, Cluster, Activity) as listed in `design-contract.md`; no route changes them and no theme screen exists (ADR 0018). Text without a colour of its own MUST be ink `#171B21` or white, whichever contrasts more with its background. `[GATE-C49]` `[GATE-C50]`
+- **FR-046**: The application MUST ship Default colours per Area and per level (Domain, Cluster, Activity) as listed in `design-contract.md`; no route changes them and no theme screen exists (ADR 0018). Text without a colour of its own MUST be ink `#171B21` or white, whichever contrasts more with its background. In D1 colours cannot be changed; a no-go on WP-E0 leads to a separate decision. `[GATE-C49]` `[GATE-C50]`
 
 #### Tekenen (DT)
 
 - **FR-100**: A Canvas MUST offer the modes Invoeren, Tekenen and Bekijken in that order in one switch, with the mode in the address. A Reader, an archived Canvas and a Snapshot MUST get Bekijken only, and a Template Invoeren only; the server MUST refuse every Tekenen and Invoeren write from them. A Finalised year MUST NOT block Tekenen. In D1 the switch holds Invoeren and Bekijken (ADR 0014).
-- **FR-101**: Tekenen MUST change only Layout: it MUST NOT create, delete, rename or reparent an Element, a Statement or text, by any control, shortcut or request (H12).
-- **FR-102**: Layout MUST be stored per Element as the application's own data: place and size in whole pixels relative to the parent, a minimum size of 40 by 24, and the Element style; the database MUST be the only source, and a drawing-library document MUST NOT be stored as truth; the drawing is built from model plus Layout when Tekenen opens and read back when it saves (H13, ADR 0016). Layout data MUST carry a version number, upgraded by small functions when read.
-- **FR-103**: Saving Layout MUST send the whole Layout of the Canvas and MUST be written in one transaction after the server checked: every Element exists, is active and belongs to the Canvas; no Element is missing or extra; each parent equals the structure; each child lies within its parent; each size is at least the minimum; only the style keys and values of FR-104. Any failure MUST refuse the whole save. Tekenen MUST send the structure version of the Canvas it opened with: when the server's version is newer, the user MUST choose between applying the Layout to what still exists and reloading; when it is the same, a missing or extra Element MUST refuse the save and rebuild the drawing. Children in Automatic layout MUST be laid out inside their parent's current width, the parent growing in height to hold them. When saving happens is `[GATE-C32]`.
-- **FR-104**: Element style MUST hold only fill, border colour and text colour as `#RRGGBB` and corner radius in whole pixels from 0 to 64; the server MUST refuse any other key. Further properties are `[GATE-C33]`.
-- **FR-105**: The server MUST refuse saving a text colour whose contrast with the Element's fill is below 4.5:1 and name the Element and the ratio. `[SD-27]`
-- **FR-106**: Bekijken MUST draw every Element at its stored place and size within 1 pixel of Tekenen at 100% zoom, with the same text lines (H11, ADR 0015).
-- **FR-107**: The Automatic layout MUST be computed from structure and order alone and be the same every time; "Alles automatisch opmaken" MUST give exactly the places and sizes of a new Canvas with the same content (Element style: `[GATE-C47]`). "Terug naar automatische plek" MUST return a selected Element to its automatic place; its further scope is `[GATE-C47]`.
-- **FR-108**: Structure changes MUST place Elements per User Story 38: automatic in a parent without Manual layout; under the lowest child, at the size Automatic layout gives that kind of Element, in a parent with Manual layout, the parent growing in height with the message "Opmaak aangepast" when needed; a reparented Element and its subtree back to automatic; Layout removed with a deleted or archived Element and restored by undo. An Element added in Invoeren MUST show "nieuw" in "Lagen" until the next save from Tekenen. `[SD-26]` `[SD-29]`
-- **FR-109**: Layout and Artboard MUST go with a Canvas copy, a Snapshot, a Canvas JSON export and import (mapped to the new identifiers), and a full export and import; Templates MUST NOT hold Layout. A Canvas JSON file without Layout MUST import in Automatic layout. `[SD-25]`
+- **FR-101**: Tekenen MUST change only Layout: it MUST NOT create, delete, rename or reparent an Area, Element, Statement or text, by any control, shortcut or request (H2, H12). The Direction band (the Area Direction) and the logo MUST NOT be movable or resizable, and the server MUST refuse any Layout for them.
+- **FR-102**: Layout MUST be stored per Area other than Direction and per Element as the application's own data: place and size in whole pixels relative to the parent (the Artboard for an Area), the order in front or behind among siblings, and the Element style; a stored height is a minimum (FR-106a). The database MUST be the only source, and a drawing-library document MUST NOT be stored as truth; the drawing is built from model plus Layout when Tekenen opens and read back when it saves (H13, ADR 0016). Layout data MUST carry a format version, upgraded by small functions when read.
+- **FR-103**: Tekenen MUST save automatically after every finished action, sending the whole Layout of the Canvas with the structure version and the Layout version it last loaded or last saved successfully (each save returns the new Layout version); the server MUST write it in one transaction after checking: every Area other than Direction and every Element exists, is active and belongs to the Canvas; none is missing or extra; each parent equals the structure; each child lies inside its parent's width (x at least 0, x plus width at most the parent's width, y at least 0; a child below its parent makes the parent grow); each Area lies inside the Artboard and below the Direction band on its stored place and size (x and y at least 0, x plus width at most 1680, y plus stored height at most 1188); content grown beyond the Artboard is `[GATE-C51]`; widths and heights meet User Story 35 scenario 5; only the style of FR-104. Any failure MUST refuse the whole save and undo the action in the drawing. The structure version MUST rise with every create, delete, archive, restore, move and reorder of an Element, and the Layout version with every Layout write, including placements caused by Invoeren (FR-108). The server MUST check the structure version first: when newer, the user MUST choose between applying the Layout to what still exists (Tekenen then loads the current structure and Layout version, re-applies its own changes to the Elements that still exist, and saves again) and reloading; when equal, a missing or extra Element MUST refuse the save and rebuild the drawing, and a newer Layout version MUST refuse the save and reload the drawing (ADR 0021). Children sticking out MUST be pushed back before sending and named to the user. No intermediate state is kept in the browser. `[SD-35]`
+- **FR-104**: Element style MUST hold only: fill colour `#RRGGBB` with opacity 0 to 100; border colour `#RRGGBB`, width 0 to 8 pixels and style solid or dashed; corner radius 0 to 64 pixels; and for titles and Activity text: font Inter or Space Grotesk, size 10 to 48 pixels, weight normal or bold, italic yes or no, colour `#RRGGBB`, horizontal alignment left, centre or right, vertical alignment top, middle or bottom. The server MUST refuse any other key or value (addendum chapter 5). `[SD-37]`
+- **FR-105**: The server MUST refuse saving a text colour whose contrast with the Element's effective fill (opacity composited over what lies behind it) is below 4.5:1, and name the Element and the ratio. When a fill change would make an Element's own text colour fall below 4.5:1, that text colour MUST return to automatic (ink or white) in the same action, and the user is told. `[SD-27]`
+- **FR-106**: Bekijken MUST draw every Area and Element at its stored place and size within 1 pixel of Tekenen at 100% zoom, with the same text lines (H11, ADR 0015).
+- **FR-106a**: Names MUST always wrap within their Element's width, breaking a word longer than the width; an Element MUST grow in height to hold its text and children, also with a Manual layout, and its parents MUST grow with it. Children in Automatic layout MUST be laid out inside their parent's current width, the parent growing in height to hold them. In Automatic layout growth re-flows the siblings; growth MUST NOT move any Element that has a Manual layout. Overlapping Elements or Areas MUST be listed as Warnings. What happens when content grows beyond the Artboard is `[GATE-C51]` (ADR 0020).
+- **FR-107**: The Automatic layout MUST be computed from structure, order and the font files alone, on the Artboard of 1680 by 1188 pixels in the arrangement of kickoff 6.5, and be the same every time. "Terug naar automatische plek" MUST reset place, size and style of the selected Area (not Direction) or Element; "Domein terug naar automatisch" those of a Domain and everything in it; "Alles automatisch opmaken" those of every Area other than Direction and every Element, giving exactly the Layout of a new Canvas with the same content. Each MUST ask for confirmation. `[SD-36]`
+- **FR-108**: Structure changes MUST place Elements per User Story 38: automatic in a parent without Manual layout; under the lowest child at the size Automatic layout gives that kind of Element in a parent with Manual layout, the parent growing in height with the message "Opmaak aangepast" when needed; a reparented Element and its subtree back to automatic; Layout removed with a deleted or archived Element and restored by undo. An Element added in Invoeren MUST show "nieuw" in "Lagen" until it is selected or changed in Tekenen. `[SD-26]` `[SD-29]`
+- **FR-109**: Layout MUST go with a Canvas copy, a Snapshot, a Canvas JSON export and import (mapped to the new identifiers), and a full export and import; Templates MUST NOT hold Layout. A Canvas JSON file without Layout MUST import in Automatic layout. `[SD-25]`
 - **FR-110**: The drawing library MUST be reached only through one adapter in `resources/js/edit-engine/` with the interface of addendum chapter 7; files outside it MUST NOT import `@open-pencil/*`; versions MUST be pinned exactly; the Tekenen code MUST load as its own bundle; the property panel MUST be the application's own, built on the headless SDK (H14, ADR 0016).
 - **FR-111**: Tekenen MUST make no request to any host other than the application's own server: telemetry, AI, collaboration, cloud and outside icon sources not built in or switched off; CanvasKit and fonts served by the application (H1, H15).
-- **FR-112**: Canvas text MUST use only fonts from a fixed list shipped with the application and seeded read-only, the same files for the HTML view and Tekenen (ADR 0017). Which fonts are on the list is `[GATE-C37]`.
-- **FR-113**: Saving Layout MUST write one Audit log entry per changed Element with its old and new place, size and style. `[SD-28]`
-- **FR-114**: Tekenen MUST be usable within 3 seconds the first time on an ordinary laptop, and within 1 second afterwards for every action on a Canvas of 500 Elements.
-- **FR-115**: No Tekenen work beyond WP-E0 MAY start before WP-E0 ends in go; a no-go MUST stop DT and be reported to the product owner with the WP-E0 report, without choosing another library.
-- **FR-116**: DT MUST have: unit tests on the Layout data and every check of FR-103 to FR-105; a round-trip test of the adapter (Layout in, drawing, Layout out, no difference); a picture comparison between Bekijken and Tekenen for three reference Canvases (small, medium, full) with 1 pixel tolerance on places; browser tests of User Stories 35 to 38, and of User Story 39 once D3 exists; a browser test that fails on any request outside the own host; a test that saving Layout never changes an Element, parent, name or Modality, and (from D2) an Allocation set; a static check that no file outside the adapter imports `@open-pencil/*`; and an upgrade script that runs the adapter tests against newer library versions (addendum 11, v1.2 16.8).
+- **FR-112**: Canvas text MUST use only Inter and Space Grotesk, shipped with the application and seeded read-only, the same files for the HTML view and Tekenen (ADR 0017).
+- **FR-113**: Saving Layout MUST write one Audit log entry per changed Area or Element with its old and new place, size and style. `[SD-28]`
+- **FR-114**: Tekenen MUST be usable within 3 seconds the first time on an ordinary laptop, and within 1 second afterwards for every action on a Canvas of 500 Elements, saving included (how 500 Elements sit on the fixed Artboard is `[GATE-C51]`).
+- **FR-115**: No Tekenen work beyond WP-E0 MAY start before WP-E0 ends in go; a no-go MUST stop DT and be reported to the product owner with the WP-E0 report, without choosing another library and without preparing a replacement.
+- **FR-116**: DT MUST have: unit tests on the Layout data and every check of FR-103 to FR-105; a round-trip test of the adapter (Layout in, drawing, Layout out, no difference); a picture comparison between Bekijken and Tekenen for three reference Canvases (small, medium, full; the full one once `[GATE-C51]` is decided) with 1 pixel tolerance on places; browser tests of User Stories 35 to 38, and of User Story 39 once D3 exists; a browser test that fails on any request outside the own host; a test that saving Layout never changes an Element, parent, name or Modality, and (from D2) an Allocation set; a static check that no file outside the adapter imports `@open-pencil/*`; and an upgrade script that runs the adapter tests against newer library versions (addendum 11, v1.2 16.8).
 
 #### Fiscal years, Cost records and lists (D2)
 
 - **FR-047**: Fiscal years MUST belong to the Organisation: calendar years 2000 to 2100, unique per Organisation, deletable only without Yearly figures. Whether a Fiscal year is Finalised MUST be held per Canvas (ADR 0007, ADR 0011). `[SD-2]`
-- **FR-048**: A Cost record MUST belong to one Organisation and hold code (optional, unique within the Organisation ignoring case when filled), name (required), Cost kind (required: Leverancierscontract, Personeel, Project, Overig), Supplier (optional free text, ADR 0009), Owner (required, from the Organisation's list), cost centre (optional), Application (optional, from the Organisation's list), description (optional) and archive status. `[SD-7]` `[GATE-U3]` Which of these fields the Kostenposten form shows is `[GATE-C42]`.
+- **FR-048**: A Cost record MUST belong to one Organisation and hold code (optional, unique within the Organisation ignoring case when filled), name (required), Cost kind (required: Leverancierscontract, Personeel, Project, Overig), Supplier (optional free text, ADR 0009), Owner (required, from the Organisation's list), cost centre (optional), Application (optional, from the Organisation's list), description (optional) and archive status. `[SD-7]` `[GATE-U3]` The Kostenposten form MUST show all of them. `[GATE-C42]`
 - **FR-049**: A Cost record MUST have at most one set of Yearly figures per Fiscal year of its Organisation: Budget (required, € 0,00 to € 999.999.999,99), Forecast (optional, same range), Run and Change (optional basis points, each 0 to 10000, together at most 10000, absent counts as 0), FTE (optional, 0,00 to 9.999,99), reference date (optional) and remark (optional). `[SD-4]` `[GATE-U3]`
 - **FR-050**: Deleting Yearly figures MUST delete the Allocation sets of that Cost record and year in every Canvas; deleting a Cost record MUST delete all its Yearly figures and Allocation sets.
 - **FR-051**: While a Fiscal year is Finalised in any Canvas of the Organisation, the server MUST refuse creating, changing or deleting Yearly figures of that year and deleting a Cost record that has Yearly figures in it (ADR 0007). `[SD-3]`
 - **FR-052**: Each Organisation MUST keep a list of Owners (name) and a list of Applications (name, optional Supplier), names unique per list ignoring case. An entry in use MUST only be deleted through "Vervangen door", which reassigns every Cost record to the chosen entry (or, for Applications, to none) and deletes the entry in one step.
-- **FR-053**: "Kostenposten", opened from a Canvas, MUST show the Organisation's Cost records in the table per Fiscal year of User Story 18 for the year of the top bar, with the allocation status for that Canvas, the summary cards, the Finalise card, and the panel "Boekjaren" to add, delete and reopen Fiscal years. How Cost records of an Organisation without a Canvas are reached is `[GATE-C43]`. `[SD-14]`
+- **FR-053**: "Kostenposten", opened from a Canvas or for an Organisation from "Overzicht", MUST show the Organisation's Cost records in the table per Fiscal year of User Story 18 for the year of the top bar, with, when opened from a Canvas, the allocation status for that Canvas, the summary cards and the Finalise card, and always the panel "Boekjaren" to add, delete and reopen Fiscal years. `[GATE-C43]` `[SD-14]`
 
 #### Allocation (D2)
 
@@ -1094,10 +1104,10 @@ Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of
 - **FR-062**: Line amounts MUST be Budget times basis points divided by 10000, rounded down to whole cents, after which the remaining cents go one each to the lines with the largest remainder, ties going to the earlier line in set order, so the lines add up to the Budget exactly. Forecast MUST be split the same way; a missing Forecast MUST count as equal to the Budget. `[SD-5]` `[SD-6]`
 - **FR-063**: Each line amount MUST be split into Run, Change and Undetermined by the same largest-remainder method using the Cost record's Run, Change and remaining basis points, ties in the order Run, Change, Undetermined.
 - **FR-064**: Each Element MUST get a Direct amount (its own lines) and a Total amount (Direct plus the Totals of its children); an Area Total MUST be the sum of its Domain Totals; the Canvas total MUST be the sum of Area Totals, Unknown allocation included through Supporting activities. This MUST hold for Budget, Forecast, Run, Change and Undetermined.
-- **FR-065**: Share MUST be an Element's Total divided by the Canvas total, shown with two decimals rounded half up (`[GATE-C40]`); with a Canvas total of 0 it MUST show "-".
-- **FR-066**: Breakdowns MUST be: per Cost kind; per Modality as the sum of Direct amounts of Elements with that Modality, plus "Geen modaliteit" for other Elements (whether "Onbekende allocatie" is also a line here is `[GATE-C41]`); Run, Change and Undetermined; and per Element the contribution of each Cost record (amount and percentage). `[SD-18]`
+- **FR-065**: Share MUST be an Element's Total divided by the Canvas total, shown rounded half up with two decimals in the detail panel and with one decimal on the canvas and in the overlay (`[GATE-C40]`); with a Canvas total of 0 it MUST show "-".
+- **FR-066**: Breakdowns MUST be: per Cost kind; per Modality as the sum of Direct amounts of Elements with that Modality, plus "Geen modaliteit" for other Elements and "Onbekende allocatie" for the Unknown allocation Domain (`[GATE-C41]`); Run, Change and Undetermined; and per Element the contribution of each Cost record (amount and percentage). `[SD-18]`
 - **FR-067**: FTE per Element MUST be the sum, over the lines in its subtree, of the Cost record's FTE times the line's basis points divided by 10000, shown with two decimals rounded half up, outside the closing check (A6). `[SD-19]`
-- **FR-068**: After every calculation a closing check MUST verify, to the cent: the sum of included Budgets equals the sum of all line amounts on Targets plus the Direct amount of the Unknown allocation Domain (H7 as restated in ADR 0008); the same for Forecast; every Total equals its Direct amount plus its children's Totals; the Canvas total equals the sum of the Area Totals; each breakdown adds up to the Canvas total (the Modality breakdown only if `[GATE-C41]` includes Unknown allocation); Run plus Change plus Undetermined equals the Canvas total. On any failure no figure MUST be shown and a System notice MUST be recorded.
+- **FR-068**: After every calculation a closing check MUST verify, to the cent: the sum of included Budgets equals the sum of all line amounts on Targets plus the Direct amount of the Unknown allocation Domain (H7 as restated in ADR 0008); the same for Forecast; every Total equals its Direct amount plus its children's Totals; the Canvas total equals the sum of the Area Totals; each breakdown adds up to the Canvas total; Run plus Change plus Undetermined equals the Canvas total. On any failure no figure MUST be shown and a System notice MUST be recorded.
 
 #### Redistribution, Carry over, Finalise (D2)
 
@@ -1152,11 +1162,11 @@ Go: every point P1 to P9 met, where P4, P5 and the alignment and distribution of
 
 - **User**: a person with name, e-mail address, password hash, role, optional second factor with recovery codes, and the flag that the password must be replaced.
 - **Organisation**: name, slug, optional logo, archive status; owns Canvases, Cost records, Fiscal years, Owners and Applications.
-- **Canvas**: name, status (active, archived, template), optional Organisation (absent for a Template), from DT its Artboard and Layout version; holds Statements, Elements, Allocation sets, Finalised years and Snapshots.
+- **Canvas**: name, status (active, archived, template), optional Organisation (absent for a Template), a structure version, and from DT a Layout version; drawn on the fixed Artboard; holds Statements, Elements, Allocation sets, Finalised years and Snapshots.
 - **Area**: one of eight fixed records with key, label, kind, order, level labels and whether it carries costs.
 - **Statement**: of a Canvas; mission, vision or strategic goal; title, text and order.
 - **Element**: of a Canvas and an Area; kind Domain, Cluster or Activity; parent; name, description, Modality, Rationale, icon, order, archive status; whether it is the system-managed Unknown allocation Domain; stable identifier that survives moves.
-- **Element layout** (DT): of one Element; Automatic or Manual, place and size relative to its parent, Element style, time of last change.
+- **Element layout** (DT): of one Area or Element; Automatic or Manual, place and size relative to its parent (height a minimum), order among siblings, Element style, time of last change.
 - **Font**: one of a fixed, seeded list; key, screen name, files per weight.
 - **Modality**: one of four fixed records with key, name, letter, colour and order.
 - **Owner**, **Application**: list entries of an Organisation; an Application has an optional Supplier.
@@ -1202,7 +1212,7 @@ Each criterion maps to a kickoff acceptance criterion where one exists and is de
 - **SC-025** (DT, v1.2 acc. 3a, addendum 10.2): A Domain dragged, resized and coloured in Tekenen is, after reloading, at the same place and size in Tekenen and Bekijken within 1 pixel, and structure and (from D2) figures are unchanged.
 - **SC-026** (DT, v1.2 acc. 3b): An Element added in Invoeren appears in the drawing without handwork.
 - **SC-027** (DT, addendum 10.11): During a full Tekenen session no request goes to any host other than the application's own server.
-- **SC-028** (DT, addendum 10.10): "Alles automatisch opmaken" gives exactly the places and sizes of a new Canvas with the same content.
+- **SC-028** (DT, addendum 10.10): "Alles automatisch opmaken" gives exactly the places, sizes and styles of a new Canvas with the same content.
 - **SC-029** (DT, P9): Tekenen is usable within 3 seconds the first time on an ordinary laptop.
 
 ## Assumptions
@@ -1234,29 +1244,12 @@ The product owner answered the gate items on 2026-11-18. The gate itself stays o
 
 ### Sources
 
-After the gate answers, the product owner supplied kickoff v1.2, addendum A1 and the design, and decided how they rank (Reading guide, Precedence). Points decided by the product owner were applied to this spec, the ADRs and `docs/CONTEXT.md`; among them the three modes, Vue 3, Bekijken as HTML from the stored Layout, Layout as own data per Element, no theme screen, Invoeren as a tree with arrows, and Tekenen as its own delivery with WP-E0 right after the project setup. Still open with the product owner, numbered as in `source-conflicts.md`:
+After the gate answers, the product owner supplied kickoff v1.2, addendum A1 and the design, and decided how they rank (Reading guide, Precedence). Points decided by the product owner were applied to this spec, the ADRs and `docs/CONTEXT.md`; among them the three modes, Vue 3, Bekijken as HTML from the stored Layout, Layout as own data per Element, no theme screen, Invoeren as a tree with arrows, and Tekenen as its own delivery with WP-E0 right after the project setup. After the gate the product owner decided points 32 to 50 of `source-conflicts.md` one by one (five of them against the advice: automatic saving in Tekenen, free Areas, a fixed A3 Artboard, whole euros on the canvas and in the overlay, and names that always wrap). They are applied here, in ADR 0016 to 0021, `docs/CONTEXT.md` and `design-contract.md`. Two questions follow from those decisions and are open:
 
 | Marker | Open point |
 |---|---|
-| `[GATE-C32]` | When Tekenen saves: a button with a local intermediate state, or automatically |
-| `[GATE-C33]` | Which properties Tekenen sets beyond fill, border, text colour and corners |
-| `[GATE-C34]` | Whether Areas are locked in Tekenen |
-| `[GATE-C35]` | Whether the Direction band and logo are locked in Tekenen |
-| `[GATE-C36]` | Size of the Artboard |
-| `[GATE-C37]` | Fonts on the font list |
-| `[GATE-C38]` | One arrangement of the Direction band in every mode |
-| `[GATE-C39]` | Whether Domain cards keep place and size under the financial overlay |
-| `[GATE-C40]` | Whole euros or cents, one or two decimals |
-| `[GATE-C41]` | Whether the Modality breakdown includes Unknown allocation |
-| `[GATE-C42]` | Whether the Cost record form keeps Supplier, cost centre, description and remark |
-| `[GATE-C43]` | How Cost records of an Organisation without a Canvas are reached |
-| `[GATE-C44]` | How the add line creates a Cluster |
-| `[GATE-C45]` | Contrast of input borders, button borders and the forecast bar |
-| `[GATE-C46]` | Focus ring and checkbox target size |
-| `[GATE-C47]` | Scope of "Terug naar automatische plek" |
-| `[GATE-C48]` | Long names: wrap or cut off |
-| `[GATE-C49]` | No way to change colours in D1 |
-| `[GATE-C50]` | No way to change colours after a no-go on WP-E0 |
+| `[GATE-C51]` | What happens when content (long names, many Elements, up to 500, the Direction band's text) does not fit the fixed Artboard; this already affects the Automatic layout of D1 |
+| `[GATE-C52]` | Whole euros: either every list shown with its total visibly adds up (a figure can then differ by € 1 between a card and a list), or every figure keeps one rounded value everywhere (a list can then miss its total by a few euros) |
 
 ### Decisions this spec took under kickoff 20.4
 
@@ -1281,7 +1274,7 @@ Kickoff 20.4 lets the orchestrator resolve gaps within the H rules and K choices
 | `[SD-15]` | Owners and Applications ship in D2, with Cost records | Kickoff WP2 and WP5 both name "lijsten"; acceptance 6d is in delivery 2 |
 | `[SD-16]` | Bekijken without overlays ships in D1 so the Reader role has a use; sample data ships in D3 | Kickoff WP4 names "canvasweergave"; H9 sample data is WP10 |
 | `[SD-17]` | Archived Elements can be shown and restored in Invoeren | H10 and kickoff 8A point 6 for a kind that has no list |
-| `[SD-18]` | The Modality breakdown includes "Geen modaliteit"; including "Onbekende allocatie" is open, `[GATE-C41]` (the design leaves it out) | Kickoff 7.3.8 names only "Geen modaliteit" |
+| `[SD-18]` | The Modality breakdown includes "Geen modaliteit" and "Onbekende allocatie" so it adds up to the Canvas total (confirmed by the product owner, `[GATE-C41]`) | Kickoff 7.3.8 names only "Geen modaliteit" |
 | `[SD-19]` | FTE per Element is FTE times allocated percentage, summed, two decimals | A6 says "som per domein, zonder aparte rekenregels" for a partly allocated Cost record |
 | `[SD-20]` | No network address or browser identification is stored; the security log keeps 90 days | NIS2 logging against data minimisation |
 | `[SD-21]` | Password policy of FR-002; no password-forgotten flow; console reset command | Kickoff 18.1 says "gehasht" only; H1 rules out e-mail |
@@ -1289,9 +1282,16 @@ Kickoff 20.4 lets the orchestrator resolve gaps within the H rules and K choices
 | `[SD-23]` | Element names may not contain ">" | `doel_pad` of kickoff 12.4 uses ">" as separator |
 | `[SD-24]` | One A3 page keeps text at 6 pt or more up to 200 Elements; above that it warns and still prints one page | Kickoff 10.4 and acceptance 15 ask "leesbaar op A3" while 18.3 allows 500 Elements |
 | `[SD-25]` | Templates hold no Layout; a Canvas from a Template starts in Automatic layout | Addendum 6.1 point 5 names copies, Snapshots and export, not Templates |
-| `[SD-26]` | The pill "nieuw" shows in "Lagen" until the next save from Tekenen | Kickoff v1.2 6.5.7 marks new Elements without saying until when |
+| `[SD-26]` | The pill "nieuw" shows in "Lagen" until that Element is selected or changed in Tekenen | Kickoff v1.2 6.5.7 marks new Elements without saying until when |
 | `[SD-27]` | A text colour below 4.5:1 on its fill is refused at save | WB3 against a user-chosen text colour (design field "Tekst") |
 | `[SD-28]` | One Audit log entry per changed Element on a Layout save | FR-019 per record; kickoff 18.6 does not name Layout |
 | `[SD-29]` | A reparented Element loses the Manual layout of its whole subtree | Addendum 6.2 names only the Element itself |
 | `[SD-30]` | The Unknown allocation Domain has an editable Layout but a fixed structure | ADR 0008 fixes its structure; Tekenen changes Layout only (H12) |
 | `[SD-31]` | Without an open Canvas the top bar holds "Overzicht" and, for Administrators, "Beheer" | The design shows tabs only inside a Canvas; Beheer must be reachable before any Canvas exists |
+| `[SD-32]` | Withdrawn: rounding of whole euros in lists is a product owner question, `[GATE-C52]` | |
+| `[SD-33]` | Overlay figures that do not fit a card are left out in a fixed order and shown in full on hover, focus and in the detail panel | Decision 39 keeps card size; cards can be as small as 40 by 24 |
+| `[SD-34]` | Areas stay inside the Artboard below the Direction band; growth never moves other Elements; overlaps are listed as Warnings | Decisions 34, 35 and 48 together |
+| `[SD-35]` | A Layout save on an older Layout version is refused and the drawing reloads | Automatic whole-Layout saves (decision 32) would otherwise overwrite another Administrator silently |
+| `[SD-36]` | The Domain level of decision 47 is the action "Domein terug naar automatisch" | The design names only the Element and Canvas actions |
+| `[SD-37]` | Style ranges: border width 0 to 8, corner radius 0 to 64, font size 10 to 48 pixels, weights normal and bold | Addendum chapter 5 gives no ranges |
+| `[SD-38]` | The Automatic layout uses the fixed Artboard already in D1, so it does not change when DT arrives | Decision 36 with H11 |
