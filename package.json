@@ -8,6 +8,7 @@
         "lint": "eslint resources tests/js",
         "typecheck": "vue-tsc --noEmit",
         "test": "vitest run",
+        "check": "node scripts/check-assets.mjs && node scripts/check-forbidden-names.mjs && node scripts/check-imports.mjs",
         "verify": "npm run lint && npm run typecheck && npm run test"
     },
     "devDependencies": {
