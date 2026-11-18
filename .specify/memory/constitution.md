@@ -1,50 +1,136 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version change: template (unversioned) -> 1.0.0
+Modified principles: none (initial ratification)
+Added sections: Core Principles I-V, House Conventions, Compliance Articles,
+  Engineering Baseline, Base Slice, Governance
+Removed sections: none
+Deferred items: none
+-->
+
+# OMC Studio Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Local-Only, No External Dependencies
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+The application and all its data MUST stay on the machine where it runs (H1, H8).
+No CDN, no external fonts, no telemetry, no external database, no outbound calls.
+Neither the reference application, the external platform nor the consultancy behind
+the method is named in screens, exports, file names, code or documentation.
+Rationale: the client's financial data never leaves the machine, and the product
+owner can start the application on a clean machine with Docker in at most two
+commands, with working sample data (H9).
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Exact Money and Percentages
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Amounts MUST be whole cents and percentages MUST be whole basis points (10000 = 100%).
+A cost item per year is either unassigned (0 lines) or fully assigned (sum exactly
+100.00%); an intermediate state MUST NOT be storable (H5). Totals MUST close to the
+cent: sum of cost items equals sum assigned plus sum unassigned (H7). The server
+enforces these rules; the screen mirrors them and never replaces them.
+Rationale: no rounding differences, ever.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Structure Integrity
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+The areas are fixed in code (seed) and MUST NOT be added, removed or renamed by users
+(H2). Inside an area the structure is always domain > activity; an activity hangs
+directly under a domain or under a cluster within that domain, and never without a
+domain (H3). A cluster is optional, belongs to exactly one domain, contains one or
+more activities and cannot be nested (H4). Rules live in the model and service layer,
+not in the screens.
+Rationale: every figure on the canvas traces to one unambiguous place.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Everything Manageable Through the Screens
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Everything a user enters MUST be creatable, viewable, editable and deletable through
+the screens, per the CRUD matrix of the kickoff, without a database tool, seed or
+import (H10). Screen texts are plain Dutch and live only in the i18n messages file
+`messages/nl.ts`.
+Rationale: the product owner is not a developer.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Delivered Slices Are Finished and Tested
+
+The deliverable type is tracer-bullet: breadth is cut, depth never is. Work ships in
+three deliveries (WP0 to WP4, WP5 to WP8, WP9 to WP11), each running through every
+production layer: data model, server rules, UI and tests. A delivery MUST NOT contain
+stubs, half-implemented rules, or any amount or percentage path without full tests.
+Features of a later delivery and everything in the kickoff "Not in version 1" list
+are excluded.
+Rationale: figures that are correct to the cent cannot be added afterwards.
+
+## House Conventions
+
+Binding for every project. The gate review blocks on them, and a task that violates
+one is not done.
+
+1. **OOP, English everywhere in code.** Every variable, reference, function,
+   class, path and route name is English and object-oriented in structure.
+   Dutch exists in exactly one place: user-facing labels in the i18n messages
+   file (`messages/nl.ts` or the stack's equivalent). A Dutch identifier in
+   code is a blocking finding.
+2. **Every database table carries an index.** A table ships with at least the
+   index its access pattern needs, chosen and named in the migration that
+   creates the table, never deferred to "when it gets slow". The data model
+   document records which index serves which query.
+3. **No code comments.** Names carry the meaning: a function that needs a
+   comment needs a better name or a smaller body. The only exceptions are
+   annotations the toolchain itself requires (a directive, a pragma) and legal
+   headers a dependency licence forces.
+4. **Nothing traces back to the tool that built it.** No reference to the tool
+   that built the code appears in code, comments, commit messages or pull
+   requests; the project settings strip attribution trailers, and the review
+   blocks on any that slip through. The code must read as deliberately
+   engineered.
+5. **One file per component, compact files.** Each model, service, controller,
+   repository and UI component lives in its own file that does that one thing.
+   A file approaching 300 lines is a split waiting to happen; a file over 400
+   lines is a blocking finding unless the file is generated.
+
+## Compliance Articles
+
+Always active. The risk class of this project is `standard`: each article demands
+full artifacts, namely a PII inventory, an incident plan, WCAG criteria per
+user-facing story and ten OWASP verdicts in phase 7. The articles themselves:
+
+**AVG/GDPR.** Privacy by design and by default. Data minimisation: a field that is
+not needed is not collected. Every personal data element is recorded in a PII
+inventory with its lawful basis, retention period and processors. A change that adds
+personal data updates that inventory in the same commit.
+
+**NIS2.** Risk-based measures proportional to the system. Logging and monitoring
+adequate to detect and reconstruct an incident, without logging the personal data
+just minimised. Incident readiness: who is notified, in what window, through which
+channel, written down before it is needed.
+
+**WCAG 2.2 AA.** Every user-facing story carries accessibility acceptance criteria:
+keyboard operability, focus visibility, contrast, target size, form errors that name
+the field and the fix. A story without them is not ready for phase 5. Projects with
+no user interface record that fact rather than silently skipping the article.
+
+**OWASP.** Requirements are written ASVS-aligned. The Top 10 is a checklist in both
+review and validation, not a slogan: authentication, access control, injection,
+insecure design, misconfiguration, vulnerable dependencies, integrity, logging,
+and server-side request forgery each get an explicit verdict in phase 7.
+
+## Engineering Baseline and Base Slice
+
+- Test-driven development per task: a failing test comes first, then the code.
+- Two-axis review of every change: correctness and design.
+- One atomic commit per task, with a conventional commit message.
+- The specification starts from the base slice: data model (each table with its
+  index), CRUD for the core entities, authentication with optional TOTP 2FA, and the
+  UI shell (top menu, sidebar, detail window), built once as a story of its own.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes other practices. An amendment is a documented change to
+this file that states the reason and its effect on existing specifications, approved
+by the product owner, with the version bumped by semantic versioning: MAJOR for a
+removed or redefined principle, MINOR for an added principle or materially expanded
+guidance, PATCH for clarifications. Every gate review and pull request MUST verify
+compliance with the principles, house conventions and compliance articles above, and
+any deviation MUST be justified in writing in an ADR under `docs/adr/`. Lowering the
+risk class is a decision that is written down with its reason.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-11-18 | **Last Amended**: 2026-11-18
