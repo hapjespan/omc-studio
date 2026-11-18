@@ -3,6 +3,7 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 
 createInertiaApp({
+    progress: { includeCSS: false },
     resolve: (name) => {
         const pages = import.meta.glob('./pages/**/*.vue', { eager: true });
         return pages[`./pages/${name}.vue`] as never;
