@@ -1,4 +1,26 @@
 {
     "app.title": "OMC Studio",
-    "setup.greeting": "Hallo :name, je hebt :count berichten"
+    "setup.greeting": "Hallo :name, je hebt :count berichten",
+    "areas.direction.name": "Koers",
+    "areas.steering.name": "Richten",
+    "areas.steering.level_1": "Domein",
+    "areas.steering.level_2": "Activiteit",
+    "areas.governing.name": "Beheersen",
+    "areas.governing.level_1": "Domein",
+    "areas.governing.level_2": "Activiteit",
+    "areas.actors.name": "Actoren",
+    "areas.actors.level_1": "Groep",
+    "areas.actors.level_2": "Actor",
+    "areas.channels.name": "Kanalen",
+    "areas.channels.level_1": "Groep",
+    "areas.channels.level_2": "Kanaal",
+    "areas.value_propositions.name": "Waardeproposities",
+    "areas.value_propositions.level_1": "Groep",
+    "areas.value_propositions.level_2": "Propositie",
+    "areas.primary_activities.name": "Primaire activiteiten",
+    "areas.primary_activities.level_1": "Domein",
+    "areas.primary_activities.level_2": "Activiteit",
+    "areas.supporting_activities.name": "Ondersteunende activiteiten",
+    "areas.supporting_activities.level_1": "Domein",
+    "areas.supporting_activities.level_2": "Activiteit"
 }

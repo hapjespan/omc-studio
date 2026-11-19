@@ -96,5 +96,32 @@
   "T029": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
+  },
+  "T031": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T032": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T033": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T034": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T035": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T036": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T037": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T038": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T039": {
+    "built_by": "claude-sonnet-5-5"
   }
 }
