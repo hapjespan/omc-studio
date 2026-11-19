@@ -943,5 +943,10 @@
     "overlay.panel.per_cost_kind": "Per soort kosten",
     "overlay.panel.per_modality": "Per modaliteit",
     "overlay.panel.no_modality": "Geen modaliteit",
-    "overlay.panel.split": "Run, Change en Onbepaald"
+    "overlay.panel.split": "Run, Change en Onbepaald",
+    "overlay.filter.cost_kind": "Soort kosten",
+    "overlay.filter.owner": "Eigenaar",
+    "overlay.filter.application": "Applicatie",
+    "overlay.filter.all": "Alle",
+    "overlay.filter.active": "Actieve filters"
 }

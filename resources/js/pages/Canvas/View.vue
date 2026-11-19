@@ -7,8 +7,10 @@ import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
 import { descendantCounts } from '../../canvas/overlay/counts';
-import type { CanvasFigures, ElementFigures } from '../../canvas/overlay/figures';
+import type { CanvasFigures, ElementFigures, OverlayFilters as Filters } from '../../canvas/overlay/figures';
 import FinancialCard, { areaLine, cardLines } from '../../canvas/overlay/FinancialCard.vue';
+import OverlayFilters from '../../canvas/overlay/OverlayFilters.vue';
+import type { FilterOptions } from '../../canvas/overlay/OverlayFilters.vue';
 import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
 import { shareColour } from '../../canvas/overlay/ShareColour';
@@ -34,6 +36,8 @@ const props = defineProps<{
     year: number | null;
     figures: CanvasFigures | null;
     figuresMessage: string | null;
+    filters: Filters;
+    filterOptions: FilterOptions;
 }>();
 
 const role = computed(() => (usePage().props.auth as { role: string | null }).role);
@@ -87,6 +91,7 @@ const fit = (): void => {
         <ZoomToolbar v-if="drawn" v-model:zoom="zoom" @fit="fit" />
         <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
     </div>
+    <OverlayFilters v-if="overlay === 'financial'" :filters="filters" :options="filterOptions" />
     <OverlayLegend :overlay="overlay" :modalities="modalities" />
     <div class="mt-3 flex gap-4">
     <div ref="scroller" class="h-[calc(100vh-14rem)] min-w-0 flex-1 overflow-auto" tabindex="-1" data-scroller>

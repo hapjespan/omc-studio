@@ -9,14 +9,14 @@ export interface CardCounts {
     clusters: number;
 }
 
-export type CardPart = 'counts' | 'forecast' | 'bar' | 'share';
+export type CardPart = 'counts' | 'forecast' | 'bar' | 'share' | 'total';
 
-const HEIGHTS: Record<CardPart | 'total', number> = { total: 20, share: 16, bar: 12, forecast: 16, counts: 16 };
-const DROP_ORDER: CardPart[] = ['counts', 'forecast', 'bar', 'share'];
+const HEIGHTS: Record<CardPart, number> = { total: 20, share: 16, bar: 12, forecast: 16, counts: 16 };
+const DROP_ORDER: CardPart[] = ['counts', 'forecast', 'bar', 'share', 'total'];
 
 export function fitParts(available: number): Set<CardPart> {
     const kept = new Set<CardPart>(DROP_ORDER);
-    let used = HEIGHTS.total + DROP_ORDER.reduce((sum, part) => sum + HEIGHTS[part], 0);
+    let used = DROP_ORDER.reduce((sum, part) => sum + HEIGHTS[part], 0);
     for (const part of DROP_ORDER) {
         if (used <= available) break;
         kept.delete(part);
@@ -57,8 +57,8 @@ import type { DrawnBlock } from '../../layout/types';
 
 const props = defineProps<{ block: DrawnBlock; figures: ElementFigures; counts: CardCounts; year: number | null; colour?: { background: string; text: string } | null }>();
 const padding = 12;
-const header = computed(() => props.block.textLines.length * props.block.style.lineHeight + padding * 2);
-const parts = computed(() => fitParts(props.block.drawnHeight - header.value - 6));
+const header = computed(() => props.block.textLines.length * props.block.style.lineHeight + padding);
+const parts = computed(() => fitParts(props.block.drawnHeight - header.value - 4));
 const lines = computed(() => cardLines(props.figures, props.counts, props.year));
 const scale = computed(() => Math.max(props.figures.total.budget, props.figures.total.forecast, 1));
 const fill = computed(() => `${(props.figures.total.forecast / scale.value) * 100}%`);
@@ -67,9 +67,9 @@ const stripe = computed(() => `${(props.figures.total.budget / scale.value) * 10
 
 <template>
     <div class="absolute inset-x-0 bottom-0 overflow-hidden px-3 pb-1.5 text-[12px]" :style="{ top: `${header}px`, background: colour?.background ?? block.style.fill ?? 'transparent', color: colour?.text ?? block.style.textColour }" data-financial-card>
-        <p v-if="lines.empty" class="leading-4" data-empty>{{ lines.empty }}</p>
-        <template v-else>
-            <p class="truncate text-[16px] font-semibold leading-5" data-total>{{ lines.total }}</p>
+        <p v-if="lines.empty && parts.has('total')" class="leading-4" data-empty>{{ lines.empty }}</p>
+        <template v-else-if="!lines.empty">
+            <p v-if="parts.has('total')" class="truncate text-[16px] font-semibold leading-5" data-total>{{ lines.total }}</p>
             <p v-if="parts.has('share')" class="truncate leading-4" data-share>{{ lines.share }}</p>
             <div v-if="parts.has('bar')" class="relative mt-0.5 h-2 w-full rounded-sm" style="background: color-mix(in srgb, currentColor 25%, transparent)" data-bar>
                 <div class="absolute inset-y-0 left-0 rounded-sm bg-current" :style="{ width: fill }" data-bar-fill />

@@ -31,6 +31,7 @@ export function seedOverlay(name: string): OverlaySeed {
         element('$p', 'primary_activities', 'activity', 'Begeleiden', '$d->id', 'null'),
         element('$q', 'primary_activities', 'activity', 'Plannen', '$d->id', 'null'),
         element('$e', 'steering', 'domain', 'Strategie', 'null', 'null'),
+        element('$u', 'steering', 'activity', 'Bijsturen', '$e->id', 'null'),
         record('Salarissen', 100000, '90000', `'cost_kind' => 'personnel'`),
         record('Licentie', 300000, 'null', `'cost_kind' => 'supplier_contract', 'owner_id' => $x->id`),
         set('Salarissen', '$d'),

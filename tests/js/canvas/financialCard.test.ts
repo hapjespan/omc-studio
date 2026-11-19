@@ -27,12 +27,13 @@ describe('cardLines', () => {
 });
 
 describe('fitParts', () => {
-    it('drops counts, then the forecast line, then the bar, then the Share as the card gets smaller', () => {
-        expect([...fitParts(200)]).toEqual(['counts', 'forecast', 'bar', 'share']);
-        expect([...fitParts(76)].sort()).toEqual(['bar', 'forecast', 'share']);
-        expect([...fitParts(60)].sort()).toEqual(['bar', 'share']);
-        expect([...fitParts(40)].sort()).toEqual(['share']);
-        expect([...fitParts(30)]).toEqual([]);
+    it('drops counts, then the forecast line, then the bar, then the Share, then the Total as the card gets smaller', () => {
+        expect([...fitParts(200)]).toEqual(['counts', 'forecast', 'bar', 'share', 'total']);
+        expect([...fitParts(76)].sort()).toEqual(['bar', 'forecast', 'share', 'total']);
+        expect([...fitParts(60)].sort()).toEqual(['bar', 'share', 'total']);
+        expect([...fitParts(40)].sort()).toEqual(['share', 'total']);
+        expect([...fitParts(30)]).toEqual(['total']);
+        expect([...fitParts(10)]).toEqual([]);
     });
 });
 
