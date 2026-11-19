@@ -42,3 +42,21 @@ test('Escape with unsaved input asks to discard and keeps the panel open until c
     await expect(page.locator('#detail-panel')).toBeHidden();
     await expect(row).toBeFocused();
 });
+
+test('dismissing the discard question returns focus to the field that had it', async ({ page }) => {
+    await page.goto('/?demo=Shell');
+    await page.getByRole('button', { name: 'Eerste rij' }).click();
+    const note = page.locator('#note');
+    await note.fill('wijziging');
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('alertdialog')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Verder bewerken' }).click();
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
+    await expect(note).toBeFocused();
+
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
+    await expect(note).toBeFocused();
+});

@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { detail, discardDetail, openDetail, requestCloseDetail } from '../../../resources/js/shell/detail';
+import { detail, discardDetail, dismissDiscard, openDetail, requestCloseDetail } from '../../../resources/js/shell/detail';
 
+const focusing = (el: HTMLElement | null) => {
+    Object.defineProperty(globalThis, 'document', { value: { activeElement: el }, configurable: true });
+};
 const opener = () => ({ focus: vi.fn() }) as unknown as HTMLElement;
 
 beforeEach(() => {
+    focusing(null);
     detail.open = false;
     detail.dirty = false;
     detail.confirming = false;
@@ -47,5 +51,20 @@ describe('detail panel', () => {
         expect(detail.dirty).toBe(false);
         expect(detail.confirming).toBe(false);
         expect(row.focus).toHaveBeenCalledOnce();
+    });
+
+    it('returns focus to the element focused when the discard question opened', async () => {
+        const field = opener();
+        openDetail('Rij 1', opener());
+        detail.dirty = true;
+        focusing(field);
+        requestCloseDetail();
+
+        dismissDiscard();
+        await nextTick();
+
+        expect(detail.confirming).toBe(false);
+        expect(detail.open).toBe(true);
+        expect(field.focus).toHaveBeenCalledOnce();
     });
 });
