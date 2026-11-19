@@ -71,6 +71,8 @@ class UserAdministration
         $user->password = $this->passwords->generate();
         $user->save();
 
+        SecurityLog::record('user_created', ['subject_id' => $user->getKey(), 'role' => $user->role->value]);
+
         return [$user, $this->passwords->issueTo($user)];
     }
 
@@ -82,7 +84,13 @@ class UserAdministration
         return $this->writes->run($this->guard->aggregates($user), function () use ($user, $data, $actor): User {
             $this->guard->assertCanChangeRole($actor, $user, Role::from($data['role']));
 
-            $user->fill($data)->save();
+            $user->fill($data);
+            $roleChanged = $user->isDirty('role');
+            $user->save();
+
+            if ($roleChanged) {
+                SecurityLog::record('user_role_changed', ['subject_id' => $user->getKey(), 'role' => $user->role->value]);
+            }
 
             return $user;
         });
