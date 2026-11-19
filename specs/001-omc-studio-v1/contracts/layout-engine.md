@@ -28,7 +28,7 @@ interface TextMeasurer {
 ## Output
 
 - `blocks`: per Area and Element `{id, kind, x, y, width, drawnHeight, z, textLines: string[], style}` in absolute Artboard pixels, `style` resolved (Element style over Default colours, ink or white text by contrast per FR-046).
-- `direction`: the four columns with their lines and a `truncated` flag per column (SD-40).
+- `direction`: the four columns with their lines and a `truncated` flag per column (SD-40). The goals column numbers its lines (`"<n>. <title> <body>"`, no colon) and returns `marks`, one entry per wrapped line: `number` (length of the `"<n>. "` prefix on the first line of a goal, else 0) and `bold` (characters of the line, after the prefix, that belong to the title). Goal text is wrapped at weight 600 and 18 px narrower than the column, the hanging indent under the number; Area headers are measured with a letter spacing of 0.04 em.
 - `warnings`: `emptyCluster`, `domainWithoutActivities`, `beyondArtboard` (Domains and Groups partly or wholly below 1188), `directionTextCut`, and from DT `overlap` pairs (FR-040).
 - `beyondArtboardCount`: for the notice of US16.8.
 

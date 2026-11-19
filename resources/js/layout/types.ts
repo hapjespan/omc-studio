@@ -94,6 +94,11 @@ export interface DrawnBlock {
 
 export type DirectionColumnKey = 'logo' | 'mission' | 'vision' | 'goals';
 
+export interface LineMark {
+    number: number;
+    bold: number;
+}
+
 export interface DirectionColumn {
     key: DirectionColumnKey;
     x: number;
@@ -101,7 +106,7 @@ export interface DirectionColumn {
     label: string | null;
     lines: string[];
     truncated: boolean;
-    boldLengths: number[];
+    marks: LineMark[];
 }
 
 export type LayoutWarning =

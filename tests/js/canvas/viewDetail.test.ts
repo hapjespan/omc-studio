@@ -41,7 +41,7 @@ describe('detailOf', () => {
     it('shows an Area by name and the Direction band with the full statements in order', () => {
         expect(detailOf('primary_activities', source)!.fields).toEqual([{ label: 'Naam', value: 'Primaire activiteiten' }]);
         const direction = detailOf('direction', source)!;
-        expect(direction.fields.map((field) => field.value)).toEqual(['Koers', 'Leren', 'Niet ingevuld', 'Minder verzuim\nGroei: Meer leerlingen']);
+        expect(direction.fields.map((field) => field.value)).toEqual(['Koers', 'Leren', 'Niet ingevuld', '1. Minder verzuim\n2. Groei Meer leerlingen']);
     });
 
     it('returns null for an unknown id', () => {

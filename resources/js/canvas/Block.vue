@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isListArea } from '../layout/arrangeAreas';
+import { AREA_LETTER_SPACING, isListArea } from '../layout/arrangeAreas';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -26,6 +26,7 @@ const box = (): Record<string, string> => {
         fontSize: `${block.style.font.size}px`,
         fontWeight: String(block.style.font.weight),
         lineHeight: `${block.style.lineHeight}px`,
+        letterSpacing: block.kind === 'area' ? `${AREA_LETTER_SPACING}em` : 'normal',
     };
 };
 </script>
@@ -49,7 +50,7 @@ const box = (): Record<string, string> => {
         @focus="emit('peek', block.id, 'focus')"
         @blur="emit('peek', null, 'focus')"
     >
-        <span v-for="(line, index) in block.textLines" :key="index" class="block shrink-0 whitespace-pre">{{ line }}</span>
+        <span v-for="(line, index) in block.textLines" :key="index" class="block shrink-0 whitespace-pre" data-line>{{ line }}</span>
         <UnknownCard v-if="block.system" :colour="block.style.textColour" />
         <span
             v-if="block.modality && modalityColour"

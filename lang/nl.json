@@ -504,6 +504,6 @@
     "quick_entry.kind.domain": "domein",
     "quick_entry.kind.cluster": "cluster",
     "quick_entry.kind.activity": "activiteit",
-    "view_design.logo": "Logo",
-    "view_design.goals": "Strategische doelen"
+    "view.direction.logo": "Logo",
+    "view.direction.goals": "Strategische doelen"
 }

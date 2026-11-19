@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowRef, watch } from 'vue';
-import { t } from '../../i18n';
 import { Head } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
@@ -25,7 +24,7 @@ const props = defineProps<{
 
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
-const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, directionLabels: { ...props.layout.directionLabels, goals: t('view_design.goals') }, elements: props.elements, statements: props.statements }, measurer.value) : null));
+const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
 const selectedId = ref<string | null>(null);
 const content = computed(() => (selectedId.value ? detailOf(selectedId.value, { areas: props.layout.areas, elements: props.elements, statements: props.statements, modalities: props.modalities }) : null));
 const select = (id: string): void => {

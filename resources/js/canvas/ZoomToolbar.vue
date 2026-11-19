@@ -17,7 +17,7 @@ import { t } from '../i18n';
 
 const zoom = defineModel<number>('zoom', { required: true });
 const emit = defineEmits<{ fit: [] }>();
-const inert = 'aria-disabled:cursor-not-allowed aria-disabled:border-hairline aria-disabled:text-muted';
+const inert = 'aria-disabled:cursor-not-allowed aria-disabled:border-hairline aria-disabled:bg-disabled aria-disabled:text-muted';
 </script>
 
 <template>

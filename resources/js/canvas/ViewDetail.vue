@@ -25,13 +25,16 @@ export interface DetailSource {
 
 export const statementText = (statement: LayoutStatement): string => (statement.title ? `${statement.title}${/[.!?:]$/.test(statement.title) ? '' : ':'} ${statement.body}` : statement.body);
 
+export const statementLines = (statements: LayoutStatement[], kind: LayoutStatement['kind']): string[] =>
+    statements.filter((statement) => statement.kind === kind).sort((a, b) => a.position - b.position).map((statement, index) => (kind === 'goal' ? `${index + 1}. ${statement.title ? `${statement.title} ` : ''}${statement.body}` : statementText(statement)));
+
 export function detailOf(id: string, source: DetailSource): DetailContent | null {
     const area = source.areas.find((candidate) => candidate.key === id);
     if (area) {
         const fields: DetailField[] = [{ label: t('fields.name'), value: area.label }];
         if (area.key === 'direction') {
-            for (const [kind, label] of [['mission', 'overview.mission'], ['vision', 'overview.vision'], ['goal', 'overview.goals']] as const) {
-                const lines = source.statements.filter((statement) => statement.kind === kind).sort((a, b) => a.position - b.position).map(statementText);
+            for (const [kind, label] of [['mission', 'overview.mission'], ['vision', 'overview.vision'], ['goal', 'view.direction.goals']] as const) {
+                const lines = statementLines(source.statements, kind);
                 fields.push({ label: t(label), value: lines.length ? lines.join('\n') : t('view.empty') });
             }
         }

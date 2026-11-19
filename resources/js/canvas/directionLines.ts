@@ -1,17 +1,15 @@
+import type { LineMark } from '../layout/types';
+
 export interface DirectionSegment {
+    number: string;
     bold: string;
     rest: string;
 }
 
-export function splitDirectionLines(lines: string[], boldLengths: number[]): DirectionSegment[] {
-    let remaining = 0;
+export function splitDirectionLine(line: string, mark?: LineMark): DirectionSegment {
+    const number = line.slice(0, mark?.number ?? 0).trim();
+    const text = line.slice(mark?.number ?? 0);
+    const bold = Math.min(mark?.bold ?? 0, text.length);
 
-    return lines.map((line) => {
-        const start = /^(\d+)\. /.exec(line);
-        if (start) remaining = boldLengths[Number(start[1]) - 1] ?? 0;
-        const take = Math.min(remaining, line.length);
-        remaining = Math.max(0, remaining - take - 1);
-
-        return { bold: line.slice(0, take), rest: line.slice(take) };
-    });
+    return { number, bold: text.slice(0, bold), rest: text.slice(bold) };
 }

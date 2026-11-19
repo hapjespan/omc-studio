@@ -1,18 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { splitDirectionLines } from '../../../resources/js/canvas/directionLines';
+import { splitDirectionLine } from '../../../resources/js/canvas/directionLines';
 
-describe('splitDirectionLines', () => {
-    it('bolds the number and title of each goal across wrapped lines', () => {
-        const lines = ['1. Eén kindprofiel.', 'Van opvang', '2. Groei meer', '3. Rust voor iedereen'];
-        expect(splitDirectionLines(lines, [19, 13, 0])).toEqual([
-            { bold: '1. Eén kindprofiel.', rest: '' },
-            { bold: '', rest: 'Van opvang' },
-            { bold: '2. Groei meer', rest: '' },
-            { bold: '', rest: '3. Rust voor iedereen' },
-        ]);
+describe('splitDirectionLine', () => {
+    it('splits the number, the bold title and the rest of a line', () => {
+        expect(splitDirectionLine('1. Eén kindprofiel. Van opvang', { number: 3, bold: 16 })).toEqual({ number: '1.', bold: 'Eén kindprofiel.', rest: ' Van opvang' });
     });
 
-    it('leaves the lines of a column without bold lengths plain', () => {
-        expect(splitDirectionLines(['Leren voor het leven'], [])).toEqual([{ bold: '', rest: 'Leren voor het leven' }]);
+    it('leaves a line without a mark plain and clamps a mark that outgrew a truncated line', () => {
+        expect(splitDirectionLine('Leren voor het leven')).toEqual({ number: '', bold: '', rest: 'Leren voor het leven' });
+        expect(splitDirectionLine('Kort…', { number: 0, bold: 40 })).toEqual({ number: '', bold: 'Kort…', rest: '' });
     });
 });
