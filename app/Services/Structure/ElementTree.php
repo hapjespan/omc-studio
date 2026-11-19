@@ -15,7 +15,7 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names) {}
 
     /** @param array<string, mixed> $fields */
     public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = []): Element
@@ -24,6 +24,8 @@ class ElementTree
             $this->assertStructureWritable($canvas);
 
             $parent = $this->parent($canvas, $area, $kind, $parentId);
+
+            $this->names->assertAvailable($canvas->id, $area->id, $parent?->id, (string) ($fields['name'] ?? ''));
 
             return Element::create([
                 ...array_intersect_key($fields, array_flip(self::FIELDS)),

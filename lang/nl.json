@@ -299,5 +299,6 @@
     "rule.cluster_parent": "Een cluster hoort onder een domein",
     "rule.no_clusters_in_area": "In deze area bestaan geen clusters",
     "rule.domain_parent": "Een domein hoort direct onder een area",
-    "rule.direction_no_elements": "In Koers staan geen elementen"
+    "rule.direction_no_elements": "In Koers staan geen elementen",
+    "rule.name_required": "Naam: vul een naam in"
 }
