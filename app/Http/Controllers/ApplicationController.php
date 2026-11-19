@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ListEntryRequest;
 use App\Models\Application;
 use App\Models\Organisation;
+use App\Models\User;
 use App\Services\Finance\OrganisationLists;
 use App\Services\Lists\ListQuery;
 use Illuminate\Http\RedirectResponse;
@@ -44,10 +45,13 @@ class ApplicationController extends Controller
         return back()->with('status', __('lists.saved'));
     }
 
-    public function destroy(Organisation $organisation, Application $application): RedirectResponse
+    public function destroy(Request $request, Organisation $organisation, Application $application): RedirectResponse
     {
-        $this->lists->delete($organisation, $application);
+        /** @var User $user */
+        $user = $request->user();
 
-        return back()->with('status', __('lists.deleted'));
+        $token = $this->lists->delete($organisation, $application, $user, $request->string('replace_with')->toString() ?: null);
+
+        return back()->with('status', __('lists.deleted'))->with('undo', $token);
     }
 }

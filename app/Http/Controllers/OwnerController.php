@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ListEntryRequest;
 use App\Models\Organisation;
 use App\Models\Owner;
+use App\Models\User;
 use App\Services\Finance\OrganisationLists;
 use App\Services\Lists\ListQuery;
 use Illuminate\Http\RedirectResponse;
@@ -44,10 +45,13 @@ class OwnerController extends Controller
         return back()->with('status', __('lists.saved'));
     }
 
-    public function destroy(Organisation $organisation, Owner $owner): RedirectResponse
+    public function destroy(Request $request, Organisation $organisation, Owner $owner): RedirectResponse
     {
-        $this->lists->delete($organisation, $owner);
+        /** @var User $user */
+        $user = $request->user();
 
-        return back()->with('status', __('lists.deleted'));
+        $token = $this->lists->delete($organisation, $owner, $user, $request->string('replace_with')->toString() ?: null);
+
+        return back()->with('status', __('lists.deleted'))->with('undo', $token);
     }
 }

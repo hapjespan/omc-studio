@@ -269,5 +269,7 @@
     "lists.in_use": "Deze waarde is in gebruik. Kies een andere waarde bij Vervangen door",
     "lists.created": "Opgeslagen",
     "lists.saved": "Opgeslagen",
-    "lists.deleted": "Verwijderd"
+    "lists.deleted": "Verwijderd",
+    "rule.replacement_invalid": "Vervangen door: kies een andere waarde uit deze organisatie",
+    "rule.list_name_taken": "Naam: deze naam staat al in de lijst"
 }
