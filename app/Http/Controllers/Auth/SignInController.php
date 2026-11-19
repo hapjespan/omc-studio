@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Accounts\SignInService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,6 +26,6 @@ class SignInController extends Controller
 
         $service->attempt($credentials['email'], $credentials['password']);
 
-        return redirect()->intended('/');
+        return Auth::check() ? redirect()->intended('/') : redirect('/sign-in/second-factor');
     }
 }

@@ -3,9 +3,11 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasModeController;
+use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,4 +36,16 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::get('/admin', AdminIndexController::class);
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/sign-in/second-factor', [SecondFactorChallengeController::class, 'create']);
+    Route::post('/sign-in/second-factor', [SecondFactorChallengeController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/account/second-factor', [SecondFactorController::class, 'store']);
+    Route::post('/account/second-factor/confirm', [SecondFactorController::class, 'confirm']);
+    Route::post('/account/second-factor/recovery-codes', [SecondFactorController::class, 'recoveryCodes']);
+    Route::delete('/account/second-factor', [SecondFactorController::class, 'destroy']);
 });
