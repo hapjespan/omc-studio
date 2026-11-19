@@ -37,8 +37,9 @@ export function layoutDirection(
     const textOf = (key: DirectionColumnKey): string[] => {
         if (key === 'logo') return [];
         const kind = key === 'goals' ? 'goal' : key;
-        return ordered.filter((statement) => statement.kind === kind).map((statement) => (statement.title ? `${statement.title}: ${statement.body}` : statement.body));
+        return ordered.filter((statement) => statement.kind === kind).map((statement, index) => (key === 'goals' ? `${index + 1}. ${statement.title ? `${statement.title} ` : ''}${statement.body}` : statement.title ? `${statement.title}: ${statement.body}` : statement.body));
     };
+    const goalTitles = ordered.filter((statement) => statement.kind === 'goal').map((statement) => statement.title);
 
     let x = 0;
     return columnWidths.map(([key, width]) => {
@@ -52,6 +53,7 @@ export function layoutDirection(
             label: key === 'logo' ? null : labels[key],
             lines: truncated ? cut(all, textWidth, measurer) : all,
             truncated,
+            boldLengths: key === 'goals' ? goalTitles.map((title, index) => (title ? `${index + 1}. ${title}`.length : 0)) : [],
         };
         x += width;
         return column;

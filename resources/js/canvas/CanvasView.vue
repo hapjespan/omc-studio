@@ -7,6 +7,7 @@ import ArtboardEdge from './ArtboardEdge.vue';
 import Block from './Block.vue';
 import HoverContent, { DIRECTION_PREFIX, directionText } from './HoverContent.vue';
 import { contentHeight } from './extent';
+import { splitDirectionLines } from './directionLines';
 import { createPeek } from './peek';
 import { detailOf } from './ViewDetail.vue';
 import { isNavigationKey, navigate } from './treeNavigation';
@@ -102,8 +103,9 @@ const blocks = computed(() => props.drawn.blocks);
                 @focus="column.truncated && peek(DIRECTION_PREFIX + column.key, 'focus')"
                 @blur="column.truncated && peek(null, 'focus')"
             >
-                <p v-if="column.label" class="text-[11px] font-semibold leading-[14px]" :style="{ color: band.style.labelColour }">{{ column.label }}</p>
-                <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label }">{{ line }}</p>
+                <p v-if="column.label" class="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.05em]" :style="{ color: band.style.labelColour }">{{ column.label }}</p>
+                <div v-if="column.key === 'logo'" class="flex h-[148px] items-center justify-center rounded-card border border-dashed border-white/40 text-[11px] font-semibold uppercase tracking-[0.05em]" :style="{ color: band.style.labelColour }" data-direction-logo>{{ t('view_design.logo') }}</div>
+                <p v-for="(segment, index) in splitDirectionLines(column.lines, column.boldLengths)" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label }"><strong v-if="segment.bold" class="font-semibold">{{ segment.bold }}</strong>{{ segment.rest }}</p>
             </div>
         </div>
         <span class="sr-only">{{ t('view.artboard') }}</span>

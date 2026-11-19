@@ -101,6 +101,7 @@ export interface DirectionColumn {
     label: string | null;
     lines: string[];
     truncated: boolean;
+    boldLengths: number[];
 }
 
 export type LayoutWarning =

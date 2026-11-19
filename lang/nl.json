@@ -503,5 +503,7 @@
     "quick_entry.error_count": ":count regels bevatten een fout, zie de lijst onder het voorbeeld",
     "quick_entry.kind.domain": "domein",
     "quick_entry.kind.cluster": "cluster",
-    "quick_entry.kind.activity": "activiteit"
+    "quick_entry.kind.activity": "activiteit",
+    "view_design.logo": "Logo",
+    "view_design.goals": "Strategische doelen"
 }

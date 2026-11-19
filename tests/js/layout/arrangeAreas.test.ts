@@ -81,7 +81,7 @@ describe('Direction band', () => {
         expect(result.warnings).toEqual([{ kind: 'directionTextCut', column: 'mission' }]);
     });
 
-    it('joins a goal title and body in goal order', () => {
+    it('numbers the goals in order and joins title and body without a colon', () => {
         const columns = layoutDirection(
             [
                 { kind: 'goal', title: 'Tweede', body: 'b', position: 2 },
@@ -90,7 +90,7 @@ describe('Direction band', () => {
             labels,
             fakeMeasurer,
         );
-        expect(columns[3].lines).toEqual(['Eerste: a', 'Tweede: b']);
+        expect(columns[3].lines).toEqual(['1. Eerste a', '2. Tweede b']);
     });
 });
 
