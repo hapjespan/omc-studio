@@ -124,7 +124,10 @@ class CanvasLifecycle
             $notice->delete();
         }
 
-        foreach (Snapshot::where('canvas_id', $canvas->getKey())->lazyById(10) as $snapshot) {
+        $snapshotIds = Snapshot::where('canvas_id', $canvas->getKey())->pluck('id');
+
+        foreach ($snapshotIds as $snapshotId) {
+            $snapshot = Snapshot::findOrFail($snapshotId);
             $snapshot->delete();
         }
     }
