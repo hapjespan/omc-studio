@@ -50,6 +50,7 @@ export const routes = {
     element: (canvas: Id, element: Id) => `/canvases/${canvas}/elements/${element}`,
     elementReorder: (canvas: Id, element: Id) => `/canvases/${canvas}/elements/${element}/reorder`,
     elementArchive: (canvas: Id, element: Id) => `/canvases/${canvas}/elements/${element}/archive`,
+    elementRedistribution: (canvas: Id, element: Id) => `/canvases/${canvas}/elements/${element}/redistribution`,
     elementRestore: (canvas: Id, element: Id) => `/canvases/${canvas}/elements/${element}/restore`,
     quickEntryPreview: (canvas: Id) => `/canvases/${canvas}/quick-entry/preview`,
     quickEntry: (canvas: Id) => `/canvases/${canvas}/quick-entry`,

@@ -1,3 +1,4 @@
+import type { TargetRow } from '../../allocation/types';
 import { buildDomains, type TreeNode } from '../../layout/tree';
 import { computeCanvasLayout } from '../../layout';
 import type { AreaKey, AreaKind, ElementKind, LayoutElement, LayoutWarning, TextMeasurer } from '../../layout/types';
@@ -9,6 +10,21 @@ export interface EntryElement extends LayoutElement {
     unknownAllocation: boolean;
     archived: boolean;
 }
+
+export interface ElementCost {
+    cents: number | null;
+    records: number;
+    years: number[];
+    own: boolean;
+}
+
+export interface RedistributionYear {
+    year: number;
+    records: number;
+    basis_points: number;
+}
+
+export type RedistributionChoice = { mode: 'move' | 'unknown'; target: string | null };
 
 export interface EntryRowData {
     element: EntryElement;
@@ -118,3 +134,6 @@ export function filterByName(elements: EntryElement[], text: string): EntryEleme
 
     return elements.filter(({ id }) => keep.has(id));
 }
+
+export const withoutSubtree = (rows: TargetRow[], removed: string): TargetRow[] =>
+    rows.filter((row) => String(row.id) !== removed).map((row) => ({ ...row, children: withoutSubtree(row.children, removed) }));

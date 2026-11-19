@@ -63,7 +63,7 @@ class AllocationPage
      * @param  array<string|int, array{total: array<string, int>}>|null  $totals
      * @return list<array<string, mixed>>
      */
-    private function targets(Canvas $canvas, ?array $totals): array
+    public function targets(Canvas $canvas, ?array $totals): array
     {
         $elements = Element::query()->with('area')
             ->where('canvas_id', $canvas->getKey())->whereNull('archived_at')->where('is_unknown_allocation', false)
@@ -71,17 +71,22 @@ class AllocationPage
             ->filter(fn (Element $element) => $element->area?->carries_costs === true)
             ->values();
 
-        return $this->branch($elements->all(), $totals, '');
+        $byParent = [];
+        foreach ($elements as $element) {
+            $byParent[(string) $element->parent_id][] = $element;
+        }
+
+        return $this->branch($byParent, $totals, '');
     }
 
     /**
-     * @param  list<Element>  $elements
+     * @param  array<string, list<Element>>  $elements
      * @param  array<string|int, array{total: array<string, int>}>|null  $totals
      * @return list<array<string, mixed>>
      */
     private function branch(array $elements, ?array $totals, string $parent): array
     {
-        return collect($elements)->filter(fn (Element $element) => (string) $element->parent_id === $parent)->map(fn (Element $element) => [
+        return collect($elements[$parent] ?? [])->map(fn (Element $element) => [
             'id' => $element->id,
             'name' => $element->name,
             'kind' => $element->kind->value,
