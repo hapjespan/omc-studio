@@ -11,8 +11,9 @@ class SchemaRules
     public static function tablesWithoutIndex(?string $connection = null): array
     {
         $schema = Schema::connection($connection);
+        $searchPath = $schema->getConnection()->getConfig('search_path');
 
-        return collect($schema->getTableListing(schemaQualified: false))
+        return collect($schema->getTableListing(is_string($searchPath) ? $searchPath : null, false))
             ->reject(fn (string $table) => $schema->getIndexes($table) !== [])
             ->values()
             ->all();
