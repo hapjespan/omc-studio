@@ -9,8 +9,12 @@ export const reauth = ref(false);
 let timer: ReturnType<typeof setInterval> | undefined;
 let deadline: number | null = null;
 
+export function inReauthWindow(): boolean {
+    return deadline !== null && deadline - Date.now() / 1000 <= WARNING_SECONDS;
+}
+
 function check(): void {
-    if (deadline !== null && deadline - Date.now() / 1000 <= WARNING_SECONDS) reauth.value = true;
+    if (inReauthWindow()) reauth.value = true;
 }
 
 export function scheduleReauth(endsAt: number | null | undefined): void {
