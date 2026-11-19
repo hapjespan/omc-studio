@@ -428,6 +428,7 @@
     "modality_entry.group": "Modaliteit",
     "modality_entry.rationale": "Onderbouwing",
     "modality_entry.none": "Geen",
+    "modality_entry.confirm_title": "Onderbouwing verwijderen?",
     "modality_entry.confirm_message": "Met Geen verdwijnt ook de onderbouwing. Doorgaan?",
     "modality_entry.confirm_yes": "Ja, verwijder de onderbouwing",
     "modality_entry.confirm_no": "Nee, laat staan",
