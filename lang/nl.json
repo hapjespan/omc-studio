@@ -903,5 +903,6 @@
     "fullx.total_errors": "Fouten",
     "fullx.checked_clean": "Controle klaar: geen fouten",
     "fullx.checked_errors": "Controle klaar: :count fouten, importeren kan pas zonder fouten",
-    "fullx.done": "Volledige import is gelukt"
+    "fullx.done": "Volledige import is gelukt",
+    "overlay.closing_check_failed": "De cijfers sluiten niet. Er worden geen cijfers getoond; de beheerder ziet de melding onder Systeemmeldingen"
 }
