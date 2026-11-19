@@ -152,5 +152,7 @@
     "users.name_required": "Naam: vul een naam in",
     "users.email_invalid": "E-mailadres: vul een geldig e-mailadres in",
     "users.email_taken": "E-mailadres: dit adres is al in gebruik",
-    "users.role_invalid": "Rol: kies Administrator of Lezer"
+    "users.role_invalid": "Rol: kies Administrator of Lezer",
+    "users.last_administrator": "Er moet minstens één beheerder blijven",
+    "users.own_account": "Je kunt je eigen account niet verwijderen of je eigen rol wijzigen"
 }
