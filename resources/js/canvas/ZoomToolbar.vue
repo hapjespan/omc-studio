@@ -15,7 +15,7 @@ import { t } from '../i18n';
 
 const zoom = defineModel<number>('zoom', { required: true });
 const emit = defineEmits<{ fit: [] }>();
-const button = 'rounded-md border border-[#848B95] bg-white px-3 py-1.5 text-[13px] font-semibold aria-disabled:cursor-not-allowed aria-disabled:bg-[#E6E8E6] aria-disabled:text-[#454C57]';
+const button = 'rounded-md border border-edge bg-white px-3 py-1.5 text-[13px] font-semibold aria-disabled:cursor-not-allowed aria-disabled:bg-disabled aria-disabled:text-secondary';
 </script>
 
 <template>

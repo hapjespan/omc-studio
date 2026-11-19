@@ -18,7 +18,7 @@ watch(summary, (text) => text && announce(text), { immediate: true });
     <div class="flex flex-col gap-2">
         <div v-if="selected > 0" class="flex flex-wrap items-center gap-2">
             <p class="text-[13px]">{{ t('list.selected', { count: selected }) }}</p>
-            <button v-for="action in actions" :key="action.key" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="$emit('run', action.key)">{{ action.label }}</button>
+            <button v-for="action in actions" :key="action.key" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="$emit('run', action.key)">{{ action.label }}</button>
         </div>
         <div v-if="result" class="text-[13px]">
             <p>{{ summary }}</p>

@@ -7,14 +7,14 @@ export type CardAction = 'copy' | 'rename' | 'archive' | 'restore' | 'delete' | 
 defineProps<{ name: string; archived: boolean; template?: boolean }>();
 const emit = defineEmits<{ select: [action: CardAction] }>();
 
-const item = 'cursor-pointer rounded px-3 py-1.5 data-[highlighted]:bg-[#EEF2F7]';
+const item = 'cursor-pointer rounded px-3 py-1.5 data-[highlighted]:bg-accent-soft';
 </script>
 
 <template>
     <DropdownMenuRoot :modal="false">
-        <DropdownMenuTrigger :aria-label="t('canvas_card.actions', { name })" class="self-start rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]">{{ t('canvas_card.actions_label') }}</DropdownMenuTrigger>
+        <DropdownMenuTrigger :aria-label="t('canvas_card.actions', { name })" class="self-start inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium">{{ t('canvas_card.actions_label') }}</DropdownMenuTrigger>
         <DropdownMenuPortal>
-            <DropdownMenuContent align="start" class="z-40 min-w-44 rounded-md border border-[#848B95] bg-white p-1 text-[13px] shadow-lg">
+            <DropdownMenuContent align="start" class="z-40 min-w-44 rounded-md border border-edge bg-white p-1 text-[13px] shadow-lg">
                 <DropdownMenuItem v-if="!template" :class="item" @select="emit('select', 'copy')">{{ t('canvas_card.copy') }}</DropdownMenuItem>
                 <DropdownMenuItem v-if="!archived" :class="item" @select="emit('select', 'rename')">{{ t('canvas_card.rename') }}</DropdownMenuItem>
                 <DropdownMenuItem v-if="!template" :class="item" @select="emit('select', 'save_template')">{{ t('entry.save_template') }}</DropdownMenuItem>

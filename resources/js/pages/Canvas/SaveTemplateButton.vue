@@ -10,6 +10,6 @@ const dialogs = ref<InstanceType<typeof TemplateDialogs>>();
 </script>
 
 <template>
-    <button v-if="canvas.kind === 'canvas'" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="dialogs?.show('save', { id: canvas.id, name: canvas.name, counts: null })">{{ t('entry.save_template') }}</button>
+    <button v-if="canvas.kind === 'canvas'" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="dialogs?.show('save', { id: canvas.id, name: canvas.name, counts: null })">{{ t('entry.save_template') }}</button>
     <TemplateDialogs ref="dialogs" @done="announce(t('templates.saved'))" />
 </template>

@@ -21,8 +21,8 @@ watch(open, () => (typed.value = ''));
     <Dialog v-model:open="open" :title="t('list.delete_title', { name })" :description="consequence ?? t('list.delete_none')">
         <TextField v-if="requireName" id="confirm-delete-name" v-model="typed" :label="t('list.delete_name_field')" :hint="t('list.delete_type_name', { name })" autocomplete="off" />
         <div class="mt-3 flex gap-2">
-            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="open = false">{{ t('list.cancel') }}</button>
-            <button type="button" :disabled="!allowed" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E] disabled:opacity-60" @click="emit('confirm'); open = false">{{ t('list.delete') }}</button>
+            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="open = false">{{ t('list.cancel') }}</button>
+            <button type="button" :disabled="!allowed" class="inline-flex h-control items-center justify-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger disabled:opacity-60" @click="emit('confirm'); open = false">{{ t('list.delete') }}</button>
         </div>
     </Dialog>
 </template>

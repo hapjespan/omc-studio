@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../components/ui/AppButton.vue';
 import { onBeforeUnmount, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { announce } from '../components/feedback/status';
@@ -42,8 +43,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div v-if="warning && !reauth" class="fixed bottom-4 right-4 z-40 flex items-center gap-3 rounded-md border border-[#848B95] bg-white px-4 py-3 text-[13px] text-[#171B21] shadow">
+    <div v-if="warning && !reauth" class="fixed bottom-4 right-4 z-40 flex items-center gap-3 rounded-md border border-edge bg-white px-4 py-3 text-[13px] text-ink shadow">
         <span>{{ t('session.warning') }}</span>
-        <button type="button" class="rounded-md bg-ink px-3 py-2 font-semibold text-white" @click="extend">{{ t('session.extend') }}</button>
+        <AppButton variant="primary" @click="extend">{{ t('session.extend') }}</AppButton>
     </div>
 </template>

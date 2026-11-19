@@ -8,7 +8,7 @@ test('the page carries the fonts, the page background and the one row top bar of
     await signInAs(page, 'administrator');
 
     expect(await styleOf(page.locator('body'), 'font-family')).toMatch(/^Inter/);
-    expect(await styleOf(page.getByRole('heading', { level: 1 }), 'font-family')).toMatch(/^Space Grotesk/);
+    expect(await styleOf(page.getByRole('heading', { level: 1 }), 'font-family')).toMatch(/^"?Space Grotesk/);
     expect(await styleOf(page.locator('body'), 'background-color')).toBe('rgb(242, 243, 241)');
 
     const bar = page.getByRole('banner');
@@ -38,7 +38,7 @@ test('a control is 36 pixels high with the border colour of the contract', async
     await signInAs(page, 'administrator');
     await page.goto('/account');
 
-    const field = page.getByLabel('Huidig wachtwoord');
+    const field = page.locator('#current_password');
     expect((await field.boundingBox())?.height).toBe(36);
     expect(await styleOf(field, 'border-top-color')).toBe('rgb(132, 139, 149)');
 });

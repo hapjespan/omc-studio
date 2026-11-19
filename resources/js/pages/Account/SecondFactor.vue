@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -66,40 +67,40 @@ function downloadCodes(): void {
 
 <template>
     <section role="region" aria-labelledby="second_factor_title" class="flex flex-col gap-4">
-        <h2 id="second_factor_title" class="text-[16px] font-semibold text-[#171B21]">{{ t('second_factor.title') }}</h2>
-        <p class="text-[13px] text-[#454C57]">{{ active ? t('second_factor.active') : t('second_factor.inactive') }}</p>
+        <h2 id="second_factor_title" class="text-[16px] font-semibold text-ink">{{ t('second_factor.title') }}</h2>
+        <p class="text-[13px] text-secondary">{{ active ? t('second_factor.active') : t('second_factor.inactive') }}</p>
 
         <div v-if="codes?.length" class="flex flex-col gap-2">
-            <h3 id="second_factor_codes_title" tabindex="-1" class="text-[14px] font-semibold text-[#171B21]">{{ t('second_factor.codes_title') }}</h3>
-            <p class="text-[13px] text-[#454C57]">{{ t('second_factor.codes_intro') }}</p>
-            <ul data-testid="recovery-codes" class="flex flex-col gap-1 rounded-md bg-[#EEF2F7] px-3 py-2 font-mono text-[13px] text-[#171B21]">
+            <h3 id="second_factor_codes_title" tabindex="-1" class="text-[14px] font-semibold text-ink">{{ t('second_factor.codes_title') }}</h3>
+            <p class="text-[13px] text-secondary">{{ t('second_factor.codes_intro') }}</p>
+            <ul data-testid="recovery-codes" class="flex flex-col gap-1 rounded-md bg-accent-soft px-3 py-2 font-mono text-[13px] text-ink">
                 <li v-for="code in codes" :key="code">{{ code }}</li>
             </ul>
             <div class="flex gap-2">
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-2 text-[13px] font-semibold text-[#171B21]" @click="copyCodes">{{ t('second_factor.copy') }}</button>
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-2 text-[13px] font-semibold text-[#171B21]" @click="downloadCodes">{{ t('second_factor.download') }}</button>
+                <button type="button" class="rounded-md border border-edge px-3 py-2 text-[13px] font-semibold text-ink" @click="copyCodes">{{ t('second_factor.copy') }}</button>
+                <button type="button" class="rounded-md border border-edge px-3 py-2 text-[13px] font-semibold text-ink" @click="downloadCodes">{{ t('second_factor.download') }}</button>
             </div>
         </div>
 
         <form v-if="enrolment" class="flex flex-col gap-4" novalidate @submit.prevent="confirm">
-            <p class="text-[13px] text-[#454C57]">{{ t('second_factor.scan_intro') }}</p>
+            <p class="text-[13px] text-secondary">{{ t('second_factor.scan_intro') }}</p>
             <img :src="enrolment.qr" :alt="t('second_factor.qr_alt')" width="200" height="200" />
-            <p class="text-[13px] text-[#171B21]">
+            <p class="text-[13px] text-ink">
                 {{ t('second_factor.key_label') }}: <span data-testid="second-factor-key" class="font-mono">{{ enrolment.secret }}</span>
             </p>
             <ErrorSummary :errors="confirmation.errors" prefix="second_factor_" />
             <TextField id="second_factor_code" v-model="confirmation.code" :label="t('second_factor.code_label')" autocomplete="one-time-code" :error="confirmation.errors.code" />
-            <button type="submit" :disabled="confirmation.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.confirm') }}</button>
+            <AppButton variant="primary" type="submit" :disabled="confirmation.processing">{{ t('second_factor.confirm') }}</AppButton>
         </form>
 
         <form class="flex flex-col gap-4" novalidate @submit.prevent="active ? renew() : begin()">
-            <p v-if="active" class="text-[13px] text-[#454C57]">{{ remainingLabel }}</p>
+            <p v-if="active" class="text-[13px] text-secondary">{{ remainingLabel }}</p>
             <ErrorSummary :errors="password.errors" prefix="second_factor_" />
             <TextField id="second_factor_current_password" v-model="password.current_password" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="password.errors.current_password" />
             <div class="flex gap-2">
-                <button v-if="!active" type="submit" :disabled="password.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.enable') }}</button>
-                <button v-if="active" type="submit" :disabled="password.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.new_codes') }}</button>
-                <button v-if="active" type="button" :disabled="password.processing" class="rounded-md border border-[#848B95] px-3 py-2 text-[13px] font-semibold text-[#171B21]" @click="turnOff">{{ t('second_factor.disable') }}</button>
+                <AppButton v-if="!active" variant="primary" type="submit" :disabled="password.processing">{{ t('second_factor.enable') }}</AppButton>
+                <AppButton v-if="active" variant="primary" type="submit" :disabled="password.processing">{{ t('second_factor.new_codes') }}</AppButton>
+                <button v-if="active" type="button" :disabled="password.processing" class="rounded-md border border-edge px-3 py-2 text-[13px] font-semibold text-ink" @click="turnOff">{{ t('second_factor.disable') }}</button>
             </div>
         </form>
     </section>

@@ -69,8 +69,8 @@ function archive(row: ListRow, close: () => void): void {
                         <input id="logo" type="file" accept="image/png,image/jpeg" :aria-describedby="describedby" :aria-invalid="invalid || undefined" @change="draft.logo = ($event.target as HTMLInputElement).files?.[0] ?? null; setDirty(true)" />
                     </Field>
                     <div class="flex gap-2">
-                        <button type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('organisations.save') }}</button>
-                        <button v-if="row && !row.archived_at" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="archive(row, close)">{{ t('organisations.archive') }}</button>
+                        <button type="submit" :disabled="busy" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold">{{ t('organisations.save') }}</button>
+                        <button v-if="row && !row.archived_at" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="archive(row, close)">{{ t('organisations.archive') }}</button>
                     </div>
                 </form>
             </template>

@@ -34,24 +34,24 @@ function discard(): void {
 <template>
     <DialogRoot :open="open" @update:open="onOpenChange">
         <DialogPortal>
-            <DialogOverlay class="fixed inset-0 bg-[#171B21]/40" />
+            <DialogOverlay class="fixed inset-0 bg-ink/40" />
             <DialogContent
                 :class="variant === 'panel' ? 'fixed inset-y-0 right-0 w-[min(28rem,100vw)] overflow-y-auto' : 'fixed left-1/2 top-1/2 max-h-[90vh] w-[min(32rem,100vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto'"
-                class="bg-white p-4 text-[#171B21] shadow-lg"
+                class="bg-white p-4 text-ink shadow-lg"
                 @escape-key-down.prevent="requestClose"
                 @pointer-down-outside.prevent="requestClose"
             >
                 <DialogTitle class="font-[Space_Grotesk] text-base font-semibold">{{ title }}</DialogTitle>
-                <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-[#454C57]">{{ description }}</DialogDescription>
+                <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-secondary">{{ description }}</DialogDescription>
                 <div class="mt-3"><slot /></div>
-                <div v-if="confirming" role="alertdialog" aria-labelledby="discard-title" class="mt-3 rounded-md border border-[#848B95] p-3">
+                <div v-if="confirming" role="alertdialog" aria-labelledby="discard-title" class="mt-3 rounded-md border border-edge p-3">
                     <p id="discard-title" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
                     <div class="mt-2 flex gap-2">
-                        <button ref="keepEditing" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirming = false">{{ t('dialog.keep_editing') }}</button>
-                        <button type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="discard">{{ t('dialog.discard') }}</button>
+                        <button ref="keepEditing" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirming = false">{{ t('dialog.keep_editing') }}</button>
+                        <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger" @click="discard">{{ t('dialog.discard') }}</button>
                     </div>
                 </div>
-                <button type="button" class="absolute right-3 top-3 rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="requestClose">{{ t('dialog.close') }}</button>
+                <button type="button" class="absolute right-3 top-3 inline-flex h-mark items-center justify-center rounded-control border border-edge bg-white px-2.5 text-[12.5px]" @click="requestClose">{{ t('dialog.close') }}</button>
             </DialogContent>
         </DialogPortal>
     </DialogRoot>

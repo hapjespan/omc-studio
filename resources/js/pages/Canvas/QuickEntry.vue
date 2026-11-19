@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
@@ -120,30 +121,30 @@ function save(): void {
 
 <template>
     <div ref="root" class="mt-3">
-        <button v-if="!open" ref="opener" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="show">{{ t('quick_entry.open') }}</button>
-        <section v-else :aria-label="t('quick_entry.title', { area: areaLabel })" class="rounded-[10px] border border-[#848B95] p-3" @keydown="keydown">
+        <button v-if="!open" ref="opener" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="show">{{ t('quick_entry.open') }}</button>
+        <section v-else :aria-label="t('quick_entry.title', { area: areaLabel })" class="rounded-[10px] border border-edge p-3" @keydown="keydown">
             <h3 class="font-[Space_Grotesk] text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
             <TextArea id="quick-entry-text" v-model="text" :label="t('quick_entry.label')" :hint="t('quick_entry.hint')" :rows="10" :error="errors.length ? t('quick_entry.error_count', { count: errors.length }) : undefined" />
             <h4 class="mt-3 text-[13px] font-semibold">{{ t('quick_entry.preview') }}</h4>
             <ul :aria-label="t('quick_entry.preview')" class="mt-1 flex flex-col gap-1">
                 <li v-for="line in lines" :key="line.line" data-testid="quick-entry-line" class="flex gap-2 text-[13px]" :style="{ paddingLeft: `${line.level * 20}px` }">
                     <span>{{ line.name }}</span>
-                    <span class="text-[12.5px] text-[#454C57]">{{ t(`quick_entry.kind.${line.kind}`) }}</span>
-                    <span class="text-[12.5px] text-[#454C57]">{{ t(`quick_entry.${line.status}`) }}</span>
+                    <span class="text-[12.5px] text-secondary">{{ t(`quick_entry.kind.${line.kind}`) }}</span>
+                    <span class="text-[12.5px] text-secondary">{{ t(`quick_entry.${line.status}`) }}</span>
                 </li>
             </ul>
             <div v-if="errors.length" role="group" :aria-label="t('quick_entry.errors')" class="mt-3">
-                <h4 class="text-[13px] font-semibold text-[#A12A1E]">{{ t('quick_entry.errors') }}</h4>
+                <h4 class="text-[13px] font-semibold text-danger">{{ t('quick_entry.errors') }}</h4>
                 <ul class="mt-1 flex flex-col gap-1">
-                    <li v-for="error in errors" :key="error.line" class="text-[12.5px] font-medium text-[#A12A1E]">
+                    <li v-for="error in errors" :key="error.line" class="text-[12.5px] font-medium text-danger">
                         <a href="#quick-entry-text" class="underline" @click.prevent="goToLine(error.line)">{{ error.message }}</a>
                     </li>
                 </ul>
             </div>
-            <p v-if="refusal" role="alert" class="mt-2 text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
+            <p v-if="refusal" role="alert" class="mt-2 text-[12.5px] font-medium text-danger">{{ refusal }}</p>
             <div class="mt-3 flex gap-2">
-                <button type="button" :disabled="!canSave" class="rounded-md bg-[#1B1F27] px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50" @click="save">{{ t('quick_entry.save') }}</button>
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="close">{{ t('quick_entry.close') }}</button>
+                <AppButton variant="primary" :disabled="!canSave" @click="save">{{ t('quick_entry.save') }}</AppButton>
+                <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="close">{{ t('quick_entry.close') }}</button>
             </div>
         </section>
     </div>

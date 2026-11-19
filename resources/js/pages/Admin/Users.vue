@@ -110,11 +110,11 @@ async function copyPassword(): Promise<void> {
     <Head :title="t('users.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('users.title') }}</h1>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
-    <section v-if="oneTimePassword" role="region" aria-labelledby="one-time-password-title" class="mt-3 flex flex-col gap-2 rounded-md border border-[#848B95] p-3">
+    <section v-if="oneTimePassword" role="region" aria-labelledby="one-time-password-title" class="mt-3 flex flex-col gap-2 rounded-md border border-edge p-3">
         <h2 id="one-time-password-title" class="text-[14px] font-semibold">{{ t('users.one_time_password_title') }}</h2>
-        <p class="text-[12.5px] text-[#454C57]">{{ t('users.one_time_password_hint') }}</p>
+        <p class="text-[12.5px] text-secondary">{{ t('users.one_time_password_hint') }}</p>
         <code data-testid="one-time-password" class="select-all font-mono text-[13px]">{{ oneTimePassword }}</code>
-        <div><button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="copyPassword">{{ t('users.copy') }}</button></div>
+        <div><button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold" @click="copyPassword">{{ t('users.copy') }}</button></div>
     </section>
     <div class="mt-3">
         <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :create-title="t('users.new')" @change="load">
@@ -126,25 +126,25 @@ async function copyPassword(): Promise<void> {
                     <TextField v-if="reauthenticating(row)" id="current_password" v-model="draft.currentPassword" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="errors.current_password" />
                     <SelectField id="role" v-model="draft.role" :label="t('users.role')" :options="roleOptions" :disabled="isSelf(row)" :hint="isSelf(row) ? t('users.own_account') : undefined" :error="errors.role" @update:model-value="setDirty(changed())" />
                     <div class="flex flex-wrap gap-2">
-                        <button type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('users.save') }}</button>
+                        <button type="submit" :disabled="busy" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold">{{ t('users.save') }}</button>
                         <template v-if="row && !isSelf(row)">
-                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</button>
-                            <button v-if="hasSecondFactor(row)" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</button>
-                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</button>
+                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</button>
+                            <button v-if="hasSecondFactor(row)" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</button>
+                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</button>
                         </template>
-                        <button v-if="row" type="button" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E] disabled:opacity-60" @click="confirmingDelete = true">{{ t('list.delete') }}</button>
+                        <button v-if="row" type="button" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" class="inline-flex h-control items-center justify-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger disabled:opacity-60" @click="confirmingDelete = true">{{ t('list.delete') }}</button>
                     </div>
                     <ConfirmDelete v-if="row" v-model:open="confirmingDelete" :name="String(row.name)" :consequence="t('users.delete_consequence')" @confirm="remove(row, close)" />
                     <Dialog v-if="row" v-model:open="confirmingFactor" :title="t('users.reset_second_factor_title', { name: String(row.name) })" :description="t('users.reset_second_factor_consequence')">
                         <div class="flex gap-2">
-                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingFactor = false">{{ t('list.cancel') }}</button>
-                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="resetSecondFactor(row, close)">{{ t('users.reset_second_factor') }}</button>
+                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingFactor = false">{{ t('list.cancel') }}</button>
+                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold" @click="resetSecondFactor(row, close)">{{ t('users.reset_second_factor') }}</button>
                         </div>
                     </Dialog>
                     <Dialog v-if="row" v-model:open="confirmingSessions" :title="t('users.end_sessions_title', { name: String(row.name) })" :description="t('users.end_sessions_consequence')">
                         <div class="flex gap-2">
-                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingSessions = false">{{ t('list.cancel') }}</button>
-                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="endSessions(row, close)">{{ t('users.end_sessions') }}</button>
+                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingSessions = false">{{ t('list.cancel') }}</button>
+                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold" @click="endSessions(row, close)">{{ t('users.end_sessions') }}</button>
                         </div>
                     </Dialog>
                 </form>

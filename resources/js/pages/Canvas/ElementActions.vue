@@ -33,14 +33,14 @@ const choose = (choice: 'delete' | 'lift'): void => {
     choosing.value = false;
     remove(choice);
 };
-const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
+const button = 'inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium';
 </script>
 
 <template>
-    <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
+    <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-danger">{{ refusal }}</p>
     <div class="flex flex-wrap gap-2">
         <button type="button" :class="button" @click="archiving = true">{{ t('entry.archive') }}</button>
-        <button type="button" :class="[button, 'border-[#C0645A] text-[#A12A1E]']" @click="startDelete">{{ t('entry.delete') }}</button>
+        <button type="button" :class="[button, 'border-danger-edge text-danger']" @click="startDelete">{{ t('entry.delete') }}</button>
     </div>
     <Dialog v-model:open="archiving" :title="t('entry.archive_title', { name: element.name })" :description="names.length ? t('entry.archive_with', { names: listed }) : t('entry.archive_alone')">
         <div class="flex gap-2">
@@ -53,7 +53,7 @@ const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
         <div class="flex flex-wrap gap-2">
             <button type="button" :class="button" @click="choosing = false">{{ t('list.cancel') }}</button>
             <button type="button" :class="button" @click="choose('lift')">{{ t('entry.cluster_lift') }}</button>
-            <button type="button" :class="[button, 'border-[#C0645A] text-[#A12A1E]']" @click="choose('delete')">{{ t('entry.cluster_delete') }}</button>
+            <button type="button" :class="[button, 'border-danger-edge text-danger']" @click="choose('delete')">{{ t('entry.cluster_delete') }}</button>
         </div>
     </Dialog>
 </template>
