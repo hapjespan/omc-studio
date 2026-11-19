@@ -34,6 +34,8 @@
     "rule.element_name_taken": "Naam: er staat al een element met deze naam op deze plek",
     "rule.undo_unavailable": "Ongedaan maken kan niet meer",
     "rule.undo_parent_gone": "De rij waar dit onder hoorde bestaat niet meer",
+    "rule.year_finalised": ":year is definitief. Heropen het jaar eerst",
+    "rule.year_finalised_in_canvas": ":year is definitief in canvas :canvas. Heropen het jaar eerst",
     "validation.text_max": ":label: gebruik hoogstens :max tekens",
     "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan",
     "validation.amount_cents": ":label: vul een bedrag in van € 0,00 tot € 999.999.999,99, met een komma voor de centen",
