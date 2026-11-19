@@ -29,7 +29,20 @@ class UserRequest extends AppFormRequest
                 Rule::unique('users', 'email')->ignore($editing instanceof User ? $editing->getKey() : null),
             ],
             'role' => ['required', Rule::enum(Role::class)],
+            'current_password' => $this->currentPasswordRules($editing instanceof User ? $editing : null),
         ];
+    }
+
+    /** @return array<int, string> */
+    private function currentPasswordRules(?User $editing): array
+    {
+        $actor = $this->user();
+
+        if ($editing === null || ! $actor instanceof User || ! $actor->is($editing)) {
+            return [];
+        }
+
+        return $this->input('email') === $editing->email ? [] : ['required', 'current_password'];
     }
 
     /** @return array<string, string> */
@@ -44,6 +57,8 @@ class UserRequest extends AppFormRequest
             'email.unique' => __('users.email_taken'),
             'role.required' => __('users.role_invalid'),
             'role.Illuminate\Validation\Rules\Enum' => __('users.role_invalid'),
+            'current_password.required' => __('users.current_password_required'),
+            'current_password.current_password' => __('users.current_password_required'),
         ];
     }
 }
