@@ -198,4 +198,26 @@ class ReplaceListEntryTest extends TestCase
         $this->admin()->delete($this->base($path)."/{$entry->id}")->assertSessionHasErrors('rule');
         $this->assertNotNull($model::find($entry->id));
     }
+
+    /** @return array<string, array{mixed}> */
+    public static function malformedReplacements(): array
+    {
+        return [
+            'array' => [[1]],
+            'text' => ['abc'],
+            'negative' => ['-3'],
+            'decimal' => ['1.5'],
+            'zero' => ['0'],
+        ];
+    }
+
+    #[DataProvider('malformedReplacements')]
+    public function test_a_malformed_replacement_is_a_validation_error_not_a_server_error(mixed $replacement): void
+    {
+        $entry = Owner::factory()->for($this->organisation)->create();
+
+        $this->admin()->delete($this->base('owners')."/{$entry->id}", ['replace_with' => $replacement])->assertSessionHasErrors('replace_with');
+
+        $this->assertModelExists($entry);
+    }
 }

@@ -124,7 +124,7 @@ function submit(row: Row | null, close: () => void): void {
         </ListView>
     </div>
     <Dialog v-if="replacing" v-model:open="replaceOpen" :title="t('lists.replace_title', { name: replacing.name })" :description="t(`lists.${kind}.in_use`, { count: replacing.cost_records_count })">
-        <SelectField id="replace-with" v-model="replacement" :label="t('lists.replace_with')" :options="choices" />
+        <SelectField id="replace-with" v-model="replacement" :label="t('lists.replace_with')" :options="choices" :error="errors.rule || errors.replace_with" />
         <div class="mt-3 flex gap-2">
             <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="replaceOpen = false">{{ t('list.cancel') }}</button>
             <button type="button" :disabled="replacement === ''" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E] disabled:opacity-60" @click="replace">{{ t('lists.replace_confirm') }}</button>

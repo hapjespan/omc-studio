@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListEntryDeleteRequest;
 use App\Http\Requests\ListEntryRequest;
 use App\Models\Application;
 use App\Models\Organisation;
@@ -45,12 +46,12 @@ class ApplicationController extends Controller
         return back()->with('status', __('lists.saved'));
     }
 
-    public function destroy(Request $request, Organisation $organisation, Application $application): RedirectResponse
+    public function destroy(ListEntryDeleteRequest $request, Organisation $organisation, Application $application): RedirectResponse
     {
         /** @var User $user */
         $user = $request->user();
 
-        $token = $this->lists->delete($organisation, $application, $user, $request->string('replace_with')->toString() ?: null);
+        $token = $this->lists->delete($organisation, $application, $user, $request->safe()->string('replace_with')->toString() ?: null);
 
         return back()->with('status', __('lists.deleted'))->with('undo', $token);
     }
