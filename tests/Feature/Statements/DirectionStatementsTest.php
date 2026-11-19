@@ -23,6 +23,9 @@ class DirectionStatementsTest extends TestCase
         $this->actingAs(User::factory()->administrator()->create());
     }
 
+    /**
+     * @return list<string>
+     */
     private function goals(): array
     {
         return Statement::where('kind', 'goal')->orderBy('position')->pluck('title')->all();
@@ -102,7 +105,8 @@ class DirectionStatementsTest extends TestCase
         $second = $this->goal('B');
         $this->goal('C');
 
-        $token = $this->delete("/canvases/{$this->canvas->id}/goals/{$second->id}")->assertSessionHas('undo_token')->getSession()->get('undo_token');
+        $this->delete("/canvases/{$this->canvas->id}/goals/{$second->id}")->assertSessionHas('undo_token');
+        $token = session('undo_token');
 
         $this->assertSame(['A', 'C'], $this->goals());
 
@@ -142,7 +146,8 @@ class DirectionStatementsTest extends TestCase
         $b = $this->goal('B');
         $this->goal('C');
 
-        $token = $this->delete("/canvases/{$this->canvas->id}/goals/{$b->id}")->getSession()->get('undo_token');
+        $this->delete("/canvases/{$this->canvas->id}/goals/{$b->id}")->assertSessionHas('undo_token');
+        $token = session('undo_token');
         $this->post("/canvases/{$this->canvas->id}/goals/{$a->id}/reorder", ['direction' => 'down']);
         $this->post("/undo/{$token}")->assertRedirect();
 
