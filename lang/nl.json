@@ -303,5 +303,6 @@
     "rule.name_required": "Naam: vul een naam in",
     "rule.move_other_kind": "Verplaatsen kan alleen naar een area van dezelfde soort",
     "rule.cluster_choice_required": "Kies wat er met de activiteiten van het cluster gebeurt",
-    "rule.cluster_lift_taken": "Terugzetten kan niet: :names staat al onder het domein"
+    "rule.cluster_lift_taken": "Terugzetten kan niet: :names staat al onder het domein",
+    "rule.restore_parent_inactive": "Terugzetten kan niet: het bovenliggende element is gearchiveerd"
 }
