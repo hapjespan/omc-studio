@@ -105,8 +105,12 @@ class AllocationSchemaTest extends TestCase
         );
     }
 
-    public function test_deleting_a_canvas_removes_its_elements_sets_and_lines(): void
+    public function test_deleting_a_canvas_removes_its_elements_sets_and_lines_in_one_statement_on_sqlite(): void
     {
+        if (DB::getDriverName() !== 'sqlite') {
+            $this->markTestSkipped('PostgreSQL fires the cascades in constraint creation order; the service deletes lines first (ADR 0040)');
+        }
+
         $element = $this->allocate();
 
         DB::table('canvases')->where('id', $element->canvas_id)->delete();
@@ -114,6 +118,17 @@ class AllocationSchemaTest extends TestCase
         $this->assertSame(0, DB::table('elements')->count());
         $this->assertSame(0, DB::table('allocation_sets')->count());
         $this->assertSame(0, DB::table('allocation_lines')->count());
+    }
+
+    public function test_deleting_lines_before_the_canvas_works_on_every_engine(): void
+    {
+        $element = $this->allocate();
+
+        DB::table('allocation_lines')->delete();
+        DB::table('canvases')->where('id', $element->canvas_id)->delete();
+
+        $this->assertSame(0, DB::table('elements')->count());
+        $this->assertSame(0, DB::table('allocation_sets')->count());
     }
 
     public function test_deleting_an_element_that_still_carries_a_line_fails(): void

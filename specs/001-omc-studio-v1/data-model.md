@@ -231,7 +231,7 @@ Uniqueness of active names under one parent and the single Unknown allocation Do
 |---|---|
 | id | integer pk |
 | allocation_set_id | fk allocation_sets cascade |
-| element_id | fk elements no action: checked at the end of the statement, so a Canvas deletion that removes Elements and lines together succeeds on both engines, while deleting an Element that still carries a line fails |
+| element_id | fk elements no action: deleting an Element that still carries a line fails on both engines; a Canvas deletion removes lines first, model by model (ADR 0040), because PostgreSQL fires the Canvas cascades in constraint creation order |
 | basis_points | integer 1 to 10000 |
 | position | integer, set order (SD-6) |
 
