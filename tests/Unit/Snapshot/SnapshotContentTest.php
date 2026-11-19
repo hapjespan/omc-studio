@@ -5,6 +5,7 @@ namespace Tests\Unit\Snapshot;
 use App\Models\Snapshot;
 use App\Services\Snapshot\SnapshotContent;
 use Illuminate\Support\Facades\Schema;
+use InvalidArgumentException;
 use Tests\Feature\Allocation\AllocationTestCase;
 
 class SnapshotContentTest extends AllocationTestCase
@@ -12,6 +13,21 @@ class SnapshotContentTest extends AllocationTestCase
     private function assembler(): SnapshotContent
     {
         return app(SnapshotContent::class);
+    }
+
+    private function stored(): Snapshot
+    {
+        $encoded = $this->assembler()->encode($this->assembler()->build($this->canvas, $this->fiscalYear(2026)));
+
+        return Snapshot::create([
+            'canvas_id' => $this->canvas->id,
+            'name' => 'Versie 1',
+            'fiscal_year' => 2026,
+            'created_at' => now(),
+            'schema_version' => SnapshotContent::SCHEMA_VERSION,
+            'content' => $encoded,
+            'checksum' => $this->assembler()->checksum($encoded),
+        ]);
     }
 
     public function test_the_content_carries_the_structure_the_year_and_the_figures(): void
@@ -43,6 +59,26 @@ class SnapshotContentTest extends AllocationTestCase
         $this->assertSame($first, $second);
         $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $this->assembler()->checksum($first));
         $this->assertNotSame($this->assembler()->checksum($first), $this->assembler()->checksum($first.' '));
+    }
+
+    public function test_a_stored_snapshot_refuses_a_change_to_its_content(): void
+    {
+        $snapshot = $this->stored();
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $snapshot->update(['content' => '{"schema_version":1}', 'checksum' => str_repeat('a', 64)]);
+    }
+
+    public function test_a_stored_snapshot_keeps_name_remark_and_archive_editable(): void
+    {
+        $snapshot = $this->stored();
+        $encoded = (string) $snapshot->content;
+
+        $snapshot->update(['name' => 'Versie 2', 'remark' => 'Toelichting', 'archived_at' => now()]);
+
+        $this->assertSame(['Versie 2', 'Toelichting', $encoded], [$snapshot->fresh()->name, $snapshot->fresh()->remark, (string) $snapshot->fresh()->content]);
+        $this->assertNotNull($snapshot->fresh()->archived_at);
     }
 
     public function test_the_snapshots_table_has_the_columns_and_the_versions_index(): void
