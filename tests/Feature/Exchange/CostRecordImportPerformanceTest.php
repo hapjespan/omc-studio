@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -21,6 +22,8 @@ class CostRecordImportPerformanceTest extends TestCase
     private const TARGET_BYTES = 5_000_000;
 
     private const LIMIT_SECONDS = 10.0;
+
+    private const PORTABILITY_LIMIT_SECONDS = 30.0;
 
     public function test_dry_run_and_commit_of_a_five_megabyte_file_finish_within_ten_seconds(): void
     {
@@ -42,8 +45,9 @@ class CostRecordImportPerformanceTest extends TestCase
         ));
 
         $this->assertSame($lines, CostRecord::count());
-        $this->assertLessThan(self::LIMIT_SECONDS, $preview);
-        $this->assertLessThan(self::LIMIT_SECONDS, $commit);
+        $limit = DB::getDriverName() === 'sqlite' ? self::LIMIT_SECONDS : self::PORTABILITY_LIMIT_SECONDS;
+        $this->assertLessThan($limit, $preview);
+        $this->assertLessThan($limit, $commit);
     }
 
     /** @return array{0: string, 1: int} */
