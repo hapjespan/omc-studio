@@ -52,3 +52,17 @@ describe('AppShell', () => {
         expect(html).toContain('Strategie');
     });
 });
+
+describe('AppShell with a Canvas', () => {
+    it('shows the mode group Modus with one link per allowed mode', async () => {
+        page.props.canvas = { id: 7, name: 'Strategie', organisation: { id: 3, name: 'Acme' } };
+        page.props.auth = { role: 'reader' };
+        const html = (await renderToString(createSSRApp({ render: () => h(AppShell) }))).replace(/<!--.*?-->/g, '');
+        delete page.props.canvas;
+        page.props.auth = { role: 'administrator' };
+
+        expect(html).toContain('role="group" aria-label="Modus"');
+        expect(html).toContain('Bekijken');
+        expect(html).not.toContain('Invoeren');
+    });
+});

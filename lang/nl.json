@@ -82,5 +82,8 @@
     "shell.tabs": "Hoofdnavigatie",
     "shell.tab.canvas": "Canvas",
     "shell.tab.overview": "Overzicht",
-    "shell.tab.admin": "Beheer"
+    "shell.tab.admin": "Beheer",
+    "shell.mode_group": "Modus",
+    "shell.mode.entry": "Invoeren",
+    "shell.mode.view": "Bekijken"
 }

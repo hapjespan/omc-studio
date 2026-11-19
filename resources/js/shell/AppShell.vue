@@ -2,6 +2,7 @@
 import { usePage } from '@inertiajs/vue3';
 import StatusRegion from '../components/feedback/StatusRegion.vue';
 import { t } from '../i18n';
+import ModeSwitch from './ModeSwitch.vue';
 import Tabs from './Tabs.vue';
 import SkipLink from './SkipLink.vue';
 import TopBar, { type ShellCanvas } from './TopBar.vue';
@@ -19,6 +20,7 @@ const page = usePage<{ appName: string; auth: { role: string }; canvas?: ShellCa
         <div class="flex flex-1">
             <aside id="left-panel" :aria-label="t('shell.left_panel')" class="empty:hidden" />
             <main id="main" tabindex="-1" class="min-w-0 flex-1 p-4">
+                <ModeSwitch v-if="page.props.canvas" :role="page.props.auth.role" :canvas="page.props.canvas.id" :url="page.url" class="mb-4" />
                 <slot />
                 <StatusRegion />
             </main>

@@ -21,3 +21,10 @@ export async function signInAs(page: Page, role: 'administrator' | 'reader'): Pr
     await page.getByRole('button', { name: 'Inloggen' }).click();
     await page.getByRole('heading', { level: 1 }).waitFor();
 }
+
+export function createCanvas(): number {
+    const code = "$c = App\\Models\\Canvas::factory()->create(); echo 'ID=' . $c->id;";
+    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
+
+    return Number(/ID=(\d+)/.exec(output)?.[1]);
+}
