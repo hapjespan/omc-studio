@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
@@ -18,6 +18,7 @@ import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
 import { detail, openDetail } from '../../shell/detail';
 import ElementFiguresPanel from './ElementFigures.vue';
+import FigureSidePanel from './FigureSidePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, DrawnBlock, TextMeasurer } from '../../layout';
@@ -35,6 +36,7 @@ const props = defineProps<{
     figuresMessage: string | null;
 }>();
 
+const role = computed(() => (usePage().props.auth as { role: string | null }).role);
 const costAreas = computed(() => new Set(props.layout.areas.filter((area) => area.kind === 'activities').map((area) => area.key)));
 const domainCounts = computed(() => descendantCounts(props.elements));
 const cardFigures = (block: DrawnBlock): ElementFigures | null => (props.figures && block.kind === 'domain' && costAreas.value.has(block.areaKey) ? (props.figures.elements[block.id] ?? null) : null);
@@ -86,9 +88,10 @@ const fit = (): void => {
         <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
     </div>
     <OverlayLegend :overlay="overlay" :modalities="modalities" />
-    <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
+    <div class="mt-3 flex gap-4">
+    <div ref="scroller" class="h-[calc(100vh-14rem)] min-w-0 flex-1 overflow-auto" tabindex="-1" data-scroller>
         <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="cardColours" @select="select">
-            <template #card="{ block }">
+            <template v-if="figures" #card="{ block }">
                 <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
                 <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
             </template>
@@ -96,6 +99,8 @@ const fit = (): void => {
                 <Breakdown v-if="id && hoverBlock(id) && cardFigures(hoverBlock(id)!)" :key="id" :element-id="id" />
             </template>
         </CanvasView>
+    </div>
+    <FigureSidePanel v-if="figures" :figures="figures" :canvas-id="canvas.id" :year="year" :can-assign="role === 'administrator'" />
     </div>
     <ViewDetail v-if="content && detail.open" :content="content" />
     <ElementFiguresPanel v-if="selectedFigures && selectedId && detail.open" :element-id="selectedId" :figures="selectedFigures" />
