@@ -1,0 +1,44 @@
+<script setup lang="ts">
+import { computed, nextTick, reactive, ref } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import ErrorSummary from '../../components/fields/ErrorSummary.vue';
+import Field from '../../components/fields/Field.vue';
+import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
+import TextArea from '../../components/fields/TextArea.vue';
+import TextField from '../../components/fields/TextField.vue';
+import type { ListRow } from '../../components/list/ListView.vue';
+import { t } from '../../i18n';
+import { routes } from '../../routes';
+
+const props = defineProps<{ row: ListRow | null; canvasId: number; years: number[] }>();
+const emit = defineEmits<{ close: []; dirty: [value: boolean] }>();
+
+const page = usePage();
+const errors = computed(() => page.props.errors as Record<string, string>);
+const draft = reactive({ name: String(props.row?.name ?? ''), fiscal_year: String(props.row?.fiscal_year ?? props.years.at(-1) ?? ''), remark: String(props.row?.remark ?? '') });
+const initial = JSON.stringify(draft);
+const busy = ref(false);
+const touch = (): void => emit('dirty', JSON.stringify(draft) !== initial);
+
+function submit(): void {
+    const options = { preserveScroll: true, preserveState: true, onStart: () => (busy.value = true), onFinish: () => (busy.value = false), onSuccess: () => emit('close'), onError: () => nextTick(focusFirstInvalid) };
+    if (props.row) router.patch(routes.snapshot(props.row.id), { name: draft.name, remark: draft.remark }, options);
+    else router.post(routes.versions(props.canvasId), draft, options);
+}
+</script>
+
+<template>
+    <form novalidate class="flex flex-col gap-3" @submit.prevent="submit" @input="touch" @change="touch">
+        <ErrorSummary :errors="errors" />
+        <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="touch" />
+        <Field v-if="!row" id="fiscal_year" :label="t('snap.field.year')" :error="errors.fiscal_year" v-slot="{ describedby, invalid }">
+            <select id="fiscal_year" v-model="draft.fiscal_year" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]">
+                <option v-for="year in years" :key="year" :value="String(year)">{{ year }}</option>
+            </select>
+        </Field>
+        <TextArea id="remark" v-model="draft.remark" :label="`${t('fields.remark')} (${t('form.optional')})`" :error="errors.remark" @update:model-value="touch" />
+        <div class="flex gap-2">
+            <button type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('snap.save') }}</button>
+        </div>
+    </form>
+</template>

@@ -6,13 +6,36 @@ use App\Http\Requests\StoreSnapshotRequest;
 use App\Http\Requests\UpdateSnapshotRequest;
 use App\Models\Canvas;
 use App\Models\Snapshot;
+use App\Services\Lists\ListQuery;
 use App\Services\Snapshot\Snapshots;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SnapshotController extends Controller
 {
     public function __construct(private readonly Snapshots $snapshots) {}
+
+    public function index(Request $request, Canvas $canvas): Response
+    {
+        $list = (new ListQuery(['name'], ['name', 'fiscal_year', 'created_at'], [], 'archived_at'))->run(
+            Snapshot::query()
+                ->where('canvas_id', $canvas->getKey())
+                ->select(['id', 'name', 'fiscal_year', 'remark', 'archived_at', 'created_at', 'imported', DB::raw('(SELECT name FROM users WHERE users.id = snapshots.created_by) AS maker')])
+                ->orderByDesc('created_at')->orderByDesc('id'),
+            $request->query(),
+        );
+
+        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Carbon::parse($row['created_at'])->format('d-m-Y'), 'imported' => (bool) $row['imported']], $list['rows']);
+
+        return Inertia::render('Versions/Index', $list + [
+            'canWrite' => $request->user()?->can('administer') ?? false,
+            'years' => $canvas->organisation->fiscalYears()->orderBy('year')->pluck('year')->all(),
+        ]);
+    }
 
     public function store(StoreSnapshotRequest $request, Canvas $canvas): RedirectResponse
     {

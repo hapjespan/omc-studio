@@ -718,5 +718,16 @@
     "snap.restored": "Momentopname :name teruggezet",
     "snap.deleted": "Momentopname :name verwijderd",
     "snap.field_not_editable": "Alleen de naam en de opmerking van een momentopname zijn te wijzigen",
-    "canvas_dialog.count_snapshots": ":count momentopnamen"
+    "canvas_dialog.count_snapshots": ":count momentopnamen",
+    "snap.tab": "Versies",
+    "snap.title": "Versies",
+    "snap.create": "Momentopname maken",
+    "snap.column.year": "Boekjaar",
+    "snap.column.created": "Gemaakt",
+    "snap.column.maker": "Gemaakt door",
+    "snap.column.remark": "Opmerking",
+    "snap.imported": "Geïmporteerd",
+    "snap.field.year": "Boekjaar",
+    "snap.save": "Opslaan",
+    "snap.archive": "Archiveren"
 }
