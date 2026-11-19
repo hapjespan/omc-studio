@@ -4,7 +4,6 @@ namespace App\Services\Support;
 
 use App\Enums\CanvasKind;
 use App\Models\Canvas;
-use App\Models\CostRecord;
 use App\Models\Organisation;
 use Illuminate\Validation\ValidationException;
 
@@ -22,13 +21,6 @@ trait WritableGuard
 
         if ($aggregate->kind === CanvasKind::Template) {
             $this->refuse('template_write');
-        }
-    }
-
-    protected function assertCostRecordActive(CostRecord $record): void
-    {
-        if ($record->archived_at !== null) {
-            $this->refuse('cost_record_archived');
         }
     }
 

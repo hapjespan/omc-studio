@@ -10,7 +10,6 @@ use App\Services\Operations\Steps\FirstAdministratorStep;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use App\Support\Session\DatabaseSessionHandler;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,8 +30,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Model::preventLazyLoading(! $this->app->isProduction());
-
         Session::extend('database', fn (Container $app) => new DatabaseSessionHandler(
             $app->make('db')->connection(config('session.connection')),
             (string) config('session.table'),

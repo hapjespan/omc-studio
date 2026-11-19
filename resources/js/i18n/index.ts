@@ -11,8 +11,3 @@ export function t(key: string, params: Record<string, string | number> = {}): st
 export function hasMessage(key: string): boolean {
     return key in catalogue;
 }
-
-export function plural(key: string, count: number): string {
-    const [one, other] = t(key, { count }).split('|');
-    return count === 1 ? one : other;
-}
