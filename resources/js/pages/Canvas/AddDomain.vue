@@ -4,11 +4,12 @@ import { useForm } from '@inertiajs/vue3';
 import TextField from '../../components/fields/TextField.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
+import { firstError } from './entry';
 
 const props = defineProps<{ canvasId: number; area: string; kindLabel: string }>();
 const emit = defineEmits<{ added: [name: string] }>();
 const form = useForm({ name: '' });
-const error = computed(() => (form.errors as Record<string, string | undefined>).name ?? (form.errors as Record<string, string | undefined>).rule);
+const error = computed(() => firstError(form.errors));
 
 function submit(): void {
     const name = form.name.trim();

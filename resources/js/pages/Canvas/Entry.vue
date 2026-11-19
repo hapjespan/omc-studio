@@ -47,7 +47,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
             <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
-            <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" @select="selectedId = $event" />
+            <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="selectedId = $event" />
         </section>
     </div>
 </template>

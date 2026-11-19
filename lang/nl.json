@@ -374,5 +374,7 @@
     "entry.kind.cluster": "Cluster",
     "entry.modality": "Modaliteit",
     "entry.tree": "Structuur van :area",
-    "entry.add_kind": "+ :kind"
+    "entry.add_kind": "+ :kind",
+    "entry.add_line_activities": "Activiteit of cluster toevoegen aan :parent, Enter om op te slaan",
+    "entry.add_line_item": ":kind toevoegen aan :parent, Enter om op te slaan"
 }

@@ -30,6 +30,10 @@ describe('buildRows', () => {
         expect(flags('Inkoop')).toEqual([true, false]);
     });
 
+    it('marks the last row of each Domain block as the place of its add line', () => {
+        expect(buildRows(elements, 'primary_activities').filter((row) => row.closes).map((row) => `${row.element.name}>${row.closes?.name}`)).toEqual(['Offerte>Inkoop', 'Verkoop>Verkoop']);
+    });
+
     it('names the kind per Area', () => {
         expect(kindLabelKey('domain', 'actors')).toBe('areas.actors.level_1');
         expect(kindLabelKey('activity', 'actors')).toBe('areas.actors.level_2');
@@ -39,11 +43,13 @@ describe('buildRows', () => {
 
 describe('EntryTree', () => {
     it('renders kind, name and Modality letter as one button per row', async () => {
-        const html = await renderToString(createSSRApp({ render: () => h(EntryTree, { rows: buildRows(elements, 'primary_activities'), letters: { adaptive: 'A' }, selectedId: 'a3', label: 'Structuur' }) }));
+        const html = await renderToString(createSSRApp({ render: () => h(EntryTree, { rows: buildRows(elements, 'primary_activities'), letters: { adaptive: 'A' }, selectedId: 'a3', label: 'Structuur', canvasId: 1, itemLabel: 'Activiteit', clusters: true }) }));
 
         expect(html).toContain('aria-label="Structuur"');
         expect(html.match(/<button/g)).toHaveLength(6);
         expect(html).toMatch(/Activiteit<\/span>.*Selectie.*Modaliteit<\/span>A/);
+        expect(html.match(/<input/g)).toHaveLength(4);
+        expect(html).toContain('Activiteit of cluster toevoegen aan Inkoop, Enter om op te slaan');
         expect(html.match(/aria-current="true"/g)).toHaveLength(1);
     });
 });

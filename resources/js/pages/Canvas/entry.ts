@@ -14,6 +14,7 @@ export interface EntryRowData {
     depth: 0 | 1 | 2;
     first: boolean;
     last: boolean;
+    closes: EntryElement | null;
 }
 
 const flatten = (nodes: TreeNode[], depth: 0 | 1 | 2, rows: EntryRowData[]): void => {
@@ -21,8 +22,10 @@ const flatten = (nodes: TreeNode[], depth: 0 | 1 | 2, rows: EntryRowData[]): voi
         const kind = node.element.kind;
         const peers = nodes.filter((peer) => peer.element.kind === kind && !peer.element.unknownAllocation);
         const position = peers.indexOf(node);
-        rows.push({ element: node.element as EntryElement, depth, first: position === 0, last: position === peers.length - 1 });
+        const row: EntryRowData = { element: node.element as EntryElement, depth, first: position === 0, last: position === peers.length - 1, closes: null };
+        rows.push(row);
         flatten(node.children, Math.min(depth + 1, 2) as 1 | 2, rows);
+        if (depth === 0) rows[rows.length - 1].closes = node.element as EntryElement;
     }
 };
 
@@ -37,3 +40,9 @@ export const kindLabelKey = (kind: ElementKind, area: AreaKey): string => (kind 
 
 export const createdElement = (elements: EntryElement[], area: AreaKey, kind: ElementKind, name: string, parent: string | null): EntryElement | undefined =>
     elements.find((candidate) => !candidate.archived && candidate.area === area && candidate.kind === kind && candidate.name === name && candidate.parent === parent);
+
+export const firstError = (errors: object): string | undefined => {
+    const messages = errors as Record<string, string | undefined>;
+
+    return messages.name ?? messages.rule;
+};
