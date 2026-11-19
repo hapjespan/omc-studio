@@ -22,7 +22,7 @@ test('a faulty file disables Importeren and announces the error count, a clean f
 
     await page.getByLabel('CSV-bestand').setInputFiles(csv(`${code};Licenties;Project;;Ada;;;2026;12.50;;;;`));
     await page.getByRole('button', { name: 'Controleren' }).click();
-    await expect(page.getByRole('status')).toContainText('Controle klaar: 1 fouten');
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: 1 fouten');
     await expect(page.getByRole('heading', { level: 2, name: 'Regels' })).toBeVisible();
     await expect(page.getByRole('cell', { name: /is geen bedrag/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Importeren' })).toBeDisabled();
@@ -30,10 +30,10 @@ test('a faulty file disables Importeren and announces the error count, a clean f
 
     await page.getByLabel('CSV-bestand').setInputFiles(csv(`${code};Licenties;Project;;Ada;;;2026;12,50;;;;`));
     await page.getByRole('button', { name: 'Controleren' }).click();
-    await expect(page.getByRole('status')).toContainText('Controle klaar: geen fouten');
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: geen fouten');
     await expect(page.getByRole('heading', { level: 2, name: 'Wordt aangemaakt: Eigenaren' })).toBeVisible();
     await page.getByRole('button', { name: 'Importeren' }).click();
-    await expect(page.getByRole('status')).toContainText('Geïmporteerd: 1 nieuw');
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Geïmporteerd: 1 nieuw');
 });
 
 test('a file with another header is refused with the file message', async ({ page }) => {

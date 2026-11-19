@@ -12,5 +12,5 @@ export default defineConfig({
     publicDir: resolve(here, '../../../../public'),
     plugins: [vue(), tailwindcss()],
     build: { outDir: resolve(here, '../../../../.scratch/harness'), emptyOutDir: true },
-    preview: { host: '127.0.0.1', port: 4187, strictPort: true, headers },
+    preview: { host: '127.0.0.1', port: Number(process.env.E2E_HARNESS_PORT ?? 4187), strictPort: true, headers },
 });

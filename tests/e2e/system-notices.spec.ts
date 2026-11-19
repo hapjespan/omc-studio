@@ -8,7 +8,7 @@ test('an Administrator finds the closing-check notice with its facts and filters
     createClosingNotice(canvas, 1);
     await signInAs(page, 'administrator');
     await page.goto('/admin');
-    await page.getByRole('link', { name: 'Systeemmeldingen' }).click();
+    await page.getByRole('link', { name: 'Systeemmeldingen', exact: true }).click();
 
     await expect(page.getByRole('heading', { level: 1, name: 'Systeemmeldingen' })).toBeVisible();
     const notice = page.getByRole('listitem').filter({ hasText: canvas });
@@ -29,5 +29,5 @@ test('a Reader gets no access to the list', async ({ page }) => {
     const response = await page.goto('/admin/system-notices');
 
     expect(response?.status()).toBe(403);
-    await expect(page.getByText('Geen toegang')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Geen toegang' })).toBeVisible();
 });
