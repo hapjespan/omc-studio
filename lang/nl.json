@@ -655,5 +655,21 @@
     "notices.filter_key.costKind": "Soort kosten",
     "notices.filter_key.ownerId": "Eigenaar",
     "notices.filter_key.applicationId": "Applicatie",
-    "notices.status_seen": "Melding gemarkeerd als gezien"
+    "notices.status_seen": "Melding gemarkeerd als gezien",
+    "csvx.code_unknown": "Regel :line, kostenpost_code: ':value' is geen kostenpost van deze organisatie",
+    "csvx.path_unknown": "Regel :line, doel_pad: ':value' is geen doel in dit canvas",
+    "csvx.path_not_target": "Regel :line, doel_pad: ':value' kan geen kosten dragen",
+    "csvx.percentage_invalid": "Regel :line, percentage: ':value' is geen percentage van 0,01 tot 100,00. Gebruik een komma voor de decimalen",
+    "csvx.refused_errors": "Importeren is niet gelukt; het bestand bevat fouten. Er is niets gewijzigd",
+    "csvx.area_unknown": "Regel :line, area: ':value' is geen area. Gebruik de naam of de sleutel van een area",
+    "csvx.area_no_elements": "Regel :line, area: in Koers staan geen elementen",
+    "csvx.domain_missing": "Regel :line, domein: domein ontbreekt. Vul een domein in",
+    "csvx.cluster_not_allowed": "Regel :line, cluster: in deze area bestaan geen clusters",
+    "csvx.modality_not_allowed": "Regel :line, modaliteit: in deze area bestaat geen modaliteit",
+    "csvx.modality_unknown": "Regel :line, modaliteit: ':value' is geen modaliteit. Gebruik common, adaptive, specialized of distinct, of de letter C, A, S of D",
+    "csvx.name_sign": "Regel :line, :column: het teken > is niet toegestaan",
+    "csvx.name_archived": "Regel :line, :column: ':value' is gearchiveerd. Zet het element eerst terug of kies een andere naam",
+    "csvx.name_managed": "Regel :line, :column: ':value' wordt door het systeem beheerd",
+    "csvx.kind_conflict": "Regel :line, :column: ':value' bestaat hier al als een ander soort element",
+    "csvx.too_many_cells": "Regel :line: :count kolommen gevonden, verwacht :expected. Controleer de puntkomma's"
 }

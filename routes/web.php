@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\Admin\UserSecondFactorController;
 use App\Http\Controllers\Admin\UserSessionsController;
+use App\Http\Controllers\AllocationImportController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ReauthenticateController;
@@ -18,10 +19,12 @@ use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\SystemNoticeController;
+use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 
@@ -124,4 +127,19 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
 Route::middleware(['auth', 'can:administer'])->prefix('admin/system-notices')->group(function () {
     Route::get('/', [SystemNoticeController::class, 'index']);
     Route::post('/{notice}/seen', [SystemNoticeController::class, 'seen']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/organisations/{organisation}/export/cost-records.csv', [ExportController::class, 'costRecords']);
+    Route::get('/canvases/{canvas}/export/allocations.csv', [ExportController::class, 'allocations']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/import/allocations/preview', [AllocationImportController::class, 'preview']);
+    Route::post('/canvases/{canvas}/import/allocations', [AllocationImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/import/structure/preview', [StructureImportController::class, 'preview']);
+    Route::post('/canvases/{canvas}/import/structure', [StructureImportController::class, 'commit']);
 });

@@ -10,7 +10,7 @@ class CostRecordRowValidator
 {
     private const LIMITS = ['code' => 50, 'naam' => 150, 'eigenaar' => 150, 'applicatie' => 150, 'leverancier' => 150, 'kostenplaats' => 50];
 
-    private const KINDS = [
+    public const KINDS = [
         'leverancierscontract' => CostKind::SupplierContract,
         'personeel' => CostKind::Personnel,
         'project' => CostKind::Project,

@@ -100,7 +100,7 @@ class ElementTree
 
             $this->unknown->assertNone($element);
 
-            $changes = array_intersect_key($fields, array_flip(['name', 'description', 'icon']));
+            $changes = array_intersect_key($fields, array_flip(['name', 'description', 'modality_id', 'icon']));
 
             if (isset($changes['name'])) {
                 $changes['name'] = trim((string) $changes['name']);
