@@ -1,10 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
 import AppButton from '../../../resources/js/components/ui/AppButton.vue';
 import Callout from '../../../resources/js/components/ui/Callout.vue';
 import Icon from '../../../resources/js/components/ui/Icon.vue';
-import IconButton from '../../../resources/js/components/ui/IconButton.vue';
+import IconButton, { ICON_BUTTON_CLASS } from '../../../resources/js/components/ui/IconButton.vue';
+import { ICON_PATHS } from '../../../resources/js/components/ui/icons';
 import LogoMark from '../../../resources/js/components/ui/LogoMark.vue';
 import Pill from '../../../resources/js/components/ui/Pill.vue';
 import SearchField from '../../../resources/js/components/ui/SearchField.vue';
@@ -104,5 +107,20 @@ describe('SearchField', () => {
         expect(html).toContain('id="area-search"');
         expect(html).toContain('type="search"');
         expect(html).toContain('<svg');
+    });
+});
+
+describe('the reorder arrows of the tree', () => {
+    const source = readFileSync(fileURLToPath(new URL('../../../resources/js/pages/Canvas/ReorderButtons.vue', import.meta.url)), 'utf8');
+
+    it('keeps the look of the icon button without an instance per row', () => {
+        expect(source).toContain('ICON_BUTTON_CLASS');
+        expect(source).not.toContain('<IconButton');
+        expect(ICON_BUTTON_CLASS).toContain('h-mark');
+    });
+
+    it('inlines the same chevron paths as the icon component', () => {
+        expect(source).toContain(`d="${ICON_PATHS['chevron-up']}"`);
+        expect(source).toContain(`d="${ICON_PATHS['chevron-down']}"`);
     });
 });
