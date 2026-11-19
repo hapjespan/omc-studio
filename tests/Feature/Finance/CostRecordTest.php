@@ -9,6 +9,7 @@ use App\Models\Organisation;
 use App\Models\Owner;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -41,7 +42,7 @@ class CostRecordTest extends TestCase
     }
 
     /** @param array<string, mixed> $overrides
-     * @return TestResponse<\Illuminate\Http\Response> */
+     * @return TestResponse<Response> */
     private function store(array $overrides = []): TestResponse
     {
         return $this->admin()->post("/organisations/{$this->organisation->id}/cost-records", $this->payload($overrides));
