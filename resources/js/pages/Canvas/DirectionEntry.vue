@@ -98,6 +98,12 @@ const afterUndo = async (): Promise<void> => {
     document.getElementById('goal-title')?.focus();
 };
 
+function closeUndo(): void {
+    const refused = Boolean(undo.value?.refusal);
+    undo.value = null;
+    if (refused) void afterUndo();
+}
+
 function undoDeletion(): void {
     const current = undo.value;
     if (!current) return;
@@ -117,7 +123,7 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
 
 <template>
     <div class="mt-3 flex flex-col gap-4">
-        <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
+        <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="closeUndo" />
         <p v-if="refusal" role="alert" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
         <form v-for="kind in kinds" :key="kind" novalidate class="flex flex-col gap-2" @submit.prevent="saveText(kind)">
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
