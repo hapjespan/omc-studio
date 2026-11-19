@@ -21,10 +21,12 @@ const topWidth = (ARTBOARD_WIDTH - 3 * AREA_GAP) / 2;
 
 const listColumns: AreaKey[] = ['actors', 'channels', 'value_propositions'];
 
+export const isListArea = (key: AreaKey): boolean => listColumns.includes(key);
+
 export const areaWidth = (key: AreaKey): number => {
     if (key === 'direction') return ARTBOARD_WIDTH;
     if (key === 'steering' || key === 'governing') return topWidth;
-    if (listColumns.includes(key)) return LIST_COLUMN;
+    if (isListArea(key)) return LIST_COLUMN;
     return ARTBOARD_WIDTH - AREA_GAP - rightX;
 };
 
