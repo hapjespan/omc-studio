@@ -29,7 +29,7 @@ How to prove each delivery works end to end. Commands run inside the development
 5. Bekijken: the eight Areas on the A3 Artboard, the Unknown allocation card last in Supporting activities, zoom and "Passend maken" (US16).
 6. As Reader: only Bekijken; a direct POST to any write route returns 403 (US5.7).
 7. Logboek shows the rename with old and new value (US7).
-8. Performance dataset: `php artisan app:dev-dataset --elements=500 --cost-records=1000` (a development-only command), then the end-to-end timing suite reports p95 under 1000 ms per screen (P-1).
+8. Performance dataset: `PerformanceDatasetFactory` (T279) generates 500 Elements and 1000 Cost records; `php artisan test --filter=CalculationPerformanceTest` proves the figures come within 1 second (P-1). The browser timing per screen follows with the end-to-end flow of delivery 2 (T316).
 
 ## WP-E0 (after WP1)
 
@@ -59,7 +59,7 @@ Acceptance run: perform each step, write the result (pass or fail, date, initial
 | 7 | SC-014: leave Cost records without a set | they appear in the Unknown allocation Domain of Supporting activities, as its own line in the side panel, and count in the Area and Canvas totals | |
 | 8 | SC-015: Finalise a year with one Cost record in Unknown allocation | refused (GATE-U1) | |
 | 9 | SC-016: delete an allocated Activity | Redistribution opens; afterwards every affected Cost record is at 0% or 100% | |
-| 10 | SC-020: `php artisan app:dev-dataset --elements=500 --cost-records=1000`, then `npx playwright test d2-flow` | the timing assertions report p95 under 1000 ms per screen (P-1) | |
+| 10 | SC-020: `php artisan test --filter=CalculationPerformanceTest` (dataset from `PerformanceDatasetFactory`, T279) | figures for 500 Elements and 1000 Cost records within 1 second (P-1); the browser p95 per screen is added when the end-to-end flow T316 exists | |
 | 11 | SC-023: `php artisan test --filter=Property` (FR-095), 1000 cases | passes on every run; no open defect of the kind "figures do not close" or "rule can be bypassed" | |
 | 12 | SC-024: acceptance session, steps below | done within 30 minutes without help | |
 
@@ -75,11 +75,11 @@ Done by the product owner alone; the observer only keeps time and does not answe
 
 ### K-6 performance run on the reference machine
 
-CI runners are not the reference machine (K-6), so the product owner repeats the timing on the reference machine of constraint O-10 (4 cores, 8 GB memory).
+CI runners are not the reference machine (K-6), so the product owner repeats the timing on the reference machine of constraint O-10 (4 cores, 8 GB memory), in the development container (the performance test is not part of the delivered stack).
 
-1. Start the delivered stack with `docker compose up -d`, then create the dataset of step 10.
-2. Run `npx playwright test d2-flow` once with nothing else running.
-3. Copy the reported machine description and the p95 per screen into the Result column of step 10; every screen must stay under 1000 ms.
+1. Start the development container and close other programs.
+2. Run `php artisan test --filter=CalculationPerformanceTest` once.
+3. Write down the machine (`uname -sm`, `nproc`) and whether the test passed in the Result column of step 10. The test does not print the machine on success; on failure its message does.
 
 ## Delivery 3
 
