@@ -9,6 +9,7 @@ const headers = { 'Content-Security-Policy': "default-src 'self'; script-src 'se
 
 export default defineConfig({
     root: here,
+    publicDir: resolve(here, '../../../../public'),
     plugins: [vue(), tailwindcss()],
     build: { outDir: resolve(here, '../../../../.scratch/harness'), emptyOutDir: true },
     preview: { host: '127.0.0.1', port: 4187, strictPort: true, headers },
