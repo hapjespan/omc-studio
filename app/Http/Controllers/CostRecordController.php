@@ -32,7 +32,6 @@ class CostRecordController extends Controller
         $result = $props['year'] === null ? null : $figures->figures($canvas, $props['year']);
 
         return Inertia::render('Finance/CostRecords', $props + [
-            'canvas' => ['id' => $canvas->id, 'name' => $canvas->name],
             'cards' => $result === null ? null : [
                 'budgetCents' => $result->canvasTotal['budget'],
                 'forecastCents' => $result->canvasTotal['forecast'],

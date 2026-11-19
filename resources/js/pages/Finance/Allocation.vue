@@ -63,7 +63,7 @@ function through(visit: () => void): void {
 
 const add = (id: string): void => {
     if (!writable.value || !info.value[id] || draft.value.some((line) => line.elementId === id)) return;
-    draft.value = [...draft.value, { elementId: id, basisPoints: Math.max(0, left.value) }].filter((line) => line.basisPoints > 0 || line.elementId === id);
+    draft.value = [...draft.value, { elementId: id, basisPoints: Math.max(0, left.value) }];
     announce(t('allocation_page.add', { target: info.value[id].path }));
 };
 const change = (index: number, basisPoints: number): void => void (draft.value = draft.value.map((line, i) => (i === index ? { ...line, basisPoints } : line)));
