@@ -63,5 +63,12 @@
     "fields.email": "E-mailadres",
     "fields.password": "Wachtwoord",
     "fields.password_confirmation": "Herhaal wachtwoord",
-    "auth.sign_out": "Uitloggen"
+    "fields.current_password": "Huidig wachtwoord",
+    "auth.sign_out": "Uitloggen",
+    "account.title": "Mijn account",
+    "account.password_title": "Wachtwoord wijzigen",
+    "account.password_changed": "Wachtwoord gewijzigd",
+    "account.current_password_required": "Huidig wachtwoord: vul je huidige wachtwoord in",
+    "account.current_password_wrong": "Huidig wachtwoord: dit wachtwoord is onjuist",
+    "account.password_reused": "Wachtwoord: kies een ander wachtwoord dan je huidige wachtwoord"
 }

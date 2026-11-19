@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
@@ -17,6 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/sign-out', SignOutController::class);
     Route::get('/password/new', [NewPasswordController::class, 'create']);
     Route::put('/password/new', [NewPasswordController::class, 'update']);
+    Route::get('/account', [AccountController::class, 'show']);
+    Route::put('/account/password', [AccountController::class, 'update']);
 });
 
 Route::middleware('can:administer')->scopeBindings()->group(function () {
