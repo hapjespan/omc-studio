@@ -44,6 +44,19 @@ describe('arrangeAreas', () => {
     });
 });
 
+describe('arrangeAreas asymmetric needs', () => {
+    it('lets a tall Supporting Area take the room of an empty Primary Area', () => {
+        const frames = arrangeAreas({ primary_activities: 52, supporting_activities: 600 });
+        expect(frames.supporting_activities.y + frames.supporting_activities.height).toBeLessThanOrEqual(1188);
+        expect(frames.supporting_activities.height).toBeGreaterThanOrEqual(600);
+    });
+
+    it('lets a tall Primary Area take the room of an empty Supporting Area', () => {
+        const frames = arrangeAreas({ primary_activities: 600, supporting_activities: 52 });
+        expect(frames.supporting_activities.y + frames.supporting_activities.height).toBeLessThanOrEqual(1188);
+    });
+});
+
 describe('Direction band', () => {
     it('lays four columns side by side over the full width', () => {
         const columns = layoutDirection([], labels, fakeMeasurer);

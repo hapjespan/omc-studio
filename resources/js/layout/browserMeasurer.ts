@@ -9,7 +9,11 @@ export const loadCanvasFonts = async (fonts: Pick<Document, 'fonts'> = document)
             [false, ...(supportsItalic(family) ? [true] : [])].map((italic) => fontShorthand({ family, size: 16, weight, italic })),
         ),
     );
-    await Promise.all(shorthands.map((shorthand) => fonts.fonts.load(shorthand, 'Aa')));
+    await Promise.all(
+        shorthands.map(async (shorthand) => {
+            if ((await fonts.fonts.load(shorthand, 'Aa')).length === 0) throw new Error(`Font face missing: ${shorthand}`);
+        }),
+    );
     await fonts.fonts.ready;
 };
 

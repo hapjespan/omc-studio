@@ -38,8 +38,12 @@ export function arrangeAreas(required: Partial<Record<AreaKey, number>>): Record
     const topHeight = Math.max(MIN_TOP_ROW, need('steering'), need('governing'));
     const lowerY = topY + topHeight + AREA_GAP;
     const available = ARTBOARD_HEIGHT - AREA_GAP - lowerY;
-    const primaryHeight = Math.max(Math.floor((available - AREA_GAP) / 2), need('primary_activities'));
-    const supportingHeight = Math.max(available - AREA_GAP - primaryHeight, need('supporting_activities'));
+    const shared = available - AREA_GAP;
+    const half = Math.floor(shared / 2);
+    const needPrimary = need('primary_activities');
+    const needSupporting = need('supporting_activities');
+    const primaryHeight = needSupporting > half ? Math.max(shared - needSupporting, needPrimary) : Math.max(half, needPrimary);
+    const supportingHeight = Math.max(shared - primaryHeight, needSupporting);
     const columnHeight = Math.max(primaryHeight + AREA_GAP + supportingHeight, ...listColumns.map(need));
 
     const frames = {

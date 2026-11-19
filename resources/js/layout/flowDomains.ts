@@ -69,7 +69,6 @@ export function flowDomains(domains: TreeNode[], area: AreaKey, innerWidth: numb
     for (let start = 0; start < domains.length; start += columns) {
         const row = domains.slice(start, start + columns).map((domain, index) => place(domain, area, index * (cardWidth + CARD_GAP), y, cardWidth, blocks, context));
         const rowHeight = Math.max(...row.map((card) => card.drawnHeight));
-        row.forEach((card) => (card.drawnHeight = rowHeight));
         y += rowHeight + CARD_GAP;
     }
 

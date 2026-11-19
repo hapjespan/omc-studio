@@ -6,7 +6,7 @@ export interface TreeNode {
     children: TreeNode[];
 }
 
-const byPosition = (a: LayoutElement, b: LayoutElement): number => a.position - b.position || a.id.localeCompare(b.id);
+const byPosition = (a: LayoutElement, b: LayoutElement): number => a.position - b.position || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
 export function buildDomains(elements: LayoutElement[], area: AreaKey): TreeNode[] {
     const childrenOf = (parent: string): TreeNode[] =>

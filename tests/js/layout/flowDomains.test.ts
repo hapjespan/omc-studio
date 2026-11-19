@@ -62,7 +62,7 @@ describe('flowDomains', () => {
         const short = flow(nested('Kort')).blocks;
         const long = flow(nested('woord '.repeat(40))).blocks;
         expect(block(long, 'f').y).toBeGreaterThan(block(short, 'f').y);
-        expect(block(long, 'e').drawnHeight).toBe(block(long, 'd').drawnHeight);
+        expect(block(long, 'e').drawnHeight).toBeLessThan(block(long, 'd').drawnHeight);
     });
 
     it('is empty without Domains', () => {
