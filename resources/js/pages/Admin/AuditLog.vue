@@ -87,7 +87,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
         <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
         <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
         <div class="flex items-end gap-2">
-            <button type="submit" class="min-h-6 rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('audit_log.filter.apply') }}</button>
+            <button type="submit" class="min-h-6 rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('audit_log.filter.apply') }}</button>
             <button type="button" class="min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" @click="reset">{{ t('audit_log.filter.reset') }}</button>
         </div>
     </form>

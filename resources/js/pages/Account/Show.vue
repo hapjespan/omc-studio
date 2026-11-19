@@ -37,7 +37,7 @@ function submit(): void {
             <TextField id="current_password" v-model="form.current_password" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="form.errors.current_password" />
             <TextField id="password" v-model="form.password" :label="t('fields.password')" type="password" autocomplete="new-password" :error="form.errors.password" />
             <TextField id="password_confirmation" v-model="form.password_confirmation" :label="t('fields.password_confirmation')" type="password" autocomplete="new-password" :error="form.errors.password_confirmation" />
-            <button type="submit" :disabled="form.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('auth.new_password_submit') }}</button>
+            <button type="submit" :disabled="form.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('auth.new_password_submit') }}</button>
         </form>
         <SecondFactor v-bind="secondFactor" />
     </div>

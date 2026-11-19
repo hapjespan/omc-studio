@@ -5,6 +5,62 @@
 @source '../js/**/*.vue';
 @source '../views/**/*.blade.php';
 
+@theme {
+    --font-sans: 'Inter', sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+
+    --color-ink: #171b21;
+    --color-secondary: #454c57;
+    --color-muted: #5f6772;
+    --color-page: #f2f3f1;
+    --color-surface: #f6f7f5;
+    --color-hairline: #dcdfe2;
+    --color-edge: #848b95;
+    --color-dashed: #8a919b;
+    --color-success: #1f7a4d;
+    --color-success-soft: #e7f3ec;
+    --color-warning: #8a5200;
+    --color-warning-soft: #fff3d6;
+    --color-danger: #a12a1e;
+    --color-danger-edge: #c0645a;
+    --color-accent: #2459d6;
+    --color-accent-soft: #e3ebfb;
+    --color-disabled: #e6e8e6;
+    --color-common: #1f7a4d;
+    --color-adaptive: #1e5fbf;
+    --color-specialized: #b4540a;
+    --color-distinct: #6b3fb5;
+
+    --radius-control: 6px;
+    --radius-card: 8px;
+    --radius-panel: 10px;
+    --radius-badge: 4px;
+
+    --spacing-control: 36px;
+    --spacing-dense: 32px;
+    --spacing-mark: 28px;
+    --spacing-bar: 56px;
+    --spacing-left-panel: 224px;
+    --spacing-detail-panel: 360px;
+}
+
+@layer base {
+    html {
+        line-height: 1.4;
+    }
+
+    body {
+        background-color: var(--color-page);
+        color: var(--color-ink);
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-display);
+    }
+}
+
 #nprogress {
     position: fixed;
     inset: unset;

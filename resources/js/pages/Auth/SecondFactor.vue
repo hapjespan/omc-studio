@@ -25,7 +25,7 @@ function submit(): void {
         <ErrorSummary :errors="form.errors" />
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <TextField id="code" v-model="form.code" :label="t('sign_in.second_factor.code_label')" autocomplete="one-time-code" :error="form.errors.code" />
-            <button type="submit" :disabled="form.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('sign_in.second_factor.submit') }}</button>
+            <button type="submit" :disabled="form.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('sign_in.second_factor.submit') }}</button>
         </form>
     </main>
 </template>

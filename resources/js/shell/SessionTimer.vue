@@ -44,6 +44,6 @@ onBeforeUnmount(() => {
 <template>
     <div v-if="warning && !reauth" class="fixed bottom-4 right-4 z-40 flex items-center gap-3 rounded-md border border-[#848B95] bg-white px-4 py-3 text-[13px] text-[#171B21] shadow">
         <span>{{ t('session.warning') }}</span>
-        <button type="button" class="rounded-md bg-[#1F3A5F] px-3 py-2 font-semibold text-white" @click="extend">{{ t('session.extend') }}</button>
+        <button type="button" class="rounded-md bg-ink px-3 py-2 font-semibold text-white" @click="extend">{{ t('session.extend') }}</button>
     </div>
 </template>

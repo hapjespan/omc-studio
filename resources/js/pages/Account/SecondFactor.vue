@@ -89,7 +89,7 @@ function downloadCodes(): void {
             </p>
             <ErrorSummary :errors="confirmation.errors" prefix="second_factor_" />
             <TextField id="second_factor_code" v-model="confirmation.code" :label="t('second_factor.code_label')" autocomplete="one-time-code" :error="confirmation.errors.code" />
-            <button type="submit" :disabled="confirmation.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.confirm') }}</button>
+            <button type="submit" :disabled="confirmation.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.confirm') }}</button>
         </form>
 
         <form class="flex flex-col gap-4" novalidate @submit.prevent="active ? renew() : begin()">
@@ -97,8 +97,8 @@ function downloadCodes(): void {
             <ErrorSummary :errors="password.errors" prefix="second_factor_" />
             <TextField id="second_factor_current_password" v-model="password.current_password" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="password.errors.current_password" />
             <div class="flex gap-2">
-                <button v-if="!active" type="submit" :disabled="password.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.enable') }}</button>
-                <button v-if="active" type="submit" :disabled="password.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.new_codes') }}</button>
+                <button v-if="!active" type="submit" :disabled="password.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.enable') }}</button>
+                <button v-if="active" type="submit" :disabled="password.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('second_factor.new_codes') }}</button>
                 <button v-if="active" type="button" :disabled="password.processing" class="rounded-md border border-[#848B95] px-3 py-2 text-[13px] font-semibold text-[#171B21]" @click="turnOff">{{ t('second_factor.disable') }}</button>
             </div>
         </form>

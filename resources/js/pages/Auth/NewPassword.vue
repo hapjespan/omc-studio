@@ -25,7 +25,7 @@ function submit(): void {
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <TextField id="password" v-model="form.password" :label="t('fields.password')" type="password" autocomplete="new-password" :error="form.errors.password" />
             <TextField id="password_confirmation" v-model="form.password_confirmation" :label="t('fields.password_confirmation')" type="password" autocomplete="new-password" :error="form.errors.password_confirmation" />
-            <button type="submit" :disabled="form.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('auth.new_password_submit') }}</button>
+            <button type="submit" :disabled="form.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('auth.new_password_submit') }}</button>
         </form>
     </main>
 </template>

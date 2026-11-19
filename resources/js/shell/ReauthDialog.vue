@@ -33,7 +33,7 @@ function submit(): void {
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <TextField id="reauth-password" v-model="form.password" :label="t('fields.password')" type="password" autocomplete="current-password" :error="form.errors.password" />
             <TextField v-if="page.props.auth.secondFactor" id="reauth-code" v-model="form.code" :label="t('sign_in.second_factor.code_label')" autocomplete="one-time-code" :error="form.errors.code" />
-            <button type="submit" :disabled="form.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('reauth.submit') }}</button>
+            <button type="submit" :disabled="form.processing" class="rounded-md bg-ink px-3 py-2 text-[13px] font-semibold text-white">{{ t('reauth.submit') }}</button>
         </form>
     </Dialog>
 </template>
