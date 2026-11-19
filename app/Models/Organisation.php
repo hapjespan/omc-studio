@@ -8,6 +8,7 @@ use Database\Factories\OrganisationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 #[Fillable(['name', 'slug', 'archived_at'])]
@@ -24,4 +25,22 @@ class Organisation extends Model
     }
 
     protected $casts = ['archived_at' => 'datetime'];
+
+    /** @return HasMany<FiscalYear, $this> */
+    public function fiscalYears(): HasMany
+    {
+        return $this->hasMany(FiscalYear::class);
+    }
+
+    /** @return HasMany<Owner, $this> */
+    public function owners(): HasMany
+    {
+        return $this->hasMany(Owner::class);
+    }
+
+    /** @return HasMany<Application, $this> */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
 }
