@@ -13,7 +13,7 @@ test('the Direction band shows the Logo box, uppercase labels and the goals as a
     await expect(label).toHaveText('Strategische doelen');
     expect(await label.evaluate((element) => getComputedStyle(element).textTransform)).toBe('uppercase');
     const goal = page.locator('[data-direction="goals"] p').nth(1);
-    await expect(goal).toHaveText('1.Eén kindprofiel. Van opvang tot school');
+    await expect(goal).toHaveText('1. Eén kindprofiel. Van opvang tot school');
     expect(await goal.locator('strong').textContent()).toBe('Eén kindprofiel.');
 });
 

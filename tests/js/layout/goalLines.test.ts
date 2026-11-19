@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GOAL_INDENT, goalLines } from '../../../resources/js/layout/direction';
+import { GOAL_INDENT, goalLines, layoutDirection } from '../../../resources/js/layout/direction';
 import type { LayoutStatement, TextMeasurer } from '../../../resources/js/layout/types';
 import { fakeMeasurer } from './fakeMeasurer';
 
@@ -25,5 +25,15 @@ describe('goalLines', () => {
     it('measures the wrapping at the bold weight', () => {
         const weighted: TextMeasurer = { width: (text, font) => text.length * font.size * (font.weight >= 600 ? 1 : 0.5) };
         expect(goalLines([goal(null, 'aaaa bbbb')], GOAL_INDENT + 13 * 5, weighted).lines).toEqual(['1. aaaa', 'bbbb']);
+    });
+
+    it('cuts a truncated goal line at the bold weight and the indented width', () => {
+        const weighted: TextMeasurer = { width: (text, font) => text.length * font.size * (font.weight >= 600 ? 1 : 0.5) };
+        const goals = Array.from({ length: 8 }, (_, index) => goal(null, 'a'.repeat(40), index + 1));
+        const column = layoutDirection(goals, { mission: 'M', vision: 'V', goals: 'G' }, weighted)[3];
+        const last = column.lines[column.lines.length - 1];
+        expect(column.truncated).toBe(true);
+        expect(last.endsWith('…')).toBe(true);
+        expect(weighted.width(last, { family: 'Inter', size: 13, weight: 600, italic: false })).toBeLessThanOrEqual(568 - GOAL_INDENT);
     });
 });

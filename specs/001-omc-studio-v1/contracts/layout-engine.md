@@ -20,6 +20,7 @@ interface TextMeasurer {
 
 - `artboard`: 1680 by 1188; Direction band height 180 (ADR 0020).
 - `areas`: the eight Areas with key, kind and position.
+- `directionLabels`: the labels of the mission, vision and goals columns (`mission`, `vision`, `goals`).
 - `elements`: active Elements with id, Area, parent, kind, name, position, Modality letter and, for the Unknown allocation Domain, its flag.
 - `statements`: mission, vision, goals in order.
 - `layouts` (DT; empty in D1): per Area or Element id `{x, y, width, height, z, style}`.

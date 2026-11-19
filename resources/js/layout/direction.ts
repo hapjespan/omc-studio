@@ -22,10 +22,10 @@ const columnWidths: [DirectionColumnKey, number][] = [
 export const directionMaxLines = (): number =>
     Math.floor((DIRECTION_HEIGHT - 2 * DIRECTION_PADDING - LABEL_LINE - LABEL_GAP) / DIRECTION_BODY_LINE);
 
-const cut = (lines: string[], width: number, measurer: TextMeasurer): string[] => {
+const cut = (lines: string[], width: number, font: FontSpec, measurer: TextMeasurer): string[] => {
     const kept = lines.slice(0, directionMaxLines());
     let last = kept[kept.length - 1];
-    while (last !== '' && measurer.width(last + ELLIPSIS, DIRECTION_BODY_FONT) > width) last = last.slice(0, -1);
+    while (last !== '' && measurer.width(last + ELLIPSIS, font) > width) last = last.slice(0, -1);
     kept[kept.length - 1] = last.trimEnd() + ELLIPSIS;
     return kept;
 };
@@ -71,7 +71,7 @@ export function layoutDirection(
             x,
             width,
             label: key === 'logo' ? null : labels[key],
-            lines: truncated ? cut(all, textWidth, measurer) : all,
+            lines: truncated ? cut(all, goals ? textWidth - GOAL_INDENT : textWidth, goals ? DIRECTION_GOAL_FONT : DIRECTION_BODY_FONT, measurer) : all,
             truncated,
             marks: goals ? goals.marks : [],
         };
