@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
+use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,4 +26,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('can:administer')->scopeBindings()->group(function () {
     Route::post('/undo/{token}', UndoController::class)->name('undo');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}', CanvasModeController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::get('/admin', AdminIndexController::class);
 });
