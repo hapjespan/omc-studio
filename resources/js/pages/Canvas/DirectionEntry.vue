@@ -2,6 +2,8 @@
 import { nextTick, reactive, ref, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
+import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
+import ConfirmDelete from '../../components/list/ConfirmDelete.vue';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import UndoMessage from '../../components/list/UndoMessage.vue';
@@ -22,6 +24,8 @@ const texts = reactive({ mission: props.statements.mission ?? '', vision: props.
 const errors = reactive<Record<string, string>>({ mission: '', vision: '' });
 const goalForm = useForm({ title: '', body: '' });
 const undo = ref<{ token: string; name: string; refusal: string | null } | null>(null);
+const deleting = ref<Goal | null>(null);
+const confirming = ref(false);
 const options = { preserveScroll: true, preserveState: true };
 
 kinds.forEach((kind) => {
@@ -36,7 +40,10 @@ function saveText(kind: (typeof kinds)[number]): void {
     router.put(routes.statement(props.canvasId, kind), { body: texts[kind] }, {
         ...options,
         onSuccess: () => void announce(t('direction_entry.saved', { label: t(`direction_entry.${kind}`) })),
-        onError: (found) => (errors[kind] = found.body ?? found.rule ?? ''),
+        onError: (found) => {
+            errors[kind] = found.body ?? found.rule ?? '';
+            void nextTick(focusFirstInvalid);
+        },
     });
 }
 
@@ -47,12 +54,14 @@ function addGoal(): void {
             goalForm.reset();
             void announce(t('direction_entry.saved', { label: t('direction_entry.goals') }));
         },
+        onError: () => nextTick(focusFirstInvalid),
     });
 }
 
 function move(goal: Goal, direction: 'up' | 'down'): void {
     router.post(routes.goalReorder(props.canvasId, goal.id), { direction }, {
         ...options,
+        onError: (found) => (refusal.value = found.rule ?? ''),
         onSuccess: async () => {
             await nextTick();
             const same = document.getElementById(`goal-${direction}-${goal.id}`) as HTMLButtonElement | null;
@@ -65,6 +74,7 @@ function move(goal: Goal, direction: 'up' | 'down'): void {
 function remove(goal: Goal): void {
     router.delete(routes.goal(props.canvasId, goal.id), {
         ...options,
+        onError: (found) => (refusal.value = found.rule ?? ''),
         onSuccess: () => {
             const token = (usePage().props.flash as { undoToken?: string | null } | undefined)?.undoToken;
             if (token) undo.value = { token, name: goal.title, refusal: null };
@@ -73,6 +83,12 @@ function remove(goal: Goal): void {
     });
 }
 
+const refusal = ref('');
+const afterUndo = async (): Promise<void> => {
+    await nextTick();
+    document.getElementById('goal-title')?.focus();
+};
+
 function undoDeletion(): void {
     const current = undo.value;
     if (!current) return;
@@ -80,6 +96,7 @@ function undoDeletion(): void {
         ...options,
         onSuccess: () => {
             undo.value = null;
+            void afterUndo();
             void announce(t('direction_entry.undone', { name: current.name }));
         },
         onError: (found) => (current.refusal = found.rule ?? ''),
@@ -91,10 +108,12 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
 
 <template>
     <div class="mt-3 flex flex-col gap-4">
-        <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
+        <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null; afterUndo()" />
+        <p v-if="refusal" role="alert" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
         <form v-for="kind in kinds" :key="kind" novalidate class="flex flex-col gap-2" @submit.prevent="saveText(kind)">
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
-            <p v-if="!texts[kind]" class="text-[12.5px] text-[#454C57]">{{ t(`direction_entry.empty_${kind}`) }}</p>
+            <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ texts[kind].length }} / {{ LIMIT }}</p>
+            <p v-if="!statements[kind]" class="text-[12.5px] text-[#454C57]">{{ t(`direction_entry.empty_${kind}`) }}</p>
             <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.save') }}</button>
         </form>
         <section :aria-labelledby="'direction-goals'" class="flex flex-col gap-2">
@@ -108,14 +127,16 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
                     </div>
                     <button :id="`goal-up-${goal.id}`" type="button" :disabled="index === 0" :aria-label="t('direction_entry.up_named', { name: goal.title })" :class="buttonClass" @click="move(goal, 'up')">{{ t('direction_entry.up') }}</button>
                     <button :id="`goal-down-${goal.id}`" type="button" :disabled="index === statements.goals.length - 1" :aria-label="t('direction_entry.down_named', { name: goal.title })" :class="buttonClass" @click="move(goal, 'down')">{{ t('direction_entry.down') }}</button>
-                    <button type="button" :aria-label="t('direction_entry.delete_named', { name: goal.title })" :class="buttonClass" @click="remove(goal)">{{ t('direction_entry.delete') }}</button>
+                    <button type="button" :aria-label="t('direction_entry.delete_named', { name: goal.title })" :class="buttonClass" @click="deleting = goal; confirming = true">{{ t('direction_entry.delete') }}</button>
                 </li>
             </ol>
             <form novalidate class="flex flex-col gap-2" @submit.prevent="addGoal">
-                <TextField id="goal-title" v-model="goalForm.title" :label="t('direction_entry.add_goal')" :error="goalForm.errors.title" autocomplete="off" />
+                <TextField id="goal-title" v-model="goalForm.title" :label="t('direction_entry.goal_title')" :error="goalForm.errors.title" autocomplete="off" />
                 <TextArea id="goal-body" v-model="goalForm.body" :label="t('direction_entry.goal_body')" :error="goalForm.errors.body" :rows="3" />
-                <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.add') }}</button>
+                <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ goalForm.body.length }} / {{ LIMIT }}</p>
+                <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.add_goal') }}</button>
             </form>
         </section>
+        <ConfirmDelete v-model:open="confirming" :name="deleting?.title ?? ''" :consequence="null" @confirm="deleting && remove(deleting)" />
     </div>
 </template>

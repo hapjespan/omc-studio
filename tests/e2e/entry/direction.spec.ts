@@ -11,9 +11,9 @@ test('mission, vision and goals are written, reordered, deleted with undo and cl
     await expect(page.getByText('Nog geen visie')).toBeVisible();
 
     for (const title of ['Groei', 'Kwaliteit', 'Duurzaam']) {
-        await page.getByLabel('+ strategisch doel').fill(title);
+        await page.getByLabel('Titel', { exact: true }).fill(title);
         await page.getByLabel('Uitleg').last().fill(`Uitleg ${title}`);
-        await page.getByRole('button', { name: 'Toevoegen' }).click();
+        await page.getByRole('button', { name: '+ strategisch doel' }).click();
         await expect(page.getByRole('listitem').filter({ hasText: title })).toBeVisible();
     }
 
@@ -23,6 +23,7 @@ test('mission, vision and goals are written, reordered, deleted with undo and cl
     await expect(goals.nth(1)).toContainText('Duurzaam');
 
     await page.getByRole('button', { name: 'Kwaliteit verwijderen' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Verwijderen' }).click();
     await expect(goals).toHaveCount(2);
     await page.getByRole('button', { name: 'Ongedaan maken' }).click();
     await expect(goals).toHaveCount(3);
