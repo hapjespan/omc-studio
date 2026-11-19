@@ -23,6 +23,7 @@ use App\Services\Structure\ElementFields;
 use Carbon\Carbon;
 use DateTimeImmutable;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 use JsonException;
 
 class CanvasImportValidator
@@ -105,7 +106,7 @@ class CanvasImportValidator
         $result = $this->validate($content);
         $reused = [];
 
-        if ($result['data'] !== null) {
+        if ($result['data'] !== null && $result['count'] === 0) {
             $found = $this->conflicts($result['data'], $target, $canvasName, $organisationName);
             $reused = $found['reused'];
 
@@ -268,7 +269,7 @@ class CanvasImportValidator
 
         $this->areaKinds = $areas->pluck('kind', 'key')->all();
         $this->carriers = $areas->pluck('carries_costs', 'key')->all();
-        $this->importableAreas = array_values(array_keys(array_filter($this->areaKinds, fn (string $kind) => $kind !== 'text')));
+        $this->importableAreas = array_keys(array_filter($this->areaKinds, fn (string $kind) => $kind !== 'text'));
         $this->modalities = Modality::pluck('key')->all();
         $this->icons = $this->fields->icons();
     }
@@ -807,7 +808,7 @@ class CanvasImportValidator
         }
 
         $sound = is_string($value) && $value !== '' && ($format === null
-            ? rescue(fn () => Carbon::parse($value) !== null, false, false)
+            ? rescue(fn () => Carbon::parse($value)->isValid(), false, false)
             : $this->matches($value, $format));
 
         if (! $sound) {
@@ -864,7 +865,11 @@ class CanvasImportValidator
 
     private function rule(ValidationRule $rule, string $location, mixed $value): void
     {
-        $rule->validate($location, $value, fn (string $message) => $this->record($location, $message));
+        $rule->validate($location, $value, function (string $message) use ($location) {
+            $this->record($location, $message);
+
+            return new PotentiallyTranslatedString($message, app('translator'));
+        });
     }
 
     /** @param array<string, string> $replace */

@@ -11,7 +11,10 @@ use Illuminate\Http\UploadedFile;
 
 class CanvasRoundTripTest extends ExchangeTestCase
 {
-    /** @return array<string, mixed> */
+    /**
+     * @param  array<string, string>  $filter
+     * @return list<mixed>
+     */
     private function snapshot(Canvas $canvas, int $year, array $filter): array
     {
         $figures = app(FigureService::class)->figures($canvas, $year, $filter);

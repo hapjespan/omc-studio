@@ -32,12 +32,13 @@ class CanvasExportTest extends ExchangeTestCase
     {
         $this->richCanvas();
 
-        $elements = collect($this->exported()['canvas']['elements']);
+        $elements = $this->exported()['canvas']['elements'];
+        $byName = array_column($elements, null, 'name');
 
         $this->assertCount(8, $elements);
-        $this->assertSame(1, $elements->where('is_unknown_allocation', true)->count());
-        $this->assertNotNull($elements->firstWhere('name', 'Oud')['archived_at']);
-        $this->assertSame('common', $elements->firstWhere('name', 'Bestellen')['modality']);
+        $this->assertSame(1, count(array_filter($elements, fn (array $element) => $element['is_unknown_allocation'])));
+        $this->assertNotNull($byName['Oud']['archived_at']);
+        $this->assertSame('common', $byName['Bestellen']['modality']);
     }
 
     public function test_the_file_holds_no_user_names_or_addresses(): void
