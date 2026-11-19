@@ -10,11 +10,13 @@ import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { detail } from '../../shell/detail';
-import type { EntryElement } from './entry';
+import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type EntryElement } from './entry';
+import ParentSelect from './ParentSelect.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; path: string; list: boolean; icons: string[] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[] }>();
 const emit = defineEmits<{ saved: []; changed: [] }>();
-const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '' });
+const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element) });
+const options = computed(() => parentOptions(props.element, props.elements, props.areas));
 const errors = computed(() => form.errors as Record<string, string>);
 const iconOptions = computed(() => props.icons.map((icon) => ({ value: icon, label: t(`structure.icon.${icon}`) })));
 
@@ -23,8 +25,14 @@ watch(() => form.isDirty, (dirty) => {
     if (dirty) emit('changed');
 });
 
+const move = (parent: string): { area?: string; parent_id?: string } => {
+    if (parent === parentValue(props.element)) return {};
+
+    return parent.startsWith(AREA_PREFIX) ? { area: parent.slice(AREA_PREFIX.length) } : { parent_id: parent };
+};
+
 function save(): void {
-    form.transform((data) => ({ name: data.name, description: data.description, ...(props.list ? { icon: data.icon || null } : {}) })).patch(routes.element(props.canvasId, props.element.id), {
+    form.transform((data) => ({ name: data.name, description: data.description, ...(props.list ? { icon: data.icon || null } : {}), ...move(data.parent) })).patch(routes.element(props.canvasId, props.element.id), {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
@@ -46,6 +54,7 @@ function save(): void {
             <TextField id="element-name" v-model="form.name" :label="t('fields.name')" :error="errors.name" autocomplete="off" />
             <TextArea id="element-description" v-model="form.description" :label="t('fields.description')" :error="errors.description" />
             <SelectField v-if="list" id="element-icon" v-model="form.icon" :label="t('entry.icon')" :options="iconOptions" :placeholder="t('entry.no_icon')" :error="errors.icon" />
+            <ParentSelect v-model="form.parent" :options="options" />
             <div><button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button></div>
         </form>
     </Teleport>

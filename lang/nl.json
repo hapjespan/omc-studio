@@ -387,5 +387,6 @@
     "entry.icon": "Icoon",
     "entry.no_icon": "Geen icoon",
     "entry.save": "Opslaan",
-    "entry.saved": "Alles opgeslagen"
+    "entry.saved": "Alles opgeslagen",
+    "entry.parent": "Hangt onder"
 }

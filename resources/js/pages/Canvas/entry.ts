@@ -53,3 +53,32 @@ export const elementPath = (element: EntryElement, elements: EntryElement[], are
 
     return [areaLabel, ...names].join(' > ');
 };
+
+export interface EntryAreaInfo {
+    key: AreaKey;
+    kind: string;
+    label: string;
+}
+
+export interface ParentOption {
+    value: string;
+    label: string;
+}
+
+export const AREA_PREFIX = 'area:';
+
+export const parentValue = (element: EntryElement): string => (element.parent === null ? `${AREA_PREFIX}${element.area}` : element.parent);
+
+export function parentOptions(element: EntryElement, elements: EntryElement[], areas: EntryAreaInfo[]): ParentOption[] {
+    const kind = areas.find(({ key }) => key === element.area)?.kind;
+    const sameKind = areas.filter((area) => area.kind === kind);
+    const live = elements.filter(({ archived }) => !archived);
+
+    if (element.kind === 'domain') return sameKind.map(({ key, label }) => ({ value: `${AREA_PREFIX}${key}`, label }));
+
+    return sameKind.flatMap((area) =>
+        buildRows(live, area.key)
+            .filter(({ element: candidate }) => candidate.kind === 'domain' ? !candidate.unknownAllocation : candidate.kind === 'cluster' && element.kind === 'activity')
+            .map(({ element: candidate }) => ({ value: candidate.id, label: elementPath(candidate, elements, area.label) })),
+    );
+}

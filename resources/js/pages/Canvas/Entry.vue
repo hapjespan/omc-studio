@@ -7,7 +7,7 @@ import type { AreaKey, ElementKind } from '../../layout/types';
 import { detail, openDetail } from '../../shell/detail';
 import AddDomain from './AddDomain.vue';
 import ElementPanel from './ElementPanel.vue';
-import { buildRows, createdElement, elementPath, type EntryElement } from './entry';
+import { buildRows, createdElement, elementPath, type EntryAreaInfo, type EntryElement } from './entry';
 
 interface EntryArea {
     key: string;
@@ -22,6 +22,8 @@ const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
 const selectedId = ref<string | null>(null);
 const saved = ref(false);
+const areaInfo = computed(() => props.areas as unknown as EntryAreaInfo[]);
+const labelOf = (key: string): string => props.areas.find((item) => item.key === key)?.label ?? key;
 const selectedElement = computed(() => props.elements.find(({ id }) => id === selectedId.value));
 const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
 const rows = computed(() => buildRows(props.elements.filter((element) => !element.archived), area.value.key as AreaKey));
@@ -64,7 +66,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" />
-            <ElementPanel v-if="selectedElement" :canvas-id="canvas.id" :element="selectedElement" :path="elementPath(selectedElement, elements, area.label)" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" />
+            <ElementPanel v-if="selectedElement" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" />
         </section>
     </div>
 </template>
