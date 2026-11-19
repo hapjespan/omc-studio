@@ -2,6 +2,7 @@
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import CanvasDialogs from './Overview/CanvasDialogs.vue';
+import Templates from './Overview/Templates.vue';
 import type { DialogKind } from './Overview/CanvasDialogs.vue';
 import CanvasCard from '../canvas/CanvasCard.vue';
 import type { CardCanvas } from '../canvas/CanvasCard.vue';
@@ -24,6 +25,7 @@ const props = defineProps<{
     showArchived: boolean;
     canWrite: boolean;
     templates: { id: number; name: string }[];
+    templateCards: CardCanvas[];
 }>();
 
 const measurer = shallowRef<TextMeasurer | null>(null);
@@ -62,5 +64,6 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
             </li>
         </ul>
     </section>
+    <Templates v-if="canWrite" :cards="templateCards" :layout="layout" :measurer="measurer" />
     <CanvasDialogs v-if="canWrite" ref="dialogs" @done="settle" :organisations="organisationOptions()" :templates="templates" />
 </template>

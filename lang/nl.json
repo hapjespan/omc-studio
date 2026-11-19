@@ -374,5 +374,7 @@
     "templates.name_taken": "Naam: dit sjabloon bestaat al",
     "templates.saved": "Sjabloon opgeslagen",
     "templates.renamed": "Sjabloon hernoemd",
-    "templates.deleted": "Sjabloon verwijderd"
+    "templates.deleted": "Sjabloon verwijderd",
+    "templates.heading": "Sjablonen",
+    "templates.empty": "Er zijn nog geen sjablonen"
 }
