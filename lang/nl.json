@@ -271,5 +271,14 @@
     "lists.saved": "Opgeslagen",
     "lists.deleted": "Verwijderd",
     "rule.replacement_invalid": "Vervangen door: kies een andere waarde uit deze organisatie",
-    "rule.list_name_taken": "Naam: deze naam staat al in de lijst"
+    "rule.list_name_taken": "Naam: deze naam staat al in de lijst",
+    "lists.cost_records": "Kostenposten",
+    "lists.no_application": "Geen applicatie",
+    "lists.replace_title": "Vervangen door voor :name",
+    "lists.replace_with": "Vervangen door",
+    "lists.replace_confirm": "Vervangen en verwijderen",
+    "lists.owners.title": "Eigenaren",
+    "lists.owners.new": "Nieuwe eigenaar",
+    "lists.owners.name_hint": "Afdeling of rol, geen persoonsnaam",
+    "lists.owners.in_use": "Deze eigenaar staat op :count kostenposten. Kies een andere eigenaar om ze naartoe te verplaatsen"
 }

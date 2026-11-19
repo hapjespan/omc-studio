@@ -25,6 +25,8 @@ const cases: [keyof typeof routes, (string | number)[], string][] = [
     ['organisationArchive', [2], '/admin/organisations/2/archive'],
     ['organisationRestore', [2], '/admin/organisations/2/restore'],
     ['organisationLogo', [2], '/organisations/2/logo'],
+    ['organisationEntries', [2, 'owners'], '/admin/organisations/2/owners'],
+    ['organisationEntry', [2, 'owners', 5], '/admin/organisations/2/owners/5'],
     ['auditLog', [], '/admin/audit-log'],
     ['canvases', [], '/canvases'],
     ['canvas', [7], '/canvases/7'],
