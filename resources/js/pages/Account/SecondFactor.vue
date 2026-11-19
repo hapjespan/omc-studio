@@ -77,8 +77,8 @@ function downloadCodes(): void {
                 <li v-for="code in codes" :key="code">{{ code }}</li>
             </ul>
             <div class="flex gap-2">
-                <button type="button" class="rounded-md border border-edge px-3 py-2 text-[13px] font-semibold text-ink" @click="copyCodes">{{ t('second_factor.copy') }}</button>
-                <button type="button" class="rounded-md border border-edge px-3 py-2 text-[13px] font-semibold text-ink" @click="downloadCodes">{{ t('second_factor.download') }}</button>
+                <AppButton @click="copyCodes">{{ t('second_factor.copy') }}</AppButton>
+                <AppButton @click="downloadCodes">{{ t('second_factor.download') }}</AppButton>
             </div>
         </div>
 
@@ -100,7 +100,7 @@ function downloadCodes(): void {
             <div class="flex gap-2">
                 <AppButton v-if="!active" variant="primary" type="submit" :disabled="password.processing">{{ t('second_factor.enable') }}</AppButton>
                 <AppButton v-if="active" variant="primary" type="submit" :disabled="password.processing">{{ t('second_factor.new_codes') }}</AppButton>
-                <button v-if="active" type="button" :disabled="password.processing" class="rounded-md border border-edge px-3 py-2 text-[13px] font-semibold text-ink" @click="turnOff">{{ t('second_factor.disable') }}</button>
+                <AppButton v-if="active" :disabled="password.processing" @click="turnOff">{{ t('second_factor.disable') }}</AppButton>
             </div>
         </form>
     </section>

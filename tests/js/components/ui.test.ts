@@ -17,7 +17,7 @@ describe('AppButton', () => {
         const html = await render(AppButton, { variant: 'primary' }, 'Opslaan');
 
         expect(html).toContain('bg-ink');
-        expect(html).toContain('h-control');
+        expect(html).toContain('min-h-control');
         expect(html).toContain('Opslaan');
     });
 
@@ -29,8 +29,8 @@ describe('AppButton', () => {
     });
 
     it('offers the smaller sizes of the contract', async () => {
-        expect(await render(AppButton, { size: 'dense' }, 'Opslaan')).toContain('h-dense');
-        expect(await render(AppButton, { size: 'small' }, 'Opslaan')).toContain('h-mark');
+        expect(await render(AppButton, { size: 'dense' }, 'Opslaan')).toContain('min-h-dense');
+        expect(await render(AppButton, { size: 'small' }, 'Opslaan')).toContain('min-h-mark');
     });
 
     it('submits only when asked to', async () => {
@@ -70,7 +70,7 @@ describe('LogoMark', () => {
 
         expect(html).toContain('<svg');
         expect(html).not.toContain('<img');
-        expect(html).toContain('var(--color-ink)');
+        expect(html).toContain('fill-ink');
     });
 });
 

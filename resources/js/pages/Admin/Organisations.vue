@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -69,8 +70,8 @@ function archive(row: ListRow, close: () => void): void {
                         <input id="logo" type="file" accept="image/png,image/jpeg" :aria-describedby="describedby" :aria-invalid="invalid || undefined" @change="draft.logo = ($event.target as HTMLInputElement).files?.[0] ?? null; setDirty(true)" />
                     </Field>
                     <div class="flex gap-2">
-                        <button type="submit" :disabled="busy" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold">{{ t('organisations.save') }}</button>
-                        <button v-if="row && !row.archived_at" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="archive(row, close)">{{ t('organisations.archive') }}</button>
+                        <AppButton type="submit" :disabled="busy">{{ t('organisations.save') }}</AppButton>
+                        <AppButton v-if="row && !row.archived_at" @click="archive(row, close)">{{ t('organisations.archive') }}</AppButton>
                     </div>
                 </form>
             </template>

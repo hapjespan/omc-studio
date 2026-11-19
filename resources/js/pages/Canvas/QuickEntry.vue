@@ -121,9 +121,9 @@ function save(): void {
 
 <template>
     <div ref="root" class="mt-3">
-        <button v-if="!open" ref="opener" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="show">{{ t('quick_entry.open') }}</button>
+        <AppButton v-if="!open" ref="opener" @click="show">{{ t('quick_entry.open') }}</AppButton>
         <section v-else :aria-label="t('quick_entry.title', { area: areaLabel })" class="rounded-[10px] border border-edge p-3" @keydown="keydown">
-            <h3 class="font-[Space_Grotesk] text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
+            <h3 class="font-display text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
             <TextArea id="quick-entry-text" v-model="text" :label="t('quick_entry.label')" :hint="t('quick_entry.hint')" :rows="10" :error="errors.length ? t('quick_entry.error_count', { count: errors.length }) : undefined" />
             <h4 class="mt-3 text-[13px] font-semibold">{{ t('quick_entry.preview') }}</h4>
             <ul :aria-label="t('quick_entry.preview')" class="mt-1 flex flex-col gap-1">
@@ -144,7 +144,7 @@ function save(): void {
             <p v-if="refusal" role="alert" class="mt-2 text-[12.5px] font-medium text-danger">{{ refusal }}</p>
             <div class="mt-3 flex gap-2">
                 <AppButton variant="primary" :disabled="!canSave" @click="save">{{ t('quick_entry.save') }}</AppButton>
-                <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="close">{{ t('quick_entry.close') }}</button>
+                <AppButton type="button" @click="close">{{ t('quick_entry.close') }}</AppButton>
             </div>
         </section>
     </div>

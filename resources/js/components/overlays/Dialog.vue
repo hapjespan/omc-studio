@@ -2,11 +2,12 @@
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 import { nextTick, ref, watch } from 'vue';
 import { t } from '../../i18n';
+import AppButton from '../ui/AppButton.vue';
 
 const props = defineProps<{ title: string; description?: string; dirty?: boolean; variant?: 'dialog' | 'panel' }>();
 const open = defineModel<boolean>('open', { default: false });
 const confirming = ref(false);
-const keepEditing = ref<HTMLButtonElement>();
+const keepEditing = ref<InstanceType<typeof AppButton>>();
 
 watch(open, () => (confirming.value = false));
 watch(confirming, async (asking) => {
@@ -41,17 +42,17 @@ function discard(): void {
                 @escape-key-down.prevent="requestClose"
                 @pointer-down-outside.prevent="requestClose"
             >
-                <DialogTitle class="font-[Space_Grotesk] text-base font-semibold">{{ title }}</DialogTitle>
+                <DialogTitle class="font-display text-base font-semibold">{{ title }}</DialogTitle>
                 <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-secondary">{{ description }}</DialogDescription>
                 <div class="mt-3"><slot /></div>
                 <div v-if="confirming" role="alertdialog" aria-labelledby="discard-title" class="mt-3 rounded-md border border-edge p-3">
                     <p id="discard-title" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
                     <div class="mt-2 flex gap-2">
-                        <button ref="keepEditing" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirming = false">{{ t('dialog.keep_editing') }}</button>
-                        <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger" @click="discard">{{ t('dialog.discard') }}</button>
+                        <AppButton ref="keepEditing" @click="confirming = false">{{ t('dialog.keep_editing') }}</AppButton>
+                        <AppButton variant="danger" @click="discard">{{ t('dialog.discard') }}</AppButton>
                     </div>
                 </div>
-                <button type="button" class="absolute right-3 top-3 inline-flex h-mark items-center justify-center rounded-control border border-edge bg-white px-2.5 text-[12.5px]" @click="requestClose">{{ t('dialog.close') }}</button>
+                <AppButton size="small" class="absolute right-3 top-3" @click="requestClose">{{ t('dialog.close') }}</AppButton>
             </DialogContent>
         </DialogPortal>
     </DialogRoot>

@@ -80,7 +80,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
     <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
     <form class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
         <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
-            <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-edge bg-white px-2 py-1.5 text-[13px] text-ink">
+            <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink">
                 <option value="">{{ t('audit_log.filter.all') }}</option>
                 <option v-for="option in select.options()" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>
@@ -89,7 +89,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
         <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
         <div class="flex items-end gap-2">
             <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
-            <button type="button" class="min-h-6 rounded-md border border-edge px-3 py-2 text-[13px]" @click="reset">{{ t('audit_log.filter.reset') }}</button>
+            <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
         </div>
     </form>
     <p role="status" class="mt-4 text-[13px]" data-testid="audit-count">{{ t('audit_log.count', { count: total }) }}</p>

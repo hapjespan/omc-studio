@@ -5,7 +5,7 @@ import { t } from '../i18n';
 import { detail, discardDetail, dismissDiscard, requestCloseDetail } from './detail';
 
 const heading = ref<HTMLElement>();
-const keepEditing = ref<HTMLButtonElement>();
+const keepEditing = ref<InstanceType<typeof AppButton>>();
 
 watch(
     () => detail.open,
@@ -34,8 +34,8 @@ watch(
         <div v-if="detail.confirming" role="alertdialog" aria-labelledby="detail-discard" class="mt-3 rounded-control border border-hairline p-3">
             <p id="detail-discard" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
             <div class="mt-2 flex gap-2">
-                <button ref="keepEditing" type="button" class="inline-flex h-dense items-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="dismissDiscard">{{ t('dialog.keep_editing') }}</button>
-                <button type="button" class="inline-flex h-dense items-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger" @click="discardDetail">{{ t('dialog.discard') }}</button>
+                <AppButton ref="keepEditing" size="dense" @click="dismissDiscard">{{ t('dialog.keep_editing') }}</AppButton>
+                <AppButton variant="danger" size="dense" @click="discardDetail">{{ t('dialog.discard') }}</AppButton>
             </div>
         </div>
         <div id="detail-body" class="mt-3" />

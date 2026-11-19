@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -114,7 +115,7 @@ async function copyPassword(): Promise<void> {
         <h2 id="one-time-password-title" class="text-[14px] font-semibold">{{ t('users.one_time_password_title') }}</h2>
         <p class="text-[12.5px] text-secondary">{{ t('users.one_time_password_hint') }}</p>
         <code data-testid="one-time-password" class="select-all font-mono text-[13px]">{{ oneTimePassword }}</code>
-        <div><button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold" @click="copyPassword">{{ t('users.copy') }}</button></div>
+        <div><AppButton type="button" @click="copyPassword">{{ t('users.copy') }}</AppButton></div>
     </section>
     <div class="mt-3">
         <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :create-title="t('users.new')" @change="load">
@@ -126,25 +127,25 @@ async function copyPassword(): Promise<void> {
                     <TextField v-if="reauthenticating(row)" id="current_password" v-model="draft.currentPassword" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="errors.current_password" />
                     <SelectField id="role" v-model="draft.role" :label="t('users.role')" :options="roleOptions" :disabled="isSelf(row)" :hint="isSelf(row) ? t('users.own_account') : undefined" :error="errors.role" @update:model-value="setDirty(changed())" />
                     <div class="flex flex-wrap gap-2">
-                        <button type="submit" :disabled="busy" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold">{{ t('users.save') }}</button>
+                        <AppButton type="submit" :disabled="busy">{{ t('users.save') }}</AppButton>
                         <template v-if="row && !isSelf(row)">
-                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</button>
-                            <button v-if="hasSecondFactor(row)" type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</button>
-                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</button>
+                            <AppButton type="button" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</AppButton>
+                            <AppButton v-if="hasSecondFactor(row)" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</AppButton>
+                            <AppButton type="button" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</AppButton>
                         </template>
-                        <button v-if="row" type="button" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" class="inline-flex h-control items-center justify-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger disabled:opacity-60" @click="confirmingDelete = true">{{ t('list.delete') }}</button>
+                        <AppButton variant="danger" v-if="row" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" @click="confirmingDelete = true">{{ t('list.delete') }}</AppButton>
                     </div>
                     <ConfirmDelete v-if="row" v-model:open="confirmingDelete" :name="String(row.name)" :consequence="t('users.delete_consequence')" @confirm="remove(row, close)" />
                     <Dialog v-if="row" v-model:open="confirmingFactor" :title="t('users.reset_second_factor_title', { name: String(row.name) })" :description="t('users.reset_second_factor_consequence')">
                         <div class="flex gap-2">
-                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingFactor = false">{{ t('list.cancel') }}</button>
-                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold" @click="resetSecondFactor(row, close)">{{ t('users.reset_second_factor') }}</button>
+                            <AppButton type="button" @click="confirmingFactor = false">{{ t('list.cancel') }}</AppButton>
+                            <AppButton type="button" @click="resetSecondFactor(row, close)">{{ t('users.reset_second_factor') }}</AppButton>
                         </div>
                     </Dialog>
                     <Dialog v-if="row" v-model:open="confirmingSessions" :title="t('users.end_sessions_title', { name: String(row.name) })" :description="t('users.end_sessions_consequence')">
                         <div class="flex gap-2">
-                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirmingSessions = false">{{ t('list.cancel') }}</button>
-                            <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold" @click="endSessions(row, close)">{{ t('users.end_sessions') }}</button>
+                            <AppButton type="button" @click="confirmingSessions = false">{{ t('list.cancel') }}</AppButton>
+                            <AppButton type="button" @click="endSessions(row, close)">{{ t('users.end_sessions') }}</AppButton>
                         </div>
                     </Dialog>
                 </form>

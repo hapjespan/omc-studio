@@ -116,7 +116,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             </ul>
         </nav>
         <section :aria-label="area.label" class="min-w-0 flex-1">
-            <h2 class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+            <h2 class="font-display text-base font-semibold">{{ area.label }}</h2>
             <QuickEntry v-if="area.kind !== 'text'" :key="area.key" :canvas-id="canvas.id" :area="area.key" :area-label="area.label" />
             <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />

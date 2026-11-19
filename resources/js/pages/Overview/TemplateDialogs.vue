@@ -9,6 +9,7 @@ export interface TemplateTarget {
 </script>
 
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -70,7 +71,7 @@ defineExpose({ show });
             <TextField v-if="kind !== 'delete'" id="template_name" v-model="form.name" :label="t('fields.name')" :error="form.errors.name" autocomplete="off" />
             <TextField v-else id="template_confirmation" v-model="form.confirmation" :label="t('canvas_dialog.confirmation')" :hint="t('canvas_dialog.confirmation_hint', { name: target?.name ?? '' })" :error="form.errors.confirmation" autocomplete="off" />
             <div class="flex gap-2">
-                <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="open = false">{{ t('canvas_dialog.cancel') }}</button>
+                <AppButton type="button" @click="open = false">{{ t('canvas_dialog.cancel') }}</AppButton>
                 <button type="submit" :disabled="!canSubmit" class="rounded-md border px-3 py-1.5 text-[13px] font-semibold disabled:opacity-60" :class="kind === 'delete' ? 'border-danger-edge text-danger' : 'border-edge'">{{ t(`canvas_dialog.${labels[kind]}`) }}</button>
             </div>
         </form>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -87,13 +88,13 @@ function save(): void {
             </template>
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
             <div class="flex flex-wrap gap-2">
-                <button type="submit" :disabled="form.processing" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-semibold">{{ t('entry.save') }}</button>
+                <AppButton type="submit" :disabled="form.processing">{{ t('entry.save') }}</AppButton>
             </div>
         </form>
         <Dialog v-model:open="confirming" :title="t('modality_entry.confirm_title')" :description="t('modality_entry.confirm_message')">
             <div class="flex gap-2">
-                <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="confirming = false">{{ t('modality_entry.confirm_no') }}</button>
-                <button type="button" class="inline-flex h-control items-center justify-center rounded-control border border-danger-edge bg-white px-3 text-[13px] font-medium text-danger" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</button>
+                <AppButton type="button" @click="confirming = false">{{ t('modality_entry.confirm_no') }}</AppButton>
+                <AppButton variant="danger" type="button" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</AppButton>
             </div>
         </Dialog>
         <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone" /></div>
