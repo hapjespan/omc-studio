@@ -47,14 +47,14 @@ class QuickEntryTest extends StructureTestCase
 
     public function test_saving_creates_the_tree_and_reuses_existing_names(): void
     {
-        $inkoop = $this->domain();
+        $purchasing = $this->domain();
 
         $this->actingAs($this->administrator)->post($this->url(), ['area' => 'primary_activities', 'text' => "Inkoop\n  Werving\n    Offreren\n  Bestellen\nVerkoop\n  Offerte"])->assertRedirect();
 
         $this->assertSame(6, Element::count());
-        $werving = Element::where('name', 'Werving')->firstOrFail();
-        $this->assertSame($inkoop->id, $werving->parent_id);
-        $this->assertSame($werving->id, Element::where('name', 'Offreren')->firstOrFail()->parent_id);
+        $recruitment = Element::where('name', 'Werving')->firstOrFail();
+        $this->assertSame($purchasing->id, $recruitment->parent_id);
+        $this->assertSame($recruitment->id, Element::where('name', 'Offreren')->firstOrFail()->parent_id);
     }
 
     public function test_saving_with_line_errors_creates_nothing(): void
@@ -106,5 +106,13 @@ class QuickEntryTest extends StructureTestCase
 
         $this->actingAs($reader)->postJson($this->url('/preview'), ['area' => 'primary_activities', 'text' => 'Inkoop'])->assertForbidden();
         $this->actingAs($reader)->post($this->url(), ['area' => 'primary_activities', 'text' => 'Inkoop'])->assertForbidden();
+    }
+
+    public function test_the_preview_refuses_lines_below_an_existing_activity(): void
+    {
+        $this->activity($this->domain(), 'Werving');
+
+        $this->actingAs($this->administrator)->postJson($this->url('/preview'), ['area' => 'primary_activities', 'text' => "Inkoop\n  Werving\n    Offreren"])
+            ->assertJsonPath('errors.0.line', 3);
     }
 }

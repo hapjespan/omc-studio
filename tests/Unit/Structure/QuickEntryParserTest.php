@@ -8,7 +8,7 @@ use Tests\TestCase;
 class QuickEntryParserTest extends TestCase
 {
     /**
-     * @param  list<string>  $existing
+     * @param  array<string, string>  $existing
      * @return array{lines: list<array<string, mixed>>, errors: list<array{line: int, message: string}>}
      */
     private function parse(string $text, string $area = 'activities', array $existing = []): array
@@ -47,7 +47,7 @@ class QuickEntryParserTest extends TestCase
 
     public function test_lines_are_marked_new_or_existing(): void
     {
-        $result = $this->parse("Inkoop\n  Offreren\n  Bestellen", 'activities', ['inkoop', 'inkoop>offreren']);
+        $result = $this->parse("Inkoop\n  Offreren\n  Bestellen", 'activities', ['inkoop' => 'domain', 'inkoop>offreren' => 'activity']);
 
         $this->assertSame(['exists', 'exists', 'new'], array_column($result['lines'], 'status'));
     }
@@ -100,5 +100,12 @@ class QuickEntryParserTest extends TestCase
             ['line' => 1, 'message' => 'Regel 1: Onbekende allocatie wordt door het systeem beheerd'],
             ['line' => 2, 'message' => 'Regel 2: Onbekende allocatie wordt door het systeem beheerd'],
         ], $result['errors']);
+    }
+
+    public function test_lines_below_an_existing_activity_are_an_error(): void
+    {
+        $result = $this->parse("Inkoop\n  Werving\n    Offreren", 'activities', ['inkoop' => 'domain', 'inkoop>werving' => 'activity']);
+
+        $this->assertSame([['line' => 3, 'message' => 'Regel 3: onder een bestaande activiteit kunnen geen regels staan']], $result['errors']);
     }
 }

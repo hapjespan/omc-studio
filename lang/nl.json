@@ -426,6 +426,7 @@
     "quick_entry.no_clusters": "in deze area bestaan geen clusters",
     "quick_entry.duplicate": "deze naam staat al onder dezelfde regel erboven",
     "quick_entry.sign": "het teken > is niet toegestaan",
+    "quick_entry.activity_parent": "onder een bestaande activiteit kunnen geen regels staan",
     "quick_entry.too_long": "de naam is langer dan 150 tekens",
     "quick_entry.open": "Snel invoeren",
     "quick_entry.title": "Snel invoeren in :area",
@@ -438,5 +439,9 @@
     "quick_entry.save": "Opslaan",
     "quick_entry.close": "Sluiten",
     "quick_entry.saved": "Opgeslagen: :count nieuwe elementen",
-    "quick_entry.preview_failed": "Het voorbeeld kon niet worden gemaakt"
+    "quick_entry.preview_failed": "Het voorbeeld kon niet worden gemaakt",
+    "quick_entry.error_count": ":count regels bevatten een fout, zie de lijst onder het voorbeeld",
+    "quick_entry.kind.domain": "domein",
+    "quick_entry.kind.cluster": "cluster",
+    "quick_entry.kind.activity": "activiteit"
 }

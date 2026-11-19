@@ -67,3 +67,18 @@ test('a list Area refuses two indents', async ({ page }) => {
     await expect(page.getByText('Regel 3: in deze area bestaan geen clusters')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Opslaan' })).toBeDisabled();
 });
+
+test('Tab with a selection indents the selected lines and keeps the text, also after reopening', async ({ page }) => {
+    const canvas = seedEntryCanvas('primary_activities');
+    await openEntry(page, canvas);
+
+    await page.getByRole('button', { name: 'Snel invoeren' }).click();
+    await page.getByRole('button', { name: 'Sluiten' }).click();
+    await page.getByRole('button', { name: 'Snel invoeren' }).click();
+    const field = page.getByLabel('Regels');
+    await expect(field).toBeFocused();
+    await field.fill('Inkoop\nOfferte\nBestellen');
+    await field.evaluate((element: HTMLTextAreaElement) => element.setSelectionRange(7, 24));
+    await field.press('Tab');
+    await expect(field).toHaveValue('Inkoop\n  Offerte\n  Bestellen');
+});

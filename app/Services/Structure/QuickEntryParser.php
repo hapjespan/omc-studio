@@ -9,7 +9,7 @@ class QuickEntryParser
     private const MAX = 150;
 
     /**
-     * @param  list<string>  $existing  normalised paths of the Elements already in the Area, names joined by ">"
+     * @param  array<string, string>  $existing
      * @return array{lines: list<array{line: int, level: int, kind: string, name: string, path: string, status: string}>, errors: list<array{line: int, message: string}>}
      */
     public function parse(string $text, string $areaKind, array $existing): array
@@ -26,7 +26,7 @@ class QuickEntryParser
             $stack = array_slice($stack, 0, $level);
             $stack[$level] = Element::normalise($name);
             $path = implode('>', $stack);
-            $message = $this->problem($level, $previous, $name, $areaKind, ($stack[0] ?? null) === $unknown, $path, $seen);
+            $message = $this->problem($level, $previous, $name, $areaKind, ($stack[0] ?? null) === $unknown, $path, $seen, $existing);
             $previous = $level;
 
             if ($message !== null) {
@@ -42,19 +42,23 @@ class QuickEntryParser
                 'kind' => $this->kind($level, $areaKind, ($rows[$index + 1]['level'] ?? 0) === 2),
                 'name' => $name,
                 'path' => $path,
-                'status' => in_array($path, $existing, true) ? 'exists' : 'new',
+                'status' => isset($existing[$path]) ? 'exists' : 'new',
             ];
         }
 
         return ['lines' => $lines, 'errors' => $errors];
     }
 
-    /** @param array<string, true> $seen */
-    private function problem(int $level, int $previous, string $name, string $areaKind, bool $underUnknown, string $path, array $seen): ?string
+    /**
+     * @param  array<string, true>  $seen
+     * @param  array<string, string>  $existing
+     */
+    private function problem(int $level, int $previous, string $name, string $areaKind, bool $underUnknown, string $path, array $seen, array $existing): ?string
     {
         return match (true) {
             $level > 2 || $level > $previous + 1 => __('quick_entry.indent_mismatch'),
             $level === 2 && $areaKind === 'list' => __('quick_entry.no_clusters'),
+            $level > 0 && ($existing[substr($path, 0, (int) strrpos($path, '>'))] ?? null) === 'activity' => __('quick_entry.activity_parent'),
             $underUnknown => __('rule.unknown_allocation_managed'),
             str_contains($name, '>') => __('quick_entry.sign'),
             mb_strlen($name) > self::MAX => __('quick_entry.too_long'),

@@ -57,7 +57,7 @@ class QuickEntry
 
         $existing = $this->existing($canvas, $area);
 
-        return [$this->parser->parse($text, $area->kind, $existing->keys()->all()), $existing];
+        return [$this->parser->parse($text, $area->kind, $existing->map(fn (Element $element) => $element->kind->value)->all()), $existing];
     }
 
     /** @return Collection<string, Element> */
