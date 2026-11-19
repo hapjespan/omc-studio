@@ -71,6 +71,7 @@ export const routes = {
     fiscalYear: (fiscalYear: Id) => `/fiscal-years/${fiscalYear}`,
     versions: (canvas: Id) => `/canvases/${canvas}/versions`,
     snapshot: (snapshot: Id) => `/snapshots/${snapshot}`,
+    snapshotView: (snapshot: Id) => `/snapshots/${snapshot}/view`,
     snapshotArchive: (snapshot: Id) => `/snapshots/${snapshot}/archive`,
     snapshotRestore: (snapshot: Id) => `/snapshots/${snapshot}/restore`,
     allocation: (canvas: Id, year?: number, costRecord?: Id) => `/canvases/${canvas}/allocation${year === undefined ? '' : `?year=${year}${costRecord === undefined ? '' : `&cost_record=${costRecord}`}`}`,
