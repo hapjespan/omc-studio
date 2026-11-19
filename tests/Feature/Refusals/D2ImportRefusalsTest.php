@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\Refusals;
 
+use App\Models\CostRecord;
+use App\Models\Owner;
+use App\Services\Support\SerialisedWrite;
+use Closure;
 use Illuminate\Http\UploadedFile;
 use Tests\Feature\Allocation\AllocationTestCase;
 
@@ -100,5 +104,42 @@ class D2ImportRefusalsTest extends AllocationTestCase
             ->assertJsonPath('errors.file.0', 'Bestand: kies een CSV-bestand van maximaal 5 MB met de kolommen '.self::HEADER);
 
         $this->assertEquals($before, $this->stored());
+    }
+
+    public function test_an_imported_line_without_a_name_or_owner_is_refused(): void
+    {
+        $this->assertImportMessage(['K1;;Project;;Ada;;;;;;;;'], 'Regel 2, naam: naam ontbreekt. Vul een naam in');
+        $this->assertImportMessage(['K1;Licentie;Project;;;;;;;;;;'], 'Regel 2, eigenaar: eigenaar ontbreekt. Vul een eigenaar in');
+    }
+
+    public function test_an_imported_fte_with_a_point_or_letters_is_refused(): void
+    {
+        $this->fiscalYear(2026);
+
+        $this->assertImportMessage(['K1;Licentie;Project;;Ada;;;2026;1.000,00;;;;abc'], "Regel 2, fte: 'abc' is geen aantal fte. Gebruik een komma voor de decimalen, bijvoorbeeld 1,5");
+    }
+
+    public function test_an_import_whose_data_changed_since_the_dry_run_is_refused_and_writes_nothing(): void
+    {
+        $this->fiscalYear(2026);
+        $organisationId = $this->organisation->id;
+        $this->app->bind(SerialisedWrite::class, fn () => new class($organisationId) extends SerialisedWrite
+        {
+            public function __construct(private readonly int $organisationId) {}
+
+            public function run(array $aggregates, Closure $write): mixed
+            {
+                Owner::factory()->create(['organisation_id' => $this->organisationId, 'name' => 'Tussendoor']);
+
+                return parent::run($aggregates, $write);
+            }
+        });
+        $before = $this->stored();
+
+        $this->commit(['K1;Licentie;Project;;Ada;;;2026;1.000,00;;;;'])->assertUnprocessable()
+            ->assertJsonPath('errors.file.0', 'Importeren is niet gelukt; de gegevens zijn ondertussen gewijzigd. Er is niets gewijzigd. Controleer het bestand opnieuw');
+
+        $this->assertEquals(array_diff_key($before, ['owners' => 0]), array_diff_key($this->stored(), ['owners' => 0]));
+        $this->assertSame(0, CostRecord::count());
     }
 }

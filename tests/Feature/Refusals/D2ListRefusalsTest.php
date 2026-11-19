@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Refusals;
 
+use App\Models\Application;
 use App\Models\Owner;
 use Tests\Feature\Allocation\AllocationTestCase;
 
@@ -164,6 +165,67 @@ class D2ListRefusalsTest extends AllocationTestCase
 
         $this->signedIn()->delete('/cost-records/'.$record->id)
             ->assertSessionHasErrors(['rule' => '2026 is definitief in canvas Bedrijfsmodel. Heropen het jaar eerst, of archiveer de kostenpost']);
+
+        $this->assertEquals($before, $this->stored());
+    }
+
+    public function test_an_application_outside_the_organisation_is_refused_on_a_cost_record(): void
+    {
+        $record = $this->costRecord();
+        $elsewhere = Application::factory()->create();
+        $before = $this->stored();
+
+        $this->signedIn()->post('/organisations/'.$this->organisation->id.'/cost-records', [
+            'name' => 'Licentie planning',
+            'cost_kind' => 'other',
+            'owner_id' => $record->owner_id,
+            'application_id' => $elsewhere->id,
+        ])->assertSessionHasErrors(['application_id' => 'Applicatie: kies een applicatie uit deze organisatie']);
+
+        $this->assertEquals($before, $this->stored());
+    }
+
+    public function test_a_run_share_that_is_not_a_percentage_is_refused(): void
+    {
+        $record = $this->costRecord();
+        $before = $this->stored();
+
+        foreach (['abc', '100,5', '-1'] as $share) {
+            $this->signedIn()->put($this->figuresPath($record), ['budget' => '12.500,00', 'run' => $share])
+                ->assertSessionHasErrors(['run' => 'Run: vul een percentage in van 0 tot 100, met een komma voor de decimalen']);
+        }
+
+        $this->assertEquals($before, $this->stored());
+    }
+
+    public function test_changing_an_archived_cost_record_or_its_figures_is_refused(): void
+    {
+        $record = $this->costRecord();
+        $record->update(['archived_at' => now()]);
+        $before = $this->stored();
+
+        $this->signedIn()->patch('/cost-records/'.$record->id, ['name' => 'Anders', 'cost_kind' => 'other', 'owner_id' => $record->owner_id])
+            ->assertSessionHasErrors(['rule' => 'Deze kostenpost is gearchiveerd']);
+        $this->signedIn()->put($this->figuresPath($record), ['budget' => '12.500,00'])
+            ->assertSessionHasErrors(['rule' => 'Deze kostenpost is gearchiveerd']);
+
+        $this->assertEquals($before, $this->stored());
+    }
+
+    public function test_writes_in_an_archived_organisation_are_refused(): void
+    {
+        $record = $this->costRecord();
+        $this->organisation->update(['archived_at' => now()]);
+        $before = $this->stored();
+
+        $this->signedIn()->post('/organisations/'.$this->organisation->id.'/fiscal-years', ['year' => 2027])
+            ->assertSessionHasErrors(['rule' => 'Deze organisatie is gearchiveerd']);
+        $this->signedIn()->post($this->listPath('owners'), ['name' => 'Nieuw'])
+            ->assertSessionHasErrors(['rule' => 'Deze organisatie is gearchiveerd']);
+        $this->signedIn()->post('/organisations/'.$this->organisation->id.'/cost-records', ['name' => 'Nieuw', 'cost_kind' => 'other', 'owner_id' => $record->owner_id])
+            ->assertSessionHasErrors(['rule' => 'Deze organisatie is gearchiveerd']);
+        $this->signedIn()->put($this->figuresPath($record), ['budget' => '12.500,00'])
+            ->assertSessionHasErrors(['rule' => 'Deze organisatie is gearchiveerd']);
 
         $this->assertEquals($before, $this->stored());
     }
