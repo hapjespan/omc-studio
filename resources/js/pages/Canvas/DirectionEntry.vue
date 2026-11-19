@@ -17,6 +17,7 @@ interface Goal {
 }
 
 const LIMIT = 2000;
+const TITLE_LIMIT = 150;
 const kinds = ['mission', 'vision'] as const;
 
 const props = defineProps<{ canvasId: number; statements: { mission: string | null; vision: string | null; goals: Goal[] } }>();
@@ -28,12 +29,18 @@ const deleting = ref<Goal | null>(null);
 const confirming = ref(false);
 const options = { preserveScroll: true, preserveState: true };
 
-kinds.forEach((kind) => {
-    watch(() => texts[kind], (text, before) => {
-        if (text.length >= LIMIT && before.length < LIMIT) void announce(t('direction_entry.counter_limit', { label: t(`direction_entry.${kind}`) }));
+function watchLimit(source: () => string, limit: number, label: string): void {
+    watch(source, (text, before) => {
+        if (text.length >= limit && before.length < limit) void announce(t('direction_entry.counter_limit', { label, limit: String(limit) }));
     });
+}
+
+kinds.forEach((kind) => {
+    watchLimit(() => texts[kind], LIMIT, t(`direction_entry.${kind}`));
     watch(() => props.statements[kind], (value) => (texts[kind] = value ?? ''));
 });
+watchLimit(() => goalForm.title, TITLE_LIMIT, t('direction_entry.goal_title'));
+watchLimit(() => goalForm.body, LIMIT, t('direction_entry.goal_body'));
 
 function saveText(kind: (typeof kinds)[number]): void {
     errors[kind] = '';
@@ -42,7 +49,7 @@ function saveText(kind: (typeof kinds)[number]): void {
         onSuccess: () => void announce(t('direction_entry.saved', { label: t(`direction_entry.${kind}`) })),
         onError: (found) => {
             errors[kind] = found.body ?? found.rule ?? '';
-            void nextTick(focusFirstInvalid);
+            void nextTick(() => document.getElementById(`direction-${kind}`)?.focus());
         },
     });
 }
@@ -59,6 +66,7 @@ function addGoal(): void {
 }
 
 function move(goal: Goal, direction: 'up' | 'down'): void {
+    refusal.value = '';
     router.post(routes.goalReorder(props.canvasId, goal.id), { direction }, {
         ...options,
         onError: (found) => (refusal.value = found.rule ?? ''),
@@ -72,6 +80,7 @@ function move(goal: Goal, direction: 'up' | 'down'): void {
 }
 
 function remove(goal: Goal): void {
+    refusal.value = '';
     router.delete(routes.goal(props.canvasId, goal.id), {
         ...options,
         onError: (found) => (refusal.value = found.rule ?? ''),
@@ -108,7 +117,7 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
 
 <template>
     <div class="mt-3 flex flex-col gap-4">
-        <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null; afterUndo()" />
+        <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
         <p v-if="refusal" role="alert" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
         <form v-for="kind in kinds" :key="kind" novalidate class="flex flex-col gap-2" @submit.prevent="saveText(kind)">
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
@@ -132,6 +141,7 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
             </ol>
             <form novalidate class="flex flex-col gap-2" @submit.prevent="addGoal">
                 <TextField id="goal-title" v-model="goalForm.title" :label="t('direction_entry.goal_title')" :error="goalForm.errors.title" autocomplete="off" />
+                <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ goalForm.title.length }} / {{ TITLE_LIMIT }}</p>
                 <TextArea id="goal-body" v-model="goalForm.body" :label="t('direction_entry.goal_body')" :error="goalForm.errors.body" :rows="3" />
                 <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ goalForm.body.length }} / {{ LIMIT }}</p>
                 <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.add_goal') }}</button>

@@ -434,7 +434,6 @@
     "direction_entry.add_goal": "+ strategisch doel",
     "direction_entry.goal_title": "Titel",
     "direction_entry.goal_body": "Uitleg",
-    "direction_entry.add": "Toevoegen",
     "direction_entry.up": "Omhoog",
     "direction_entry.down": "Omlaag",
     "direction_entry.up_named": ":name omhoog",
@@ -448,6 +447,5 @@
     "direction_entry.empty_mission": "Nog geen missie",
     "direction_entry.empty_vision": "Nog geen visie",
     "direction_entry.empty_goals": "Nog geen strategische doelen",
-    "direction_entry.counter_limit": ":label: de grens van 2000 tekens is bereikt",
-    "direction_entry.save_goal": "Doel opslaan"
+    "direction_entry.counter_limit": ":label: de grens van :limit tekens is bereikt"
 }
