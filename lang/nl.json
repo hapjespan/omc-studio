@@ -310,5 +310,11 @@
     "cost_kind.supplier_contract": "Leverancierscontract",
     "cost_kind.personnel": "Personeel",
     "cost_kind.project": "Project",
-    "cost_kind.other": "Overig"
+    "cost_kind.other": "Overig",
+    "form.choose": "Kies...",
+    "form.none": "Geen",
+    "cost_records.new": "Nieuwe kostenpost",
+    "cost_records.save": "Opslaan",
+    "cost_records.owner_hint": "Afdeling of rol, geen persoonsnaam",
+    "cost_records.archived_readonly": "Deze kostenpost is gearchiveerd en kan niet worden gewijzigd"
 }

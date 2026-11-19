@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
 import { t } from '../../i18n';
+import CostRecordForm from './CostRecordForm.vue';
 import { routes } from '../../routes';
 
 export type Option = { id: number; name: string };
@@ -45,6 +46,10 @@ function load(query: ListState, year: number | null = props.year): void {
         </select>
     </div>
     <div class="mt-3">
-        <ListView :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable @change="load($event)" />
+        <ListView :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)">
+            <template #form="{ row, close, setDirty }">
+                <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
+            </template>
+        </ListView>
     </div>
 </template>
