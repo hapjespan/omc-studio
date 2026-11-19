@@ -1,3 +1,4 @@
+import { compareUnknownLast } from './unknownAllocation';
 import type { AreaKey, LayoutElement } from './types';
 
 export interface TreeNode {
@@ -16,6 +17,6 @@ export function buildDomains(elements: LayoutElement[], area: AreaKey): TreeNode
 
     return elements
         .filter((candidate) => candidate.area === area && candidate.parent === null && candidate.kind === 'domain')
-        .sort((a, b) => Number(!!a.unknownAllocation) - Number(!!b.unknownAllocation) || byPosition(a, b))
+        .sort((a, b) => compareUnknownLast(a, b) || byPosition(a, b))
         .map((element) => ({ element, children: childrenOf(element.id) }));
 }
