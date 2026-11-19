@@ -72,17 +72,12 @@ class DevcontainerLayoutTest extends TestCase
         $this->assertStringContainsString('COMPOSE_FILE=.devcontainer/docker-compose.yml', $readme);
         $this->assertStringContainsString('COMPOSE_PROJECT_NAME=omc-studio', $readme);
 
-        foreach ([
-            'DEV_PORT',
-            'VITE_PORT',
-            'DEV_CLAUDE_HOME',
-            'DEV_CLAUDE_JSON',
-            'DEV_KNOWLEDGE',
-            'DEV_GH_DIR',
-            'DEV_GITCONFIG',
-            'DEV_SECRETS_ENV',
-            'DEV_PONYTAIL_DIR',
-        ] as $variable) {
+        preg_match_all('/\$\{([A-Z_]+)/', $this->read('.devcontainer/docker-compose.yml'), $matches);
+        $variables = array_unique($matches[1]);
+
+        $this->assertGreaterThanOrEqual(9, count($variables));
+
+        foreach ($variables as $variable) {
             $this->assertStringContainsString($variable, $readme);
         }
     }
