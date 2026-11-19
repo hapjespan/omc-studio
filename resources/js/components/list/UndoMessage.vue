@@ -25,9 +25,9 @@ onBeforeUnmount(() => countdown.stop());
 </script>
 
 <template>
-    <div role="status" class="flex flex-wrap items-center gap-3 rounded-md border border-[#848B95] bg-white p-3 text-[13px]" @mouseenter="countdown.hold('pointer', true)" @mouseleave="countdown.hold('pointer', false)" @focusin="countdown.hold('focus', true)" @focusout="countdown.hold('focus', false)">
+    <div class="flex flex-wrap items-center gap-3 rounded-md border border-[#848B95] bg-white p-3 text-[13px]" @mouseenter="countdown.hold('pointer', true)" @mouseleave="countdown.hold('pointer', false)" @focusin="countdown.hold('focus', true)" @focusout="countdown.hold('focus', false)">
         <p v-if="refusal" role="alert" class="font-medium text-[#A12A1E]">{{ refusal }}</p>
-        <p v-else id="undo-message">{{ message }}</p>
+        <p v-else id="undo-message" role="status">{{ message }}</p>
         <button v-if="refusal" ref="button" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 font-semibold" @click="emit('close')">{{ t('dialog.close') }}</button>
         <button v-else ref="button" type="button" aria-describedby="undo-message" class="rounded-md border border-[#848B95] px-3 py-1.5 font-semibold" @click="emit('undo')">{{ t('list.undo') }}</button>
     </div>

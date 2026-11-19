@@ -176,5 +176,6 @@
     "list.skipped_row": ":name: :reason",
     "list.show_archived": "Toon gearchiveerd",
     "list.archived": "Gearchiveerd",
-    "list.restore": "Terugzetten"
+    "list.restore": "Terugzetten",
+    "list.invalid_query": "Deze zoekopdracht is niet geldig"
 }

@@ -67,7 +67,12 @@ class ListQueryTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $this->list()->run(Organisation::query(), ['search' => ['a']]);
+        try {
+            $this->list()->run(Organisation::query(), ['search' => ['a']]);
+        } catch (ValidationException $refusal) {
+            $this->assertArrayHasKey('query', $refusal->errors());
+            throw $refusal;
+        }
     }
 
     public function test_unknown_sort_columns_are_refused(): void

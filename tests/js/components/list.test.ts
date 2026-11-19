@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { matchesName } from '../../../resources/js/components/list/ConfirmDelete.vue';
 import UndoMessage from '../../../resources/js/components/list/UndoMessage.vue';
 import { message } from '../../../resources/js/components/feedback/status';
+import { SearchEcho } from '../../../resources/js/components/list/searchEcho';
 import ListView, { type ListState } from '../../../resources/js/components/list/ListView.vue';
 
 const render = (props: Record<string, unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props) }));
@@ -210,5 +211,32 @@ describe('unique ids per list instance', () => {
         const ids = [...html.matchAll(/<input id="([^"]+)" value/g)].map((match) => match[1]);
         expect(ids).toHaveLength(2);
         expect(new Set(ids).size).toBe(2);
+    });
+});
+
+describe('SearchEcho', () => {
+    it('keeps what the user typed when the server echoes a trimmed query', () => {
+        const echo = new SearchEcho();
+        echo.typed();
+        echo.sent('zorg ');
+
+        expect(echo.adopts('zorg')).toBe(false);
+        expect(echo.adopts('elders')).toBe(true);
+    });
+
+    it('ignores a stale echo while a newer query is pending', () => {
+        const echo = new SearchEcho();
+        echo.typed();
+        echo.sent('ab');
+        echo.typed();
+        echo.sent('abc');
+
+        expect(echo.adopts('ab')).toBe(false);
+        expect(echo.adopts('abc')).toBe(false);
+        expect(echo.adopts('')).toBe(true);
+    });
+
+    it('adopts an external change when nothing is pending', () => {
+        expect(new SearchEcho().adopts('nieuw')).toBe(true);
     });
 });

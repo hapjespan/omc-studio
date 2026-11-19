@@ -7,6 +7,7 @@ import ConfirmDelete from './ConfirmDelete.vue';
 import FilterBar, { type FilterDef } from './FilterBar.vue';
 import UndoMessage from './UndoMessage.vue';
 import ListForm from './ListForm.vue';
+import { SearchEcho } from './searchEcho';
 import SortHeader from './SortHeader.vue';
 
 export type ListRow = { id: number | string; name: string; archived_at?: string | null; [key: string]: unknown };
@@ -27,10 +28,13 @@ const searchId = useId();
 const SEARCH_DELAY_MS = 250;
 const search = ref(props.query.search);
 const searchField = ref<HTMLInputElement>();
+const echo = new SearchEcho();
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 watch(() => props.rows, (rows) => (selected.value = selected.value.filter((id) => rows.some((row) => row.id === id))));
-watch(() => props.query.search, (value) => (search.value = value));
+watch(() => props.query.search, (value) => {
+    if (echo.adopts(value)) search.value = value;
+});
 onBeforeUnmount(() => clearTimeout(timer));
 watch(() => props.undo, async (now, before) => {
     if (before && !now) {
@@ -71,7 +75,11 @@ function onFilters(filters: Record<string, string>): void {
 
 function onSearch(): void {
     clearTimeout(timer);
-    timer = setTimeout(() => change({ search: search.value }), SEARCH_DELAY_MS);
+    echo.typed();
+    timer = setTimeout(() => {
+        echo.sent(search.value);
+        change({ search: search.value });
+    }, SEARCH_DELAY_MS);
 }
 
 function sortBy(key: string): void {

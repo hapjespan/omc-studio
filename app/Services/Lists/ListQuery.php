@@ -27,7 +27,7 @@ class ListQuery
     public function run(Builder $query, array $input): array
     {
         if (array_filter([$input['search'] ?? null, $input['sort'] ?? null, $input['direction'] ?? null, $input['archived'] ?? null], 'is_array') !== []) {
-            $this->refuse('sort');
+            $this->refuse('query');
         }
 
         $search = trim((string) ($input['search'] ?? ''));
