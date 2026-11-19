@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, nextTick, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import SelectField from '../../components/fields/SelectField.vue';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
+import ModalityButtons from '../../components/ModalityButtons.vue';
+import { NO_MODALITY } from '../../components/modality';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { detail } from '../../shell/detail';
@@ -15,13 +17,14 @@ import ParentSelect from './ParentSelect.vue';
 
 const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[] }>();
 const emit = defineEmits<{ saved: []; changed: []; gone: [kind: 'archived' | 'deleted', name: string] }>();
-const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element) });
+const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element), modality: props.element.modality ?? NO_MODALITY, rationale: props.element.rationale ?? '', confirm_rationale_clear: false });
+const confirming = ref(false);
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
 const errors = computed(() => form.errors as Record<string, string>);
 const moving = computed(() => form.parent !== parentValue(props.element));
 const nameError = computed(() => errors.value.name ?? (moving.value ? undefined : errors.value.rule));
 const parentError = computed(() => (moving.value ? errors.value.rule : undefined));
-const summary = computed(() => Object.fromEntries(Object.entries(errors.value).filter(([field]) => field !== 'rule' && field !== 'name' && field !== 'description')));
+const summary = computed(() => Object.fromEntries(Object.entries(errors.value).filter(([field]) => field !== 'rule' && field !== 'name' && field !== 'description' && field !== 'rationale')));
 const iconOptions = computed(() => props.icons.map((icon) => ({ value: icon, label: t(`structure.icon.${icon}`) })));
 
 watch(() => form.isDirty, (dirty) => {
@@ -35,11 +38,28 @@ const move = (parent: string): { area?: string; parent_id?: string } => {
     return parent.startsWith(AREA_PREFIX) ? { area: parent.slice(AREA_PREFIX.length) } : { parent_id: parent };
 };
 
+function choose(key: string): void {
+    if (key === NO_MODALITY && form.modality !== NO_MODALITY && form.rationale.trim() !== '') {
+        confirming.value = true;
+        return;
+    }
+    form.modality = key;
+    if (key === NO_MODALITY) form.rationale = '';
+}
+
+function confirmClear(): void {
+    form.confirm_rationale_clear = true;
+    form.modality = NO_MODALITY;
+    form.rationale = '';
+    confirming.value = false;
+}
+
 function save(): void {
-    form.transform((data) => ({ name: data.name, description: data.description, ...(props.list ? { icon: data.icon || null } : {}), ...move(data.parent) })).patch(routes.element(props.canvasId, props.element.id), {
+    form.transform((data) => ({ name: data.name, description: data.description, ...(props.list ? { icon: data.icon || null } : { modality: data.modality, rationale: data.rationale, confirm_rationale_clear: data.confirm_rationale_clear }), ...move(data.parent) })).patch(routes.element(props.canvasId, props.element.id), {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
+            form.confirm_rationale_clear = false;
             form.defaults().reset();
             detail.dirty = false;
             emit('saved');
@@ -58,6 +78,17 @@ function save(): void {
             <TextField id="element-name" v-model="form.name" :label="t('fields.name')" :error="nameError" autocomplete="off" />
             <TextArea id="element-description" v-model="form.description" :label="t('fields.description')" :error="errors.description" />
             <SelectField v-if="list" id="element-icon" v-model="form.icon" :label="t('entry.icon')" :options="iconOptions" :placeholder="t('entry.no_icon')" :error="errors.icon" />
+            <template v-if="!list">
+                <ModalityButtons :model-value="form.modality" @select="choose" />
+                <div v-if="confirming" role="alert" class="flex flex-col gap-2 rounded-md border border-[#848B95] p-2 text-[13px]">
+                    <p>{{ t('modality_entry.confirm_message') }}</p>
+                    <div class="flex gap-2">
+                        <button type="button" class="rounded-md border border-[#848B95] px-2 py-1 font-semibold" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</button>
+                        <button type="button" class="rounded-md border border-[#848B95] px-2 py-1" @click="confirming = false">{{ t('modality_entry.confirm_no') }}</button>
+                    </div>
+                </div>
+                <TextArea v-if="form.modality !== NO_MODALITY" id="element-rationale" v-model="form.rationale" :label="t('modality_entry.rationale')" :error="errors.rationale" />
+            </template>
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
             <div class="flex flex-wrap gap-2">
                 <button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button>

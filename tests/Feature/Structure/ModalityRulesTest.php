@@ -84,7 +84,12 @@ class ModalityRulesTest extends StructureTestCase
         $this->actingAs($admin)->patch($url, ['modality' => 'none', 'confirm_rationale_clear' => true])->assertRedirect();
         $this->assertNull($activity->fresh()->modality_id);
 
-        $writes = collect(Route::getRoutes())->filter(fn ($route) => str_contains($route->uri(), 'modalit') && array_diff($route->methods(), ['GET', 'HEAD']) !== []);
-        $this->assertCount(0, $writes);
+        $writes = 0;
+
+        foreach (Route::getRoutes()->getRoutes() as $route) {
+            $writes += str_contains($route->uri(), 'modalit') && array_diff($route->methods(), ['GET', 'HEAD']) !== [] ? 1 : 0;
+        }
+
+        $this->assertSame(0, $writes);
     }
 }
