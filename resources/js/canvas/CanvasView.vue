@@ -4,6 +4,7 @@ import { t } from '../i18n';
 import { ARTBOARD } from '../layout';
 import type { DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
 import Block from './Block.vue';
+import { contentHeight } from './extent';
 
 export interface ModalityMark {
     key: string;
@@ -18,7 +19,10 @@ const props = defineProps<{
     statements: LayoutStatement[];
     modalities: ModalityMark[];
     selectedId?: string | null;
+    zoom?: number;
 }>();
+const scale = computed(() => (props.zoom ?? 100) / 100);
+const height = computed(() => contentHeight(props.drawn));
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null] }>();
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
@@ -28,7 +32,8 @@ const blocks = computed(() => props.drawn.blocks);
 </script>
 
 <template>
-    <div class="relative" :style="{ width: `${ARTBOARD.width}px`, height: `${ARTBOARD.height}px` }" data-artboard>
+    <div class="relative" :style="{ width: `${ARTBOARD.width * scale}px`, height: `${height * scale}px` }">
+    <div class="absolute left-0 top-0 origin-top-left" :style="{ width: `${ARTBOARD.width}px`, height: `${height}px`, transform: `scale(${scale})` }" data-artboard>
         <Block
             v-for="block in blocks"
             :key="block.id"
@@ -46,5 +51,6 @@ const blocks = computed(() => props.drawn.blocks);
             </div>
         </div>
         <span class="sr-only">{{ t('view.artboard') }}</span>
+    </div>
     </div>
 </template>

@@ -367,5 +367,9 @@
     "structure.icon.laptop": "Laptop",
     "rule.element_archived": "Een gearchiveerd element kan niet worden verplaatst",
     "view.system": "Systeem",
-    "view.artboard": "Tekenvlak van het canvas"
+    "view.artboard": "Tekenvlak van het canvas",
+    "view.zoom.toolbar": "Zoomen",
+    "view.zoom.in": "Inzoomen",
+    "view.zoom.out": "Uitzoomen",
+    "view.zoom.fit": "Passend maken"
 }

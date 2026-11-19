@@ -40,3 +40,11 @@ describe('CanvasView', () => {
         expect(html).toMatch(/background:#1E5FBF;"[^>]*>A</);
     });
 });
+
+describe('CanvasView zoom', () => {
+    it('scales the Artboard and its scroll size with the zoom', async () => {
+        const html = await render({ zoom: 50 });
+        expect(html).toContain('width:840px;height:594px');
+        expect(html).toContain('transform:scale(0.5)');
+    });
+});
