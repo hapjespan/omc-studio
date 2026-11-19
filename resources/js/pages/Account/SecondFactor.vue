@@ -65,7 +65,7 @@ function downloadCodes(): void {
 </script>
 
 <template>
-    <section aria-labelledby="second_factor_title" class="flex flex-col gap-4">
+    <section role="region" aria-labelledby="second_factor_title" class="flex flex-col gap-4">
         <h2 id="second_factor_title" class="text-[16px] font-semibold text-[#171B21]">{{ t('second_factor.title') }}</h2>
         <p class="text-[13px] text-[#454C57]">{{ active ? t('second_factor.active') : t('second_factor.inactive') }}</p>
 
