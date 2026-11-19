@@ -14,6 +14,7 @@ use App\Services\Canvas\UnknownAllocationDomain;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class SaveAsTemplateTest extends TestCase
@@ -40,6 +41,7 @@ class SaveAsTemplateTest extends TestCase
         return $source;
     }
 
+    /** @return TestResponse<Response> */
     private function save(Canvas $source, string $name): TestResponse
     {
         return $this->actingAs(User::factory()->administrator()->create())->post('/canvases', ['source' => 'save_template', 'canvas_id' => $source->id, 'name' => $name]);

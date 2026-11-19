@@ -43,6 +43,8 @@ class EntryPageTest extends TestCase
             ->where('areas.1.summary', '1 domein · 2 activiteiten')
             ->where('areas.3.summary', '3 groepen')
             ->where('areas.2.summary', '0 domeinen · 0 activiteiten')
+            ->where('canvas.kind', 'canvas')
+            ->has('canvas.organisation')
             ->where('selected', 'steering'));
     }
 

@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CanvasKind;
 use App\Enums\ElementKind;
-use App\Enums\Role;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
@@ -19,9 +17,7 @@ class CanvasEntryController extends Controller
 {
     public function __invoke(Request $request, Canvas $canvas): Response|RedirectResponse
     {
-        $writes = $request->user()?->role === Role::Administrator && ($canvas->kind === CanvasKind::Template || $canvas->archived_at === null);
-
-        if (! $writes) {
+        if (! $canvas->acceptsEntryBy($request->user())) {
             return redirect("/canvases/{$canvas->id}/view");
         }
 
@@ -35,7 +31,6 @@ class CanvasEntryController extends Controller
         ]);
 
         return Inertia::render('Canvas/Entry', [
-            'canvas' => ['id' => $canvas->id, 'name' => $canvas->name],
             'areas' => $areas->values(),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],
         ]);

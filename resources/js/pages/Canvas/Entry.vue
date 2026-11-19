@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { t } from '../../i18n';
 
 interface EntryArea {
@@ -10,7 +10,8 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ canvas: { id: number; name: string }; areas: EntryArea[]; selected: string }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string }>();
+const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
 </script>
