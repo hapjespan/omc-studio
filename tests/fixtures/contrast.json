@@ -1,0 +1,49 @@
+{
+    "minimumRatio": 4.5,
+    "cases": [
+        {
+            "background": "#171B21",
+            "text": "#FFFFFF"
+        },
+        {
+            "background": "#FFFFFF",
+            "text": "#171B21"
+        },
+        {
+            "background": "#ECE8F5",
+            "text": "#171B21"
+        },
+        {
+            "background": "#F6E6CC",
+            "text": "#171B21"
+        },
+        {
+            "background": "#D9E9F2",
+            "text": "#171B21"
+        },
+        {
+            "background": "#1F7A4D",
+            "text": "#FFFFFF"
+        },
+        {
+            "background": "#1E5FBF",
+            "text": "#FFFFFF"
+        },
+        {
+            "background": "#B4540A",
+            "text": "#FFFFFF"
+        },
+        {
+            "background": "#6B3FB5",
+            "text": "#FFFFFF"
+        },
+        {
+            "background": "#FFFF00",
+            "text": "#171B21"
+        },
+        {
+            "background": "#0000FF",
+            "text": "#FFFFFF"
+        }
+    ]
+}
