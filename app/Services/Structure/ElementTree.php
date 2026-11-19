@@ -16,7 +16,7 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules) {}
 
     /** @param array<string, mixed> $fields */
     public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = []): Element
@@ -73,6 +73,34 @@ class ElementTree
             ]);
 
             $this->carry($element);
+
+            return $element;
+        });
+    }
+
+    /** @param array<string, mixed> $fields */
+    public function update(Element $element, array $fields): Element
+    {
+        $canvas = $element->canvas;
+
+        return $this->writes->run([$canvas], function () use ($canvas, $element, $fields) {
+            $this->assertStructureWritable($canvas);
+
+            $element->refresh();
+
+            $this->unknown->assertNone($element);
+
+            $changes = array_intersect_key($fields, array_flip(['name', 'description', 'icon']));
+
+            if (isset($changes['name'])) {
+                $changes['name'] = trim((string) $changes['name']);
+
+                $this->names->assertAvailable($canvas->id, $element->area_id, $element->parent_id, (string) $changes['name'], (string) $element->id);
+            }
+
+            $this->fieldRules->assertValid($element, $changes);
+
+            $element->update($changes);
 
             return $element;
         });

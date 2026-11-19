@@ -305,5 +305,22 @@
     "rule.cluster_choice_required": "Kies wat er met de activiteiten van het cluster gebeurt",
     "rule.cluster_lift_taken": "Terugzetten kan niet: :names staat al onder het domein",
     "rule.restore_parent_inactive": "Terugzetten kan niet: het bovenliggende element is gearchiveerd",
-    "rule.unknown_allocation_managed": "Onbekende allocatie wordt door het systeem beheerd"
+    "rule.unknown_allocation_managed": "Onbekende allocatie wordt door het systeem beheerd",
+    "fields.description": "Omschrijving",
+    "rule.icon_list_only": "Een icoon kan alleen bij elementen in een lijstarea",
+    "rule.icon_unknown": "Dit icoon staat niet in de lijst",
+    "structure.icon.users": "Mensen",
+    "structure.icon.building": "Gebouw",
+    "structure.icon.briefcase": "Aktetas",
+    "structure.icon.truck": "Vrachtwagen",
+    "structure.icon.globe": "Wereldbol",
+    "structure.icon.phone": "Telefoon",
+    "structure.icon.mail": "Brief",
+    "structure.icon.store": "Winkel",
+    "structure.icon.shopping-cart": "Winkelwagen",
+    "structure.icon.handshake": "Handdruk",
+    "structure.icon.star": "Ster",
+    "structure.icon.heart": "Hart",
+    "structure.icon.package": "Pakket",
+    "structure.icon.laptop": "Laptop"
 }
