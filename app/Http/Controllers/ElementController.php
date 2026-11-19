@@ -7,6 +7,7 @@ use App\Http\Requests\ElementRequest;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Models\Modality;
 use App\Models\User;
 use App\Services\Structure\ElementArchive;
 use App\Services\Structure\ElementDeletion;
@@ -42,6 +43,8 @@ class ElementController extends Controller
 
         DB::transaction(function () use ($request, $element) {
             $fields = $request->safe()->only(['name', 'description', 'icon']);
+
+            $fields += $this->modalityFields($request);
 
             if ($fields !== []) {
                 $this->tree->update($element, $fields);
@@ -94,6 +97,18 @@ class ElementController extends Controller
         $choice = $request->validate(['cluster_children' => ['nullable', 'in:delete,lift']])['cluster_children'] ?? null;
 
         return back()->with('undo_token', $this->deletion->delete($element, $user, $choice));
+    }
+
+    /** @return array<string, mixed> */
+    private function modalityFields(ElementRequest $request): array
+    {
+        $fields = $request->safe()->only(['rationale', 'confirm_rationale_clear']);
+
+        if ($request->has('modality')) {
+            $fields['modality_id'] = $request->input('modality') === 'none' ? null : Modality::where('key', $request->input('modality'))->value('id');
+        }
+
+        return $fields;
     }
 
     private function owned(Canvas $canvas, Element $element): void

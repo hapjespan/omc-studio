@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ModalityMark from '../../components/ModalityMark.vue';
 import { t } from '../../i18n';
 import { kindLabelKey, type EntryRowData } from './entry';
 import ReorderButtons from './ReorderButtons.vue';
@@ -18,7 +19,7 @@ defineEmits<{ select: [id: string, opener: HTMLElement | null]; restore: [elemen
                 <span v-if="row.element.archived" class="text-[12.5px] font-semibold text-[#454C57]">{{ t('list.archived') }}</span>
                 <span v-if="icon" class="text-[12.5px] text-[#454C57]">{{ icon }}</span>
                 <span v-if="row.empty" class="text-[12.5px] italic text-[#454C57]">{{ t('entry.empty') }}</span>
-                <span v-if="letter"><span class="sr-only">{{ t('entry.modality') }}</span>{{ letter }}</span>
+                <ModalityMark v-if="letter" :letter="letter" />
             </button>
             <button v-if="row.element.archived" type="button" class="rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px]" :aria-label="t('entry.restore_named', { name: row.element.name })" @click="$emit('restore', row.element)">{{ t('list.restore') }}</button>
             <ReorderButtons v-else :canvas-id="canvasId" :row="row" />

@@ -460,5 +460,20 @@
     "view.modality.specialized": "Specialized",
     "view.modality.distinct": "Distinct",
     "view.edge": "Rand A3",
-    "view.overflow": "Niet alles past op het A3-tekenvlak: :count blokken vallen erbuiten"
+    "view.overflow": "Niet alles past op het A3-tekenvlak: :count blokken vallen erbuiten",
+    "modality_entry.list_area": "Een modaliteit en onderbouwing kunnen alleen bij elementen in een activiteitenarea",
+    "modality_entry.rationale_needs_modality": "Een onderbouwing kan alleen bij een modaliteit",
+    "modality_entry.confirm_clear": "Bevestig dat de onderbouwing ook verdwijnt",
+    "modality_entry.unknown": "Onbekende modaliteit",
+    "modality_entry.group": "Modaliteit",
+    "modality_entry.rationale": "Onderbouwing",
+    "modality_entry.none": "Geen",
+    "modality_entry.confirm_title": "Onderbouwing verwijderen?",
+    "modality_entry.confirm_message": "Met Geen verdwijnt ook de onderbouwing. Doorgaan?",
+    "modality_entry.confirm_yes": "Ja, verwijder de onderbouwing",
+    "modality_entry.confirm_no": "Nee, laat staan",
+    "modality_entry.name.common": "Common",
+    "modality_entry.name.adaptive": "Adaptive",
+    "modality_entry.name.specialized": "Specialized",
+    "modality_entry.name.distinct": "Distinct"
 }
