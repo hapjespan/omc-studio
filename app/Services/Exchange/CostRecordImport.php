@@ -9,6 +9,7 @@ use App\Models\Organisation;
 use App\Models\YearlyFigure;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
+use App\Services\Allocation\FinalisedYears;
 use App\Services\Exchange\Csv\CsvReader;
 
 class CostRecordImport
@@ -24,12 +25,15 @@ class CostRecordImport
 
     private const MAX_FTE_HUNDREDTHS = 999_999;
 
+    public function __construct(private readonly FinalisedYears $finalised) {}
+
     /**
-     * @return array{lines: list<array{line: int, status: string, messages: list<string>}>, totals: array<string, int>}
+     * @return array{lines: list<array{line: int, status: string, messages: list<string>}>, totals: array<string, int>, creates: array<string, list<string>>}
      */
     public function preview(Organisation $organisation, string $path): array
     {
-        $years = FiscalYear::where('organisation_id', $organisation->getKey())->pluck('id', 'year')->all();
+        $yearModels = FiscalYear::where('organisation_id', $organisation->getKey())->get()->keyBy('year');
+        $years = $yearModels->map->getKey()->all();
         $records = CostRecord::with('yearlyFigures')->where('organisation_id', $organisation->getKey())->get()->keyBy('code_normalised');
         $owners = $organisation->owners()->pluck('name_normalised', 'id')->all();
         $applications = $organisation->applications()->pluck('name_normalised', 'id')->all();
@@ -37,6 +41,8 @@ class CostRecordImport
         $lines = [];
         $seenYears = [];
         $seenFields = [];
+        $finalised = [];
+        $creates = ['owners' => [], 'applications' => []];
         $totals = ['new' => 0, 'updated' => 0, 'unchanged' => 0, 'errors' => 0];
 
         foreach ((new CsvReader($path))->lines() as $number => $cells) {
@@ -66,12 +72,25 @@ class CostRecordImport
                 }
             }
 
-            $status = $messages !== [] ? 'error' : $this->status($records->get($code), $fields, $figures, $years[(int) $row['jaar']] ?? null, $owners, $applications);
+            $record = $records->get($code);
+            $year = $yearModels->get((int) $row['jaar']);
+
+            if ($messages === [] && $figures !== null && $year !== null && $this->figuresChange($record, $figures, $year->getKey())) {
+                $canvas = $finalised[$year->year] ??= $this->finalised->finalisedInOrganisation($year) ?? false;
+                $canvas !== false && $messages[] = __('import.year_finalised', ['line' => $number, 'year' => $year->year, 'canvas' => $canvas]);
+            }
+
+            if ($messages === []) {
+                $this->collect($creates['owners'], $row['eigenaar'], $owners);
+                $this->collect($creates['applications'], $row['applicatie'], $applications);
+            }
+
+            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['jaar']] ?? null, $owners, $applications);
             $totals[$status === 'error' ? 'errors' : $status]++;
             $lines[] = ['line' => $number, 'status' => $status, 'messages' => $messages];
         }
 
-        return ['lines' => $lines, 'totals' => $totals];
+        return ['lines' => $lines, 'totals' => $totals, 'creates' => ['owners' => array_values($creates['owners']), 'applications' => array_values($creates['applications'])]];
     }
 
     /**
@@ -180,8 +199,29 @@ class CostRecordImport
             return 'unchanged';
         }
 
-        $figure = $record->yearlyFigures->firstWhere('fiscal_year_id', $yearId);
+        return $this->figuresChange($record, $figures, $yearId) ? 'updated' : 'unchanged';
+    }
 
-        return $figure instanceof YearlyFigure && $figure->only(array_keys($figures)) === $figures ? 'unchanged' : 'updated';
+    /**
+     * @param  array<string, ?int>  $figures
+     */
+    private function figuresChange(?CostRecord $record, array $figures, ?int $yearId): bool
+    {
+        $figure = $record?->yearlyFigures->firstWhere('fiscal_year_id', $yearId);
+
+        return ! $figure instanceof YearlyFigure || $figure->only(array_keys($figures)) !== $figures;
+    }
+
+    /**
+     * @param  array<string, string>  $names
+     * @param  array<int, string>  $existing
+     */
+    private function collect(array &$names, string $name, array $existing): void
+    {
+        $key = mb_strtolower($name);
+
+        if ($name !== '' && ! in_array($key, $existing, true)) {
+            $names[$key] ??= $name;
+        }
     }
 }

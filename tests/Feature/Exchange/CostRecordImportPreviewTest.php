@@ -2,9 +2,13 @@
 
 namespace Tests\Feature\Exchange;
 
+use App\Models\Application;
+use App\Models\Canvas;
 use App\Models\CostRecord;
+use App\Models\FinalisedYear;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
+use App\Models\Owner;
 use App\Models\User;
 use App\Models\YearlyFigure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -131,6 +135,43 @@ class CostRecordImportPreviewTest extends TestCase
 
         $this->actingAs(User::factory()->create());
         $this->preview(['K1;A;Project;;Ada;;;;;;;;'])->assertForbidden();
+    }
+
+    public function test_a_changing_line_for_a_year_finalised_in_a_canvas_is_reported_but_unchanged_figures_are_not(): void
+    {
+        $year = $this->organisation->fiscalYears()->first();
+        $canvas = Canvas::factory()->create(['organisation_id' => $this->organisation->id, 'name' => 'Strategie']);
+        FinalisedYear::factory()->create(['canvas_id' => $canvas->id, 'fiscal_year_id' => $year->id]);
+        $record = CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'K1', 'name' => 'A', 'cost_kind' => 'project']);
+        $record->owner->update(['name' => 'Ada']);
+        YearlyFigure::factory()->create(['cost_record_id' => $record->id, 'fiscal_year_id' => $year->id, 'budget_cents' => 500]);
+
+        $other = CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'K3', 'name' => 'C', 'cost_kind' => 'project', 'owner_id' => $record->owner_id]);
+        YearlyFigure::factory()->create(['cost_record_id' => $other->id, 'fiscal_year_id' => $year->id, 'budget_cents' => 100]);
+
+        $response = $this->preview(['K1;A;Project;;Ada;;;2026;5,00;;;;', 'K3;C;Project;;Ada;;;2026;6,00;;;;', 'K2;B;Project;;Ada;;;2026;1,00;;;;']);
+
+        $response->assertJsonPath('lines.0.status', 'unchanged');
+        $this->assertSame(['Regel 3: 2026 is definitief in canvas Strategie'], $this->messages($response, 1));
+        $this->assertSame(['Regel 4: 2026 is definitief in canvas Strategie'], $this->messages($response, 2));
+    }
+
+    public function test_new_owners_and_applications_are_listed_and_nothing_is_written(): void
+    {
+        $existing = CostRecord::factory()->create(['organisation_id' => $this->organisation->id]);
+        $existing->owner->update(['name' => 'Ada']);
+
+        $response = $this->preview([
+            'K1;A;Project;;ada;;Nieuwe app;;;;;;',
+            'K2;B;Project;;Bo;;nieuwe APP;;;;;;',
+            ';C;Project;;Cy;;;;;;;;',
+        ]);
+
+        $response->assertJsonPath('creates', ['owners' => ['Bo'], 'applications' => ['Nieuwe app']]);
+        $this->assertSame(1, CostRecord::count());
+        $this->assertSame(1, Owner::count());
+        $this->assertSame(0, Application::count());
+        $this->assertSame(0, YearlyFigure::count());
     }
 
     public function test_a_bad_header_is_refused_with_the_file_message(): void
