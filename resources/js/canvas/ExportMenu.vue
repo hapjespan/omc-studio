@@ -7,12 +7,16 @@ import { exportCsv } from './csvDownload';
 import { exportPng } from './exportPng';
 import { printCanvas, printWarning } from './printCanvas';
 
-const props = withDefaults(defineProps<{ canvasId: number; organisationId: number | null; beyond?: number }>(), { beyond: 0 });
+const props = withDefaults(defineProps<{ canvasId: number; organisationId: number | null; beyond?: number; overlay?: string }>(), { beyond: 0, overlay: 'none' });
 
 const emit = defineEmits<{ plain: [value: boolean] }>();
 
 const open = ref(false);
-const withOverlay = ref(false);
+const withOverlay = ref(true);
+const busy = ref(false);
+const plainNow = (): boolean => props.overlay !== 'none' && !withOverlay.value;
+const beforePrint = (): void => emit('plain', plainNow());
+const afterPrint = (): void => emit('plain', false);
 const note = ref('');
 const trigger = ref<HTMLButtonElement>();
 const list = ref<HTMLElement>();
@@ -21,8 +25,16 @@ const root = ref<HTMLElement>();
 const outside = (event: MouseEvent): void => {
     if (open.value && !root.value?.contains(event.target as Node)) open.value = false;
 };
-onMounted(() => document.addEventListener('click', outside));
-onBeforeUnmount(() => document.removeEventListener('click', outside));
+onMounted(() => {
+    document.addEventListener('click', outside);
+    window.addEventListener('beforeprint', beforePrint);
+    window.addEventListener('afterprint', afterPrint);
+});
+onBeforeUnmount(() => {
+    document.removeEventListener('click', outside);
+    window.removeEventListener('beforeprint', beforePrint);
+    window.removeEventListener('afterprint', afterPrint);
+});
 
 function leave(event: FocusEvent): void {
     if (event.relatedTarget && !root.value?.contains(event.relatedTarget as Node)) open.value = false;
@@ -55,22 +67,21 @@ async function csv(url: string, name: string): Promise<void> {
     close();
 }
 
-async function plainly<T>(job: () => Promise<T> | T): Promise<T> {
-    emit('plain', !withOverlay.value);
-    await nextTick();
+async function png(): Promise<void> {
+    if (busy.value) return;
+    busy.value = true;
     try {
-        return await job();
+        announce(t('print.png_working'));
+        emit('plain', plainNow());
+        await nextTick();
+        const text = await exportPng();
+        note.value = text;
+        announce(text);
+        close();
     } finally {
         emit('plain', false);
+        busy.value = false;
     }
-}
-
-async function png(): Promise<void> {
-    announce(t('print.png_working'));
-    const text = await plainly(exportPng);
-    note.value = text;
-    announce(text);
-    close();
 }
 
 const pending = ref(false);
@@ -81,7 +92,7 @@ async function print(): Promise<void> {
     const warning = printWarning(props.beyond);
     if (!warning) {
         note.value = '';
-        await plainly(printCanvas);
+        printCanvas();
         return;
     }
     note.value = warning;
@@ -91,10 +102,10 @@ async function print(): Promise<void> {
     proceed.value?.focus();
 }
 
-async function printAnyway(): Promise<void> {
+function printAnyway(): void {
     pending.value = false;
     note.value = '';
-    await plainly(printCanvas);
+    printCanvas();
 }
 </script>
 
@@ -108,7 +119,7 @@ async function printAnyway(): Promise<void> {
             <li role="none"><button role="menuitem" tabindex="-1" type="button" class="block w-full rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#E3EBFB] focus:bg-[#E3EBFB]" @click="png">{{ t('print.export_png') }}</button></li>
             <li role="none"><button role="menuitem" tabindex="-1" type="button" class="block w-full rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#E3EBFB] focus:bg-[#E3EBFB]" @click="print">{{ t('print.print') }}</button></li>
         </ul>
-        <label class="ml-3 inline-flex items-center gap-2 text-[13px]"><input v-model="withOverlay" type="checkbox" role="switch" data-with-overlay>{{ t('print.with_overlay') }}</label>
+        <label v-if="overlay !== 'none'" class="ml-3 inline-flex items-center gap-2 text-[13px]"><input v-model="withOverlay" type="checkbox" role="switch" data-with-overlay>{{ t('print.with_overlay') }}</label>
         <p v-if="note" class="mt-1 text-[12.5px]" data-testid="export-note">{{ note }}</p>
         <button v-if="pending" ref="proceed" type="button" class="mt-1 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="printAnyway">{{ t('print.print_anyway') }}</button>
     </div>

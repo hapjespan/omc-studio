@@ -68,35 +68,42 @@ test('without overflow the print dialog opens straight away', async ({ page }) =
     expect(await page.evaluate(() => (window as unknown as { printed: number }).printed)).toBe(1);
 });
 
-test('Met overlay prints the chosen overlay only when on and keeps text at 6 pt or more', async ({ page }) => {
+test('the print layout follows the Met overlay switch through beforeprint and afterprint and keeps text at 6 pt or more', async ({ page }) => {
     const seed = seedOverlay(`Print ${randomUUID().slice(0, 8)}`);
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
-    await page.evaluate(() => {
-        const state = window as unknown as { layers: number[] };
-        state.layers = [];
-        window.print = () => {
-            state.layers.push(document.querySelectorAll('[data-overlay-card]').length);
-        };
-    });
-    const print = async (): Promise<void> => {
-        await page.getByRole('button', { name: 'Exporteren' }).click();
-        await page.getByRole('menuitem', { name: 'Afdrukken' }).click();
-    };
-    await print();
-    await page.getByRole('switch', { name: 'Met overlay' }).check();
-    await print();
-    const layers = await page.evaluate(() => (window as unknown as { layers: number[] }).layers);
-    expect(layers[0]).toBe(0);
-    expect(layers[1]).toBeGreaterThan(0);
+    const toggle = page.getByRole('switch', { name: 'Met overlay' });
+    await expect(toggle).toBeChecked();
+    const printed = async (): Promise<number> =>
+        page.evaluate(
+            () =>
+                new Promise<number>((resolve) => {
+                    window.dispatchEvent(new Event('beforeprint'));
+                    setTimeout(() => {
+                        const layers = document.querySelectorAll('[data-overlay-card]').length;
+                        window.dispatchEvent(new Event('afterprint'));
+                        resolve(layers);
+                    }, 50);
+                }),
+        );
+    expect(await printed()).toBeGreaterThan(0);
+    await toggle.uncheck();
+    expect(await printed()).toBe(0);
     await expect(page.locator('[data-overlay-card]').first()).toBeAttached();
 
     await page.emulateMedia({ media: 'print' });
     const smallest = await page.evaluate(() => {
         const sizes = [...document.querySelectorAll('[data-artboard] *')]
-            .filter((node) => node.childNodes.length && [...node.childNodes].some((child) => child.nodeType === 3 && child.textContent?.trim()))
+            .filter((node) => [...node.childNodes].some((child) => child.nodeType === 3 && child.textContent?.trim()))
             .map((node) => parseFloat(getComputedStyle(node).fontSize) * 0.9448);
         return Math.min(...sizes);
     });
     expect(smallest).toBeGreaterThanOrEqual(8);
+});
+
+test('without an overlay the Met overlay switch is absent', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${canvas.id}/view`);
+    await expect(page.getByRole('switch', { name: 'Met overlay' })).toHaveCount(0);
 });
