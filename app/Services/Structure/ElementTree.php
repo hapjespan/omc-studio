@@ -16,7 +16,7 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown) {}
 
     /** @param array<string, mixed> $fields */
     public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = []): Element
@@ -25,6 +25,8 @@ class ElementTree
             $this->assertStructureWritable($canvas);
 
             $parent = $this->parent($canvas, $area, $kind, $parentId);
+
+            $this->unknown->assertNone($parent);
 
             $this->names->assertAvailable($canvas->id, $area->id, $parent?->id, (string) ($fields['name'] ?? ''));
 
@@ -47,6 +49,8 @@ class ElementTree
             $this->assertStructureWritable($canvas);
 
             $element->refresh();
+
+            $this->unknown->assertNone($element, $target);
 
             $area = $target instanceof Area ? $target : $target->area;
 
@@ -86,6 +90,8 @@ class ElementTree
 
         $this->writes->run([$canvas], function () use ($canvas, $element, $step) {
             $this->assertStructureWritable($canvas);
+
+            $this->unknown->assertNone($element);
 
             $siblings = Element::query()
                 ->where('canvas_id', $element->canvas_id)

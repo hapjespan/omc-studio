@@ -22,6 +22,7 @@ class ElementDeletion
         private readonly UndoStore $undo,
         private readonly ElementNames $names,
         private readonly SiblingPosition $positions,
+        private readonly UnknownAllocationGuard $unknown,
     ) {}
 
     public function delete(Element $element, User $user, ?string $clusterChildren = null): string
@@ -32,6 +33,8 @@ class ElementDeletion
             $this->assertStructureWritable($canvas);
 
             $element->refresh();
+
+            $this->unknown->assertNone($element);
 
             $this->liftWhenAsked($element, $clusterChildren);
 

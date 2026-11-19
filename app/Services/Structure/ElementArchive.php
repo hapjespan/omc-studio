@@ -14,6 +14,7 @@ class ElementArchive
         private readonly SerialisedWrite $writes,
         private readonly ElementNames $names,
         private readonly SiblingPosition $positions,
+        private readonly UnknownAllocationGuard $unknown,
     ) {}
 
     public function archive(Element $element): void
@@ -24,6 +25,8 @@ class ElementArchive
             $this->assertStructureWritable($canvas);
 
             $element->refresh();
+
+            $this->unknown->assertNone($element);
 
             if ($element->archived_at === null) {
                 $this->stamp($element, now(), null);
@@ -39,6 +42,8 @@ class ElementArchive
             $this->assertStructureWritable($canvas);
 
             $element->refresh();
+
+            $this->unknown->assertNone($element);
 
             if ($element->archived_at === null) {
                 return;
