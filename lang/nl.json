@@ -36,6 +36,8 @@
     "rule.undo_parent_gone": "De rij waar dit onder hoorde bestaat niet meer",
     "validation.text_max": ":label: gebruik hoogstens :max tekens",
     "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan",
+    "validation.amount_cents": ":label: vul een bedrag in van € 0,00 tot € 999.999.999,99, met een komma voor de centen",
+    "validation.basis_points": ":label: vul een percentage in van 0 tot 100, met een komma voor de decimalen",
     "elements.unknown_allocation": "Onbekende allocatie",
     "templates.blank_name": "Leeg canvas",
     "dialog.close": "Sluiten",
