@@ -40,3 +40,4 @@ test-results/
 .scratch/
 /proof/wp-e0/dist
 /proof/wp-e0/dist-page
+.worktrees/
