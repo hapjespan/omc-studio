@@ -24,6 +24,22 @@ test('a faulty file disables Importeren, a clean export imports into a new organ
     await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: geen fouten' })).toBeVisible();
     await page.getByRole('button', { name: 'Importeren', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Canvas is geïmporteerd' })).toBeVisible();
+    await expect(page.getByLabel('JSON-bestand')).toHaveValue('');
+    await expect(page.getByRole('button', { name: 'Controleren' })).toBeDisabled();
+});
+
+test('a refused canvas name marks that field invalid and moves focus to it', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    await signInAs(page, 'administrator');
+    const exported = await (await page.request.get(`/canvases/${canvas.id}/export/json`)).text();
+    await page.goto('/overview');
+    await page.getByRole('button', { name: 'Importeren uit JSON' }).click();
+    await page.getByLabel('Naam van de nieuwe organisatie').fill(`Org ${randomUUID().slice(0, 8)}`);
+    await page.getByLabel('Naam van het canvas').fill('Een > naam');
+    await page.getByLabel('JSON-bestand').setInputFiles({ name: 'ok.json', mimeType: 'application/json', buffer: Buffer.from(exported) });
+    await page.getByRole('button', { name: 'Controleren' }).click();
+    await expect(page.getByLabel('Naam van het canvas')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByLabel('Naam van het canvas')).toBeFocused();
 });
 
 test('a Reader finds no import', async ({ page }) => {
