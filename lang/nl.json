@@ -512,5 +512,6 @@
     "rule.redistribution_target_cannot_carry": "Doel :name kan geen kosten dragen",
     "carry_over.target_not_empty": "doeljaar niet leeg",
     "carry_over.no_figures": "geen jaarwaarden in :year",
-    "carry_over.archived": "gearchiveerd"
+    "carry_over.archived": "gearchiveerd",
+    "carry_over.summary": "Overgenomen: :copied, overgeslagen: :skipped, handmatig toewijzen: :manual"
 }

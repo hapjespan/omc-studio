@@ -12,11 +12,15 @@ use App\Models\FiscalYear;
 use App\Models\Organisation;
 use App\Models\YearlyFigure;
 use App\Services\Support\SerialisedWrite;
+use App\Services\Support\WritableGuard;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class CarryOver
 {
-    public function __construct(private readonly SerialisedWrite $writes) {}
+    use WritableGuard;
+
+    public function __construct(private readonly SerialisedWrite $writes, private readonly FinalisedYears $finalisedYears) {}
 
     /** @return array{copied: list<array{name: string, set: bool, figures: int}>, skipped: list<array{name: string, reason: string}>, manual: list<array{name: string}>} */
     public function run(Canvas $canvas, FiscalYear $source, FiscalYear $target, bool $withFigures): array
@@ -24,6 +28,9 @@ class CarryOver
         $organisation = Organisation::findOrFail($canvas->organisation_id);
 
         return $this->writes->run([$organisation], function () use ($canvas, $source, $target, $withFigures): array {
+            $this->assertWritable($canvas);
+            $this->assertTargetOpen($canvas, $target, $withFigures);
+
             $sourceSets = $this->sets($canvas, $source);
             $targetSets = $this->sets($canvas, $target);
             $sourceFigures = $this->figures($source);
@@ -152,6 +159,15 @@ class CarryOver
                 'basis_points' => $line->basis_points,
                 'position' => $line->position,
             ]);
+        }
+    }
+
+    private function assertTargetOpen(Canvas $canvas, FiscalYear $target, bool $withFigures): void
+    {
+        $name = $this->finalisedYears->finalisedInCanvas($canvas, $target) ? $canvas->name : ($withFigures ? $this->finalisedYears->finalisedInOrganisation($target) : null);
+
+        if ($name !== null) {
+            throw ValidationException::withMessages(['rule' => __('rule.year_finalised_in_canvas', ['year' => $target->year, 'canvas' => $name])]);
         }
     }
 }
