@@ -88,5 +88,12 @@
     "shell.mode.view": "Bekijken",
     "shell.admin.users": "Gebruikers",
     "shell.admin.organisations": "Organisaties",
-    "shell.admin.audit_log": "Logboek"
+    "shell.admin.audit_log": "Logboek",
+    "errors.forbidden_title": "Geen toegang",
+    "errors.forbidden_text": "Je hebt geen toegang tot deze pagina.",
+    "errors.not_found_title": "Pagina niet gevonden",
+    "errors.not_found_text": "Deze pagina bestaat niet of is verplaatst.",
+    "errors.server_title": "Er is iets misgegaan",
+    "errors.server_text": "Probeer het later opnieuw.",
+    "errors.overview": "Overzicht"
 }
