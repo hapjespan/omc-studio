@@ -1,5 +1,6 @@
 import { buildDomains, type TreeNode } from '../../layout/tree';
-import type { AreaKey, ElementKind, LayoutElement } from '../../layout/types';
+import { computeCanvasLayout } from '../../layout';
+import type { AreaKey, AreaKind, ElementKind, LayoutElement, LayoutWarning, TextMeasurer } from '../../layout/types';
 
 export interface EntryElement extends LayoutElement {
     description: string | null;
@@ -15,6 +16,7 @@ export interface EntryRowData {
     first: boolean;
     last: boolean;
     closes: EntryElement | null;
+    empty: boolean;
 }
 
 const flatten = (nodes: TreeNode[], depth: 0 | 1 | 2, rows: EntryRowData[]): void => {
@@ -22,7 +24,7 @@ const flatten = (nodes: TreeNode[], depth: 0 | 1 | 2, rows: EntryRowData[]): voi
         const kind = node.element.kind;
         const peers = nodes.filter((peer) => peer.element.kind === kind && !peer.element.unknownAllocation);
         const position = peers.indexOf(node);
-        const row: EntryRowData = { element: node.element as EntryElement, depth, first: position === 0, last: position === peers.length - 1, closes: null };
+        const row: EntryRowData = { element: node.element as EntryElement, depth, first: position === 0, last: position === peers.length - 1, closes: null, empty: kind === 'cluster' && node.children.length === 0 };
         rows.push(row);
         flatten(node.children, Math.min(depth + 1, 2) as 1 | 2, rows);
         if (depth === 0) rows[rows.length - 1].closes = node.element as EntryElement;
@@ -87,3 +89,20 @@ export const descendantNames = (element: EntryElement, elements: EntryElement[])
     elements.filter(({ parent }) => parent === element.id).flatMap((child) => [child.name, ...descendantNames(child, elements)]);
 
 export const NAME_LIMIT = 5;
+
+export interface EntryWarning {
+    id: string;
+    key: string;
+    name: string;
+}
+
+type ElementWarning = Exclude<LayoutWarning, { kind: 'directionTextCut' }>;
+
+export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], area: AreaKey, measurer: TextMeasurer): EntryWarning[] {
+    const layoutAreas = areas.map(({ key, kind, label }, index) => ({ key, kind: kind as AreaKind, label, position: index + 1 }));
+    const { warnings } = computeCanvasLayout({ areas: layoutAreas, elements: elements.filter(({ archived }) => !archived), statements: [], directionLabels: { mission: '', vision: '', goals: '' } }, measurer);
+    const list = areas.find(({ key }) => key === area)?.kind === 'list';
+    const keys = { emptyCluster: 'entry.warning.empty_cluster', domainWithoutActivities: list ? 'entry.warning.group_without_items' : 'entry.warning.domain_without_activities', beyondArtboard: 'entry.warning.beyond_artboard' };
+
+    return warnings.filter((warning): warning is ElementWarning => warning.kind !== 'directionTextCut' && warning.area === area).map((warning) => ({ id: warning.id, key: keys[warning.kind], name: warning.name }));
+}

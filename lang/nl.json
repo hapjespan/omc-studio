@@ -402,5 +402,11 @@
     "entry.cluster_delete": "Activiteiten ook verwijderen",
     "entry.archived": ":name is gearchiveerd",
     "entry.deleted": ":name is verwijderd",
-    "entry.undone": ":name is teruggezet"
+    "entry.undone": ":name is teruggezet",
+    "entry.warnings": "Waarschuwingen",
+    "entry.warning.empty_cluster": "Leeg cluster: :name",
+    "entry.warning.domain_without_activities": "Domein zonder activiteiten: :name",
+    "entry.warning.group_without_items": "Groep zonder items: :name",
+    "entry.warning.beyond_artboard": "Past niet op het tekenvlak: :name",
+    "entry.empty": "leeg"
 }
