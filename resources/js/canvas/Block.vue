@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { t } from '../i18n';
 import type { DrawnBlock } from '../layout/types';
+import UnknownCard from './UnknownCard.vue';
 
-const props = defineProps<{ block: DrawnBlock; label: string; selected: boolean; modalityColour: string | null }>();
+const props = defineProps<{ block: DrawnBlock; label: string; selected: boolean; described: boolean; modalityColour: string | null }>();
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null] }>();
 
 const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
@@ -39,6 +39,7 @@ const box = (): Record<string, string> => {
         :tabindex="block.kind === 'area' ? 0 : -1"
         :aria-label="label"
         :aria-pressed="selected"
+        :aria-describedby="described ? 'view-hover' : undefined"
         :style="box()"
         @click="emit('select', block.id)"
         @pointerenter="emit('peek', block.id)"
@@ -47,7 +48,7 @@ const box = (): Record<string, string> => {
         @blur="emit('peek', null)"
     >
         <span v-for="(line, index) in block.textLines" :key="index" class="block whitespace-pre">{{ line }}</span>
-        <span v-if="block.system" class="absolute right-2 top-1 text-[11px] font-semibold" :style="{ color: block.style.textColour }">{{ t('view.system') }}</span>
+        <UnknownCard v-if="block.system" :colour="block.style.textColour" />
         <span
             v-if="block.modality && modalityColour"
             class="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-[3px] text-[11px] font-bold leading-none text-white"

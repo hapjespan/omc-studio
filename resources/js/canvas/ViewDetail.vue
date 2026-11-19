@@ -23,7 +23,7 @@ export interface DetailSource {
     modalities: ModalityMark[];
 }
 
-const statementText = (statement: LayoutStatement): string => (statement.title ? `${statement.title}: ${statement.body}` : statement.body);
+export const statementText = (statement: LayoutStatement): string => (statement.title ? `${statement.title}: ${statement.body}` : statement.body);
 
 export function detailOf(id: string, source: DetailSource): DetailContent | null {
     const area = source.areas.find((candidate) => candidate.key === id);

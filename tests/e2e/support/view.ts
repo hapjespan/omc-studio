@@ -15,7 +15,7 @@ const prelude = (name: string): string =>
 
 export function seedViewCanvas(): ViewCanvas {
     const name = `Model ${randomUUID().slice(0, 8)}`;
-    const code = `${prelude(name)} $s = $e('steering', 'domain', 'Strategie'); $e('steering', 'activity', 'Plannen', $s, ['modality_id' => $m('adaptive'), 'description' => 'Jaarplan opstellen', 'rationale' => 'Richting geven']); $p = $e('primary_activities', 'domain', 'Onderwijs'); $k = $e('primary_activities', 'cluster', 'Lessen', $p); $e('primary_activities', 'activity', 'Les geven', $k, ['modality_id' => $m('common')]); $e('supporting_activities', 'domain', 'Beheer'); $e('actors', 'domain', 'Leerlingen'); App\\Models\\Statement::create(['canvas_id' => $c->id, 'kind' => 'mission', 'body' => 'Leren voor het leven', 'position' => 1]); echo 'ID=' . $c->id;`;
+    const code = `${prelude(name)} $s = $e('steering', 'domain', 'Strategie'); $e('steering', 'activity', 'Plannen', $s, ['modality_id' => $m('adaptive'), 'description' => 'Jaarplan opstellen', 'rationale' => 'Richting geven']); $p = $e('primary_activities', 'domain', 'Onderwijs'); $k = $e('primary_activities', 'cluster', 'Lessen', $p); $e('primary_activities', 'activity', 'Les geven', $k, ['modality_id' => $m('common')]); $e('supporting_activities', 'domain', 'Beheer', null, ['position' => 1]); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); $e('actors', 'domain', 'Leerlingen'); App\\Models\\Statement::create(['canvas_id' => $c->id, 'kind' => 'mission', 'body' => 'Leren voor het leven', 'position' => 1]); echo 'ID=' . $c->id;`;
 
     return { id: Number(/ID=(\d+)/.exec(run(code))?.[1]), name };
 }
