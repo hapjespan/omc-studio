@@ -607,5 +607,10 @@
     "carry_over.manual": "Handmatig toewijzen",
     "carry_over.col_name": "Kostenpost",
     "carry_over.col_reason": "Reden",
-    "shell.tab.allocation": "Toewijzen"
+    "shell.tab.allocation": "Toewijzen",
+    "csvx.code_unknown": "Regel :line, kostenpost_code: ':value' is geen kostenpost van deze organisatie",
+    "csvx.path_unknown": "Regel :line, doel_pad: ':value' is geen doel in dit canvas",
+    "csvx.path_not_target": "Regel :line, doel_pad: ':value' kan geen kosten dragen",
+    "csvx.percentage_invalid": "Regel :line, percentage: ':value' is geen percentage van 0,01 tot 100,00. Gebruik een komma voor de decimalen",
+    "csvx.refused_errors": "Importeren is niet gelukt; het bestand bevat fouten. Er is niets gewijzigd"
 }

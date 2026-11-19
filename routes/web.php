@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\Admin\UserSecondFactorController;
 use App\Http\Controllers\Admin\UserSessionsController;
+use App\Http\Controllers\AllocationImportController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ReauthenticateController;
@@ -124,4 +125,9 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
 Route::middleware('auth')->group(function () {
     Route::get('/organisations/{organisation}/export/cost-records.csv', [ExportController::class, 'costRecords']);
     Route::get('/canvases/{canvas}/export/allocations.csv', [ExportController::class, 'allocations']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/import/allocations/preview', [AllocationImportController::class, 'preview']);
+    Route::post('/canvases/{canvas}/import/allocations', [AllocationImportController::class, 'commit']);
 });

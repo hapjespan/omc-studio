@@ -18,7 +18,7 @@ class TargetPaths
 
     public function __construct(Canvas $canvas)
     {
-        $this->elements = Element::query()->where('canvas_id', $canvas->getKey())->get()->keyBy(fn (Element $element) => (string) $element->getKey())->all();
+        $this->elements = Element::query()->with('area')->where('canvas_id', $canvas->getKey())->get()->keyBy(fn (Element $element) => (string) $element->getKey())->all();
         $this->areas = Area::query()->pluck('key', 'id')->map(fn (string $key) => (string) __('areas.'.$key.'.name'))->all();
     }
 
