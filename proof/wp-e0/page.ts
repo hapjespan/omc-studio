@@ -9,6 +9,7 @@ import { loadBrowserFonts, loadFace, lockFontSources, registerFaces } from './fo
 import { computeBlocks, type Fixture } from './layout';
 import { watchFinishedActions } from './changes';
 import { canvasMeasurer } from './measure';
+import { inertShortcuts, restrict } from './restrict';
 import { readBlocks } from './roundtrip';
 import { buildScene } from './scene';
 
@@ -30,11 +31,12 @@ async function start() {
         getViewportSize: () => ({ width: window.innerWidth, height: window.innerHeight }),
         skipInitialGraphSetup: true,
     });
+    const restrictions = restrict(editor as any, graph, ['area-direction', 'area-logo']);
     const ready = new Promise<void>((resolve) => {
         createApp({ render: () => h(Proof, { editor, onReady: resolve }) }).mount('#app');
     });
     await ready;
-    Object.assign(window, { proof: { editor, graph, fixture, blocks, readBlocks: () => readBlocks(graph), watchFinishedActions: (listener: (action: { ids: string[]; at: number }) => void) => watchFinishedActions(editor, graph, listener) } });
+    Object.assign(window, { proof: { editor, graph, fixture, blocks, restrictions, inertShortcuts, readBlocks: () => readBlocks(graph), watchFinishedActions: (listener: (action: { ids: string[]; at: number }) => void) => watchFinishedActions(editor, graph, listener) } });
     document.documentElement.dataset.ready = 'true';
 }
 
