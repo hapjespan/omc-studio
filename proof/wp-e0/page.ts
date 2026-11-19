@@ -8,6 +8,7 @@ import fixtureJson from './fixtures/scene.json';
 import { loadBrowserFonts, loadFace, lockFontSources, registerFaces } from './fonts';
 import { computeBlocks, type Fixture } from './layout';
 import { canvasMeasurer } from './measure';
+import { readBlocks } from './roundtrip';
 import { buildScene } from './scene';
 
 const fixture = fixtureJson as Fixture;
@@ -32,7 +33,7 @@ async function start() {
         createApp({ render: () => h(Proof, { editor, onReady: resolve }) }).mount('#app');
     });
     await ready;
-    Object.assign(window, { proof: { editor, graph, fixture, blocks } });
+    Object.assign(window, { proof: { editor, graph, fixture, blocks, readBlocks: () => readBlocks(graph) } });
     document.documentElement.dataset.ready = 'true';
 }
 
