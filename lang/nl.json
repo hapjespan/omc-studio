@@ -325,5 +325,8 @@
     "yearly_figures.save": "Jaarwaarden opslaan",
     "yearly_figures.delete": "Jaarwaarden verwijderen",
     "cost_records.archive": "Archiveren",
-    "cost_records.bulk_verb": "verwijderd"
+    "cost_records.bulk_verb": "verwijderd",
+    "fiscal_years.title": "Boekjaren",
+    "fiscal_years.year_label": "Jaar",
+    "fiscal_years.add": "Boekjaar toevoegen"
 }

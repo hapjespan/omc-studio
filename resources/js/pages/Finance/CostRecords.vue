@@ -7,6 +7,7 @@ import type { BulkSummary } from '../../components/list/BulkBar.vue';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
 import { plural, t } from '../../i18n';
 import CostRecordForm from './CostRecordForm.vue';
+import FiscalYearsPanel from './FiscalYearsPanel.vue';
 import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
 
@@ -25,6 +26,7 @@ const dismissed = ref('');
 const refusal = ref<string | null>(null);
 const undo = computed(() => (flashUndo.value && flashUndo.value.token !== dismissed.value ? { id: flashUndo.value.token, message: flashUndo.value.message, refusal: refusal.value } : null));
 const bulkResult = ref<BulkSummary | null>(null);
+const yearsOpen = ref(false);
 const keep = { preserveScroll: true, preserveState: true };
 
 const columns: ListColumn[] = [
@@ -97,6 +99,8 @@ function load(query: ListState, year: number | null = props.year): void {
             <option v-for="item in years" :key="item.id" :value="item.year">{{ item.year }}</option>
         </select>
     </div>
+    <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
+    <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :writable="!organisation.archived" />
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
         <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable can-delete :consequence="consequence" :undo="undo" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undoDelete" @dismiss-undo="dismissUndo" @bulk="bulk">
