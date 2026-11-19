@@ -278,5 +278,16 @@
     "cost_records.application_invalid": "Applicatie: kies een applicatie uit deze organisatie",
     "cost_records.code_taken": "Code: deze code bestaat al in deze organisatie",
     "cost_records.created": "Kostenpost aangemaakt",
-    "cost_records.saved": "Kostenpost opgeslagen"
+    "cost_records.saved": "Kostenpost opgeslagen",
+    "fields.budget": "Budget",
+    "fields.forecast": "Prognose",
+    "fields.run": "Run",
+    "fields.change": "Change",
+    "fields.remark": "Opmerking",
+    "yearly_figures.run_change_sum": "Run en change: samen maximaal 100%",
+    "yearly_figures.fte_invalid": "FTE: vul een aantal in van 0,00 tot 9.999,99, met een komma voor de decimalen",
+    "yearly_figures.reference_date_invalid": "Peildatum: kies een datum",
+    "yearly_figures.delete_consequence": "Verwijdert ook :count toewijzingsset|Verwijdert ook :count toewijzingssets",
+    "yearly_figures.saved": "Jaarwaarden opgeslagen",
+    "yearly_figures.deleted": "Jaarwaarden verwijderd"
 }
