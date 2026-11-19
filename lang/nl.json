@@ -297,5 +297,18 @@
     "cost_records.delete_consequence": "Verwijdert ook :figures en :sets",
     "cost_records.deleted": "Kostenpost verwijderd",
     "cost_records.archived": "Kostenpost gearchiveerd",
-    "cost_records.restored": "Kostenpost teruggezet"
+    "cost_records.restored": "Kostenpost teruggezet",
+    "cost_records.title": "Kostenposten",
+    "cost_records.year": "Boekjaar",
+    "cost_records.allocation": "Toewijzing",
+    "cost_records.allocation_allocated": "Toegewezen",
+    "cost_records.allocation_unallocated": "Niet toegewezen",
+    "cost_records.no_figures": "geen jaarwaarden",
+    "fields.cost_kind": "Soort kosten",
+    "fields.owner": "Eigenaar",
+    "fields.application": "Applicatie",
+    "cost_kind.supplier_contract": "Leverancierscontract",
+    "cost_kind.personnel": "Personeel",
+    "cost_kind.project": "Project",
+    "cost_kind.other": "Overig"
 }

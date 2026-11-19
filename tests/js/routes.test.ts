@@ -45,6 +45,13 @@ const cases: [keyof typeof routes, (string | number)[], string][] = [
     ['goal', [7, 3], '/canvases/7/goals/3'],
     ['goalReorder', [7, 3], '/canvases/7/goals/3/reorder'],
     ['template', [7], '/templates/7'],
+    ['costRecords', [2], '/organisations/2/cost-records'],
+    ['costRecord', ['c1'], '/cost-records/c1'],
+    ['costRecordArchive', ['c1'], '/cost-records/c1/archive'],
+    ['costRecordRestore', ['c1'], '/cost-records/c1/restore'],
+    ['costRecordYear', ['c1', 2026], '/cost-records/c1/years/2026'],
+    ['fiscalYears', [2], '/organisations/2/fiscal-years'],
+    ['fiscalYear', [5], '/fiscal-years/5'],
     ['undo', ['tok'], '/undo/tok'],
 ];
 

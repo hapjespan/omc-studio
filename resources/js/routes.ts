@@ -46,5 +46,12 @@ export const routes = {
     goal: (canvas: Id, goal: Id) => `/canvases/${canvas}/goals/${goal}`,
     goalReorder: (canvas: Id, goal: Id) => `/canvases/${canvas}/goals/${goal}/reorder`,
     template: (canvas: Id) => `/templates/${canvas}`,
+    costRecords: (organisation: Id, year?: number) => withYear(`/organisations/${organisation}/cost-records`, year),
+    costRecord: (costRecord: Id) => `/cost-records/${costRecord}`,
+    costRecordArchive: (costRecord: Id) => `/cost-records/${costRecord}/archive`,
+    costRecordRestore: (costRecord: Id) => `/cost-records/${costRecord}/restore`,
+    costRecordYear: (costRecord: Id, year: number) => `/cost-records/${costRecord}/years/${year}`,
+    fiscalYears: (organisation: Id) => `/organisations/${organisation}/fiscal-years`,
+    fiscalYear: (fiscalYear: Id) => `/fiscal-years/${fiscalYear}`,
     undo: (token: string) => `/undo/${token}`,
 };
