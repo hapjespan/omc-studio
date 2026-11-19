@@ -7,7 +7,7 @@ test('selecting an Element opens the read-only panel with its fields and Modalit
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${canvas.id}/view`);
 
-    const activity = page.getByRole('button', { name: 'Plannen', exact: true });
+    const activity = page.getByRole('button', { name: /^Plannen( |$)/ });
     await activity.click();
     const panel = page.locator('#detail-panel');
     await expect(panel.getByRole('heading', { name: 'Plannen' })).toBeVisible();

@@ -64,6 +64,7 @@ const hover = computed(() => {
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
 const colours = computed(() => new Map(props.modalities.map((modality) => [modality.letter, modality.colour])));
+const modalityNames = computed(() => new Map(props.modalities.map((modality) => [modality.letter, t(`view.modality.${modality.key}`)])));
 const band = computed(() => props.drawn.blocks.find((block) => block.id === 'direction'));
 const blocks = computed(() => props.drawn.blocks);
 </script>
@@ -76,9 +77,10 @@ const blocks = computed(() => props.drawn.blocks);
             v-for="block in blocks"
             :key="block.id"
             :block="block"
-            :label="names.get(block.id) ?? block.id"
+            :label="block.kind === 'area' ? (names.get(block.id) ?? block.id) : null"
             :selected="selectedId === block.id"
             :modality-colour="block.modality ? (colours.get(block.modality) ?? null) : null"
+            :modality-name="block.modality ? (modalityNames.get(block.modality) ?? null) : null"
             @select="emit('select', $event)"
             :described="!!hover && peeked === block.id"
             @peek="peek"
@@ -97,8 +99,8 @@ const blocks = computed(() => props.drawn.blocks);
                 :aria-describedby="column.truncated && peeked === DIRECTION_PREFIX + column.key ? 'view-hover' : undefined"
                 @pointerenter="column.truncated && peek(DIRECTION_PREFIX + column.key)"
                 @pointerleave="column.truncated && peek(null)"
-                @focus="column.truncated && peek(DIRECTION_PREFIX + column.key)"
-                @blur="column.truncated && peek(null)"
+                @focus="column.truncated && peek(DIRECTION_PREFIX + column.key, 'focus')"
+                @blur="column.truncated && peek(null, 'focus')"
             >
                 <p v-if="column.label" class="text-[11px] font-semibold leading-[14px]" :style="{ color: band.style.labelColour }">{{ column.label }}</p>
                 <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label }">{{ line }}</p>

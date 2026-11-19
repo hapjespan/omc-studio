@@ -18,7 +18,7 @@ test('a Reader opens a Canvas, zooms, selects an Element and reads its fields', 
     await page.getByRole('button', { name: 'Passend maken' }).click();
     await expectNoAxeViolations(page);
 
-    await page.getByRole('button', { name: 'Les geven', exact: true }).click();
+    await page.getByRole('button', { name: /^Les geven( |$)/ }).click();
     const panel = page.locator('#detail-panel');
     await expect(panel.getByRole('heading', { name: 'Les geven' })).toBeVisible();
     await expect(panel.locator('[data-modality]')).toContainText('Common');
@@ -28,7 +28,7 @@ test('a Reader opens a Canvas, zooms, selects an Element and reads its fields', 
 
     await page.keyboard.press('Escape');
     await expect(panel).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Les geven', exact: true })).toBeFocused();
+    await expect(page.getByRole('button', { name: /^Les geven( |$)/ })).toBeFocused();
 
     expect(await page.locator('input[type="color"]').count()).toBe(0);
     guards.assertNoOutsideRequest();

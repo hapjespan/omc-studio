@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { DrawnBlock } from '../layout/types';
+import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
 
-const props = defineProps<{ block: DrawnBlock; label: string; selected: boolean; described: boolean; modalityColour: string | null }>();
-const emit = defineEmits<{ select: [id: string]; peek: [id: string | null] }>();
+const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null }>();
+const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, source: PeekSource] }>();
 
 const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
 const box = (): Record<string, string> => {
@@ -37,15 +38,15 @@ const box = (): Record<string, string> => {
         :data-kind="block.kind"
         :data-area="block.areaKey"
         :tabindex="block.kind === 'area' ? 0 : -1"
-        :aria-label="label"
+        :aria-label="label ?? undefined"
         :aria-pressed="selected"
         :aria-describedby="described ? 'view-hover' : undefined"
         :style="box()"
         @click="emit('select', block.id)"
-        @pointerenter="emit('peek', block.id)"
-        @pointerleave="emit('peek', null)"
-        @focus="emit('peek', block.id)"
-        @blur="emit('peek', null)"
+        @pointerenter="emit('peek', block.id, 'pointer')"
+        @pointerleave="emit('peek', null, 'pointer')"
+        @focus="emit('peek', block.id, 'focus')"
+        @blur="emit('peek', null, 'focus')"
     >
         <span v-for="(line, index) in block.textLines" :key="index" class="block whitespace-pre">{{ line }}</span>
         <UnknownCard v-if="block.system" :colour="block.style.textColour" />
@@ -55,5 +56,6 @@ const box = (): Record<string, string> => {
             :style="{ background: modalityColour }"
             aria-hidden="true"
         >{{ block.modality }}</span>
+        <span v-if="modalityName" class="sr-only">{{ modalityName }}</span>
     </button>
 </template>

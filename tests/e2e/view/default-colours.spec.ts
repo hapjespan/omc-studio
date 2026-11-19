@@ -31,7 +31,7 @@ test('every Area and level of a new Canvas shows the contract colours and every 
         ['Koers', row('Direction band')[0]],
     ];
     for (const [name, hex] of expected) await expect(page.getByRole('button', { name, exact: true })).toHaveCSS('background-color', rgb(hex));
-    await expect(page.getByRole('button', { name: 'Plannen', exact: true })).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.getByRole('button', { name: /^Plannen( |$)/ })).toHaveCSS('background-color', 'rgb(255, 255, 255)');
 
     const pairs = await page.locator('[data-block]').evaluateAll((nodes) =>
         nodes.map((node) => ({ background: getComputedStyle(node).backgroundColor, text: getComputedStyle(node).color })).filter((pair) => pair.background !== 'rgba(0, 0, 0, 0)'),

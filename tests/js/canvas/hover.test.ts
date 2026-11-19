@@ -67,3 +67,30 @@ describe('Unknown allocation card in the view', () => {
         expect(html).toMatch(/data-block="u"[^>]*>(?:(?!<\/button>).)*data-system-mark/);
     });
 });
+
+describe('createPeek with focus', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    it('keeps the focused content open when the pointer leaves another block', () => {
+        const { peeked, peek } = createPeek(200);
+        peek('b', 'focus');
+        peek('a');
+        peek(null);
+        vi.advanceTimersByTime(500);
+        expect(peeked.value).toBe('b');
+    });
+
+    it('closes after blur and after Escape', () => {
+        const { peeked, peek, dismiss } = createPeek(200);
+        peek('b', 'focus');
+        peek(null, 'focus');
+        vi.advanceTimersByTime(200);
+        expect(peeked.value).toBeNull();
+        peek('c', 'focus');
+        dismiss();
+        peek(null);
+        vi.advanceTimersByTime(500);
+        expect(peeked.value).toBeNull();
+    });
+});

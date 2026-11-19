@@ -14,7 +14,7 @@ test('Tab moves between Areas, arrow keys move through Elements as a tree and En
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('button', { name: 'Lessen', exact: true })).toBeFocused();
     await page.keyboard.press('ArrowRight');
-    await expect(page.getByRole('button', { name: 'Les geven', exact: true })).toBeFocused();
+    await expect(page.getByRole('button', { name: /^Les geven( |$)/ })).toBeFocused();
     await page.keyboard.press('ArrowLeft');
     await expect(page.getByRole('button', { name: 'Lessen', exact: true })).toBeFocused();
     await page.keyboard.press('ArrowLeft');

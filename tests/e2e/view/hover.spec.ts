@@ -7,7 +7,7 @@ test('hover and focus content shows the full name, stays under the pointer and c
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${canvas.id}/view`);
 
-    const activity = page.getByRole('button', { name: 'Les geven', exact: true });
+    const activity = page.getByRole('button', { name: /^Les geven( |$)/ });
     await activity.hover();
     const content = page.locator('[data-hover-content]');
     await expect(content).toContainText('Les geven');
@@ -19,7 +19,8 @@ test('hover and focus content shows the full name, stays under the pointer and c
     await page.keyboard.press('Escape');
     await expect(content).toHaveCount(0);
 
-    await page.getByRole('button', { name: 'Plannen', exact: true }).focus();
+    await page.mouse.move(0, 0);
+    await page.getByRole('button', { name: /^Plannen( |$)/ }).focus();
     await expect(content).toContainText('Plannen');
     await page.keyboard.press('Escape');
     await expect(content).toHaveCount(0);
