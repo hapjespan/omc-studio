@@ -21,6 +21,7 @@ class SystemNoticesTest extends TestCase
         parent::tearDown();
     }
 
+    /** @param array<string, mixed> $details */
     private function record(Canvas $canvas, array $details = []): SystemNotice
     {
         return app(SystemNotices::class)->record('closing_check_failed', $canvas->id, $details + ['year' => 2026, 'check' => 'budget']);
