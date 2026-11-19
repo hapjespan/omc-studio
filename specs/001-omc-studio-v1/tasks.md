@@ -47,6 +47,7 @@ Built as written; both are the orchestrator's advice recorded while the product 
 | `[GAP V3 cookies]` | The framework's `XSRF-TOKEN` cookie is not HttpOnly, because Inertia's HTTP client reads it; the session cookie is HttpOnly. Static files served by Apache directly carry no CSP header; the policy matters on documents, which all pass the application | none | none unless the product owner wants `mod_headers` for static files |
 | `[ASSUMPTION QS-8]` | A Shift-moved block wider than its target is made exactly as wide as the target | DT.5 | low: one adapter branch and its tests |
 | `[ASSUMPTION QS-9]` | Undo and redo of a Shift move ask "Verplaatsen naar <doel>?" too | DT.5 | low: the page skips the dialog |
+| `[ASSUMPTION WP-E0-1]` | T030 stays unchecked: only the product owner can record the go or no-go, so the WP-E0 pillar is closed with T019 to T029 built and reviewed. Advice: the report recommends deciding two questions (FR-098 reading, P7 vertical offset) before the go or no-go | T030 | none: T030 is the recording itself |
 
 No new question for the product owner came out of the decomposition. Two things are for the product owner's attention: the WP-E0 go or no-go (the task that records it cannot be closed by anyone else) and the K-8 note of the plan.
 
