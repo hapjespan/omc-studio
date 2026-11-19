@@ -43,4 +43,10 @@ class Organisation extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    /** @return HasMany<CostRecord, $this> */
+    public function costRecords(): HasMany
+    {
+        return $this->hasMany(CostRecord::class);
+    }
 }

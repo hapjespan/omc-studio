@@ -266,5 +266,17 @@
     "fiscal_years.year_invalid": "Boekjaar: kies een jaar van 2000 tot en met 2100 dat nog niet bestaat",
     "fiscal_years.has_figures": "Dit boekjaar heeft nog jaarwaarden",
     "fiscal_years.added": "Boekjaar toegevoegd",
-    "fiscal_years.deleted": "Boekjaar verwijderd"
+    "fiscal_years.deleted": "Boekjaar verwijderd",
+    "fields.code": "Code",
+    "fields.supplier": "Leverancier",
+    "fields.cost_centre": "Kostenplaats",
+    "fields.description": "Omschrijving",
+    "cost_records.name_required": "Naam: vul een naam in",
+    "cost_records.cost_kind_required": "Soort kosten: kies een soort",
+    "cost_records.owner_required": "Eigenaar: kies een eigenaar",
+    "cost_records.owner_invalid": "Eigenaar: kies een eigenaar uit deze organisatie",
+    "cost_records.application_invalid": "Applicatie: kies een applicatie uit deze organisatie",
+    "cost_records.code_taken": "Code: deze code bestaat al in deze organisatie",
+    "cost_records.created": "Kostenpost aangemaakt",
+    "cost_records.saved": "Kostenpost opgeslagen"
 }
