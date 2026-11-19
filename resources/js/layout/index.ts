@@ -1,6 +1,8 @@
-import type { AreaKey, BlockStyle, CanvasLayoutInput, DrawnBlock, DrawnCanvas, TextMeasurer } from './types';
+import { arrangeAreas, ARTBOARD_HEIGHT, ARTBOARD_WIDTH, type Frame } from './arrangeAreas';
+import { DIRECTION_HEIGHT, layoutDirection } from './direction';
+import type { AreaKey, BlockStyle, CanvasLayoutInput, DrawnBlock, DrawnCanvas, LayoutWarning, TextMeasurer } from './types';
 
-export const ARTBOARD = { width: 1680, height: 1188, directionHeight: 180 } as const;
+export const ARTBOARD = { width: ARTBOARD_WIDTH, height: ARTBOARD_HEIGHT, directionHeight: DIRECTION_HEIGHT } as const;
 
 const placeholder: BlockStyle = {
     fill: null,
@@ -12,15 +14,15 @@ const placeholder: BlockStyle = {
     radius: 0,
 };
 
-const areaBlock = (key: AreaKey): DrawnBlock => ({
+const areaBlock = (key: AreaKey, frame: Frame): DrawnBlock => ({
     id: key,
     kind: 'area',
     areaKey: key,
     parentId: null,
-    x: 0,
-    y: 0,
-    width: 0,
-    drawnHeight: 0,
+    x: frame.x,
+    y: frame.y,
+    width: frame.width,
+    drawnHeight: frame.height,
     z: 0,
     textLines: [],
     modality: null,
@@ -29,9 +31,11 @@ const areaBlock = (key: AreaKey): DrawnBlock => ({
 });
 
 export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeasurer): DrawnCanvas {
-    void measurer;
-    const blocks = [...input.areas].sort((a, b) => a.position - b.position).map((area) => areaBlock(area.key));
-    return { blocks, direction: [], warnings: [], beyondArtboardCount: 0 };
+    const frames = arrangeAreas({});
+    const blocks = [...input.areas].sort((a, b) => a.position - b.position).map((area) => areaBlock(area.key, frames[area.key]));
+    const direction = layoutDirection(input.statements, input.directionLabels, measurer);
+    const warnings: LayoutWarning[] = direction.filter((column) => column.truncated).map((column) => ({ kind: 'directionTextCut', column: column.key }));
+    return { blocks, direction, warnings, beyondArtboardCount: 0 };
 }
 
 export type * from './types';
