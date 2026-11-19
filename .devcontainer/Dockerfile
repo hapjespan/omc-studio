@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://claude.ai/install.sh | bash
 
+RUN printf 'zend.exception_ignore_args=On\nmemory_limit=256M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 ENV PATH="/root/.local/bin:$PATH"
