@@ -30,7 +30,7 @@ class OrganisationDeletionTest extends TestCase
         $organisation = $this->service->create($name);
         $path = 'logos/'.$organisation->slug.'.png';
         Storage::disk('local')->put($path, 'image-bytes');
-        $organisation->update(['logo_path' => $path]);
+        $organisation->forceFill(['logo_path' => $path])->save();
 
         return $organisation;
     }
