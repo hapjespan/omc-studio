@@ -106,3 +106,15 @@ export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], 
 
     return warnings.filter((warning): warning is ElementWarning => warning.kind !== 'directionTextCut' && warning.area === area).map((warning) => ({ id: warning.id, key: keys[warning.kind], name: warning.name }));
 }
+
+export function filterByName(elements: EntryElement[], text: string): EntryElement[] {
+    const needle = text.trim().toLowerCase();
+    if (needle === '') return elements;
+
+    const keep = new Set<string>();
+    for (const element of elements.filter(({ name }) => name.toLowerCase().includes(needle))) {
+        for (let current: EntryElement | undefined = element; current && !keep.has(current.id); current = elements.find(({ id }) => id === current?.parent)) keep.add(current.id);
+    }
+
+    return elements.filter(({ id }) => keep.has(id));
+}
