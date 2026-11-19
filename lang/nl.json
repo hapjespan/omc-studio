@@ -33,5 +33,7 @@
     "rule.undo_unavailable": "Ongedaan maken kan niet meer",
     "rule.undo_parent_gone": "De rij waar dit onder hoorde bestaat niet meer",
     "validation.text_max": ":label: gebruik hoogstens :max tekens",
-    "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan"
+    "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan",
+    "elements.unknown_allocation": "Onbekende allocatie",
+    "templates.blank_name": "Leeg canvas"
 }

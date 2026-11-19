@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\Audit\AuditContext;
 use App\Services\Operations\InstallSteps;
+use App\Services\Operations\Steps\BlankTemplateStep;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use App\Support\Session\DatabaseSessionHandler;
 use Illuminate\Contracts\Container\Container;
@@ -18,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(InstallSteps::class, function () {
             $steps = new InstallSteps;
             $steps->add(new ReferenceDataStep);
+            $steps->add(new BlankTemplateStep);
 
             return $steps;
         });
