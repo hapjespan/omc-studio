@@ -26,7 +26,7 @@ test('clean start: sign in with the logged password, choose a new one, sign out,
     await page.getByLabel('Wachtwoord', { exact: true }).fill(chosen);
     await page.getByLabel('Herhaal wachtwoord').fill(chosen);
     await page.getByRole('button', { name: 'Wachtwoord opslaan' }).click();
-    await expect(page.getByRole('heading', { name: 'OMC Studio' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Uitloggen' }).click();
     await expect(page.getByRole('heading', { name: 'Inloggen' })).toBeVisible();
@@ -34,5 +34,5 @@ test('clean start: sign in with the logged password, choose a new one, sign out,
     await page.getByLabel('E-mailadres').fill(administrator.email);
     await page.getByLabel('Wachtwoord').fill(chosen);
     await page.getByRole('button', { name: 'Inloggen' }).click();
-    await expect(page.getByRole('heading', { name: 'OMC Studio' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 });

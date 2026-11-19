@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
@@ -20,7 +20,8 @@ function submit(): void {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-sm flex-col gap-4 p-6">
+    <Head :title="t('account.title')" />
+    <div class="mx-auto flex max-w-sm flex-col gap-4 p-6">
         <h1 class="text-[20px] font-semibold text-[#171B21]">{{ t('account.title') }}</h1>
         <p v-if="flash?.status" role="status" class="rounded-md bg-[#EEF2F7] px-3 py-2 text-[13px] text-[#171B21]">{{ flash.status }}</p>
         <h2 class="text-[16px] font-semibold text-[#171B21]">{{ t('account.password_title') }}</h2>
@@ -31,5 +32,5 @@ function submit(): void {
             <TextField id="password_confirmation" v-model="form.password_confirmation" :label="t('fields.password_confirmation')" type="password" autocomplete="new-password" :error="form.errors.password_confirmation" />
             <button type="submit" :disabled="form.processing" class="rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('auth.new_password_submit') }}</button>
         </form>
-    </main>
+    </div>
 </template>

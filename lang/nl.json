@@ -71,5 +71,8 @@
     "account.current_password_required": "Huidig wachtwoord: vul je huidige wachtwoord in",
     "account.current_password_wrong": "Huidig wachtwoord: dit wachtwoord is onjuist",
     "account.password_reused": "Wachtwoord: kies een ander wachtwoord dan je huidige wachtwoord",
-    "console.no_administrator": "Geen Administrator met dit e-mailadres"
+    "console.no_administrator": "Geen Administrator met dit e-mailadres",
+    "shell.skip_link": "Naar hoofdinhoud",
+    "shell.overview": "Overzicht",
+    "shell.left_panel": "Linkerpaneel"
 }
