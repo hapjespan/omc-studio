@@ -1,4 +1,4 @@
-# 0040: Delete Allocation lines before the Canvas cascade
+# 0041: Delete Allocation lines before the Canvas cascade
 
 Date: 2026-11-19
 Status: accepted (integrator choice, D2.1, technical)

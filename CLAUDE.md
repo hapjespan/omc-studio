@@ -126,7 +126,7 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     from a short-lived table; 0034 audit through a model observer; 0035 one container on
     php-apache; 0036 Shift move in Tekenen;
     0037 session lifetime and termination; 0038 delivered stack at the root, dev
-    container in .devcontainer; 0039 CSP image sources for PNG export; 0040 lines deleted before the Canvas cascade
+    container in .devcontainer; 0039 CSP image sources for PNG export; 0041 lines deleted before the Canvas cascade (0040 is reserved for WP-E0)
 - `docs/architecture.md`: module and seam map (phase 4)
 - `specs/001-omc-studio-v1/plan.md`, `research.md`, `data-model.md`, `contracts/`,
   `quickstart.md`: the phase 4 plan, with the open questions for the product owner

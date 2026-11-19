@@ -108,7 +108,7 @@ class AllocationSchemaTest extends TestCase
     public function test_deleting_a_canvas_removes_its_elements_sets_and_lines_in_one_statement_on_sqlite(): void
     {
         if (DB::getDriverName() !== 'sqlite') {
-            $this->markTestSkipped('PostgreSQL fires the cascades in constraint creation order; the service deletes lines first (ADR 0040)');
+            $this->markTestSkipped('PostgreSQL fires the cascades in constraint creation order; the service deletes lines first (ADR 0041)');
         }
 
         $element = $this->allocate();
@@ -177,7 +177,7 @@ class AllocationSchemaTest extends TestCase
             'id' => $costRecordId,
             'organisation_id' => $organisationId,
             'name' => 'Record',
-            'cost_kind' => 'operational',
+            'cost_kind' => 'other',
             'owner_id' => $ownerId,
         ]);
         $setId = DB::table('allocation_sets')->insertGetId([
