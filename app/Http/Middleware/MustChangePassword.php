@@ -7,6 +7,7 @@ use App\Services\Audit\SecurityLog;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class MustChangePassword
@@ -28,6 +29,7 @@ class MustChangePassword
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+            Inertia::clearHistory();
 
             return redirect('/sign-in')->withErrors(['email' => __('auth.one_time_password_expired')]);
         }

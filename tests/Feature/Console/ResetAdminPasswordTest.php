@@ -5,6 +5,7 @@ namespace Tests\Feature\Console;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -28,6 +29,19 @@ class ResetAdminPasswordTest extends TestCase
         $this->assertFalse(Hash::check('the-old-password', $administrator->password));
         $this->assertTrue($administrator->must_change_password);
         $this->assertNotNull($administrator->one_time_password_expires_at);
+    }
+
+    public function test_every_session_of_the_administrator_ends_and_other_users_keep_theirs(): void
+    {
+        $administrator = User::factory()->administrator()->create(['email' => 'boss@example.test']);
+        $other = User::factory()->create();
+        foreach ([['a', $administrator->id], ['b', $administrator->id], ['c', $other->id]] as [$id, $owner]) {
+            DB::table('sessions')->insert(['id' => $id, 'user_id' => $owner, 'payload' => '', 'last_activity' => time()]);
+        }
+
+        Artisan::call('app:reset-admin-password', ['email' => 'boss@example.test']);
+
+        $this->assertSame(['c'], DB::table('sessions')->pluck('id')->all());
     }
 
     public function test_the_address_is_matched_whatever_its_case(): void

@@ -41,7 +41,7 @@ class NewPasswordController extends Controller
             'one_time_password_expires_at' => null,
         ])->save();
 
-        $request->session()->regenerate();
+        $request->session()->regenerate(true);
         SecurityLog::record('password_changed');
         Inertia::clearHistory();
 
