@@ -171,5 +171,8 @@
   },
   "T055": {
     "built_by": "claude-opus-5"
+  },
+  "T056": {
+    "built_by": "claude-sonnet-5-5"
   }
 }

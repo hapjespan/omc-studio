@@ -47,5 +47,11 @@
     "fields.name": "Naam",
     "validation.password_min": "Wachtwoord: gebruik minstens :min tekens",
     "validation.password_max": "Wachtwoord: gebruik hoogstens :max tekens",
-    "validation.password_common": "Wachtwoord: dit wachtwoord is te bekend, kies een ander"
+    "validation.password_common": "Wachtwoord: dit wachtwoord is te bekend, kies een ander",
+    "auth.email_required": "E-mailadres: vul je e-mailadres in",
+    "auth.password_required": "Wachtwoord: vul je wachtwoord in",
+    "auth.sign_in_title": "Inloggen",
+    "auth.sign_in_submit": "Inloggen",
+    "fields.email": "E-mailadres",
+    "fields.password": "Wachtwoord"
 }
