@@ -3,7 +3,7 @@ import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
 
-const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null; colour?: { background: string; text: string } | null; summary?: string | null }>();
+const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null; colour?: { background: string; text: string } | null; summary?: string | null; inert?: boolean }>();
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, source: PeekSource] }>();
 
 const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
@@ -33,7 +33,8 @@ const box = (): Record<string, string> => {
     <button
         type="button"
         class="absolute box-border block overflow-visible text-left"
-        :class="{ 'outline-2 outline-[#2459D6]': selected }"
+        :class="{ 'outline-2 outline-[#2459D6]': selected, 'pointer-events-none': inert }"
+        :inert="inert || undefined"
         :data-block="block.id"
         :data-kind="block.kind"
         :data-area="block.areaKey"

@@ -12,3 +12,10 @@ describe('basisPointsOf', () => {
         expect(basisPointsOf(5, 0)).toBeNull();
     });
 });
+
+describe('basisPointsOf for negatives', () => {
+    it('truncates toward zero like the server', () => {
+        expect(basisPointsOf(-1, 3)).toBe(-3333);
+        expect(basisPointsOf(-2, 3)).toBe(-6666);
+    });
+});

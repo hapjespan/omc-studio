@@ -1,14 +1,19 @@
 <script lang="ts">
+import { ref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 import { formatPercentage } from '../../allocation/helpers';
 import { formatAmount, formatBasisPoints, formatWholeEuros } from '../../format';
 import type { Contribution } from './figures';
 
 const cache = new Map<string, Promise<Contribution[]>>();
+if (typeof window !== 'undefined') router.on('success', () => cache.clear());
 
-export function loadContributions(search: string, elementId: string, version: string | null, fetcher: typeof fetch = fetch): Promise<Contribution[]> {
-    const params = new URLSearchParams(search);
+export function loadContributions(pageUrl: string, elementId: string, version: string | null, fetcher: typeof fetch = fetch): Promise<Contribution[]> {
+    const [path, query = ''] = pageUrl.split('?');
+    const params = new URLSearchParams(query);
     params.set('element', elementId);
-    const url = `${window.location.pathname}?${params}`;
+    const url = `${path}?${params}`;
     const key = `${version}|${url}`;
     if (!cache.has(key)) {
         cache.set(key, fetcher(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Inertia': 'true', 'X-Inertia-Version': version ?? '', 'X-Inertia-Partial-Component': 'Canvas/View', 'X-Inertia-Partial-Data': 'contributions' } })
@@ -22,6 +27,18 @@ export function loadContributions(search: string, elementId: string, version: st
     return cache.get(key)!;
 }
 
+export function useContributions(elementId: () => string, pageUrl: () => string, version: () => string | null, fetcher: typeof fetch = fetch): Ref<Contribution[]> {
+    const loaded = ref<Contribution[]>([]);
+    watch([elementId, pageUrl], async ([id, url], _previous, onCleanup) => {
+        let current = true;
+        onCleanup(() => (current = false));
+        loaded.value = [];
+        const rows = await loadContributions(url, id, version(), fetcher);
+        if (current) loaded.value = rows;
+    }, { immediate: true });
+    return loaded;
+}
+
 export function breakdownRows(contributions: Contribution[], cents: boolean): { id: string; name: string; percentage: string; amount: string }[] {
     return [...contributions].sort((a, b) => b.amountCents - a.amountCents).map((row) => ({
         id: row.id,
@@ -33,19 +50,13 @@ export function breakdownRows(contributions: Contribution[], cents: boolean): { 
 </script>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue';
+import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { t } from '../../i18n';
 
 const props = defineProps<{ elementId: string; cents?: boolean }>();
 const page = usePage();
-const loaded = ref<Contribution[]>([]);
-watchEffect(async (onCleanup) => {
-    let current = true;
-    onCleanup(() => (current = false));
-    const rows = await loadContributions(window.location.search, props.elementId, page.version);
-    if (current) loaded.value = rows;
-});
+const loaded = useContributions(() => props.elementId, () => page.url, () => page.version);
 const rows = computed(() => breakdownRows(loaded.value, props.cents ?? false));
 </script>
 

@@ -24,12 +24,12 @@ test('switching the overlay keeps the mode in the address', async ({ page }) => 
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${seed.canvas}/view?year=2026`);
 
-    await page.getByLabel('Overlay').selectOption('modality');
+    await page.getByRole('group', { name: 'Overlay' }).getByRole('button', { name: 'Modaliteit' }).click();
     await expect(page).toHaveURL(/overlay=modality/);
-    await page.getByLabel('Overlay').selectOption('financial');
+    await page.getByRole('group', { name: 'Overlay' }).getByRole('button', { name: 'Financieel' }).click();
     await expect(page).toHaveURL(/overlay=financial/);
     await expect(page.locator('[data-financial-card]').first()).toBeVisible();
-    await page.getByLabel('Overlay').selectOption('none');
+    await page.getByRole('group', { name: 'Overlay' }).getByRole('button', { name: 'Geen' }).click();
     await expect(page).not.toHaveURL(/overlay=/);
     await expect(page.locator('[data-modality-counts]')).toHaveCount(0);
 });

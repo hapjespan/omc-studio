@@ -7,16 +7,14 @@ import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
-import { descendantCounts, modalityCounts } from '../../canvas/overlay/counts';
-import type { ModalityCounts } from '../../canvas/overlay/counts';
-import type { CanvasFigures, ElementFigures, OverlayFilters as Filters } from '../../canvas/overlay/figures';
-import FinancialCard, { areaLine, cardLines } from '../../canvas/overlay/FinancialCard.vue';
-import ModalityOverlay, { countsLine } from '../../canvas/overlay/ModalityOverlay.vue';
+import type { CanvasFigures, OverlayFilters as Filters } from '../../canvas/overlay/figures';
+import FinancialCard from '../../canvas/overlay/FinancialCard.vue';
+import ModalityOverlay from '../../canvas/overlay/ModalityOverlay.vue';
 import OverlayFilters from '../../canvas/overlay/OverlayFilters.vue';
 import type { FilterOptions } from '../../canvas/overlay/OverlayFilters.vue';
 import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
-import { shareColour } from '../../canvas/overlay/ShareColour';
+import { useOverlay } from '../../canvas/overlay/useOverlay';
 import Breakdown from '../../canvas/overlay/Breakdown.vue';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
@@ -44,40 +42,18 @@ const props = defineProps<{
 }>();
 
 const role = computed(() => (usePage().props.auth as { role: string | null }).role);
-const costAreas = computed(() => new Set(props.layout.areas.filter((area) => area.kind === 'activities').map((area) => area.key)));
-const domainCounts = computed(() => descendantCounts(props.elements));
-const cardFigures = (block: DrawnBlock): ElementFigures | null => (props.figures && block.kind === 'domain' && costAreas.value.has(block.areaKey) ? (props.figures.elements[block.id] ?? null) : null);
-const selectedFigures = computed(() => {
-    const element = props.elements.find((candidate) => candidate.id === selectedId.value);
-    return props.figures && element && costAreas.value.has(element.area) ? (props.figures.elements[element.id] ?? null) : null;
-});
-const hoverBlock = (id: string | null): DrawnBlock | null => drawn.value?.blocks.find((candidate) => candidate.id === id) ?? null;
-const cardColours = computed(() => Object.fromEntries((drawn.value?.blocks ?? []).flatMap((block) => {
-    const figures = cardFigures(block);
-    return figures ? [[block.id, shareColour(figures.shareBp, block.style.fill)]] : [];
-})));
-const areaTotal = (block: DrawnBlock): string | null => (props.figures && block.kind === 'area' && costAreas.value.has(block.areaKey) && props.figures.areas[block.id] ? areaLine(props.figures.areas[block.id], props.figures.canvasTotal) : null);
-const letters = computed(() => props.modalities.map((modality) => modality.letter));
-const domainModalities = computed(() => modalityCounts(props.elements, letters.value));
-const modalityCard = (block: DrawnBlock): ModalityCounts | null =>
-    props.overlay === 'modality' && block.kind === 'domain' && !block.system && costAreas.value.has(block.areaKey) ? (domainModalities.value.get(block.id) ?? { byLetter: Object.fromEntries(letters.value.map((letter) => [letter, 0])), none: 0 }) : null;
-const figureLines = (id: string): string[] => {
-    const block = drawn.value?.blocks.find((candidate) => candidate.id === id);
-    const marks = block ? modalityCard(block) : null;
-    if (marks) return [countsLine(marks, letters.value)];
-    const area = block ? areaTotal(block) : null;
-    if (area) return [area];
-    const figures = block ? cardFigures(block) : null;
-    if (!figures) return [];
-    const lines = cardLines(figures, domainCounts.value.get(id) ?? { activities: 0, clusters: 0 }, props.year);
-    return lines.empty ? [lines.empty] : [lines.total, lines.share, lines.forecast, lines.counts];
-};
-
-const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
 const selectedId = ref<string | null>(null);
+const letters = computed(() => props.modalities.map((modality) => modality.letter));
+const { domainCounts, cardFigures, modalityCard, areaTotal, cardColours, figureLines, inertIds, selectedFigures, hoverBlock } = useOverlay(
+    () => ({ overlay: props.overlay, year: props.year, figures: props.figures, areas: props.layout.areas, elements: props.elements, letters: letters.value }),
+    drawn,
+    selectedId,
+);
+
+const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const content = computed(() => (selectedId.value ? detailOf(selectedId.value, { areas: props.layout.areas, elements: props.elements, statements: props.statements, modalities: props.modalities }) : null));
 const select = (id: string): void => {
     selectedId.value = id;
@@ -104,20 +80,20 @@ const fit = (): void => {
     </div>
     <OverlayFilters v-if="overlay === 'financial'" :filters="filters" :options="filterOptions" />
     <OverlayLegend :overlay="overlay" :modalities="modalities" />
-    <div class="mt-3 flex gap-4">
-    <div ref="scroller" class="h-[calc(100vh-14rem)] min-w-0 flex-1 overflow-auto" tabindex="-1" data-scroller>
-        <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="cardColours" @select="select">
-            <template v-if="figures || overlay === 'modality'" #card="{ block }">
-                <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
-                <ModalityOverlay v-else-if="modalityCard(block)" :block="block" :counts="modalityCard(block)!" :letters="letters" />
-                <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
-            </template>
-            <template #hover="{ id }">
-                <Breakdown v-if="id && hoverBlock(id) && cardFigures(hoverBlock(id)!)" :key="id" :element-id="id" />
-            </template>
-        </CanvasView>
-    </div>
-    <FigureSidePanel v-if="figures" :figures="figures" :canvas-id="canvas.id" :year="year" :can-assign="role === 'administrator'" />
+    <div class="mt-3 flex flex-wrap gap-4 lg:flex-nowrap">
+        <div ref="scroller" class="h-[calc(100vh-14rem)] min-w-0 flex-1 basis-full overflow-auto lg:basis-0" tabindex="-1" data-scroller>
+            <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="cardColours" :inert-ids="inertIds" @select="select">
+                <template v-if="figures || overlay === 'modality'" #card="{ block }">
+                    <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
+                    <ModalityOverlay v-else-if="modalityCard(block)" :block="block" :counts="modalityCard(block)!" :letters="letters" />
+                    <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
+                </template>
+                <template #hover="{ id }">
+                    <Breakdown v-if="id && cardFigures(hoverBlock(id) ?? ({} as DrawnBlock))" :key="id" :element-id="id" />
+                </template>
+            </CanvasView>
+        </div>
+        <FigureSidePanel v-if="figures" :figures="figures" :cost-kinds="filterOptions.costKinds" :canvas-id="canvas.id" :year="year" :can-assign="role === 'administrator'" />
     </div>
     <ViewDetail v-if="content && detail.open" :content="content" />
     <ElementFiguresPanel v-if="selectedFigures && selectedId && detail.open" :element-id="selectedId" :figures="selectedFigures" />

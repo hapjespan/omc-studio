@@ -9,10 +9,10 @@ export interface CardCounts {
     clusters: number;
 }
 
-export type CardPart = 'counts' | 'forecast' | 'bar' | 'share' | 'total';
+export type CardPart = 'counts' | 'forecast' | 'bar';
 
-const HEIGHTS: Record<CardPart, number> = { total: 20, share: 16, bar: 12, forecast: 16, counts: 16 };
-const DROP_ORDER: CardPart[] = ['counts', 'forecast', 'bar', 'share', 'total'];
+const HEIGHTS: Record<CardPart, number> = { bar: 12, forecast: 16, counts: 16 };
+const DROP_ORDER: CardPart[] = ['counts', 'forecast', 'bar'];
 
 export function fitParts(available: number): Set<CardPart> {
     const kept = new Set<CardPart>(DROP_ORDER);
@@ -27,6 +27,7 @@ export function fitParts(available: number): Set<CardPart> {
 
 export interface CardLines {
     empty: string | null;
+    header: string;
     total: string;
     share: string;
     forecast: string;
@@ -41,9 +42,11 @@ export function areaLine(total: Money, canvasTotal: Money): string {
 export function cardLines(figures: ElementFigures, counts: CardCounts, year: number | null): CardLines {
     const { budget, forecast } = figures.total;
     const percentage = basisPointsOf(forecast, budget);
+    const amount = formatWholeEuros(budget);
     return {
         empty: hasCosts(figures) ? null : t('overlay.empty', { year: year ?? '' }),
-        total: t('overlay.total', { amount: formatWholeEuros(budget) }),
+        header: figures.shareBp === null ? amount : t('overlay.card_header', { amount, percentage: formatBasisPoints(figures.shareBp) }),
+        total: t('overlay.total', { amount }),
         share: t('overlay.share', { percentage: figures.shareBp === null ? '-' : formatBasisPoints(figures.shareBp) }),
         forecast: percentage === null ? t('overlay.forecast', { amount: formatWholeEuros(forecast) }) : t('overlay.forecast_line', { amount: formatWholeEuros(forecast), percentage: formatBasisPoints(percentage) }),
         counts: t('overlay.counts', { activities: counts.activities, clusters: counts.clusters }),
@@ -56,27 +59,31 @@ import { computed } from 'vue';
 import type { DrawnBlock } from '../../layout/types';
 
 const props = defineProps<{ block: DrawnBlock; figures: ElementFigures; counts: CardCounts; year: number | null; colour?: { background: string; text: string } | null }>();
-const padding = 12;
-const header = computed(() => props.block.textLines.length * props.block.style.lineHeight + padding);
-const parts = computed(() => fitParts(props.block.drawnHeight - header.value - 4));
+const header = computed(() => props.block.textLines.length * props.block.style.lineHeight + 12);
+const available = computed(() => props.block.drawnHeight - header.value - 4);
+const parts = computed(() => fitParts(available.value));
 const lines = computed(() => cardLines(props.figures, props.counts, props.year));
+const background = computed(() => props.colour?.background ?? props.block.style.fill ?? '#FFFFFF');
+const text = computed(() => props.colour?.text ?? props.block.style.textColour);
+const right = computed(() => (props.block.system ? 64 : props.block.modality ? 28 : 12));
 const scale = computed(() => Math.max(props.figures.total.budget, props.figures.total.forecast, 1));
 const fill = computed(() => `${(props.figures.total.forecast / scale.value) * 100}%`);
-const stripe = computed(() => `${(props.figures.total.budget / scale.value) * 100}%`);
+const stripe = computed(() => `max(0px, calc(${(props.figures.total.budget / scale.value) * 100}% - 2px))`);
 </script>
 
 <template>
-    <div class="absolute inset-x-0 bottom-0 overflow-hidden px-3 pb-1.5 text-[12px]" :style="{ top: `${header}px`, background: colour?.background ?? block.style.fill ?? 'transparent', color: colour?.text ?? block.style.textColour }" data-financial-card>
-        <p v-if="lines.empty && parts.has('total')" class="leading-4" data-empty>{{ lines.empty }}</p>
-        <template v-else-if="!lines.empty">
-            <p v-if="parts.has('total')" class="truncate text-[16px] font-semibold leading-5" data-total>{{ lines.total }}</p>
-            <p v-if="parts.has('share')" class="truncate leading-4" data-share>{{ lines.share }}</p>
-            <div v-if="parts.has('bar')" class="relative mt-0.5 h-2 w-full rounded-sm" style="background: color-mix(in srgb, currentColor 25%, transparent)" data-bar>
-                <div class="absolute inset-y-0 left-0 rounded-sm bg-current" :style="{ width: fill }" data-bar-fill />
-                <div class="absolute inset-y-[-2px] w-0.5 bg-current" :style="{ left: stripe, boxShadow: `0 0 0 1px ${colour?.background ?? block.style.fill ?? '#FFFFFF'}` }" data-bar-budget />
-            </div>
-            <p v-if="parts.has('forecast')" class="truncate leading-4" data-forecast>{{ lines.forecast }}</p>
-            <p v-if="parts.has('counts')" class="truncate leading-4" data-counts>{{ lines.counts }}</p>
-        </template>
+    <div class="absolute inset-0 text-[12px]" :style="{ color: text }" data-financial-card>
+        <p class="absolute top-1 truncate text-[12px] font-semibold leading-4" :style="{ right: `${right}px`, maxWidth: `calc(100% - ${right + 12}px)` }" data-total>{{ lines.header }}</p>
+        <div class="absolute inset-x-0 bottom-0 overflow-hidden px-3 pb-1" :style="{ top: `${header}px`, background }" data-financial-body>
+            <p v-if="lines.empty && available >= 16" class="leading-4" data-empty>{{ lines.empty }}</p>
+            <template v-else-if="!lines.empty">
+                <div v-if="parts.has('bar')" class="relative mt-0.5 h-2 w-full rounded-sm" style="background: color-mix(in srgb, currentColor 25%, transparent)" data-bar>
+                    <div class="absolute inset-y-0 left-0 rounded-sm bg-current" :style="{ width: fill }" data-bar-fill />
+                    <div class="absolute inset-y-[-2px] w-0.5 bg-current" :style="{ left: stripe, boxShadow: `0 0 0 1px ${background}` }" data-bar-budget />
+                </div>
+                <p v-if="parts.has('forecast')" class="truncate leading-4" data-forecast>{{ lines.forecast }}</p>
+                <p v-if="parts.has('counts')" class="truncate leading-4" data-counts>{{ lines.counts }}</p>
+            </template>
+        </div>
     </div>
 </template>

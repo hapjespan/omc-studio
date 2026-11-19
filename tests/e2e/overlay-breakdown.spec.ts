@@ -11,7 +11,7 @@ test('hover and focus on a Domain list each Cost record in whole euros and stay 
     await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
 
     const domain = page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' });
-    await domain.hover({ position: { x: 6, y: 6 } });
+    await domain.hover();
     const content = page.locator('[data-hover-content]');
     await expect(content).toContainText('Uitsplitsing per kostenpost');
     await expect(content.locator('[data-breakdown]')).toContainText('Salarissen');
@@ -20,12 +20,42 @@ test('hover and focus on a Domain list each Cost record in whole euros and stay 
     await page.waitForTimeout(400);
     await expect(content).toBeVisible();
     await expectNoAxeViolations(page);
+    await page.mouse.move(0, 0);
     await page.keyboard.press('Escape');
     await expect(content).toHaveCount(0);
 
-    await page.mouse.move(0, 0);
     await domain.focus();
     await expect(content.locator('[data-breakdown]')).toContainText('Salarissen');
+});
+
+test('the breakdown follows a changed Soort kosten filter and keeps no stale rows', async ({ page }) => {
+    const seed = seedOverlay(unique());
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
+
+    const domain = page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' });
+    const content = page.locator('[data-hover-content]');
+    await domain.hover();
+    await expect(content.locator('[data-breakdown]')).toContainText('Salarissen');
+    await page.mouse.move(0, 0);
+
+    await page.getByLabel('Soort kosten').selectOption({ label: 'Leverancierscontract' });
+    await expect(page).toHaveURL(/cost_kind=supplier_contract/);
+    await domain.hover();
+    await expect(content).toBeVisible();
+    await expect(content.locator('[data-breakdown]')).toHaveCount(0);
+});
+
+test('arrow keys and clicks act on the Domain, not on the Activities its card covers', async ({ page }) => {
+    const seed = seedOverlay(unique());
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
+
+    await expect(page.locator('[data-block]', { hasText: 'Toetsen' }).first()).toHaveAttribute('inert', '');
+    await page.getByRole('button', { name: /^Primaire activiteiten/ }).focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowDown');
+    await expect(page.locator('[data-block]:focus')).toHaveAttribute('data-kind', /domain|area/);
 });
 
 test('selecting a Domain shows the figures and the breakdown in cents in the detail panel', async ({ page }) => {
@@ -33,7 +63,7 @@ test('selecting a Domain shows the figures and the breakdown in cents in the det
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
 
-    await page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' }).click({ position: { x: 6, y: 6 } });
+    await page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' }).click();
     const figures = page.locator('[data-element-figures]');
     await expect(figures).toContainText('Direct bedrag');
     await expect(figures).toContainText('€ 1.000,00');

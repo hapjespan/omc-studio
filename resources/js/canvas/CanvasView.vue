@@ -27,6 +27,7 @@ const props = defineProps<{
     zoom?: number;
     cardColours?: Record<string, { background: string; text: string }>;
     figureLines?: (id: string) => string[];
+    inertIds?: Set<string>;
 }>();
 const slots = useSlots();
 const scale = computed(() => (props.zoom ?? 100) / 100);
@@ -36,7 +37,7 @@ const move = (event: KeyboardEvent): void => {
     const current = (event.target as HTMLElement).closest<HTMLElement>('[data-block]')?.dataset.block;
     if (!current || !isNavigationKey(event.key)) return;
     event.preventDefault();
-    const next = navigate(props.drawn.blocks, current, event.key);
+    const next = navigate(props.inertIds?.size ? props.drawn.blocks.filter((block) => !props.inertIds?.has(block.id)) : props.drawn.blocks, current, event.key);
     if (next) artboard.value?.querySelector<HTMLElement>(`[data-block="${CSS.escape(next)}"]`)?.focus();
 };
 const emit = defineEmits<{ select: [id: string] }>();
@@ -61,11 +62,16 @@ const hover = computed(() => {
     }
     const block = props.drawn.blocks.find((candidate) => candidate.id === id);
     const content = detailOf(id, { areas: props.areas, elements: props.elements, statements: props.statements, modalities: props.modalities });
-    if (!block || !content || block.kind === 'area') return null;
+    if (!block || !content) return null;
+    if (block.kind === 'area') {
+        const lines = props.figureLines?.(id) ?? [];
+        return lines.length ? { x: (block.x + 8) * scale.value, y: (block.y + 30) * scale.value, title: content.title, lines } : null;
+    }
     return { x: (block.x + block.width + 8) * scale.value, y: block.y * scale.value, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : []), ...(props.figureLines?.(id) ?? [])] };
 });
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
+const areaLabel = (id: string): string => [names.value.get(id) ?? id, ...(props.figureLines?.(id) ?? [])].join('. ');
 const colours = computed(() => new Map(props.modalities.map((modality) => [modality.letter, modality.colour])));
 const modalityNames = computed(() => new Map(props.modalities.map((modality) => [modality.letter, t(`view.modality.${modality.key}`)])));
 const band = computed(() => props.drawn.blocks.find((block) => block.id === 'direction'));
@@ -80,12 +86,13 @@ const blocks = computed(() => props.drawn.blocks);
             v-for="block in blocks"
             :key="block.id"
             :block="block"
-            :label="block.kind === 'area' ? (names.get(block.id) ?? block.id) : null"
+            :label="block.kind === 'area' ? areaLabel(block.id) : null"
             :selected="selectedId === block.id"
             :modality-colour="block.modality ? (colours.get(block.modality) ?? null) : null"
             :modality-name="block.modality ? (modalityNames.get(block.modality) ?? null) : null"
             :colour="cardColours?.[block.id] ?? null"
-            :summary="figureLines ? figureLines(block.id).join('. ') : null"
+            :summary="figureLines && block.kind !== 'area' ? figureLines(block.id).join('. ') : null"
+            :inert="inertIds?.has(block.id) ?? false"
             @select="emit('select', $event)"
             :described="!!hover && peeked === block.id"
             @peek="peek"

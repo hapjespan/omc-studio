@@ -1,6 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { breakdownRows, loadContributions } from '../../../resources/js/canvas/overlay/Breakdown.vue';
+import { nextTick, ref } from 'vue';
+import { describe, expect, it, vi } from 'vitest';
+import { breakdownRows, loadContributions, useContributions } from '../../../resources/js/canvas/overlay/Breakdown.vue';
 import { figureFields } from '../../../resources/js/pages/Canvas/ElementFigures.vue';
+
+const flushPromises = async (): Promise<void> => {
+    for (let index = 0; index < 5; index++) await new Promise((resolve) => setTimeout(resolve, 0));
+};
 
 const contributions = [
     { id: 'a', name: 'Licentie', amountCents: 50000, basisPoints: 2500 },
@@ -21,18 +26,33 @@ describe('breakdownRows', () => {
 });
 
 describe('loadContributions', () => {
-    beforeEach(() => vi.stubGlobal('window', { location: { pathname: '/canvases/1/view' } }));
-
     it('asks for the contributions of one Element as a partial reload and asks once', async () => {
         const fetcher = vi.fn().mockResolvedValue({ json: () => Promise.resolve({ props: { contributions } }) });
-        const first = await loadContributions('?overlay=financial', 'x', 'v1', fetcher as unknown as typeof fetch);
-        await loadContributions('?overlay=financial', 'x', 'v1', fetcher as unknown as typeof fetch);
+        const first = await loadContributions('/canvases/1/view?overlay=financial', 'x', 'v1', fetcher as unknown as typeof fetch);
+        await loadContributions('/canvases/1/view?overlay=financial', 'x', 'v1', fetcher as unknown as typeof fetch);
         expect(first).toEqual(contributions);
         expect(fetcher).toHaveBeenCalledTimes(1);
         const [url, init] = fetcher.mock.calls[0] as [string, { headers: Record<string, string> }];
         expect(url).toBe('/canvases/1/view?overlay=financial&element=x');
         expect(init.headers['X-Inertia-Partial-Data']).toBe('contributions');
         expect(init.headers['X-Inertia-Partial-Component']).toBe('Canvas/View');
+    });
+});
+
+describe('useContributions', () => {
+    it('refetches when the address changes, so a changed filter leaves no stale rows', async () => {
+        const url = ref('/canvases/2/view?overlay=financial&cost_kind=personnel');
+        const fetcher = vi.fn((target: string) => Promise.resolve({ json: () => Promise.resolve({ props: { contributions: [{ id: target, name: target.includes('project') ? 'Project' : 'Salaris', amountCents: 100, basisPoints: 100 }] } }) }));
+        const rows = useContributions(() => 'e', () => url.value, () => 'v1', fetcher as unknown as typeof fetch);
+        await flushPromises();
+        expect(rows.value[0].name).toBe('Salaris');
+
+        url.value = '/canvases/2/view?overlay=financial&cost_kind=project';
+        await nextTick();
+        expect(rows.value).toEqual([]);
+        await flushPromises();
+        expect(fetcher).toHaveBeenCalledTimes(2);
+        expect(rows.value[0].name).toBe('Project');
     });
 });
 

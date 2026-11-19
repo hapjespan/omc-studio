@@ -28,16 +28,34 @@ describe('CanvasView card slot', () => {
 });
 
 describe('OverlaySwitch', () => {
-    it('offers Geen, Modaliteit and Financieel and selects the current overlay', async () => {
+    it('offers Geen, Modaliteit and Financieel as a segmented control and marks the current overlay', async () => {
         const html = await renderToString(createSSRApp({ render: () => h(OverlaySwitch, { modelValue: 'financial' }) }));
         expect(html).toContain('Overlay');
         for (const label of ['Geen', 'Modaliteit', 'Financieel']) expect(html).toContain(label);
-        expect(html).toMatch(/<option value="financial" selected/);
+        expect(html).toMatch(/aria-pressed="true"[^>]*>Financieel</);
+        expect(html.match(/aria-pressed="false"/g)).toHaveLength(2);
     });
 });
 
 describe('overlayQuery', () => {
     it('keeps the other parameters, drops empty ones and the element', () => {
         expect(overlayQuery('?year=2026&element=x&owner=3', { overlay: 'financial', owner: null })).toEqual({ year: '2026', overlay: 'financial' });
+    });
+});
+
+describe('CanvasView overlay accessibility', () => {
+    const withChild = [element('d', 'primary_activities', 'domain', 'Onderwijs'), element('a', 'primary_activities', 'activity', 'Les geven', 'd')];
+    const html = (extra: Record<string, unknown>): Promise<string> =>
+        renderToString(createSSRApp({ render: () => h(CanvasView, { drawn: computeCanvasLayout({ ...emptyInput(), elements: withChild }, fakeMeasurer), areas: eightAreas, elements: withChild, statements: [], modalities: [], ...extra }) }));
+
+    it('makes covered children inert so pointer and keyboard act on the Domain', async () => {
+        const output = await html({ inertIds: new Set(['a']) });
+        expect(/<button[^>]*data-block="a"[^>]*>/.exec(output)![0]).toContain('inert');
+        expect(/<button[^>]*data-block="d"[^>]*>/.exec(output)![0]).not.toContain('inert');
+    });
+
+    it('puts the Area total into the Area label', async () => {
+        const output = await html({ figureLines: (id: string) => (id === 'primary_activities' ? ['Totaal € 1.235 · 12,4%'] : []) });
+        expect(output).toContain('aria-label="Primaire activiteiten. Totaal € 1.235 · 12,4%"');
     });
 });

@@ -15,6 +15,7 @@ describe('cardLines', () => {
     it('shows whole euros, a one decimal Share and the forecast against the budget', () => {
         const lines = cardLines(figures(123456, 110000, 1235), { activities: 3, clusters: 1 }, 2026);
         expect(lines.total).toBe('Totaal € 1.235');
+        expect(lines.header).toBe('€ 1.235 · 12,4% van totaal');
         expect(lines.share).toBe('12,4% van totaal');
         expect(lines.forecast).toBe('Prognose € 1.100 · 89,1% van budget');
         expect(lines.counts).toBe('Activiteiten 3 · Clusters 1');
@@ -27,13 +28,11 @@ describe('cardLines', () => {
 });
 
 describe('fitParts', () => {
-    it('drops counts, then the forecast line, then the bar, then the Share, then the Total as the card gets smaller', () => {
-        expect([...fitParts(200)]).toEqual(['counts', 'forecast', 'bar', 'share', 'total']);
-        expect([...fitParts(76)].sort()).toEqual(['bar', 'forecast', 'share', 'total']);
-        expect([...fitParts(60)].sort()).toEqual(['bar', 'share', 'total']);
-        expect([...fitParts(40)].sort()).toEqual(['share', 'total']);
-        expect([...fitParts(30)]).toEqual(['total']);
-        expect([...fitParts(10)]).toEqual([]);
+    it('drops counts, then the forecast line, then the bar as the card gets smaller and never the Total', () => {
+        expect([...fitParts(200)]).toEqual(['counts', 'forecast', 'bar']);
+        expect([...fitParts(40)].sort()).toEqual(['bar', 'forecast']);
+        expect([...fitParts(20)]).toEqual(['bar']);
+        expect([...fitParts(5)]).toEqual([]);
     });
 });
 
@@ -44,8 +43,8 @@ describe('FinancialCard', () => {
         const html = await renderToString(createSSRApp({ render: () => h(FinancialCard, { block, figures: figures(1000, 500, 1000), counts: { activities: 0, clusters: 0 }, year: 2026 }) }));
         expect(html).toContain('data-bar-fill');
         expect(html).toContain('width:50%');
-        expect(html).toContain('left:100%');
-        expect(html).toContain('Totaal € 10');
+                expect(html).toContain('€ 10 · 10,0% van totaal');
+        expect(html).toContain('max(0px, calc(100% - 2px))');
     });
 });
 

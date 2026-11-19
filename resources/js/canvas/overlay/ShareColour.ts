@@ -1,20 +1,16 @@
-import { autoTextColour, contrastRatio } from '../../colour';
+import { autoTextColour } from '../../colour';
 
-const TARGET = [0x1e, 0x5f, 0xbf];
+const PAPER = '#FFFFFF';
+const TINT = [0x0e, 0x4d, 0x64];
 const FULL_SHARE_BP = 5000;
-const MIN_CONTRAST = 4.5;
+export const MIN_OPACITY = 0.03;
+export const MAX_OPACITY = 0.28;
 
 const channels = (hex: string): number[] => [1, 3, 5].map((index) => parseInt(hex.slice(index, index + 2), 16));
-const mix = (base: string, amount: number): string =>
-    `#${channels(base).map((value, index) => Math.round(value + (TARGET[index] - value) * amount).toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+const mix = (base: string, opacity: number): string =>
+    `#${channels(base).map((value, index) => Math.round(value + (TINT[index] - value) * opacity).toString(16).padStart(2, '0')).join('').toUpperCase()}`;
 
 export function shareColour(shareBp: number | null, base: string | null): { background: string; text: string } {
-    const origin = base ?? '#FFFFFF';
-    let amount = shareBp === null ? 0 : Math.min(1, shareBp / FULL_SHARE_BP) * 0.85;
-    let background = mix(origin, amount);
-    while (amount < 1 && contrastRatio(background, autoTextColour(background)) < MIN_CONTRAST) {
-        amount = Math.min(1, amount + 0.02);
-        background = mix(origin, amount);
-    }
+    const background = shareBp === null ? (base ?? PAPER) : mix(PAPER, MIN_OPACITY + (MAX_OPACITY - MIN_OPACITY) * Math.min(1, Math.max(0, shareBp) / FULL_SHARE_BP));
     return { background, text: autoTextColour(background) };
 }

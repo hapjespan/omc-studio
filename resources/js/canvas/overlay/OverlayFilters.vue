@@ -46,6 +46,6 @@ const change = (key: string, event: Event): void => visitOverlay({ [key]: (event
                 <option v-for="application in options.applications" :key="application.id" :value="String(application.id)" :selected="String(filters.applicationId) === String(application.id)">{{ application.name }}</option>
             </select>
         </div>
-        <p v-if="activeFilters(props.filters, options).length" class="mt-2 text-[13px]" data-active-filters>{{ t('overlay.filter.active') }}: {{ activeFilters(props.filters, options).join('; ') }}</p>
+        <p v-if="activeFilters(props.filters, options).length" role="status" class="mt-2 text-[13px]" data-active-filters>{{ t('overlay.filter.active') }}: {{ activeFilters(props.filters, options).join('; ') }}</p>
     </div>
 </template>
