@@ -200,5 +200,9 @@
   "T065": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
+  },
+  "T066": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }

@@ -4,6 +4,7 @@ namespace Tests\Feature\Accounts;
 
 use App\Models\User;
 use App\Services\Accounts\SecondFactorService;
+use App\Services\Accounts\TotpVerifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -155,9 +156,7 @@ class SecondFactorEnableTest extends TestCase
 
     private function code(string $secret): string
     {
-        $google = new Google2FA;
-
-        return $google->oathTotp($secret, $google->getTimestamp());
+        return (new Google2FA)->oathTotp($secret, app(TotpVerifier::class)->step());
     }
 
     private function wrongCode(string $secret): string

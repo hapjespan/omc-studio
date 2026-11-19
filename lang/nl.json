@@ -75,5 +75,6 @@
     "second_factor.already_active": "Tweede factor staat al aan",
     "second_factor.not_started": "Tweede factor is nog niet gestart",
     "second_factor.code_invalid": "Code: deze code klopt niet",
-    "second_factor.remaining_codes": "Nog :count herstelcode|Nog :count herstelcodes"
+    "second_factor.remaining_codes": "Nog :count herstelcode|Nog :count herstelcodes",
+    "second_factor.code_reused": "Code: deze code is al gebruikt, wacht op de volgende code"
 }

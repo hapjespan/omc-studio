@@ -24,6 +24,7 @@ class SecondFactorService
         private readonly Google2FA $google,
         private readonly RecoveryCodes $codes,
         private readonly SerialisedWrite $write,
+        private readonly TotpVerifier $verifier,
     ) {}
 
     /** @return array{secret: string, qr: string} */
@@ -44,16 +45,20 @@ class SecondFactorService
     /** @return list<string> */
     public function confirm(User $user, string $code): array
     {
+        if ($user->two_factor_confirmed_at !== null) {
+            throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
+        }
+
         if ($user->two_factor_secret === null) {
             throw ValidationException::withMessages(['rule' => __('second_factor.not_started')]);
         }
 
-        if (! $this->google->verifyKey((string) $user->two_factor_secret, $code, 1, $this->step())) {
+        if (! $this->verifier->verify($user, $code)) {
             throw ValidationException::withMessages(['code' => __('second_factor.code_invalid')]);
         }
 
         return $this->write->run([$user], function () use ($user): array {
-            if ($user->two_factor_confirmed_at !== null) {
+            if ($user->getAttribute('two_factor_confirmed_at') !== null) {
                 throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
             }
 
@@ -92,10 +97,5 @@ class SecondFactorService
         $writer = new Writer(new ImageRenderer(new RendererStyle(self::QR_SIZE), new SvgImageBackEnd));
 
         return 'data:image/svg+xml;base64,'.base64_encode($writer->writeString($url));
-    }
-
-    private function step(): int
-    {
-        return intdiv(Carbon::now()->getTimestamp(), 30);
     }
 }
