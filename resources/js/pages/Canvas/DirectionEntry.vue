@@ -118,27 +118,27 @@ function undoDeletion(): void {
     });
 }
 
-const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px] font-semibold disabled:opacity-60';
+const buttonClass = 'rounded-md border border-edge px-2 py-1.5 text-[12.5px] font-semibold disabled:opacity-60';
 </script>
 
 <template>
     <div class="mt-3 flex flex-col gap-4">
         <UndoMessage v-if="undo" :message="t('direction_entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="closeUndo" />
-        <p v-if="refusal" role="alert" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
+        <p v-if="refusal" role="alert" class="text-[12.5px] font-medium text-danger">{{ refusal }}</p>
         <form v-for="kind in kinds" :key="kind" novalidate class="flex flex-col gap-2" @submit.prevent="saveText(kind)">
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
-            <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ texts[kind].length }} / {{ LIMIT }}</p>
-            <p v-if="!statements[kind]" class="text-[12.5px] text-[#454C57]">{{ t(`direction_entry.empty_${kind}`) }}</p>
+            <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ texts[kind].length }} / {{ LIMIT }}</p>
+            <p v-if="!statements[kind]" class="text-[12.5px] text-secondary">{{ t(`direction_entry.empty_${kind}`) }}</p>
             <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.save') }}</button>
         </form>
         <section :aria-label="t('direction_entry.goals')" class="flex flex-col gap-2">
             <h3 class="text-[13px] font-semibold">{{ t('direction_entry.goals') }}</h3>
-            <p v-if="!statements.goals.length" class="text-[12.5px] text-[#454C57]">{{ t('direction_entry.empty_goals') }}</p>
+            <p v-if="!statements.goals.length" class="text-[12.5px] text-secondary">{{ t('direction_entry.empty_goals') }}</p>
             <ol v-else class="flex flex-col gap-2">
-                <li v-for="(goal, index) in statements.goals" :key="goal.id" class="flex flex-wrap items-start gap-2 rounded-md border border-[#848B95] p-2">
+                <li v-for="(goal, index) in statements.goals" :key="goal.id" class="flex flex-wrap items-start gap-2 rounded-md border border-edge p-2">
                     <div class="min-w-0 flex-1">
                         <p class="text-[13px] font-semibold">{{ goal.title }}</p>
-                        <p class="text-[12.5px] text-[#454C57]">{{ goal.body }}</p>
+                        <p class="text-[12.5px] text-secondary">{{ goal.body }}</p>
                     </div>
                     <button :id="`goal-up-${goal.id}`" type="button" :disabled="index === 0" :aria-label="t('direction_entry.up_named', { name: goal.title })" :class="buttonClass" @click="move(goal, 'up')">{{ t('direction_entry.up') }}</button>
                     <button :id="`goal-down-${goal.id}`" type="button" :disabled="index === statements.goals.length - 1" :aria-label="t('direction_entry.down_named', { name: goal.title })" :class="buttonClass" @click="move(goal, 'down')">{{ t('direction_entry.down') }}</button>
@@ -147,9 +147,9 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
             </ol>
             <form novalidate class="flex flex-col gap-2" @submit.prevent="addGoal">
                 <TextField id="goal-title" v-model="goalForm.title" :label="t('direction_entry.goal_title')" :error="goalForm.errors.title" autocomplete="off" />
-                <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ goalForm.title.length }} / {{ TITLE_LIMIT }}</p>
+                <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ goalForm.title.length }} / {{ TITLE_LIMIT }}</p>
                 <TextArea id="goal-body" v-model="goalForm.body" :label="t('direction_entry.goal_body')" :error="goalForm.errors.body" :rows="3" />
-                <p class="text-[12.5px] text-[#454C57]" aria-hidden="true">{{ goalForm.body.length }} / {{ LIMIT }}</p>
+                <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ goalForm.body.length }} / {{ LIMIT }}</p>
                 <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.add_goal') }}</button>
             </form>
         </section>

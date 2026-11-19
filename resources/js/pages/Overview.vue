@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../components/ui/AppButton.vue';
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import CanvasDialogs from './Overview/CanvasDialogs.vue';
@@ -60,12 +61,12 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
     <Head :title="t('shell.overview')" />
     <h1 ref="heading" tabindex="-1" class="text-[20px] font-semibold">{{ t('shell.overview') }}</h1>
     <div class="mt-3 flex items-center gap-4">
-        <button v-if="canWrite" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</button>
+        <AppButton v-if="canWrite" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</AppButton>
         <ArchiveToggle :model-value="showArchived" @update:model-value="toggle" />
     </div>
     <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-6">
-        <h2 :id="`organisation-${organisation.id}`" class="font-[Space_Grotesk] text-base font-semibold">{{ organisation.name }}</h2>
-        <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-[#454C57]">{{ t('overview.empty_organisation') }}</p>
+        <h2 :id="`organisation-${organisation.id}`" class="font-display text-base font-semibold">{{ organisation.name }}</h2>
+        <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-secondary">{{ t('overview.empty_organisation') }}</p>
         <ul v-else class="mt-2 flex flex-wrap gap-4">
             <li v-for="canvas in organisation.canvases" :key="canvas.id">
                 <CanvasCard :canvas="canvas" :layout="layout" :measurer="measurer" :can-write="canWrite" @action="(action, picked) => openDialog(action, picked, organisation.id)" />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -77,7 +78,7 @@ function save(): void {
         <p v-if="element.unknownAllocation" class="text-[13px]">{{ t('entry.unknown_explanation') }}</p>
         <form v-else :key="element.id" novalidate class="flex flex-col gap-3" @submit.prevent="save">
             <div role="alert"><ErrorSummary :errors="summary" prefix="element-" /></div>
-            <p class="text-[12.5px] text-[#454C57]"><span class="font-semibold">{{ t('entry.path') }}:</span> {{ path }}</p>
+            <p class="text-[12.5px] text-secondary"><span class="font-semibold">{{ t('entry.path') }}:</span> {{ path }}</p>
             <TextField id="element-name" v-model="form.name" :label="t('fields.name')" :error="nameError" autocomplete="off" />
             <TextArea id="element-description" v-model="form.description" :label="t('fields.description')" :error="errors.description" />
             <SelectField v-if="list" id="element-icon" v-model="form.icon" :label="t('entry.icon')" :options="iconOptions" :placeholder="t('entry.no_icon')" :error="errors.icon" />
@@ -87,13 +88,13 @@ function save(): void {
             </template>
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
             <div class="flex flex-wrap gap-2">
-                <button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button>
+                <AppButton type="submit" :disabled="form.processing">{{ t('entry.save') }}</AppButton>
             </div>
         </form>
         <Dialog v-model:open="confirming" :title="t('modality_entry.confirm_title')" :description="t('modality_entry.confirm_message')">
             <div class="flex gap-2">
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirming = false">{{ t('modality_entry.confirm_no') }}</button>
-                <button type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</button>
+                <AppButton type="button" @click="confirming = false">{{ t('modality_entry.confirm_no') }}</AppButton>
+                <AppButton variant="danger" type="button" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</AppButton>
             </div>
         </Dialog>
         <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone" /></div>

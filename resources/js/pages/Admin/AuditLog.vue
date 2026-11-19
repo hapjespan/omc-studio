@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { nextTick, reactive, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -79,7 +80,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
     <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
     <form class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
         <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
-            <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px] text-[#171B21]">
+            <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink">
                 <option value="">{{ t('audit_log.filter.all') }}</option>
                 <option v-for="option in select.options()" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>
@@ -87,13 +88,13 @@ const value = (text: string | null): string => (text === null || text === '' ? t
         <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
         <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
         <div class="flex items-end gap-2">
-            <button type="submit" class="min-h-6 rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('audit_log.filter.apply') }}</button>
-            <button type="button" class="min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" @click="reset">{{ t('audit_log.filter.reset') }}</button>
+            <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
+            <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
         </div>
     </form>
     <p role="status" class="mt-4 text-[13px]" data-testid="audit-count">{{ t('audit_log.count', { count: total }) }}</p>
     <ol class="mt-2 flex flex-col gap-3">
-        <li v-for="entry in entries" :key="entry.id" class="rounded-md border border-[#848B95] p-3 text-[13px]">
+        <li v-for="entry in entries" :key="entry.id" class="rounded-md border border-edge p-3 text-[13px]">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
                 <dt class="font-semibold">{{ t('audit_log.column.time') }}</dt>
                 <dd><time>{{ entry.occurred_at }}</time></dd>
@@ -106,7 +107,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
                 <dt class="font-semibold">{{ t('audit_log.column.canvas') }}</dt>
                 <dd>{{ entry.canvas ?? t('audit_log.empty_value') }}</dd>
             </dl>
-            <ul v-if="entry.changes.length" class="mt-2 flex flex-col gap-1 border-t border-[#848B95] pt-2">
+            <ul v-if="entry.changes.length" class="mt-2 flex flex-col gap-1 border-t border-edge pt-2">
                 <li v-for="change in entry.changes" :key="change.field">
                     <span class="font-semibold">{{ label('audit_log.field', change.field) }}</span>:
                     {{ t('audit_log.old') }} <q class="break-words">{{ value(change.old) }}</q>, {{ t('audit_log.new') }} <q class="break-words">{{ value(change.new) }}</q>

@@ -11,7 +11,7 @@ const panel = async (list: boolean): Promise<string> => {
     const context: { teleports?: Record<string, string> } = {};
     await renderToString(createSSRApp({ render: () => h(ElementPanel, { canvasId: 1, element: { ...rows[1], description: 'Tekst' }, elements: rows, areas: [{ key: 'primary_activities', kind: 'activities', label: 'Primaire activiteiten' }], path: 'x', list, icons: ['users'] }) }), context);
 
-    return context.teleports?.['#detail-body'] ?? '';
+    return (context.teleports?.['#detail-body'] ?? '').replace(/<!--.*?-->/g, '');
 };
 
 describe('elementPath', () => {

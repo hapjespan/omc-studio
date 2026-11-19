@@ -109,15 +109,15 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         <nav :aria-label="t('entry.areas')" class="w-[216px] shrink-0">
             <ul class="flex flex-col gap-2">
                 <li v-for="item in areas" :key="item.key">
-                    <button type="button" :aria-current="item.key === area.key ? 'true' : undefined" class="w-full rounded-[10px] border border-[#848B95] px-3 py-2 text-left aria-[current=true]:border-2 aria-[current=true]:border-[#1B1F27]" @click="current = item.key">
+                    <button type="button" :aria-current="item.key === area.key ? 'true' : undefined" class="w-full rounded-[10px] border border-edge px-3 py-2 text-left aria-[current=true]:border-2 aria-[current=true]:border-ink" @click="current = item.key">
                         <span class="block text-[13px] font-semibold">{{ item.label }}</span>
-                        <span class="block text-[12.5px] text-[#454C57]">{{ item.summary }}</span>
+                        <span class="block text-[12.5px] text-secondary">{{ item.summary }}</span>
                     </button>
                 </li>
             </ul>
         </nav>
         <section :aria-label="area.label" class="min-w-0 flex-1">
-            <h2 class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+            <h2 class="font-display text-base font-semibold">{{ area.label }}</h2>
             <DirectionEntry v-if="area.kind === 'text'" :canvas-id="canvas.id" :statements="statements" />
             <template v-if="area.kind !== 'text'">
             <QuickEntry :key="area.key" :canvas-id="canvas.id" :area="area.key" :area-label="area.label" />
@@ -125,7 +125,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntrySearch v-model="search" />
             <ArchivedToggle v-model="showArchived" />
-            <p v-if="restoreError" role="alert" class="mt-2 text-[12.5px] font-medium text-[#A12A1E]">{{ restoreError }}</p>
+            <p v-if="restoreError" role="alert" class="mt-2 text-[12.5px] font-medium text-danger">{{ restoreError }}</p>
             <Warnings :warnings="warnings" @select="select" />
             <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" @restore="restore" />
             <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />

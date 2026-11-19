@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue';
 import { t } from '../../i18n';
 import { announce } from '../feedback/status';
+import AppButton from '../ui/AppButton.vue';
 
 export type BulkAction = { key: string; label: string };
 export type BulkSummary = { done: number; verb: string; skipped: { name: string; reason: string }[] };
@@ -18,7 +19,7 @@ watch(summary, (text) => text && announce(text), { immediate: true });
     <div class="flex flex-col gap-2">
         <div v-if="selected > 0" class="flex flex-wrap items-center gap-2">
             <p class="text-[13px]">{{ t('list.selected', { count: selected }) }}</p>
-            <button v-for="action in actions" :key="action.key" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="$emit('run', action.key)">{{ action.label }}</button>
+            <AppButton v-for="action in actions" :key="action.key" @click="$emit('run', action.key)">{{ action.label }}</AppButton>
         </div>
         <div v-if="result" class="text-[13px]">
             <p>{{ summary }}</p>
