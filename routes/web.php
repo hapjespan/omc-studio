@@ -28,6 +28,7 @@ use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SampleDataController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\SnapshotController;
+use App\Http\Controllers\SnapshotViewController;
 use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\TemplateController;
@@ -190,4 +191,8 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin')->group(function (
     Route::get('/export/full', [FullExchangeController::class, 'export']);
     Route::post('/import/full/preview', [FullExchangeController::class, 'preview']);
     Route::post('/import/full', [FullExchangeController::class, 'commit']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/snapshots/{snapshot}/view', SnapshotViewController::class);
 });

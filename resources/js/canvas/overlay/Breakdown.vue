@@ -9,14 +9,14 @@ import type { Contribution } from './figures';
 const cache = new Map<string, Promise<Contribution[]>>();
 if (typeof window !== 'undefined') router.on('success', () => cache.clear());
 
-export function loadContributions(pageUrl: string, elementId: string, version: string | null, fetcher: typeof fetch = fetch): Promise<Contribution[]> {
+export function loadContributions(pageUrl: string, elementId: string, version: string | null, fetcher: typeof fetch = fetch, component = 'Canvas/View'): Promise<Contribution[]> {
     const [path, query = ''] = pageUrl.split('?');
     const params = new URLSearchParams(query);
     params.set('element', elementId);
     const url = `${path}?${params}`;
-    const key = `${version}|${url}`;
+    const key = `${version}|${component}|${url}`;
     if (!cache.has(key)) {
-        cache.set(key, fetcher(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Inertia': 'true', 'X-Inertia-Version': version ?? '', 'X-Inertia-Partial-Component': 'Canvas/View', 'X-Inertia-Partial-Data': 'contributions' } })
+        cache.set(key, fetcher(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Inertia': 'true', 'X-Inertia-Version': version ?? '', 'X-Inertia-Partial-Component': component, 'X-Inertia-Partial-Data': 'contributions' } })
             .then((response) => response.json())
             .then((body: { props: { contributions: Contribution[] } }) => body.props.contributions)
             .catch(() => {
@@ -27,13 +27,13 @@ export function loadContributions(pageUrl: string, elementId: string, version: s
     return cache.get(key)!;
 }
 
-export function useContributions(elementId: () => string, pageUrl: () => string, version: () => string | null, fetcher: typeof fetch = fetch): Ref<Contribution[]> {
+export function useContributions(elementId: () => string, pageUrl: () => string, version: () => string | null, fetcher: typeof fetch = fetch, component: () => string = () => 'Canvas/View'): Ref<Contribution[]> {
     const loaded = ref<Contribution[]>([]);
     watch([elementId, pageUrl], async ([id, url], _previous, onCleanup) => {
         let current = true;
         onCleanup(() => (current = false));
         loaded.value = [];
-        const rows = await loadContributions(url, id, version(), fetcher);
+        const rows = await loadContributions(url, id, version(), fetcher, component());
         if (current) loaded.value = rows;
     }, { immediate: true });
     return loaded;
@@ -56,7 +56,7 @@ import { t } from '../../i18n';
 
 const props = defineProps<{ elementId: string; cents?: boolean }>();
 const page = usePage();
-const loaded = useContributions(() => props.elementId, () => page.url, () => page.version);
+const loaded = useContributions(() => props.elementId, () => page.url, () => page.version, fetch, () => page.component);
 const rows = computed(() => breakdownRows(loaded.value, props.cents ?? false));
 </script>
 

@@ -11,9 +11,9 @@ let running = false;
 export async function exportPng(): Promise<string> {
     if (running) return '';
     running = true;
-    const artboard = document.querySelector<HTMLElement>('[data-artboard]');
-    if (!artboard) return t('print.png_failed');
     try {
+        const artboard = document.querySelector<HTMLElement>('[data-artboard]');
+        if (!artboard) return t('print.png_failed');
         const { toBlob } = await import('html-to-image');
         const blob = await toBlob(artboard, {
             pixelRatio: PNG_SCALE,

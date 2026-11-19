@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
 import { t } from '../../i18n';
@@ -46,7 +46,7 @@ function load(query: ListState): void {
     <div class="mt-3">
         <ListView ref="list" :title="t('snap.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" archivable :can-delete="canWrite" :can-create="canWrite" :create-label="t('snap.create')" :create-title="t('snap.create')" :undoable="false" :consequence="consequence" @change="load" @delete="remove" @restore="restore">
             <template #cell="{ row, column }">
-                <template v-if="column.key === 'name'">{{ row.name }}<span v-if="row.imported" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('snap.imported') }}</span></template>
+                <template v-if="column.key === 'name'"><Link :href="routes.snapshotView(row.id)" class="font-semibold text-[#1F4FB4] underline">{{ row.name }}</Link><span v-if="row.imported" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('snap.imported') }}</span></template>
                 <template v-else>{{ row[column.key] }}</template>
             </template>
             <template v-if="canWrite" #form="{ row, close, setDirty }">

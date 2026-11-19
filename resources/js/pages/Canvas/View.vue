@@ -16,6 +16,8 @@ import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
 import { useOverlay } from '../../canvas/overlay/useOverlay';
 import Breakdown from '../../canvas/overlay/Breakdown.vue';
+import VersionSelect from '../../canvas/VersionSelect.vue';
+import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
@@ -29,6 +31,7 @@ import type { CanvasLayoutInput, DrawnBlock, TextMeasurer } from '../../layout';
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
     canWrite: boolean;
+    versions: VersionOption[];
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
@@ -61,6 +64,7 @@ const select = (id: string): void => {
 };
 watch(() => detail.open, (open) => !open && (selectedId.value = null));
 
+const plain = ref(false);
 const zoom = ref(100);
 const scroller = ref<HTMLElement>();
 const fit = (): void => {
@@ -71,7 +75,8 @@ const fit = (): void => {
 <template>
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
-    <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" class="mt-2" />
+    <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" :overlay="overlay" class="mt-2" @plain="plain = $event" />
+    <VersionSelect v-if="versions.length" :canvas-id="canvas.id" :versions="versions" :current="null" class="mt-2" />
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <p v-if="figuresMessage" role="alert" class="mt-3 rounded-md border border-[#B3261E] px-3 py-2 text-[13px] text-[#8C1D18]" data-figures-message>{{ figuresMessage }}</p>
     <div class="mt-3 flex flex-wrap items-center gap-4">
@@ -82,8 +87,8 @@ const fit = (): void => {
     <OverlayLegend :overlay="overlay" :modalities="modalities" />
     <div class="mt-3 flex flex-wrap gap-4 lg:flex-nowrap">
         <div ref="scroller" class="h-[calc(100vh-14rem)] min-w-0 flex-1 basis-full overflow-auto lg:basis-0" tabindex="-1" data-scroller>
-            <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="cardColours" :inert-ids="inertIds" @select="select">
-                <template v-if="figures || overlay === 'modality'" #card="{ block }">
+            <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="plain ? {} : cardColours" :inert-ids="inertIds" @select="select">
+                <template v-if="!plain && (figures || overlay === 'modality')" #card="{ block }">
                     <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
                     <ModalityOverlay v-else-if="modalityCard(block)" :block="block" :counts="modalityCard(block)!" :letters="letters" />
                     <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
