@@ -7,6 +7,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Organisation;
 use App\Models\Statement;
+use App\Services\Audit\AuditContext;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Validation\ValidationException;
@@ -15,7 +16,10 @@ class CanvasLifecycle
 {
     use WritableGuard;
 
-    public function __construct(private readonly SerialisedWrite $writes) {}
+    public function __construct(
+        private readonly SerialisedWrite $writes,
+        private readonly AuditContext $context,
+    ) {}
 
     public function createFromTemplate(Organisation $organisation, Canvas $template, string $name): Canvas
     {
@@ -32,6 +36,42 @@ class CanvasLifecycle
             $this->assertWritable($target);
 
             return $this->clone($source, $target, $name);
+        });
+    }
+
+    public function rename(Canvas $canvas, string $name): Canvas
+    {
+        return $this->writes->run([$canvas], function () use ($canvas, $name) {
+            $this->assertWritable($canvas);
+            $this->assertNameFree($canvas->organisation, $name, $canvas);
+            $canvas->update(['name' => trim($name)]);
+
+            return $canvas;
+        });
+    }
+
+    public function archive(Canvas $canvas): Canvas
+    {
+        return $this->stamp($canvas, 'archived', now(), fn () => $canvas->archived_at === null);
+    }
+
+    public function restore(Canvas $canvas): Canvas
+    {
+        return $this->stamp($canvas, 'restored', null, fn () => $canvas->archived_at !== null);
+    }
+
+    private function stamp(Canvas $canvas, string $action, mixed $value, callable $applies): Canvas
+    {
+        return $this->writes->run([$canvas], function () use ($canvas, $action, $value, $applies) {
+            if ($canvas->kind === CanvasKind::Template) {
+                $this->refuse('template_write');
+            }
+
+            if ($applies()) {
+                $this->context->during($action, fn () => $canvas->update(['archived_at' => $value]));
+            }
+
+            return $canvas;
         });
     }
 
