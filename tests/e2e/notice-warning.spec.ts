@@ -15,7 +15,9 @@ test('an unseen notice shows a status warning that leads to the list and clears 
 
     const notice = page.getByRole('listitem').filter({ hasText: canvas });
     await notice.getByRole('button', { name: /^Gezien/ }).click();
-    await expect(notice.getByText('Gezien', { exact: true })).toBeVisible();
+    const seen = notice.getByText('Gezien', { exact: true });
+    await expect(seen).toBeVisible();
+    await expect(seen).toBeFocused();
 });
 
 test('a Reader sees no warning', async ({ page }) => {

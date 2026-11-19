@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Calculation\Measures;
+use App\Models\Application;
 use App\Models\Canvas;
+use App\Models\Element;
+use App\Models\Owner;
 use App\Models\SystemNotice;
 use App\Support\Format;
 use Illuminate\Http\RedirectResponse;
@@ -40,8 +44,8 @@ class SystemNoticeController extends Controller
         $notices = SystemNotice::query()
             ->when($valid['kind'] ?? null, fn ($query, $kind) => $query->where('kind', $kind))
             ->when($valid['canvas_id'] ?? null, fn ($query, $canvas) => $query->where('canvas_id', $canvas))
-            ->when($valid['from'] ?? null, fn ($query, $from) => $query->where('last_occurred_at', '>=', Carbon::parse($from, Format::TIMEZONE)->startOfDay()))
-            ->when($valid['to'] ?? null, fn ($query, $to) => $query->where('last_occurred_at', '<', Carbon::parse($to, Format::TIMEZONE)->addDay()->startOfDay()))
+            ->when($valid['from'] ?? null, fn ($query, $from) => $query->where('last_occurred_at', '>=', Carbon::parse($from, Format::TIMEZONE)->startOfDay()->utc()))
+            ->when($valid['to'] ?? null, fn ($query, $to) => $query->where('last_occurred_at', '<', Carbon::parse($to, Format::TIMEZONE)->addDay()->startOfDay()->utc()))
             ->orderByDesc('last_occurred_at')->orderByDesc('id')
             ->get();
         $canvases = Canvas::query()->whereIn('id', $notices->pluck('canvas_id')->filter())->pluck('name', 'id');
@@ -67,6 +71,55 @@ class SystemNoticeController extends Controller
         return back();
     }
 
+    /**
+     * @param  array<string, mixed>  $details
+     * @return array<string, mixed>
+     */
+    private function details(array $details): array
+    {
+        if (isset($details['check'])) {
+            $details['check'] = $this->check((string) $details['check']);
+        }
+        if (array_key_exists('filter', $details)) {
+            $details['filter'] = $this->filter((array) $details['filter']);
+        }
+
+        return $details;
+    }
+
+    private function check(string $check): string
+    {
+        $parts = explode('.', $check);
+        $head = $parts[0] === 'breakdown' ? 'breakdown.'.($parts[1] ?? '') : $parts[0];
+        $name = $parts[0] === 'total' ? ($parts[1] ?? '') : end($parts);
+        $measure = in_array($name, Measures::NAMES, true) ? __('notices.measure.'.$name) : '';
+        $subject = match ($parts[0]) {
+            'total' => Element::query()->whereKey($parts[2] ?? null)->value('name') ?? ($parts[2] ?? ''),
+            'area' => __('areas.'.($parts[1] ?? '').'.name'),
+            default => '',
+        };
+        $key = 'notices.check.'.$head;
+
+        return $key === __($key) ? $check : __($key, ['measure' => $measure, 'subject' => $subject]);
+    }
+
+    /** @param  array<string, mixed>  $filter */
+    private function filter(array $filter): string
+    {
+        $pairs = [];
+        foreach ($filter as $key => $value) {
+            $text = match ($key) {
+                'costKind' => __('cost_kind.'.$value),
+                'ownerId' => Owner::query()->whereKey($value)->value('name') ?? $value,
+                'applicationId' => Application::query()->whereKey($value)->value('name') ?? $value,
+                default => $value,
+            };
+            $pairs[] = __('notices.filter_key.'.$key).': '.$text;
+        }
+
+        return $pairs === [] ? __('notices.no_filter') : implode(', ', $pairs);
+    }
+
     /** @return array<string, mixed> */
     private function present(SystemNotice $notice, ?string $canvas): array
     {
@@ -76,7 +129,7 @@ class SystemNoticeController extends Controller
             'id' => $notice->id,
             'kind' => $notice->kind,
             'canvas' => $canvas,
-            'details' => $notice->details ?? [],
+            'details' => $this->details($notice->details ?? []),
             'count' => $notice->details['count'] ?? $notice->occurrences,
             'date' => Format::formatDate($instant),
             'last_time' => Format::formatTime($instant),

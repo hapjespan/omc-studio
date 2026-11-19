@@ -5,14 +5,14 @@ import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import Field from '../../components/fields/Field.vue';
 import TextField from '../../components/fields/TextField.vue';
-import { t } from '../../i18n';
+import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 
 interface Notice {
     id: number;
     kind: string;
     canvas: string | null;
-    details: { year?: number; filter?: Record<string, string>; check?: string; differenceCents?: number; snapshot?: string };
+    details: { year?: number; filter?: string; check?: string; differenceCents?: number; snapshot?: string };
     count: number;
     date: string;
     last_time: string;
@@ -51,11 +51,15 @@ function reset(): void {
     apply();
 }
 
-const filterText = (filter?: Record<string, string>): string => {
-    const pairs = Object.entries(filter ?? {}).map(([key, value]) => `${key}: ${value}`);
-
-    return pairs.length ? pairs.join(', ') : t('notices.no_filter');
-};
+function markSeen(notice: Notice): void {
+    router.post(routes.systemNoticeSeen(notice.id), {}, {
+        preserveScroll: true,
+        onSuccess: async () => {
+            await nextTick();
+            document.getElementById(`notice-seen-${notice.id}`)?.focus();
+        },
+    });
+}
 const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind === 'repeated_lockouts';
 </script>
 
@@ -77,7 +81,7 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
             <button type="button" class="min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" @click="reset">{{ t('audit_log.filter.reset') }}</button>
         </div>
     </form>
-    <p role="status" class="mt-4 text-[13px]" data-testid="notice-count">{{ t('notices.count', { count: total }) }}</p>
+    <p role="status" class="mt-4 text-[13px]" data-testid="notice-count">{{ plural('notices.count', total) }}</p>
     <ol class="mt-2 flex flex-col gap-3">
         <li v-for="notice in notices" :key="notice.id" class="rounded-md border border-[#848B95] p-3 text-[13px]">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
@@ -99,7 +103,7 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
                 </template>
                 <template v-if="notice.kind === 'closing_check_failed'">
                     <dt class="font-semibold">{{ t('notices.column.filter') }}</dt>
-                    <dd>{{ filterText(notice.details.filter) }}</dd>
+                    <dd>{{ notice.details.filter }}</dd>
                     <dt class="font-semibold">{{ t('notices.column.check') }}</dt>
                     <dd>{{ notice.details.check }}</dd>
                     <dt class="font-semibold">{{ t('notices.column.difference') }}</dt>
@@ -110,8 +114,8 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
                     <dd>{{ t('notices.times', { count: notice.count, time: notice.last_time }) }}</dd>
                 </template>
             </dl>
-            <p v-if="notice.seen" class="mt-2 text-[#4A5260]">{{ t('notices.seen') }}</p>
-            <button v-else type="button" class="mt-2 min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" :aria-label="t('notices.mark_seen_for', { kind: t(`notices.kind.${notice.kind}`), date: notice.date, time: notice.last_time })" @click="router.post(routes.systemNoticeSeen(notice.id), {}, { preserveScroll: true })">{{ t('notices.mark_seen') }}</button>
+            <p v-if="notice.seen" :id="`notice-seen-${notice.id}`" tabindex="-1" class="mt-2 text-[#4A5260]">{{ t('notices.seen') }}</p>
+            <button v-else type="button" class="mt-2 min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" :aria-label="t('notices.mark_seen_for', { kind: t(`notices.kind.${notice.kind}`), date: notice.date, time: notice.last_time })" @click="markSeen(notice)">{{ t('notices.mark_seen') }}</button>
         </li>
     </ol>
     <p v-if="!notices.length" class="mt-2 text-[13px]">{{ t('notices.empty') }}</p>

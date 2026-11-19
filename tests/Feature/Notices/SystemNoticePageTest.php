@@ -3,6 +3,7 @@
 namespace Tests\Feature\Notices;
 
 use App\Models\Canvas;
+use App\Models\Owner;
 use App\Models\SystemNotice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,7 +21,7 @@ class SystemNoticePageTest extends TestCase
         SystemNotice::factory()->create([
             'kind' => 'closing_check_failed',
             'canvas_id' => $canvas->id,
-            'details' => ['year' => 2026, 'filter' => [], 'check' => 'totals', 'differenceCents' => 1],
+            'details' => ['year' => 2026, 'filter' => [], 'check' => 'budget', 'differenceCents' => 1],
             'occurrences' => 10,
             'last_occurred_at' => '2026-03-01 15:40:00',
         ]);
@@ -97,5 +98,31 @@ class SystemNoticePageTest extends TestCase
         SystemNotice::factory()->create();
 
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page->where('pendingNotices', null));
+    }
+
+    public function test_the_date_filter_follows_the_local_day_boundary(): void
+    {
+        SystemNotice::factory()->create(['last_occurred_at' => '2026-03-01 23:30:00']);
+        $this->actingAs(User::factory()->administrator()->create());
+
+        $this->get('/admin/system-notices?from=2026-03-02&to=2026-03-02')->assertInertia(fn (Assert $page) => $page->where('total', 1));
+        $this->get('/admin/system-notices?to=2026-03-01')->assertInertia(fn (Assert $page) => $page->where('total', 0));
+        $this->get('/admin/system-notices?from=2026-03-03')->assertInertia(fn (Assert $page) => $page->where('total', 0));
+    }
+
+    public function test_check_and_filter_are_shown_in_words_with_names_instead_of_ids(): void
+    {
+        $owner = Owner::factory()->create(['name' => 'Inkoop']);
+        SystemNotice::factory()->create(['details' => [
+            'year' => 2026,
+            'filter' => ['costKind' => 'personnel', 'ownerId' => (string) $owner->id],
+            'check' => 'breakdown.costKind.budget',
+            'differenceCents' => 1,
+        ]]);
+
+        $this->actingAs(User::factory()->administrator()->create())->get('/admin/system-notices')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('notices.0.details.check', 'Budget: uitsplitsing naar soort kosten sluit niet')
+                ->where('notices.0.details.filter', 'Soort kosten: Personeel, Eigenaar: Inkoop'));
     }
 }

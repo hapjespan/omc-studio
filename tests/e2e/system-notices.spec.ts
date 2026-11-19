@@ -14,12 +14,13 @@ test('an Administrator finds the closing-check notice with its facts and filters
     const notice = page.getByRole('listitem').filter({ hasText: canvas });
     await expect(notice).toContainText('Cijfers sluiten niet');
     await expect(notice).toContainText('2026');
-    await expect(notice).toContainText('totals');
+    await expect(notice).toContainText('Budget: som van de verdeelde bedragen');
+    await expect(notice).toContainText('Geen filter');
     await expect(notice).toContainText('1 cent');
 
     await page.getByLabel('Canvas').selectOption({ label: canvas });
     await page.getByRole('button', { name: 'Filteren' }).click();
-    await expect(page.getByTestId('notice-count')).toHaveText('1 meldingen');
+    await expect(page.getByTestId('notice-count')).toHaveText('1 melding');
     await expectNoAxeViolations(page);
 });
 
