@@ -6,6 +6,7 @@ use App\Enums\ActorType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Table(timestamps: false)]
 #[Fillable([
@@ -19,4 +20,16 @@ class AuditEntry extends Model
         'actor_type' => ActorType::class,
         'changes' => 'array',
     ];
+
+    /** @return BelongsTo<User, $this> */
+    public function actor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'actor_id');
+    }
+
+    /** @return BelongsTo<Canvas, $this> */
+    public function canvas(): BelongsTo
+    {
+        return $this->belongsTo(Canvas::class);
+    }
 }

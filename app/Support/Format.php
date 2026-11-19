@@ -7,7 +7,7 @@ use DateTimeZone;
 
 final class Format
 {
-    private const TIMEZONE = 'Europe/Amsterdam';
+    public const TIMEZONE = 'Europe/Amsterdam';
 
     public static function formatAmount(int $cents): string
     {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -58,4 +59,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/session/keep-alive', KeepAliveController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::get('/admin/audit-log', AuditLogController::class);
 });
