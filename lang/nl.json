@@ -262,5 +262,9 @@
     "organisations.deleted": "Organisatie verwijderd",
     "organisations.archived": "Organisatie gearchiveerd",
     "organisations.restored": "Organisatie teruggezet",
-    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet"
+    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet",
+    "fiscal_years.year_invalid": "Boekjaar: kies een jaar van 2000 tot en met 2100 dat nog niet bestaat",
+    "fiscal_years.has_figures": "Dit boekjaar heeft nog jaarwaarden",
+    "fiscal_years.added": "Boekjaar toegevoegd",
+    "fiscal_years.deleted": "Boekjaar verwijderd"
 }
