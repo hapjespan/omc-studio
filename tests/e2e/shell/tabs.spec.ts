@@ -31,7 +31,7 @@ test('Beheer lists Gebruikers, Organisaties and Logboek', async ({ page }) => {
     await signInAs(page, 'administrator');
     await page.goto('/admin');
     await expect(page.getByRole('heading', { level: 1, name: 'Beheer' })).toBeVisible();
-    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Logboek']);
+    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Eigenaren', 'Applicaties', 'Logboek']);
     await expectNoAxeViolations(page);
 });
 
