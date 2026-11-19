@@ -5,5 +5,5 @@ const open = defineModel<boolean>({ default: false });
 </script>
 
 <template>
-    <button type="button" aria-controls="primary-tabs" :aria-expanded="open" class="shell-menu-button rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="open = !open">{{ t('shell.menu') }}</button>
+    <button type="button" aria-controls="primary-tabs" :aria-expanded="open" class="shell-menu-button h-dense rounded-control border border-edge bg-white px-3 text-[13px] font-medium" @click="open = !open">{{ t('shell.menu') }}</button>
 </template>

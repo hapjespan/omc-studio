@@ -11,7 +11,7 @@ const current = (href: string): boolean => props.url.split('?')[0] === href;
 </script>
 
 <template>
-    <div role="group" :aria-label="t('shell.mode_group')" class="flex gap-2 text-[13px]">
-        <Link v-for="mode in modes" :key="mode.key" :href="mode.href(canvas.id)" :aria-current="current(mode.href(canvas.id)) ? 'page' : undefined" class="rounded-md border border-[#848B95] px-3 py-1.5 aria-[current=page]:bg-ink aria-[current=page]:text-white">{{ t(mode.label) }}</Link>
+    <div role="group" :aria-label="t('shell.mode_group')" class="inline-flex h-control items-stretch rounded-control border border-edge bg-white p-px text-[13px]">
+        <Link v-for="mode in modes" :key="mode.key" :href="mode.href(canvas.id)" :aria-current="current(mode.href(canvas.id)) ? 'page' : undefined" class="inline-flex items-center rounded-[5px] px-3 font-medium text-secondary aria-[current=page]:bg-ink aria-[current=page]:font-semibold aria-[current=page]:text-white">{{ t(mode.label) }}</Link>
     </div>
 </template>
