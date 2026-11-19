@@ -14,12 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class AuditEntry extends Model
 {
-    protected function casts(): array
-    {
-        return [
-            'occurred_at' => 'datetime',
-            'actor_type' => ActorType::class,
-            'changes' => 'array',
-        ];
-    }
+    protected $casts = [
+        'occurred_at' => 'datetime',
+        'actor_type' => ActorType::class,
+        'changes' => 'array',
+    ];
 }

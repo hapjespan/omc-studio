@@ -14,6 +14,7 @@ class AuditEntryTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** @param array<string, mixed> $attributes */
     private function entry(array $attributes = []): AuditEntry
     {
         return AuditEntry::create($attributes + [

@@ -25,15 +25,13 @@ class Canvas extends Model
         });
     }
 
-    protected function casts(): array
-    {
-        return [
-            'kind' => CanvasKind::class,
-            'is_blank_template' => 'boolean',
-            'archived_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'kind' => CanvasKind::class,
+        'is_blank_template' => 'boolean',
+        'archived_at' => 'datetime',
+    ];
 
+    /** @return BelongsTo<Organisation, $this> */
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);

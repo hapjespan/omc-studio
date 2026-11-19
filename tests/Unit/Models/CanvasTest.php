@@ -72,6 +72,9 @@ class CanvasTest extends TestCase
         $this->assertTrue($indexes->contains(fn ($i) => $i['columns'] === ['scope_key', 'name_normalised'] && $i['unique']));
         $this->assertTrue($indexes->contains(fn ($i) => $i['columns'] === ['organisation_id', 'archived_at']));
         $this->assertTrue($indexes->contains(fn ($i) => $i['columns'] === ['kind']));
-        $this->assertSame([], $indexes->filter(fn ($i) => ! empty($i['where'] ?? null))->all());
+        $this->assertSame(
+            [['scope_key', 'name_normalised']],
+            $indexes->filter(fn ($i) => $i['unique'] && ! $i['primary'])->pluck('columns')->all(),
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Enums\Role;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -23,7 +24,7 @@ class UserTest extends TestCase
     {
         User::factory()->create(['email' => 'a@example.test']);
 
-        $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
+        $this->expectException(UniqueConstraintViolationException::class);
 
         User::factory()->create(['email' => 'A@example.test']);
     }

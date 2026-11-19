@@ -20,25 +20,25 @@ class Element extends Model
     /** @use HasFactory<ElementFactory> */
     use HasFactory, HasUuids, NormalisesName;
 
+    /** @var list<string> */
     protected $touches = ['canvas'];
 
     protected $attributes = ['position' => 0, 'is_unknown_allocation' => false];
 
-    protected function casts(): array
-    {
-        return [
-            'kind' => ElementKind::class,
-            'position' => 'integer',
-            'is_unknown_allocation' => 'boolean',
-            'archived_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'kind' => ElementKind::class,
+        'position' => 'integer',
+        'is_unknown_allocation' => 'boolean',
+        'archived_at' => 'datetime',
+    ];
 
+    /** @return BelongsTo<Canvas, $this> */
     public function canvas(): BelongsTo
     {
         return $this->belongsTo(Canvas::class);
     }
 
+    /** @return BelongsTo<Area, $this> */
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);

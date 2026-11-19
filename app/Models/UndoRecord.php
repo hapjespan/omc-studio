@@ -10,8 +10,5 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['token', 'user_id', 'kind', 'payload', 'expires_at'])]
 class UndoRecord extends Model
 {
-    protected function casts(): array
-    {
-        return ['payload' => 'array', 'expires_at' => 'datetime'];
-    }
+    protected $casts = ['payload' => 'array', 'expires_at' => 'datetime'];
 }

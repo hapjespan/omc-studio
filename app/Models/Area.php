@@ -15,8 +15,5 @@ class Area extends Model
         'value_propositions', 'primary_activities', 'supporting_activities',
     ];
 
-    protected function casts(): array
-    {
-        return ['position' => 'integer', 'carries_costs' => 'boolean'];
-    }
+    protected $casts = ['position' => 'integer', 'carries_costs' => 'boolean'];
 }

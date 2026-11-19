@@ -20,19 +20,17 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
-    protected function casts(): array
-    {
-        return [
-            'password' => 'hashed',
-            'role' => Role::class,
-            'must_change_password' => 'boolean',
-            'one_time_password_expires_at' => 'datetime',
-            'two_factor_secret' => 'encrypted',
-            'two_factor_confirmed_at' => 'datetime',
-            'two_factor_last_time_step' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'password' => 'hashed',
+        'role' => Role::class,
+        'must_change_password' => 'boolean',
+        'one_time_password_expires_at' => 'datetime',
+        'two_factor_secret' => 'encrypted',
+        'two_factor_confirmed_at' => 'datetime',
+        'two_factor_last_time_step' => 'integer',
+    ];
 
+    /** @return Attribute<string, string> */
     protected function email(): Attribute
     {
         return Attribute::set(fn (string $value) => mb_strtolower(trim($value)));

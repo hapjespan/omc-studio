@@ -22,8 +22,5 @@ class Organisation extends Model
         });
     }
 
-    protected function casts(): array
-    {
-        return ['archived_at' => 'datetime'];
-    }
+    protected $casts = ['archived_at' => 'datetime'];
 }

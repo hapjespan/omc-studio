@@ -10,8 +10,5 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['user_id', 'code_hash'])]
 class RecoveryCode extends Model
 {
-    protected function casts(): array
-    {
-        return ['code_hash' => 'hashed'];
-    }
+    protected $casts = ['code_hash' => 'hashed'];
 }

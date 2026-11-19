@@ -41,7 +41,6 @@ class ElementTest extends TestCase
         }
 
         $this->assertSame([], $indexes->filter(fn ($i) => $i['unique'] && ! $i['primary'])->all());
-        $this->assertSame([], $indexes->filter(fn ($i) => ! empty($i['where'] ?? null))->all());
     }
 
     public function test_creating_changing_and_deleting_an_element_touches_the_canvas(): void
@@ -61,17 +60,20 @@ class ElementTest extends TestCase
         $this->assertTrue($canvas->fresh()->updated_at->isToday());
     }
 
-    public function test_an_element_with_children_cannot_be_deleted_but_a_canvas_removes_its_tree(): void
+    public function test_an_element_with_children_cannot_be_deleted(): void
     {
         $domain = Element::factory()->create();
         Element::factory()->for($domain->canvas)->create(['parent_id' => $domain->id, 'kind' => ElementKind::Activity]);
 
-        try {
-            $domain->delete();
-            $this->fail('the parent was deleted');
-        } catch (QueryException) {
-            $this->assertSame(2, DB::table('elements')->count());
-        }
+        $this->expectException(QueryException::class);
+
+        $domain->delete();
+    }
+
+    public function test_a_canvas_removes_its_whole_tree(): void
+    {
+        $domain = Element::factory()->create();
+        Element::factory()->for($domain->canvas)->create(['parent_id' => $domain->id, 'kind' => ElementKind::Activity]);
 
         $domain->canvas->delete();
 

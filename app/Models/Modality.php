@@ -10,8 +10,5 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['key', 'letter', 'colour', 'position'])]
 class Modality extends Model
 {
-    protected function casts(): array
-    {
-        return ['position' => 'integer'];
-    }
+    protected $casts = ['position' => 'integer'];
 }

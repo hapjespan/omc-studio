@@ -69,12 +69,11 @@ class ReferenceDataTest extends TestCase
 
     public function test_no_route_writes_the_reference_data(): void
     {
-        foreach (Route::getRoutes() as $route) {
-            if (preg_match('#(^|/)(areas|modalities)(/|$)#', $route->uri())) {
-                $this->assertSame(['GET', 'HEAD'], $route->methods(), $route->uri());
-            }
-        }
+        $writers = collect(Route::getRoutes()->getRoutes())
+            ->filter(fn ($route) => preg_match('#(^|/)(areas|modalities)(/|$)#', $route->uri()) && $route->methods() !== ['GET', 'HEAD'])
+            ->map(fn ($route) => $route->uri())
+            ->all();
 
-        $this->assertTrue(true);
+        $this->assertSame([], $writers);
     }
 }
