@@ -12,7 +12,7 @@ test('3 Domains with 5 Activities each are on the Canvas within one minute', asy
     await page.getByRole('button', { name: 'Snel invoeren' }).click();
     await page.getByLabel('Regels').fill(input);
     await expect(page.getByTestId('quick-entry-line')).toHaveCount(18);
-    await page.getByRole('button', { name: 'Opslaan' }).click();
+    await page.getByRole('button', { name: 'Opslaan', exact: true }).click();
 
     const rows = page.getByRole('list', { name: 'Structuur van Primaire activiteiten' }).getByTestId('entry-row');
     await expect(rows).toHaveCount(18);

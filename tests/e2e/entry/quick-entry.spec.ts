@@ -17,7 +17,7 @@ test('the preview marks lines new or existing and Opslaan saves them all', async
     await expect(preview.nth(1)).toContainText('nieuw');
     await expectNoAxeViolations(page);
 
-    await page.getByRole('button', { name: 'Opslaan' }).click();
+    await page.getByRole('button', { name: 'Opslaan', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Snel invoeren' })).toBeFocused();
     const rows = page.getByRole('list', { name: 'Structuur van Primaire activiteiten' }).getByTestId('entry-row');
     await expect(rows.filter({ hasText: 'Verkoop' })).toHaveCount(1);
@@ -33,7 +33,7 @@ test('line errors are listed with their line number, link to the line and disabl
 
     const error = page.getByRole('link', { name: 'Regel 3: inspringing past niet bij de regel erboven' });
     await expect(error).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Opslaan' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Opslaan', exact: true })).toBeDisabled();
 
     await error.click();
     await expect(page.getByLabel('Regels')).toBeFocused();
@@ -65,7 +65,7 @@ test('a list Area refuses two indents', async ({ page }) => {
     await page.getByLabel('Regels').fill('Leveranciers\n  Drukkerij\n    Papier');
 
     await expect(page.getByText('Regel 3: in deze area bestaan geen clusters')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Opslaan' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Opslaan', exact: true })).toBeDisabled();
 });
 
 test('Tab with a selection indents the selected lines and keeps the text, also after reopening', async ({ page }) => {
