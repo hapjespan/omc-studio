@@ -154,5 +154,6 @@
     "users.email_taken": "E-mailadres: dit adres is al in gebruik",
     "users.role_invalid": "Rol: kies Administrator of Lezer",
     "users.last_administrator": "Er moet minstens één beheerder blijven",
-    "users.own_account": "Je kunt je eigen account niet verwijderen of je eigen rol wijzigen"
+    "users.own_account": "Je kunt je eigen account niet verwijderen of je eigen rol wijzigen",
+    "users.deleted_user": "verwijderde gebruiker"
 }
