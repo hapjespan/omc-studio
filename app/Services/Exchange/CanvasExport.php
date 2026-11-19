@@ -21,7 +21,7 @@ class CanvasExport
     public function build(Canvas $canvas): array
     {
         $organisation = $canvas->organisation()->firstOrFail();
-        $years = $organisation->fiscalYears()->orderBy('year')->pluck('year', 'id')->all();
+        $years = $this->years($organisation);
 
         return [
             'format' => self::FORMAT,
@@ -29,17 +29,38 @@ class CanvasExport
             'exported_at' => now()->toIso8601String(),
             'organisation' => $this->organisation($organisation, $years),
             'cost_records' => $this->costRecords($organisation, $years),
-            'canvas' => [
-                'name' => $canvas->name,
-                'statements' => $this->statements($canvas),
-                'elements' => $this->elements($canvas),
-                'layout' => null,
-                'allocation_sets' => $this->sets($canvas, $years),
-                'finalised_years' => FinalisedYear::where('canvas_id', $canvas->getKey())->get()
-                    ->map(fn (FinalisedYear $year) => ['year' => $years[$year->fiscal_year_id], 'finalised_at' => $year->finalised_at->toIso8601String()])
-                    ->sortBy('year')->values()->all(),
-            ],
+            'canvas' => $this->canvasBlock($canvas, $years),
         ];
+    }
+
+    /** @return array<int, int> */
+    public function years(Organisation $organisation): array
+    {
+        return $organisation->fiscalYears()->orderBy('year')->pluck('year', 'id')->all();
+    }
+
+    /**
+     * @param  array<int, int>  $years
+     * @return array<string, mixed>
+     */
+    public function canvasBlock(Canvas $canvas, array $years): array
+    {
+        return [
+            'name' => $canvas->name,
+            'statements' => $this->statements($canvas),
+            'elements' => $this->elements($canvas),
+            'layout' => null,
+            'allocation_sets' => $this->sets($canvas, $years),
+            'finalised_years' => FinalisedYear::where('canvas_id', $canvas->getKey())->get()
+                ->map(fn (FinalisedYear $year) => ['year' => $years[$year->fiscal_year_id], 'finalised_at' => $year->finalised_at->toIso8601String()])
+                ->sortBy('year')->values()->all(),
+        ];
+    }
+
+    /** @return array{name: string, statements: list<array<string, mixed>>, elements: list<array<string, mixed>>} */
+    public function templateBlock(Canvas $template): array
+    {
+        return ['name' => $template->name, 'statements' => $this->statements($template), 'elements' => $this->elements($template)];
     }
 
     public function fileName(Canvas $canvas): string
@@ -51,7 +72,7 @@ class CanvasExport
      * @param  array<int, int>  $years
      * @return array<string, mixed>
      */
-    private function organisation(Organisation $organisation, array $years): array
+    public function organisation(Organisation $organisation, array $years): array
     {
         return [
             'name' => $organisation->name,
@@ -65,7 +86,7 @@ class CanvasExport
      * @param  array<int, int>  $years
      * @return list<array<string, mixed>>
      */
-    private function costRecords(Organisation $organisation, array $years): array
+    public function costRecords(Organisation $organisation, array $years): array
     {
         return CostRecord::with(['owner', 'application', 'yearlyFigures'])->where('organisation_id', $organisation->getKey())->orderBy('code')->orderBy('id')->get()
             ->map(fn (CostRecord $record) => [

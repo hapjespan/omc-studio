@@ -21,6 +21,7 @@ use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FullExchangeController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
@@ -152,4 +153,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/imports/canvas/preview', [CanvasImportController::class, 'preview']);
     Route::post('/imports/canvas', [CanvasImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin')->group(function () {
+    Route::get('/exchange', [FullExchangeController::class, 'page']);
+    Route::get('/export/full', [FullExchangeController::class, 'export']);
 });
