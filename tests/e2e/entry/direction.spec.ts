@@ -6,7 +6,7 @@ test('mission, vision and goals are written, reordered, deleted with undo and cl
     await openEntry(page, canvas, 'Koers');
 
     await page.getByLabel('Missie', { exact: true }).fill('Samen bouwen');
-    await page.getByRole('button', { name: 'Opslaan' }).first().click();
+    await page.getByRole('region', { name: 'Koers' }).getByRole('button', { name: 'Opslaan', exact: true }).first().click();
     await expect(page.getByLabel('Missie', { exact: true })).toHaveValue('Samen bouwen');
     await expect(page.getByText('Nog geen visie')).toBeVisible();
 
@@ -30,7 +30,7 @@ test('mission, vision and goals are written, reordered, deleted with undo and cl
     await expectNoAxeViolations(page);
 
     await page.getByLabel('Missie', { exact: true }).fill('');
-    await page.getByRole('button', { name: 'Opslaan' }).first().click();
+    await page.getByRole('region', { name: 'Koers' }).getByRole('button', { name: 'Opslaan', exact: true }).first().click();
     await expect(page.getByText('Nog geen missie')).toBeVisible();
 });
 
@@ -39,6 +39,6 @@ test('a mission over 2000 characters is refused by name', async ({ page }) => {
     await openEntry(page, canvas, 'Koers');
 
     await page.getByLabel('Missie', { exact: true }).fill('a'.repeat(2001));
-    await page.getByRole('button', { name: 'Opslaan' }).first().click();
+    await page.getByRole('region', { name: 'Koers' }).getByRole('button', { name: 'Opslaan', exact: true }).first().click();
     await expect(page.getByText('Missie: gebruik maximaal 2000 tekens')).toBeVisible();
 });

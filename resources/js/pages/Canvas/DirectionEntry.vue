@@ -131,8 +131,8 @@ const buttonClass = 'rounded-md border border-[#848B95] px-2 py-1.5 text-[12.5px
             <p v-if="!statements[kind]" class="text-[12.5px] text-[#454C57]">{{ t(`direction_entry.empty_${kind}`) }}</p>
             <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.save') }}</button>
         </form>
-        <section :aria-labelledby="'direction-goals'" class="flex flex-col gap-2">
-            <h3 id="direction-goals" class="text-[13px] font-semibold">{{ t('direction_entry.goals') }}</h3>
+        <section :aria-label="t('direction_entry.goals')" class="flex flex-col gap-2">
+            <h3 class="text-[13px] font-semibold">{{ t('direction_entry.goals') }}</h3>
             <p v-if="!statements.goals.length" class="text-[12.5px] text-[#454C57]">{{ t('direction_entry.empty_goals') }}</p>
             <ol v-else class="flex flex-col gap-2">
                 <li v-for="(goal, index) in statements.goals" :key="goal.id" class="flex flex-wrap items-start gap-2 rounded-md border border-[#848B95] p-2">
