@@ -9,7 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('elements', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id');
+            $table->primary('id');
             $table->foreignId('canvas_id')->constrained()->cascadeOnDelete();
             $table->foreignId('area_id')->constrained()->restrictOnDelete();
             $table->foreignUuid('parent_id')->nullable()->constrained('elements')->noActionOnDelete();
