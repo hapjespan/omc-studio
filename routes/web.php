@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\UndoController;
@@ -24,4 +25,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('can:administer')->scopeBindings()->group(function () {
     Route::post('/undo/{token}', UndoController::class)->name('undo');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/sign-in/second-factor', [SecondFactorChallengeController::class, 'create']);
+    Route::post('/sign-in/second-factor', [SecondFactorChallengeController::class, 'store']);
 });

@@ -76,5 +76,11 @@
     "second_factor.not_started": "Tweede factor is nog niet gestart",
     "second_factor.code_invalid": "Code: deze code klopt niet",
     "second_factor.remaining_codes": "Nog :count herstelcode|Nog :count herstelcodes",
-    "second_factor.code_reused": "Code: deze code is al gebruikt, wacht op de volgende code"
+    "second_factor.code_reused": "Code: deze code is al gebruikt, wacht op de volgende code",
+    "sign_in.second_factor.title": "Tweede factor",
+    "sign_in.second_factor.intro": "Vul de code van zes cijfers uit je authenticator-app in, of een herstelcode",
+    "sign_in.second_factor.code_label": "Code of herstelcode",
+    "sign_in.second_factor.submit": "Doorgaan",
+    "sign_in.second_factor.code_required": "Code: vul je code of herstelcode in",
+    "sign_in.second_factor.failed": "Code: deze code of herstelcode is onjuist"
 }

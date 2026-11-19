@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class SignInService
 {
+    public const PENDING = 'second_factor_pending';
+
     private const NAMESPACE = 'sign-in';
 
     private const ABSENT = '$2y$12$bTyp9.0Py5RIM5Fet/8fmuFi2PWzVcSlPm9UFVKzp5VgK0lkWUaFe';
@@ -51,11 +53,48 @@ class SignInService
         }
 
         $this->throttle->clear($email);
+
+        if ($user->two_factor_confirmed_at !== null) {
+            session()->regenerate();
+            session()->put(self::PENDING, ['id' => $user->getKey(), 'password' => $this->fingerprint($user)]);
+            SecurityLog::record('second_factor_required', ['user_id' => $user->getKey()]);
+
+            return $user;
+        }
+
+        $this->complete($user);
+
+        return $user;
+    }
+
+    public function pendingUser(): ?User
+    {
+        $pending = session(self::PENDING);
+
+        if (! is_array($pending)) {
+            return null;
+        }
+
+        $user = User::query()->whereKey($pending['id'] ?? 0)->whereNotNull('two_factor_confirmed_at')->first();
+
+        if ($user === null || ! hash_equals($this->fingerprint($user), (string) ($pending['password'] ?? ''))) {
+            return null;
+        }
+
+        return $user;
+    }
+
+    public function complete(User $user): void
+    {
+        session()->forget(self::PENDING);
         Auth::login($user);
         session()->put('signed_in_at', Carbon::now()->getTimestamp());
         SecurityLog::record('sign_in_succeeded');
+    }
 
-        return $user;
+    private function fingerprint(User $user): string
+    {
+        return hash_hmac('sha256', (string) $user->password, (string) config('app.key'));
     }
 
     private function refuse(string $email, string $reason): never
