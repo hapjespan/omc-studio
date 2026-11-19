@@ -23,8 +23,8 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
-use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\StructureImportController;
+use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 
