@@ -6,7 +6,11 @@ const pad = (value: number): string => String(value).padStart(2, '0');
 
 export const pngFileName = (date: Date): string => `canvas-${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}.png`;
 
+let running = false;
+
 export async function exportPng(): Promise<string> {
+    if (running) return '';
+    running = true;
     const artboard = document.querySelector<HTMLElement>('[data-artboard]');
     if (!artboard) return t('print.png_failed');
     try {
@@ -28,5 +32,7 @@ export async function exportPng(): Promise<string> {
         return t('print.png_done');
     } catch {
         return t('print.png_failed');
+    } finally {
+        running = false;
     }
 }

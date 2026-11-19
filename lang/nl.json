@@ -944,6 +944,7 @@
     "csvx.export_failed": "Exporteren is niet gelukt",
     "print.export_png": "Exporteren als PNG",
     "print.print": "Afdrukken",
+    "print.print_anyway": "Toch afdrukken",
     "print.png_working": "PNG wordt gemaakt",
     "print.png_done": "PNG is gemaakt",
     "print.png_failed": "PNG maken is niet gelukt",

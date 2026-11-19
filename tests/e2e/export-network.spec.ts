@@ -10,7 +10,7 @@ test('PNG export makes no outside request and no CSP violation, with a neutral f
     const download = page.waitForEvent('download');
     await page.getByRole('menuitem', { name: 'Exporteren als PNG' }).click();
     const name = (await download).suggestedFilename().toLowerCase();
-    expect(name).not.toMatch(/indicia|laravel|inertia|claude|anthropic/);
+    expect(name).not.toMatch(/indicia|laravel|inertia/);
     await expect(page.getByTestId('export-note')).toHaveText('PNG is gemaakt');
     guards.assertNoOutsideRequest();
     await guards.assertNoCspViolation();

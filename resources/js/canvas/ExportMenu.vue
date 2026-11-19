@@ -60,11 +60,27 @@ async function png(): Promise<void> {
     close();
 }
 
+const pending = ref(false);
+const proceed = ref<HTMLButtonElement>();
+
 async function print(): Promise<void> {
-    note.value = printWarning(props.beyond);
-    if (note.value) await announce(note.value);
     close();
+    const warning = printWarning(props.beyond);
+    if (!warning) {
+        note.value = '';
+        printCanvas();
+        return;
+    }
+    note.value = warning;
+    pending.value = true;
+    await announce(warning);
     await nextTick();
+    proceed.value?.focus();
+}
+
+function printAnyway(): void {
+    pending.value = false;
+    note.value = '';
     printCanvas();
 }
 </script>
@@ -80,5 +96,6 @@ async function print(): Promise<void> {
             <li role="none"><button role="menuitem" tabindex="-1" type="button" class="block w-full rounded px-2 py-1.5 text-left text-[13px] hover:bg-[#E3EBFB] focus:bg-[#E3EBFB]" @click="print">{{ t('print.print') }}</button></li>
         </ul>
         <p v-if="note" class="mt-1 text-[12.5px]" data-testid="export-note">{{ note }}</p>
+        <button v-if="pending" ref="proceed" type="button" class="mt-1 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="printAnyway">{{ t('print.print_anyway') }}</button>
     </div>
 </template>

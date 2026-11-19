@@ -1,26 +1,11 @@
-@page {
+@page canvas {
     size: A3 landscape;
     margin: 0;
 }
 
 @media print {
-    .shell {
-        display: block;
-        min-height: 0;
-    }
-
-    .shell-top,
-    .shell-left,
-    #detail-panel,
-    .shell-main > :not(h1):not([data-scroller]):not([data-overflow-notice]) {
-        display: none !important;
-    }
-
-    .shell-main {
-        padding: 0;
-    }
-
     [data-scroller] {
+        page: canvas;
         height: auto !important;
         overflow: visible !important;
         margin: 0 !important;
@@ -37,7 +22,23 @@
         zoom: 0.9448;
     }
 
-    * {
+    .shell:has([data-artboard]) {
+        display: block;
+        min-height: 0;
+    }
+
+    .shell:has([data-artboard]) .shell-top,
+    .shell:has([data-artboard]) .shell-left,
+    .shell:has([data-artboard]) #detail-panel,
+    .shell:has([data-artboard]) .shell-main > :not([data-scroller]) {
+        display: none !important;
+    }
+
+    .shell:has([data-artboard]) .shell-main {
+        padding: 0;
+    }
+
+    .shell:has([data-artboard]) * {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
     }
