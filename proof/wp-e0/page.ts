@@ -7,6 +7,7 @@ import Proof from './Proof.vue';
 import fixtureJson from './fixtures/scene.json';
 import { loadBrowserFonts, loadFace, lockFontSources, registerFaces } from './fonts';
 import { computeBlocks, type Fixture } from './layout';
+import { watchFinishedActions } from './changes';
 import { canvasMeasurer } from './measure';
 import { readBlocks } from './roundtrip';
 import { buildScene } from './scene';
@@ -33,7 +34,7 @@ async function start() {
         createApp({ render: () => h(Proof, { editor, onReady: resolve }) }).mount('#app');
     });
     await ready;
-    Object.assign(window, { proof: { editor, graph, fixture, blocks, readBlocks: () => readBlocks(graph) } });
+    Object.assign(window, { proof: { editor, graph, fixture, blocks, readBlocks: () => readBlocks(graph), watchFinishedActions: (listener: (action: { ids: string[]; at: number }) => void) => watchFinishedActions(editor, graph, listener) } });
     document.documentElement.dataset.ready = 'true';
 }
 
