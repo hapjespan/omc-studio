@@ -56,10 +56,12 @@ class EntryPageTest extends TestCase
         Element::factory()->create(['area_id' => $domain->area_id, 'kind' => ElementKind::Domain, 'name' => 'Andere']);
 
         $this->actingAs(User::factory()->administrator()->create())->get("/canvases/{$canvas->id}/entry")->assertInertia(function (Assert $page) use ($domain) {
-            $elements = collect($page->toArray()['props']['elements'])->keyBy('name');
+            /** @var array<int, array<string, mixed>> $list */
+            $list = $page->toArray()['props']['elements'];
+            $elements = array_column($list, null, 'name');
 
             $this->assertCount(2, $elements);
-            $this->assertSame(['id' => $domain->id, 'area' => 'steering', 'parent' => null, 'kind' => 'domain', 'archived' => false], collect($elements['Inkoop'])->only(['id', 'area', 'parent', 'kind', 'archived'])->all());
+            $this->assertSame(['id' => $domain->id, 'area' => 'steering', 'parent' => null, 'kind' => 'domain', 'archived' => false], array_intersect_key($elements['Inkoop'], array_flip(['id', 'area', 'parent', 'kind', 'archived'])));
             $this->assertSame($domain->id, $elements['Werving']['parent']);
             $this->assertTrue($elements['Werving']['archived']);
             $page->has('modalities', 4)->where('modalities.0.letter', 'C')->where('icons.0', 'users');
