@@ -10,12 +10,12 @@ test('the panel saves name and description, shows "Alles opgeslagen" and refuses
     await expect(panel.getByText('Primaire activiteiten > Inkoop > Werving')).toBeVisible();
 
     await panel.getByLabel('Naam').fill('Selectie');
-    await panel.getByRole('button', { name: 'Opslaan' }).click();
+    await panel.getByRole('button', { name: 'Opslaan', exact: true }).click();
     await expect(panel.getByLabel('Naam')).toHaveAccessibleDescription(/staat al een element/);
 
     await panel.getByLabel('Naam').fill('Werving nieuw');
     await panel.getByLabel('Omschrijving').fill('Uitleg');
-    await panel.getByRole('button', { name: 'Opslaan' }).click();
+    await panel.getByRole('button', { name: 'Opslaan', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Alles opgeslagen' })).toBeVisible();
     await expect(page.getByTestId('entry-row').filter({ hasText: 'Werving nieuw' })).toBeVisible();
     await expectNoAxeViolations(page);

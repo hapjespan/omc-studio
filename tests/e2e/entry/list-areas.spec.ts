@@ -16,7 +16,7 @@ test('a list Area has Groups with Items, the Item label and an icon select, and 
     const panel = page.getByRole('complementary');
     await panel.getByLabel('Icoon').click();
     await page.getByRole('option', { name: 'Mensen' }).click();
-    await panel.getByRole('button', { name: 'Opslaan' }).click();
+    await panel.getByRole('button', { name: 'Opslaan', exact: true }).click();
     await expect(page.getByTestId('entry-row').filter({ hasText: 'Burgers' })).toContainText('Mensen');
     await expect(panel.getByText('Modaliteit')).toHaveCount(0);
     await expectNoAxeViolations(page);

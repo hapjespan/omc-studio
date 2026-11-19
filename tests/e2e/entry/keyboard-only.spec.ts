@@ -33,7 +33,7 @@ test('the independent test of Invoeren runs with the keyboard only', async ({ pa
     await page.keyboard.press('Enter');
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
-    await page.getByRole('button', { name: 'Opslaan' }).focus();
+    await page.getByRole('button', { name: 'Opslaan', exact: true }).focus();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('complementary').getByText('Primaire activiteiten > Inkoop > Contracten > Werving')).toBeVisible();
     await page.keyboard.press('Escape');
