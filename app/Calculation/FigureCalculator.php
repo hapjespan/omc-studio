@@ -52,9 +52,7 @@ final class FigureCalculator
             $canvasTotal = Measures::add($canvasTotal, $area);
         }
         foreach ($elements as &$figures) {
-            $figures['shareBp'] = $canvasTotal['budget'] === 0
-                ? null
-                : intdiv(2 * $figures['total']['budget'] * 10000 + $canvasTotal['budget'], 2 * $canvasTotal['budget']);
+            $figures['shareBp'] = $canvasTotal['budget'] === 0 ? null : $this->shareBp($figures['total']['budget'], $canvasTotal['budget']);
         }
         unset($figures);
 
@@ -136,6 +134,13 @@ final class FigureCalculator
         }
 
         return $totals[$id] = $total;
+    }
+
+    private function shareBp(int $part, int $whole): int
+    {
+        $scaled = $part * 10000;
+
+        return intdiv($scaled, $whole) + (2 * ($scaled % $whole) >= $whole ? 1 : 0);
     }
 
     /**

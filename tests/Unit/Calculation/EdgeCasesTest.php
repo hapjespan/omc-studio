@@ -27,6 +27,21 @@ class EdgeCasesTest extends TestCase
         return (new FigureCalculator)->calculate(new CalculationInput($elements, $areas, $records, $sets));
     }
 
+    public function test_a_canvas_total_beyond_the_double_scaled_integer_range_still_gives_shares(): void
+    {
+        $records = [];
+        $sets = [];
+        for ($i = 0; $i < 5000; $i++) {
+            $records[] = ['id' => "r$i", 'budgetCents' => 99_999_999_999];
+            $sets["r$i"] = [['elementId' => 'a1', 'basisPoints' => 10000]];
+        }
+
+        $figures = $this->calculate($records, $sets);
+
+        $this->assertSame(10000, $figures->elements['a1']['shareBp']);
+        $this->assertTrue($figures->closingCheck['passed']);
+    }
+
     public function test_zero_budget_with_a_set_gives_zero_amounts_and_passes(): void
     {
         $figures = $this->calculate([['id' => 'r', 'budgetCents' => 0]], ['r' => [['elementId' => 'a1', 'basisPoints' => 4000], ['elementId' => 'a2', 'basisPoints' => 6000]]]);

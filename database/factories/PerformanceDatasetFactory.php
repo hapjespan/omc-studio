@@ -78,8 +78,7 @@ class PerformanceDatasetFactory
         $kinds = ['supplier_contract', 'personnel', 'project', 'other'];
         $records = [];
         $figures = [];
-        $sets = [];
-        $lines = [];
+        $plans = [];
         for ($i = 0; $i < $this->costRecordCount; $i++) {
             $id = (string) Str::orderedUuid();
             $records[] = ['id' => $id, 'organisation_id' => $organisation->id, 'name' => "Cost record $i", 'cost_kind' => $kinds[$i % 4], 'owner_id' => $ownerId, 'created_at' => $now, 'updated_at' => $now];
@@ -92,18 +91,30 @@ class PerformanceDatasetFactory
             if ($i % 10 === 9) {
                 continue;
             }
-            $setId = $i + 1;
-            $sets[] = ['id' => $setId, 'canvas_id' => $canvas->id, 'cost_record_id' => $id, 'fiscal_year_id' => $fiscalYear->id, 'created_at' => $now, 'updated_at' => $now];
             $count = mt_rand(1, 5);
-            foreach ((array) array_rand($targets, $count) as $position => $targetIndex) {
-                $lines[] = ['allocation_set_id' => $setId, 'element_id' => $targets[$targetIndex], 'basis_points' => intdiv(10000, $count) + ($position === 0 ? 10000 % $count : 0), 'position' => $position];
-            }
+            $plans[$id] = array_map(
+                fn ($position, $targetIndex) => ['element_id' => $targets[$targetIndex], 'basis_points' => intdiv(10000, $count) + ($position === 0 ? 10000 % $count : 0), 'position' => $position],
+                array_keys((array) array_rand($targets, $count)),
+                (array) array_rand($targets, $count),
+            );
         }
 
-        foreach ([['cost_records', $records], ['yearly_figures', $figures], ['allocation_sets', $sets], ['allocation_lines', $lines]] as [$table, $rows]) {
+        foreach ([['cost_records', $records], ['yearly_figures', $figures]] as [$table, $rows]) {
             foreach (array_chunk($rows, 100) as $chunk) {
                 DB::table($table)->insert($chunk);
             }
+        }
+
+        $lines = [];
+        foreach ($plans as $costRecordId => $planned) {
+            $setId = DB::table('allocation_sets')->insertGetId(['canvas_id' => $canvas->id, 'cost_record_id' => $costRecordId, 'fiscal_year_id' => $fiscalYear->id, 'created_at' => $now, 'updated_at' => $now]);
+            foreach ($planned as $line) {
+                $lines[] = ['allocation_set_id' => $setId] + $line;
+            }
+        }
+
+        foreach (array_chunk($lines, 100) as $chunk) {
+            DB::table('allocation_lines')->insert($chunk);
         }
     }
 }
