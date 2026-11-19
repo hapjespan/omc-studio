@@ -30,7 +30,7 @@ class Finalisation
 
     public function finalise(Canvas $canvas, FiscalYear $year): FinalisedYear
     {
-        return $this->writes->run([$this->organisation($canvas)], function () use ($canvas, $year): FinalisedYear {
+        return $this->writes->run([$this->organisation($canvas), $canvas], function () use ($canvas, $year): FinalisedYear {
             $this->assertWritable($canvas);
 
             if ($this->row($canvas, $year) !== null) {
@@ -60,7 +60,7 @@ class Finalisation
 
     public function reopen(Canvas $canvas, FiscalYear $year): void
     {
-        $this->writes->run([$this->organisation($canvas)], function () use ($canvas, $year): void {
+        $this->writes->run([$this->organisation($canvas), $canvas], function () use ($canvas, $year): void {
             $this->assertWritable($canvas);
 
             $row = $this->row($canvas, $year);

@@ -27,7 +27,7 @@ class CarryOver
     {
         $organisation = Organisation::findOrFail($canvas->organisation_id);
 
-        return $this->writes->run([$organisation], function () use ($canvas, $source, $target, $withFigures): array {
+        return $this->writes->run([$organisation, $canvas], function () use ($canvas, $source, $target, $withFigures): array {
             $this->assertWritable($canvas);
             $this->assertTargetOpen($canvas, $target, $withFigures);
 
