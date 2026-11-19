@@ -12,7 +12,7 @@ test('"Hangt onder" moves an Activity to the end of a Cluster and never offers t
     await expect(page.getByRole('option', { name: 'Primaire activiteiten > Inkoop > Contracten' })).toBeVisible();
     await expect(page.getByRole('option', { name: /Onbekende allocatie/ })).toHaveCount(0);
     await page.getByRole('option', { name: 'Primaire activiteiten > Inkoop > Contracten' }).click();
-    await panel.getByRole('button', { name: 'Opslaan' }).click();
+    await panel.getByRole('button', { name: 'Opslaan', exact: true }).click();
 
     await expect(panel.getByText('Primaire activiteiten > Inkoop > Contracten > Werving')).toBeVisible();
     await expectNoAxeViolations(page);

@@ -13,8 +13,8 @@ import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type Entry
 import ElementActions from './ElementActions.vue';
 import ParentSelect from './ParentSelect.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[] }>();
-const emit = defineEmits<{ saved: []; changed: []; gone: [kind: 'archived' | 'deleted', name: string] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const emit = defineEmits<{ saved: []; changed: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element) });
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
 const errors = computed(() => form.errors as Record<string, string>);
@@ -63,6 +63,6 @@ function save(): void {
                 <button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button>
             </div>
         </form>
-        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" @gone="(kind, name) => $emit('gone', kind, name)" /></div>
+        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone" /></div>
     </Teleport>
 </template>
