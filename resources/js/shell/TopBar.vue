@@ -3,7 +3,6 @@ import { Link } from '@inertiajs/vue3';
 import { t } from '../i18n';
 import { routes } from '../routes';
 import UserMenu from './UserMenu.vue';
-import YearSelector from './YearSelector.vue';
 
 export interface ShellCanvas {
     id: number;
@@ -25,6 +24,6 @@ defineProps<{ appName: string; role: string; canvas?: ShellCanvas | null }>();
                 <li aria-current="page">{{ canvas.name }}</li>
             </ol>
         </nav>
-        <div class="ml-auto flex items-center gap-4"><YearSelector /><UserMenu :role="role" /></div>
+        <div class="ml-auto"><UserMenu :role="role" /></div>
     </div>
 </template>
