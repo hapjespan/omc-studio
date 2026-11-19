@@ -42,9 +42,37 @@ class CiWorkflowTest extends TestCase
         $jobs = (array) $this->parse('.github/workflows/ci.yml')['jobs'];
 
         $this->assertSame(
-            ['php-sqlite', 'php-postgres', 'js', 'e2e', 'audit', 'image'],
+            ['php-sqlite', 'php-postgres', 'js', 'scope', 'e2e', 'e2e-performance', 'audit', 'image'],
             array_keys($jobs),
         );
+    }
+
+    public function test_the_functional_end_to_end_job_leaves_the_performance_specs_to_their_own_job(): void
+    {
+        $this->assertStringContainsString("--grep-invert '@performance|Secure session cookie'", $this->commands('e2e'));
+    }
+
+    public function test_the_performance_specs_run_alone_with_one_worker_and_no_retries(): void
+    {
+        $commands = $this->commands('e2e-performance');
+
+        $this->assertStringContainsString("--grep '@performance' --workers=1 --retries=0", $commands);
+        $this->assertStringNotContainsString('--grep-invert', $commands);
+    }
+
+    public function test_a_pull_request_that_only_touches_documentation_skips_both_playwright_jobs(): void
+    {
+        foreach (['e2e', 'e2e-performance'] as $name) {
+            $job = $this->job($name);
+
+            $this->assertSame('scope', $job['needs']);
+            $this->assertSame("needs.scope.outputs.documentation_only != 'true'", $job['if']);
+        }
+    }
+
+    public function test_a_push_to_release_always_counts_as_a_code_change(): void
+    {
+        $this->assertStringContainsString('if [ "${{ github.event_name }}" = "pull_request" ]', $this->commands('scope'));
     }
 
     public function test_the_second_run_uses_a_reachable_postgres_with_the_project_database(): void
