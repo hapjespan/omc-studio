@@ -121,8 +121,8 @@ function save(): void {
 <template>
     <div ref="root" class="mt-3">
         <button v-if="!open" ref="opener" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="show">{{ t('quick_entry.open') }}</button>
-        <section v-else :aria-labelledby="`quick-entry-title-${area}`" class="rounded-[10px] border border-[#848B95] p-3" @keydown="keydown">
-            <h3 :id="`quick-entry-title-${area}`" class="font-[Space_Grotesk] text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
+        <section v-else :aria-label="t('quick_entry.title', { area: areaLabel })" class="rounded-[10px] border border-[#848B95] p-3" @keydown="keydown">
+            <h3 class="font-[Space_Grotesk] text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
             <TextArea id="quick-entry-text" v-model="text" :label="t('quick_entry.label')" :hint="t('quick_entry.hint')" :rows="10" :error="errors.length ? t('quick_entry.error_count', { count: errors.length }) : undefined" />
             <h4 class="mt-3 text-[13px] font-semibold">{{ t('quick_entry.preview') }}</h4>
             <ul :aria-label="t('quick_entry.preview')" class="mt-1 flex flex-col gap-1">
