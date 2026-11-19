@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasController;
+use App\Http\Controllers\CanvasImportController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
@@ -123,4 +124,9 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
 
 Route::middleware('auth')->group(function () {
     Route::get('/canvases/{canvas}/export/json', [ExportController::class, 'canvasJson']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/imports/canvas/preview', [CanvasImportController::class, 'preview']);
+    Route::post('/imports/canvas', [CanvasImportController::class, 'commit']);
 });
