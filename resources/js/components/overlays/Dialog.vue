@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
-import { ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import { t } from '../../i18n';
 
 const props = defineProps<{ title: string; description?: string; dirty?: boolean; variant?: 'dialog' | 'panel' }>();
 const open = defineModel<boolean>('open', { default: false });
 const confirming = ref(false);
+const keepEditing = ref<HTMLButtonElement>();
 
 watch(open, () => (confirming.value = false));
+watch(confirming, async (asking) => {
+    if (!asking) return;
+    await nextTick();
+    keepEditing.value?.focus();
+});
 
 function requestClose(): void {
     if (props.dirty) confirming.value = true;
@@ -41,7 +47,7 @@ function discard(): void {
                 <div v-if="confirming" role="alertdialog" aria-labelledby="discard-title" class="mt-3 rounded-md border border-[#848B95] p-3">
                     <p id="discard-title" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
                     <div class="mt-2 flex gap-2">
-                        <button type="button" autofocus class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirming = false">{{ t('dialog.keep_editing') }}</button>
+                        <button ref="keepEditing" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirming = false">{{ t('dialog.keep_editing') }}</button>
                         <button type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="discard">{{ t('dialog.discard') }}</button>
                     </div>
                 </div>
