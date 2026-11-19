@@ -72,6 +72,14 @@ class DeliveredStackFilesTest extends TestCase
         $this->assertStringContainsString('zend.exception_ignore_args=On', $this->read('Dockerfile'));
     }
 
+    public function test_the_image_accepts_uploads_above_the_php_defaults(): void
+    {
+        $dockerfile = $this->read('Dockerfile');
+
+        $this->assertStringContainsString('upload_max_filesize=50M', $dockerfile);
+        $this->assertStringContainsString('post_max_size=55M', $dockerfile);
+    }
+
     public function test_the_writable_directories_exist_before_the_autoload_scripts_run(): void
     {
         $dockerfile = $this->read('Dockerfile');
