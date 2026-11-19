@@ -46,7 +46,7 @@ class AuditObserver
     {
         $secrets = array_intersect_key(self::SECRETS[$model::class] ?? [], $changes);
         $events = array_filter($secrets);
-        $changes = array_diff_key($changes, $secrets, array_flip(self::TECHNICAL), [$model->getKeyName() => null]);
+        $changes = array_diff_key($changes, $secrets, array_flip($model->getHidden()), array_flip(self::TECHNICAL), [$model->getKeyName() => null]);
 
         if ($changes === [] && $events === []) {
             return;
