@@ -56,15 +56,12 @@ Responses: Inertia pages for GET; for writes, a redirect back with flash data, o
 | GET /organisations/{organisation}/cost-records | A | Kostenposten for an Organisation | US18, FR-053 |
 | GET /canvases/{canvas}/cost-records | A | Kostenposten from a Canvas, with status and cards | US18.4 |
 | POST /organisations/{organisation}/cost-records; PATCH /cost-records/{costRecord}; DELETE | A | Cost records | US18 |
-| POST /organisations/{organisation}/cost-records/bulk-delete | A | `ids` of the selection; deletes what every rule allows, reports the skipped rows with their reason, one undo token for the whole action | US4.9, FR-017 |
 | POST /cost-records/{costRecord}/archive, /restore | A | | US18.13 |
 | PUT /cost-records/{costRecord}/years/{year}; DELETE | A | Yearly figures | US18.7 to 12 |
 | POST /organisations/{organisation}/fiscal-years; DELETE /fiscal-years/{fiscalYear} | A | | US18.1, US18.2 |
-| GET, POST, PATCH, DELETE /admin/organisations/{organisation}/owners[/{owner}] | A | With `replace_with` on delete (numeric id) | US17 |
-| GET, POST, PATCH, DELETE /admin/organisations/{organisation}/applications[/{application}] | A | With `replace_with` on delete: Owners take a numeric id, Applications take a numeric id or the sentinel `none` | US17 |
-| GET /organisations/{organisation}/cost-records/import | A | Import page | US19 |
+| GET, POST, PATCH, DELETE /admin/organisations/{organisation}/owners[/{owner}] | A | With `replace_with` on delete | US17 |
+| GET, POST, PATCH, DELETE /admin/organisations/{organisation}/applications[/{application}] | A | With `replace_with` on delete | US17 |
 | POST /organisations/{organisation}/cost-records/import/preview, /import | A | CSV dry run and commit | US19 |
-| GET /admin/owners; GET /admin/applications | A | Owners and Applications lists with an Organisation chooser | US17 |
 | GET /canvases/{canvas}/allocation | A | Toewijzen | US20 |
 | PUT /canvases/{canvas}/years/{year}/cost-records/{costRecord}/allocation | A | Replace the whole set | FR-057 |
 | DELETE /canvases/{canvas}/years/{year}/cost-records/{costRecord}/allocation | A | "Set leegmaken" | US20.9 |
