@@ -10,6 +10,7 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::delete('/fiscal-years/{fiscalYear}', [FiscalYearController::class, 'destroy']);
     Route::get('/organisations/{organisation}/cost-records', [CostRecordController::class, 'index']);
     Route::post('/organisations/{organisation}/cost-records', [CostRecordController::class, 'store']);
+    Route::post('/organisations/{organisation}/cost-records/bulk-delete', [CostRecordController::class, 'bulkDestroy']);
     Route::patch('/cost-records/{costRecord}', [CostRecordController::class, 'update']);
     Route::delete('/cost-records/{costRecord}', [CostRecordController::class, 'destroy']);
     Route::post('/cost-records/{costRecord}/archive', [CostRecordController::class, 'archive']);

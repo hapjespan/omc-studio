@@ -3,7 +3,9 @@ import { renderToString } from 'vue/server-renderer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FlashUndo } from '../../../resources/js/components/list/undoFlash';
 
-const flash: { undo: FlashUndo | null } = { undo: null };
+type FlashBulk = { done: number; skipped: { name: string; reason: string }[] };
+
+const flash: { undo: FlashUndo | null; bulk: FlashBulk | null } = { undo: null, bulk: null };
 
 vi.mock('@inertiajs/vue3', () => ({
     router: { get: () => {}, post: () => {}, put: () => {}, delete: () => {} },
@@ -22,8 +24,33 @@ const list = () => renderToString(createSSRApp({
     render: () => h(CostRecords, { rows: [row], count: 1, query, organisation: { id: 1, name: 'Organisatie', archived: false }, year: 2026, years: [{ id: 1, year: 2026 }], owners: [], applications: [], costKinds: ['other'] }),
 }));
 
+describe('result of a bulk deletion', () => {
+    beforeEach(() => {
+        flash.undo = null;
+        flash.bulk = null;
+    });
+
+    it('counts the deleted rows and names every skipped row with its reason', async () => {
+        flash.bulk = { done: 2, skipped: [{ name: 'Drie', reason: '2026 is definitief in canvas Strategie. Heropen het jaar eerst, of archiveer de kostenpost' }] };
+        flash.undo = { token: 't3', message: '2 kostenposten verwijderd' };
+        const html = await list();
+
+        expect(html).toContain('2 verwijderd, 1 overgeslagen');
+        expect(html).toContain('Drie: 2026 is definitief in canvas Strategie');
+        expect(html).toContain('2 kostenposten verwijderd');
+        expect(html).toContain('Ongedaan maken');
+    });
+
+    it('reports nothing without a bulk action', async () => {
+        expect(await list()).not.toContain('overgeslagen');
+    });
+});
+
 describe('undo after a Yearly figures deletion', () => {
-    beforeEach(() => (flash.undo = null));
+    beforeEach(() => {
+        flash.undo = null;
+        flash.bulk = null;
+    });
 
     it('offers Ongedaan maken in the panel', async () => {
         flash.undo = { token: 't1', message: 'Jaarwaarden verwijderd', scope: 'figures' };

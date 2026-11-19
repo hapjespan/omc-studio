@@ -23,7 +23,10 @@ const list = ref<InstanceType<typeof ListView>>();
 const errors = computed(() => page.props.errors as Record<string, string>);
 const listError = computed(() => (errors.value.rule ? { rule: errors.value.rule } : {}));
 const undo = useUndoFlash();
-const bulkResult = ref<BulkSummary | null>(null);
+const bulkResult = computed<BulkSummary | null>(() => {
+    const result = (page.props.flash as { bulk?: { done: number; skipped: { name: string; reason: string }[] } | null } | undefined)?.bulk ?? null;
+    return result ? { done: result.done, verb: t('cost_records.bulk_verb'), skipped: result.skipped } : null;
+});
 const yearsOpen = ref(false);
 const keep = { preserveScroll: true, preserveState: true };
 
@@ -60,18 +63,10 @@ const remove = (row: ListRow): void => {
 };
 const restore = (row: ListRow): void => router.post(routes.costRecordRestore(row.id), {}, { ...keep, onSuccess: focusList });
 const archive = (row: ListRow, close: () => void): void => router.post(routes.costRecordArchive(row.id), {}, { ...keep, onSuccess: () => { close(); focusList(); } });
-const deleteOne = (row: ListRow): Promise<string | null> => new Promise((resolve) => {
-    let reason: string | null = null;
-    router.delete(routes.costRecord(row.id), { ...keep, onError: (failed) => (reason = failed.rule ?? Object.values(failed)[0] ?? ''), onFinish: () => resolve(reason) });
-});
-async function bulk(key: string, selected: ListRow[]): Promise<void> {
+function bulk(key: string, selected: ListRow[]): void {
     if (key !== 'delete') return;
-    const skipped: { name: string; reason: string }[] = [];
-    for (const row of selected) {
-        const reason = await deleteOne(row);
-        if (reason !== null) skipped.push({ name: row.name, reason });
-    }
-    bulkResult.value = { done: selected.length - skipped.length, verb: t('cost_records.bulk_verb'), skipped };
+    undo.start();
+    router.post(routes.costRecordsBulkDelete(props.organisation.id), { ids: selected.map((row) => row.id) }, keep);
 }
 
 function load(query: ListState, year: number | null = props.year): void {
