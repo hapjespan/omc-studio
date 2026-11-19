@@ -5,6 +5,7 @@ namespace App\Services\Lists;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class BulkResult
@@ -25,14 +26,16 @@ class BulkResult
     {
         $result = new self;
 
-        foreach ($rows as $row) {
-            try {
-                $action($row);
-                $result->doneIds[] = $row->getKey();
-            } catch (ValidationException $refusal) {
-                $result->skipped[] = ['name' => (string) $row->getAttribute('name'), 'reason' => (string) collect($refusal->errors())->flatten()->first()];
+        DB::transaction(function () use ($rows, $action, $result) {
+            foreach ($rows as $row) {
+                try {
+                    DB::transaction(fn () => $action($row));
+                    $result->doneIds[] = $row->getKey();
+                } catch (ValidationException $refusal) {
+                    $result->skipped[] = ['name' => (string) $row->getAttribute('name'), 'reason' => (string) collect($refusal->errors())->flatten()->first()];
+                }
             }
-        }
+        });
 
         return $result;
     }

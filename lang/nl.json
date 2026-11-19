@@ -168,7 +168,6 @@
     "list.delete_name_field": "Naam ter bevestiging",
     "list.cancel": "Annuleren",
     "list.undo": "Ongedaan maken",
-    "list.deleted": ":name verwijderd",
     "list.select_all": "Alle rijen selecteren",
     "list.select_row": "Selecteer :name",
     "list.selected": ":count geselecteerd",

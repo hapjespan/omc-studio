@@ -48,4 +48,22 @@ class BulkResultTest extends TestCase
 
         $this->assertSame('Naam is bezet', $result->skipped()[0]['reason']);
     }
+
+    public function test_an_unexpected_failure_rolls_the_whole_batch_back_and_is_not_hidden(): void
+    {
+        $rows = collect(['Alpha', 'Beta'])->map(fn (string $name) => Organisation::create(['name' => $name]));
+
+        try {
+            BulkResult::apply($rows, function (Organisation $row) {
+                $row->delete();
+
+                if ($row->name === 'Beta') {
+                    throw new \RuntimeException('boom');
+                }
+            });
+            $this->fail('The failure was swallowed');
+        } catch (\RuntimeException) {
+            $this->assertSame(2, Organisation::count());
+        }
+    }
 }

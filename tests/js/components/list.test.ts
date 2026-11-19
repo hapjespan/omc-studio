@@ -3,6 +3,7 @@ import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
 import { matchesName } from '../../../resources/js/components/list/ConfirmDelete.vue';
 import UndoMessage from '../../../resources/js/components/list/UndoMessage.vue';
+import { message } from '../../../resources/js/components/feedback/status';
 import ListView, { type ListState } from '../../../resources/js/components/list/ListView.vue';
 
 const render = (props: Record<string, unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props) }));
@@ -157,6 +158,8 @@ describe('ListView bulk actions', () => {
         const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, bulkActions, bulkResult: result });
 
         expect(html).toContain('2 verwijderd, 1 overgeslagen');
+        expect(message.value).toBe('2 verwijderd, 1 overgeslagen');
+        expect(html).not.toContain('role="status" class="text-[13px]"');
         expect(html).toContain('Cor: Gebruikt in een canvas');
     });
 
@@ -179,7 +182,7 @@ describe('ListView archive handling', () => {
     it('reflects the shown state in the toggle', async () => {
         const html = await render({ title: 'Gebruikers', columns, rows: archivedRows, count: 3, query: { ...idle, archived: true }, archivable: true });
 
-        expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*checked[^>]*id="list-archived"|<input[^>]*id="list-archived"[^>]*checked/);
+        expect(html).toMatch(/<input id="[^"]+" checked type="checkbox"/);
     });
 
     it('marks an archived row with text and offers Terugzetten for that row only', async () => {
@@ -196,5 +199,16 @@ describe('ListView undo exclusion', () => {
         const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, undo: { id: 'a', message: 'Anna verwijderd' }, undoable: false });
 
         expect(html).not.toContain('Ongedaan maken');
+    });
+});
+
+describe('unique ids per list instance', () => {
+    it('gives two lists on one page different search ids', async () => {
+        const props = { columns, rows, count: 2, query: idle };
+        const html = await renderToString(createSSRApp({ render: () => h('div', [h(ListView, { title: 'A', ...props }), h(ListView, { title: 'B', ...props })]) }));
+
+        const ids = [...html.matchAll(/<input id="([^"]+)" value/g)].map((match) => match[1]);
+        expect(ids).toHaveLength(2);
+        expect(new Set(ids).size).toBe(2);
     });
 });

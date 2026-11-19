@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { t } from '../../i18n';
 import ArchiveToggle from './ArchiveToggle.vue';
 import BulkBar, { type BulkAction, type BulkSummary } from './BulkBar.vue';
@@ -23,6 +23,7 @@ const deleting = ref<ListRow | null>(null);
 const deleteOpen = computed({ get: () => deleting.value !== null, set: (open) => { if (!open) deleting.value = null; } });
 const selected = ref<(number | string)[]>([]);
 const allSelected = computed(() => props.rows.length > 0 && selected.value.length === props.rows.length);
+const searchId = useId();
 const SEARCH_DELAY_MS = 250;
 const search = ref(props.query.search);
 const searchField = ref<HTMLInputElement>();
@@ -46,9 +47,26 @@ function toggleAll(checked: boolean): void {
     selected.value = checked ? props.rows.map((row) => row.id) : [];
 }
 
+async function focusSearchUnlessUndo(): Promise<void> {
+    await nextTick();
+    if (!props.undo) searchField.value?.focus();
+}
+
 function runBulk(key: string): void {
     emit('bulk', key, props.rows.filter((row) => selected.value.includes(row.id)));
     selected.value = [];
+    focusSearchUnlessUndo();
+}
+
+function onDelete(row: ListRow): void {
+    emit('delete', row);
+    focusSearchUnlessUndo();
+}
+
+function onFilters(filters: Record<string, string>): void {
+    const removed = Object.keys(filters).length < Object.keys(props.query.filters).length;
+    change({ filters });
+    if (removed) focusSearchUnlessUndo();
 }
 
 function onSearch(): void {
@@ -72,8 +90,8 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
     <section :aria-label="title" class="flex flex-col gap-3">
         <div class="flex flex-wrap items-end gap-3">
             <div class="flex flex-col gap-1">
-                <label for="list-search" class="text-[13px] font-semibold">{{ t('list.search') }}</label>
-                <input id="list-search" ref="searchField" v-model="search" type="search" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]" @input="onSearch" />
+                <label :for="searchId" class="text-[13px] font-semibold">{{ t('list.search') }}</label>
+                <input :id="searchId" ref="searchField" v-model="search" type="search" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]" @input="onSearch" />
             </div>
             <button v-if="$slots.form && canCreate" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="editing = 'new'">{{ t('list.new') }}</button>
             <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
@@ -81,7 +99,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
         </div>
         <UndoMessage v-if="undo && undoable" :key="undo.id" :message="undo.message" :refusal="undo.refusal" @undo="emit('undo')" @close="emit('dismissUndo')" />
         <BulkBar v-if="bulkActions?.length" :actions="bulkActions" :selected="selected.length" :result="bulkResult" @run="runBulk" />
-        <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="change({ filters: $event })" />
+        <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="onFilters" />
         <table class="w-full border-collapse text-[13px]">
             <caption class="sr-only">{{ title }}</caption>
             <thead>
@@ -113,7 +131,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                 <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-2 py-3 text-[#454C57]">{{ t('list.empty') }}</td></tr>
             </tbody>
         </table>
-        <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="emit('delete', deleting)" />
+        <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="onDelete(deleting)" />
         <ListForm v-if="$slots.form" v-model:open="formOpen" :title="editing === 'new' || editing === null ? (createTitle ?? t('list.new')) : editing.name" v-slot="{ close, setDirty }">
             <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :set-dirty="setDirty" />
         </ListForm>
