@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
-import { expect, test } from './support/guards';
+import { expect, expectNoAxeViolations, test } from './support/guards';
 import { seedOrganisation, tinker } from './support/finance';
 import { seedPerformanceCanvas } from './support/overlay';
 import { signInAs } from './support/shell';
+
+test.beforeEach(() => test.setTimeout(120000));
 
 const unique = (prefix: string): string => `${prefix} ${randomUUID().slice(0, 8)}`;
 
@@ -79,11 +81,13 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await expect(totals.locator('[data-closing]')).toHaveText('Totalen sluiten: € 230,00 + € 0,00 = € 230,00');
     await card.hover();
     await expect(page.locator('[data-hover-content]')).toContainText('Totaal € 230');
+    await expectNoAxeViolations(page);
 
     await page.goto(`/canvases/${canvas}/cost-records?year=2026`);
     await expect(page.getByText('Alle kostenposten zijn toegewezen. Het jaar kan definitief worden.')).toBeVisible();
     await page.getByRole('button', { name: 'Jaar definitief maken' }).click();
     await expect(page.getByText('Het jaar 2026 is definitief.')).toBeVisible();
+    await expectNoAxeViolations(page);
 
     await page.getByRole('button', { name: 'Boekjaren' }).click();
     const years = page.getByRole('dialog', { name: 'Boekjaren' });

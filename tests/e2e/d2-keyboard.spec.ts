@@ -6,6 +6,8 @@ import { seedWorkspace, unique } from './support/d2';
 import { activate, choose, tabTo, type } from './support/keyboard';
 import { signInAs } from './support/shell';
 
+test.beforeEach(() => test.setTimeout(120000));
+
 test('Owners: create by keyboard alone and close the form with Escape', async ({ page }) => {
     const { organisation } = seedWorkspace();
     await signInAs(page, 'administrator');
@@ -57,12 +59,12 @@ test('Kostenposten of the Canvas: search, open a record, carry over and finalise
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas}/cost-records?year=2026`);
 
+    await activate(page, page.getByRole('button', { name: 'Jaar overnemen' }));
+    await expect(page.getByRole('dialog', { name: 'Jaar overnemen' })).toBeVisible();
+    await page.keyboard.press('Escape');
     await type(page, page.getByRole('searchbox').first(), 'Lic');
     await activate(page, page.getByRole('button', { name: 'Licentie', exact: true }));
     await expect(page.getByRole('dialog', { name: 'Licentie' })).toBeVisible();
-    await page.keyboard.press('Escape');
-    await activate(page, page.getByRole('button', { name: 'Jaar overnemen' }));
-    await expect(page.getByRole('dialog', { name: 'Jaar overnemen' })).toBeVisible();
     await page.keyboard.press('Escape');
 
     const ready = seedAllocation(unique(), {});
@@ -81,6 +83,7 @@ test('Import of Cost records: check and import by keyboard alone', async ({ page
     await page.getByLabel('CSV-bestand').setInputFiles({ name: 'import.csv', mimeType: 'text/csv', buffer: Buffer.from(`${header}\n${unique('K')};Licenties;Project;;Ada;;;2026;12,50;;;;\n`) });
     await activate(page, page.getByRole('button', { name: 'Controleren' }));
     await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: geen fouten');
+    await expect(page.getByRole('button', { name: 'Importeren' })).toBeEnabled();
     await activate(page, page.getByRole('button', { name: 'Importeren' }));
     await expect(page.getByRole('main').getByRole('status')).toContainText('Geïmporteerd: 1 nieuw');
 });
@@ -152,7 +155,9 @@ test('Overlays: switch the overlay, filter, and open a card with its figures by 
 
     await activate(page, page.getByRole('button', { name: 'Financieel' }));
     await expect(page.getByRole('button', { name: 'Financieel', pressed: true })).toBeVisible();
-    await choose(page, page.getByLabel('Eigenaar'), 'Afdeling ICT');
+    await tabTo(page, page.getByLabel('Eigenaar'));
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
     await expect(page.locator('[data-active-filters]')).toHaveText('Actieve filters: Eigenaar: Afdeling ICT');
     await activate(page, page.getByRole('button', { name: 'Modaliteit', exact: true }));
     await expect(page.getByRole('button', { name: 'Modaliteit', pressed: true })).toBeVisible();

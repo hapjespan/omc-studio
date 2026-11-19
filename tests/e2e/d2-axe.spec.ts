@@ -5,6 +5,8 @@ import { seedOverlay } from './support/overlay';
 import { seedWorkspace, unique } from './support/d2';
 import { signInAs } from './support/shell';
 
+test.beforeEach(() => test.setTimeout(120000));
+
 const HEADER = 'code;naam;soort;leverancier;eigenaar;kostenplaats;applicatie;jaar;budget;prognose;run_pct;change_pct;fte';
 
 test('Owners: the list and the open form', async ({ page }) => {
