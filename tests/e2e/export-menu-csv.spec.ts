@@ -26,4 +26,9 @@ test('an Administrator exports the cost records from Kostenposten', async ({ pag
     await page.getByRole('button', { name: 'Kostenposten exporteren' }).click();
     await download;
     await expect(page.getByTestId('export-note')).toBeVisible();
+
+    const allocations = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Toewijzingen exporteren' }).click();
+    expect((await allocations).suggestedFilename()).toMatch(/allocations.*\.csv$/);
+    await expect(page.getByTestId('export-note')).toContainText(/Niet geëxporteerd|Geëxporteerd/);
 });
