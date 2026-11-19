@@ -21,6 +21,7 @@ test('the structure import on Invoeren blocks Importeren on errors and imports a
     await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: geen fouten' })).toBeVisible();
     await page.getByRole('button', { name: 'Importeren', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Geïmporteerd' })).toBeVisible();
+    await expect(page.getByLabel('CSV-bestand')).toHaveValue('');
 });
 
 test('the allocation import on Toewijzen blocks Importeren on errors', async ({ page }) => {

@@ -13,6 +13,7 @@ const file = ref<File | null>(null);
 const report = ref<ImportReportData | null>(null);
 const refusal = ref('');
 const busy = ref(false);
+const inputKey = ref(0);
 const canCommit = computed(() => report.value !== null && report.value.totals.errors === 0 && !busy.value);
 
 async function send(url: string): Promise<Response | null> {
@@ -50,6 +51,7 @@ async function commit(): Promise<void> {
     const totals = (await response.json()).totals;
     report.value = null;
     file.value = null;
+    inputKey.value++;
     announce(t('import.done', { new: totals.new, updated: totals.updated, unchanged: totals.unchanged }));
     emit('done');
 }
@@ -70,7 +72,7 @@ function pick(event: Event): void {
                 <div class="flex flex-col gap-1">
                     <label :for="`${id}-file`" class="text-[13px] font-semibold">{{ t('import.file') }}</label>
                     <p :id="`${id}-hint`" class="text-[11.5px] text-[#5F6772]">{{ hint }}</p>
-                    <input :id="`${id}-file`" type="file" accept=".csv,text/csv,text/plain" :aria-describedby="refusal ? `${id}-hint ${id}-error` : `${id}-hint`" :aria-invalid="refusal ? 'true' : undefined" @change="pick" />
+                    <input :id="`${id}-file`" :key="inputKey" type="file" accept=".csv,text/csv,text/plain" :aria-describedby="refusal ? `${id}-hint ${id}-error` : `${id}-hint`" :aria-invalid="refusal ? 'true' : undefined" @change="pick" />
                     <p v-if="refusal" :id="`${id}-error`" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
                 </div>
                 <div class="flex gap-2">
@@ -78,7 +80,7 @@ function pick(event: Event): void {
                     <button type="button" :disabled="!canCommit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="commit">{{ t('import.commit') }}</button>
                 </div>
             </form>
-            <ImportReport v-if="report" :report="report" />
+            <ImportReport v-if="report" :report="report" heading="h3" />
         </section>
     </div>
 </template>
