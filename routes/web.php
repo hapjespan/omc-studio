@@ -23,6 +23,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 
@@ -130,4 +131,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/canvases/{canvas}/import/allocations/preview', [AllocationImportController::class, 'preview']);
     Route::post('/canvases/{canvas}/import/allocations', [AllocationImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/import/structure/preview', [StructureImportController::class, 'preview']);
+    Route::post('/canvases/{canvas}/import/structure', [StructureImportController::class, 'commit']);
 });
