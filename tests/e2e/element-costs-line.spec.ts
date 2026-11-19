@@ -16,17 +16,21 @@ test('an Element without lines says deletion is direct, an allocated Domain name
     await expectNoAxeViolations(page);
 });
 
-test('an Element without lines shows the direct-deletion line and lines in another year are named', async ({ page }) => {
+test('lines in another year only are named in the costs line', async ({ page }) => {
     const canvas = seedEntryCanvas('primary_activities', structure, `${allocationCode({ year: 2026, records: [['Licentie', 100_000, { Bestellen: 10_000 }]] })} ${allocationCode({ year: 2025, records: [['Oud', 50_000, { Offreren: 10_000 }]] })}`);
     await openEntry(page, canvas);
 
     await page.getByRole('button', { name: /Offreren/ }).first().click();
     const panel = page.getByRole('complementary');
     await expect(panel.getByTestId('element-costs')).toContainText('Geen kosten toegewezen in 2026, wel in 2025.');
+    await expectNoAxeViolations(page);
+});
 
+test('an Element without lines shows the direct-deletion line', async ({ page }) => {
     const empty = seedEntryCanvas('primary_activities', structure, allocationCode({ year: 2026, records: [['Licentie', 100_000, { Bestellen: 10_000 }]] }));
     await openEntry(page, empty);
     await page.getByRole('button', { name: /Offreren/ }).first().click();
+    const panel = page.getByRole('complementary');
     await expect(panel.getByTestId('element-costs')).toHaveText('Geen kosten toegewezen in 2026. Verwijderen kan direct.');
     await expectNoAxeViolations(page);
 });

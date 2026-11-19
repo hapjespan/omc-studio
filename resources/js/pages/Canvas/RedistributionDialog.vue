@@ -28,7 +28,7 @@ watch(open, async (opened) => {
     choices.value = {};
     refusal.value = '';
     loaded.value = false;
-    const response = await fetch(routes.elementRedistribution(props.canvasId, props.element.id), { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+    const response = await fetch(routes.elementRedistribution(props.canvasId, props.element.id), { credentials: 'same-origin', headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
     if (!response.ok) {
         refusal.value = await refusalOf(response);
         void announce(refusal.value);
@@ -66,8 +66,8 @@ const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
         <form class="flex flex-col gap-4" novalidate @submit.prevent="confirm">
             <fieldset v-for="item in years" :key="item.year" class="rounded-md border border-[#848B95] p-3">
                 <legend class="px-1 text-[13px] font-semibold">{{ t('redistribute.year', { year: item.year, records: plural('redistribute.records', item.records), percentage: formatPercentage(item.basis_points) }) }}</legend>
-                <label class="flex items-center gap-2 text-[13px]"><input type="radio" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'move'" @change="mode(item.year, 'move')" />{{ t('redistribute.move') }}</label>
-                <label class="mt-1 flex items-center gap-2 text-[13px]"><input type="radio" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'unknown'" @change="mode(item.year, 'unknown')" />{{ t('redistribute.unknown') }}</label>
+                <label class="flex items-center gap-2 text-[13px]"><input type="radio" class="h-6 w-6" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'move'" @change="mode(item.year, 'move')" />{{ t('redistribute.move') }}</label>
+                <label class="mt-1 flex items-center gap-2 text-[13px]"><input type="radio" class="h-6 w-6" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'unknown'" @change="mode(item.year, 'unknown')" />{{ t('redistribute.unknown') }}</label>
                 <div v-if="choices[item.year]?.mode === 'move'" class="mt-2">
                     <p class="text-[13px]" role="status">{{ choices[item.year].target ? t('redistribute.chosen_target', { path: info[choices[item.year].target as string]?.path ?? '' }) : t('redistribute.no_target') }}</p>
                     <div role="tree" :aria-label="t('redistribute.targets', { year: item.year })" class="mt-1 max-h-56 overflow-y-auto">

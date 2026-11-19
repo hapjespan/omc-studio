@@ -22,7 +22,7 @@ test('Verwijderen on an allocated Activity opens Herverdelen with a choice per y
     await first.getByRole('radio', { name: 'Overzetten naar ander doel' }).check();
     await expect(first.getByRole('button', { name: 'Kiezen: Offreren' })).toHaveCount(0);
     await first.getByRole('button', { name: 'Kiezen: Betalen' }).click();
-    await expect(first).toContainText('Gekozen doel: Primaire activiteiten > Inkoop > Betalen');
+    await expect(first).toContainText('Gekozen doel: Inkoop > Betalen');
     await second.getByRole('radio', { name: 'Terug naar onbekende allocatie' }).check();
     await expectNoAxeViolations(page);
 
