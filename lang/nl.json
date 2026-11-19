@@ -280,5 +280,8 @@
     "lists.owners.title": "Eigenaren",
     "lists.owners.new": "Nieuwe eigenaar",
     "lists.owners.name_hint": "Afdeling of rol, geen persoonsnaam",
-    "lists.owners.in_use": "Deze eigenaar staat op :count kostenposten. Kies een andere eigenaar om ze naartoe te verplaatsen"
+    "lists.owners.in_use": "Deze eigenaar staat op :count kostenposten. Kies een andere eigenaar om ze naartoe te verplaatsen",
+    "lists.applications.title": "Applicaties",
+    "lists.applications.new": "Nieuwe applicatie",
+    "lists.applications.in_use": "Deze applicatie staat op :count kostenposten. Kies een andere applicatie of Geen applicatie"
 }
