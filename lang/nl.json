@@ -717,5 +717,6 @@
     "snap.archived": "Momentopname :name gearchiveerd",
     "snap.restored": "Momentopname :name teruggezet",
     "snap.deleted": "Momentopname :name verwijderd",
-    "snap.field_not_editable": "Alleen de naam en de opmerking van een momentopname zijn te wijzigen"
+    "snap.field_not_editable": "Alleen de naam en de opmerking van een momentopname zijn te wijzigen",
+    "canvas_dialog.count_snapshots": ":count momentopnamen"
 }
