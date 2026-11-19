@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\Admin\UserSecondFactorController;
 use App\Http\Controllers\Admin\UserSessionsController;
+use App\Http\Controllers\Admin\OrganisationController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ReauthenticateController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasModeController;
+use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
@@ -72,4 +75,18 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/admin/users', [UserController::class, 'store']);
     Route::patch('/admin/users/{user}', [UserController::class, 'update']);
     Route::delete('/admin/users/{user}', [UserController::class, 'destroy']);
+    Route::get('/admin/audit-log', AuditLogController::class);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/organisations/{organisation}/logo', OrganisationLogoController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->group(function () {
+    Route::get('/', [OrganisationController::class, 'index']);
+    Route::post('/', [OrganisationController::class, 'store']);
+    Route::patch('/{organisation}', [OrganisationController::class, 'update']);
+    Route::delete('/{organisation}', [OrganisationController::class, 'destroy']);
+    Route::post('/{organisation}/archive', [OrganisationController::class, 'archive']);
+    Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });

@@ -1,0 +1,16 @@
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+import SidePanel from '../overlays/SidePanel.vue';
+
+defineProps<{ title: string }>();
+const open = defineModel<boolean>('open', { default: false });
+const dirty = ref(false);
+
+watch(open, () => (dirty.value = false));
+</script>
+
+<template>
+    <SidePanel v-model:open="open" :title="title" :dirty="dirty">
+        <slot :close="() => (open = false)" :set-dirty="(value: boolean) => (dirty = value)" />
+    </SidePanel>
+</template>
