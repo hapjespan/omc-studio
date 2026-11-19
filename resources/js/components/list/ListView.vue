@@ -14,7 +14,7 @@ export type ListColumn = { key: string; label: string; sortable?: boolean };
 export type UndoState = { id: number | string; message: string; refusal?: string | null };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean }>(), { canCreate: true });
+const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean; undoable?: boolean }>(), { canCreate: true, undoable: true });
 const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; undo: []; dismissUndo: []; bulk: [key: string, rows: ListRow[]]; restore: [row: ListRow] }>();
 
 const editing = ref<ListRow | 'new' | null>(null);
@@ -79,7 +79,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
             <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
             <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-[#454C57]">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
         </div>
-        <UndoMessage v-if="undo" :key="undo.id" :message="undo.message" :refusal="undo.refusal" @undo="emit('undo')" @close="emit('dismissUndo')" />
+        <UndoMessage v-if="undo && undoable" :key="undo.id" :message="undo.message" :refusal="undo.refusal" @undo="emit('undo')" @close="emit('dismissUndo')" />
         <BulkBar v-if="bulkActions?.length" :actions="bulkActions" :selected="selected.length" :result="bulkResult" @run="runBulk" />
         <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="change({ filters: $event })" />
         <table class="w-full border-collapse text-[13px]">

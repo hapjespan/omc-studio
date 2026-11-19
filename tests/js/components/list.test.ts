@@ -190,3 +190,11 @@ describe('ListView archive handling', () => {
         expect(html).not.toContain('aria-label="Terugzetten Anna"');
     });
 });
+
+describe('ListView undo exclusion', () => {
+    it('shows no undo for a kind that is not undoable', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, undo: { id: 'a', message: 'Anna verwijderd' }, undoable: false });
+
+        expect(html).not.toContain('Ongedaan maken');
+    });
+});

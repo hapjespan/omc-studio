@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import ListDemoForm from './ListDemoForm.vue';
-import ListView, { type ListRow, type ListState, type UndoState }
-import type { BulkSummary } from '../../../../resources/js/components/list/BulkBar.vue' from '../../../../resources/js/components/list/ListView.vue';
+import ListView, { type ListRow, type ListState, type UndoState } from '../../../../resources/js/components/list/ListView.vue';
+import type { BulkSummary } from '../../../../resources/js/components/list/BulkBar.vue';
 
 const all = ref<ListRow[]>(Array.from({ length: 13 }, (_, index) => ({ id: index + 1, name: index === 0 ? 'Anna Zorg' : `Persoon ${String.fromCharCode(66 + index)}`, email: `p${index + 1}@example.test`, group: index % 3 === 0 ? 'a' : 'b', archived_at: index === 12 ? '2026-01-01T00:00:00Z' : null })));
 const columns = [{ key: 'name', label: 'Naam', sortable: true }, { key: 'email', label: 'E-mailadres', sortable: true }];

@@ -53,6 +53,23 @@ class ListQueryTest extends TestCase
         $this->assertSame(['Gamma', 'beta zorg', 'Alpha Zorg'], array_column($desc['rows'], 'name'));
     }
 
+    public function test_non_text_columns_sort_by_their_own_order(): void
+    {
+        $this->seedOrganisations();
+        Organisation::query()->where('name', 'Gamma')->update(['created_at' => now()->subYear()]);
+
+        $asc = $this->list()->run(Organisation::query(), ['sort' => 'created_at']);
+
+        $this->assertSame('Gamma', $asc['rows'][0]['name']);
+    }
+
+    public function test_list_input_is_refused_not_a_server_error(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->list()->run(Organisation::query(), ['search' => ['a']]);
+    }
+
     public function test_unknown_sort_columns_are_refused(): void
     {
         $this->expectException(ValidationException::class);

@@ -10,7 +10,7 @@ class ListQuery
     /**
      * @param  list<string>  $searchable
      * @param  list<string>  $sortable
-     * @param  array<string, string>  $filters  filter name => column
+     * @param  array<string, string>  $filters
      */
     public function __construct(
         private readonly array $searchable,
@@ -26,10 +26,20 @@ class ListQuery
      */
     public function run(Builder $query, array $input): array
     {
+        if (array_filter([$input['search'] ?? null, $input['sort'] ?? null, $input['direction'] ?? null, $input['archived'] ?? null], 'is_array') !== []) {
+            $this->refuse('sort');
+        }
+
         $search = trim((string) ($input['search'] ?? ''));
         $sort = isset($input['sort']) ? (string) $input['sort'] : null;
         $direction = ($input['direction'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
-        $filters = array_map('strval', (array) ($input['filters'] ?? []));
+        $filters = (array) ($input['filters'] ?? []);
+
+        if (array_filter($filters, 'is_array') !== []) {
+            $this->refuse('filters');
+        }
+
+        $filters = array_map('strval', $filters);
         $archived = filter_var($input['archived'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         if ($sort !== null && ! in_array($sort, $this->sortable, true)) {
@@ -58,8 +68,13 @@ class ListQuery
         }
 
         if ($sort !== null) {
-            $column = $query->getGrammar()->wrap($sort);
-            $query->reorder()->orderByRaw("LOWER($column) $direction")->orderBy($sort, $direction);
+            $query->reorder();
+
+            if (in_array($sort, $this->searchable, true)) {
+                $query->orderByRaw('LOWER('.$query->getGrammar()->wrap($sort).") $direction");
+            }
+
+            $query->orderBy($sort, $direction);
         }
 
         $rows = $query->get()->toArray();
