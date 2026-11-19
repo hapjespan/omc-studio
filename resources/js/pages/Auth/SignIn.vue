@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthPanel from './AuthPanel.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { nextTick } from 'vue';
 import { useForm } from '@inertiajs/vue3';
@@ -21,14 +22,13 @@ function submit(): void {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-sm flex-col gap-4 p-6">
-        <h1 class="text-[20px] font-semibold text-ink">{{ t('auth.sign_in_title') }}</h1>
-        <p v-if="flash?.status" role="status" class="rounded-md bg-accent-soft px-3 py-2 text-[13px] text-ink">{{ flash.status }}</p>
+    <AuthPanel :title="t('auth.sign_in_title')">
+        <p v-if="flash?.status" role="status" class="rounded-control bg-accent-soft px-3 py-2 text-[13px] text-ink">{{ flash.status }}</p>
         <ErrorSummary :errors="form.errors" />
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <TextField id="email" v-model="form.email" :label="t('fields.email')" type="email" autocomplete="username" :error="form.errors.email" />
             <TextField id="password" v-model="form.password" :label="t('fields.password')" type="password" autocomplete="current-password" :error="form.errors.password" />
             <AppButton variant="primary" type="submit" :disabled="form.processing">{{ t('auth.sign_in_submit') }}</AppButton>
         </form>
-    </main>
+    </AuthPanel>
 </template>

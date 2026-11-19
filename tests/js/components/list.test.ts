@@ -113,6 +113,15 @@ describe('ListView deletion', () => {
     });
 });
 
+describe('ListView table language', () => {
+    it('shows the secondary value under the name and right-aligns numeric columns', async () => {
+        const html = await render({ title: 'Gebruikers', columns: [{ key: 'name', label: 'Naam', secondary: 'email' }, { key: 'total', label: 'Totaal', align: 'right' }], rows: [{ ...rows[0], total: 5 }], count: 1, query: idle });
+
+        expect(html).toMatch(/<span class="block[^"]*">a@example.test<\/span>/);
+        expect(html).toMatch(/<th[^>]*text-right[^>]*>Totaal<\/th>/);
+    });
+});
+
 describe('UndoMessage', () => {
     it('offers Ongedaan maken next to the message', async () => {
         const html = strip(await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd' }) })));
