@@ -168,5 +168,11 @@
     "list.delete_name_field": "Naam ter bevestiging",
     "list.cancel": "Annuleren",
     "list.undo": "Ongedaan maken",
-    "list.deleted": ":name verwijderd"
+    "list.deleted": ":name verwijderd",
+    "list.select_all": "Alle rijen selecteren",
+    "list.select_row": "Selecteer :name",
+    "list.selected": ":count geselecteerd",
+    "list.bulk_result": ":done :verb, :skipped overgeslagen",
+    "list.bulk_result_all": ":done :verb",
+    "list.skipped_row": ":name: :reason"
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import ListDemoForm from './ListDemoForm.vue';
-import ListView, { type ListRow, type ListState, type UndoState } from '../../../../resources/js/components/list/ListView.vue';
+import ListView, { type ListRow, type ListState, type UndoState }
+import type { BulkSummary } from '../../../../resources/js/components/list/BulkBar.vue' from '../../../../resources/js/components/list/ListView.vue';
 
 const all = ref<ListRow[]>(Array.from({ length: 12 }, (_, index) => ({ id: index + 1, name: index === 0 ? 'Anna Zorg' : `Persoon ${String.fromCharCode(66 + index)}`, email: `p${index + 1}@example.test`, group: index % 3 === 0 ? 'a' : 'b' })));
 const columns = [{ key: 'name', label: 'Naam', sortable: true }, { key: 'email', label: 'E-mailadres', sortable: true }];
@@ -12,6 +13,10 @@ const withUndo = new URLSearchParams(location.search).get('undo') === '1';
 const conflict = new URLSearchParams(location.search).get('conflict') === '1';
 const undo = ref<UndoState | null>(null);
 let removed: ListRow | null = null;
+let removedMany: ListRow[] = [];
+const bulkActions = [{ key: 'delete', label: 'Verwijderen' }];
+const bulkResult = ref<BulkSummary | null>(null);
+const BLOCKED_ID = 3;
 const query = ref<ListState>({ search: '', sort: null, direction: 'asc', filters: {}, archived: false });
 
 function save(row: ListRow | null, name: string): void {
@@ -26,12 +31,26 @@ function remove(row: ListRow): void {
     undo.value = { id: row.id, message: `${row.name} verwijderd` };
 }
 
+function bulk(_key: string, rows: ListRow[]): void {
+    const done = rows.filter((row) => row.id !== BLOCKED_ID);
+    const skipped = rows.filter((row) => row.id === BLOCKED_ID).map((row) => ({ name: row.name, reason: 'Is nog in gebruik' }));
+    all.value = all.value.filter((row) => !done.includes(row));
+    bulkResult.value = { done: done.length, verb: 'verwijderd', skipped };
+    if (withUndo) {
+        removedMany = done;
+        undo.value = { id: `bulk-${done.length}`, message: `${done.length} rijen verwijderd` };
+    }
+}
+
 function restore(): void {
     if (conflict && undo.value) {
         undo.value = { ...undo.value, refusal: 'Ongedaan maken kan niet meer' };
         return;
     }
+    all.value.push(...removedMany);
+    removedMany = [];
     if (removed) all.value.push(removed);
+    removed = null;
     undo.value = null;
 }
 
@@ -48,7 +67,7 @@ const visible = computed(() => {
 <template>
     <main class="p-4">
         <h1>Lijst</h1>
-        <ListView title="Personen" :columns="columns" :rows="visible" :count="visible.length" :query="query" :filters="filterDefs" can-delete :consequence="consequence" :require-name="typedName" @delete="remove" :undo="undo" @undo="restore" @dismiss-undo="undo = null" @change="query = $event">
+        <ListView title="Personen" :columns="columns" :rows="visible" :count="visible.length" :query="query" :filters="filterDefs" can-delete :consequence="consequence" :require-name="typedName" @delete="remove" :undo="undo" @undo="restore" :bulk-actions="bulkActions" :bulk-result="bulkResult" @bulk="bulk" @dismiss-undo="undo = null" @change="query = $event">
             <template #form="{ row, close, setDirty }">
                 <ListDemoForm :initial="row?.name ?? ''" @dirty="setDirty" @save="(name) => { save(row, name); close(); }" />
             </template>

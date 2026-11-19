@@ -136,3 +136,34 @@ describe('ListView undo', () => {
         expect(html).toContain('Anna verwijderd');
     });
 });
+
+describe('ListView bulk actions', () => {
+    const bulkActions = [{ key: 'delete', label: 'Verwijderen' }, { key: 'archive', label: 'Archiveren' }];
+
+    it('labels the select-all and every row checkbox', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, bulkActions });
+
+        expect(html).toContain('aria-label="Alle rijen selecteren"');
+        expect(html).toContain('aria-label="Selecteer Anna"');
+        expect(html).toContain('aria-label="Selecteer Bram"');
+    });
+
+    it('has no checkboxes without bulk actions', async () => {
+        expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle })).not.toContain('type="checkbox"');
+    });
+
+    it('reports the result with the name and reason of each skipped row', async () => {
+        const result = { done: 2, verb: 'verwijderd', skipped: [{ name: 'Cor', reason: 'Gebruikt in een canvas' }] };
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, bulkActions, bulkResult: result });
+
+        expect(html).toContain('2 verwijderd, 1 overgeslagen');
+        expect(html).toContain('Cor: Gebruikt in een canvas');
+    });
+
+    it('omits the skipped part when nothing was skipped', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, bulkActions, bulkResult: { done: 3, verb: 'gearchiveerd', skipped: [] } });
+
+        expect(html).toContain('3 gearchiveerd<');
+        expect(html).not.toContain('overgeslagen');
+    });
+});
