@@ -225,11 +225,13 @@ class FullImportValidator
                 continue;
             }
 
-            isset($this->recordIds[$id]) && $this->fail($at.'.cost_records['.$index.'].id', 'jsonx.duplicate');
-            $seen[$id] = true;
+            $key = mb_strtolower($id);
+
+            (isset($this->recordIds[$key]) || (isset($seen[$key]) && $seen[$key] !== $id)) && $this->fail($at.'.cost_records['.$index.'].id', 'jsonx.duplicate');
+            $seen[$key] = $id;
         }
 
-        $this->recordIds = [...$this->recordIds, ...$seen];
+        $this->recordIds = [...$this->recordIds, ...array_map(fn () => true, $seen)];
     }
 
     /**

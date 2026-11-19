@@ -4,12 +4,14 @@ namespace Tests\Feature\Exchange;
 
 use App\Enums\CanvasKind;
 use App\Models\Canvas;
+use App\Models\CostRecord;
 use App\Models\Organisation;
 use App\Models\Snapshot;
 use App\Models\User;
 use App\Services\Snapshot\Snapshots;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 
 class FullImportTest extends CanvasExchangeTestCase
@@ -201,6 +203,44 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->assertSame('organisations[0].cost_records[0].id', $report['errors'][0]['location']);
         $this->send('/admin/import/full', $data)->assertUnprocessable();
         $this->assertSame(0, Organisation::count());
+    }
+
+    public function test_cost_record_ids_that_differ_only_in_case_are_reported_in_the_dry_run(): void
+    {
+        $data = $this->exportedFull();
+        $this->wipe();
+        $old = $data['organisations'][0]['cost_records'][1]['id'];
+        $shouted = mb_strtoupper((string) $data['organisations'][0]['cost_records'][0]['id']);
+        $data['organisations'][0]['cost_records'][1]['id'] = $shouted;
+        $data['organisations'][0]['canvases'][0]['allocation_sets'] = array_map(
+            fn (array $set) => $set['cost_record_id'] === $old ? [...$set, 'cost_record_id' => $shouted] : $set,
+            $data['organisations'][0]['canvases'][0]['allocation_sets'],
+        );
+
+        $report = $this->send('/admin/import/full/preview', $data)->assertOk()->json();
+
+        $this->assertSame(1, $report['count']);
+        $this->assertSame('organisations[0].cost_records[1].id', $report['errors'][0]['location']);
+        $this->send('/admin/import/full', $data)->assertUnprocessable();
+        $this->assertSame(0, Organisation::count());
+    }
+
+    public function test_a_cost_record_id_is_stored_in_lower_case(): void
+    {
+        $data = $this->exportedFull();
+        $this->wipe();
+        $records = $data['organisations'][0]['cost_records'];
+        $shouted = array_map(fn (array $record) => mb_strtoupper((string) $record['id']), $records);
+        $data['organisations'][0]['cost_records'] = array_map(fn (array $record, string $id) => [...$record, 'id' => $id], $records, $shouted);
+        $data['organisations'][0]['canvases'][0]['allocation_sets'] = array_map(
+            fn (array $set) => [...$set, 'cost_record_id' => mb_strtoupper((string) $set['cost_record_id'])],
+            $data['organisations'][0]['canvases'][0]['allocation_sets'],
+        );
+
+        $this->send('/admin/import/full', $data)->assertOk();
+
+        $this->assertSame(array_map(mb_strtolower(...), $shouted), CostRecord::orderBy('code')->pluck('id')->all());
+        $this->assertSame(4, DB::table('allocation_sets')->count());
     }
 
     public function test_the_same_cost_record_id_in_two_organisations_is_reported_in_the_dry_run(): void
