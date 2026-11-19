@@ -59,6 +59,9 @@ const cases: [keyof typeof routes, (string | number)[], string][] = [
     ['costRecordYear', ['c1', 2026], '/cost-records/c1/years/2026'],
     ['fiscalYears', [2], '/organisations/2/fiscal-years'],
     ['fiscalYear', [5], '/fiscal-years/5'],
+    ['allocation', [3], '/canvases/3/allocation'],
+    ['allocation', [3, 2026, 'r1'], '/canvases/3/allocation?year=2026&cost_record=r1'],
+    ['allocationSet', [3, 2026, 'r1'], '/canvases/3/years/2026/cost-records/r1/allocation'],
     ['undo', ['tok'], '/undo/tok'],
 ];
 

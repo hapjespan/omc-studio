@@ -34,3 +34,13 @@ export function splitOverDomainActivities(domain: TargetNode): { id: number | st
 export function lineAmounts(totalCents: number, basisPoints: number[]): number[] {
     return largestRemainder(totalCents, basisPoints);
 }
+
+export function formatPercentage(basisPoints: number): string {
+    const abs = Math.abs(basisPoints);
+    return `${basisPoints < 0 ? '-' : ''}${Math.floor(abs / 100)},${String(abs % 100).padStart(2, '0')}%`;
+}
+
+export function parsePercentage(text: string): number | null {
+    const match = /^(\d{1,3})(?:[,.](\d{1,2}))?\s*%?$/.exec(text.trim());
+    return match ? Number(match[1]) * 100 + Number((match[2] ?? '').padEnd(2, '0')) : null;
+}

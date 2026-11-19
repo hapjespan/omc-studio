@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineAmounts, remaining, restToLine, splitEvenly, splitOverDomainActivities, type TargetNode } from '../../../resources/js/allocation/helpers';
+import { formatPercentage, lineAmounts, parsePercentage, remaining, restToLine, splitEvenly, splitOverDomainActivities, type TargetNode } from '../../../resources/js/allocation/helpers';
 
 const activity = (id: number): TargetNode => ({ id, kind: 'activity' });
 
@@ -35,5 +35,16 @@ describe('allocation helpers', () => {
     it('mirrors the server split of an amount over lines', () => {
         expect(lineAmounts(23000, [3333, 3333, 3334])).toEqual([7666, 7666, 7668]);
         expect(lineAmounts(10001, [5000, 5000])).toEqual([5001, 5000]);
+    });
+
+    it('formats and parses percentages with two decimals', () => {
+        expect(formatPercentage(3334)).toBe('33,34%');
+        expect(formatPercentage(0)).toBe('0,00%');
+        expect(formatPercentage(-1)).toBe('-0,01%');
+        expect(parsePercentage('33,3')).toBe(3330);
+        expect(parsePercentage('100')).toBe(10000);
+        expect(parsePercentage('0,01%')).toBe(1);
+        expect(parsePercentage('abc')).toBeNull();
+        expect(parsePercentage('')).toBeNull();
     });
 });
