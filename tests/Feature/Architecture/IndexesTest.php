@@ -19,7 +19,9 @@ class IndexesTest extends TestCase
 
     public function test_no_index_is_partial(): void
     {
-        $partial = DB::table('sqlite_master')->where('type', 'index')->whereRaw("lower(sql) like '% where %'")->pluck('name');
+        $partial = DB::connection()->getDriverName() === 'pgsql'
+            ? DB::table('pg_indexes')->where('schemaname', 'public')->whereRaw("indexdef like '% WHERE %'")->pluck('indexname')
+            : DB::table('sqlite_master')->where('type', 'index')->whereRaw("lower(sql) like '% where %'")->pluck('name');
 
         $this->assertSame([], $partial->all());
     }

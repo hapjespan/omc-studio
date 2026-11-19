@@ -30,6 +30,7 @@ jobs:
           extensions: pdo_sqlite, gd, intl, zip
           coverage: none
       - uses: ramsey/composer-install@4.0.0
+      - run: cp env.example .env
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -71,6 +72,7 @@ jobs:
           extensions: pdo_pgsql, gd, intl, zip
           coverage: none
       - uses: ramsey/composer-install@4.0.0
+      - run: cp env.example .env
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -99,11 +101,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_sqlite, gd, intl, zip
+          coverage: none
+      - uses: ramsey/composer-install@4.0.0
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
+      - run: npm run build
+      - run: sh scripts/serve-e2e.sh
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npx playwright test
 
@@ -116,7 +126,7 @@ jobs:
         with:
           php-version: ${{ env.PHP_VERSION }}
           coverage: none
-      - run: composer audit
+      - run: composer audit --locked
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
