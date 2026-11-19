@@ -122,7 +122,8 @@ class LogoUploadTest extends TestCase
 
         $stored = (string) Storage::disk('local')->get($one);
         $this->assertSame([12, 8, IMAGETYPE_PNG], array_slice((array) getimagesizefromstring($stored), 0, 3));
-        $this->assertStringContainsString(self::MARKER, (string) file_get_contents($this->upload(12, 8)->getRealPath()));
+        $sample = $this->upload(12, 8);
+        $this->assertStringContainsString(self::MARKER, (string) file_get_contents($sample->getRealPath()));
         $this->assertStringNotContainsString(self::MARKER, $stored);
 
         $this->assertSame(1, AuditEntry::where('subject_type', 'organisation')->where('subject_id', $first->id)->where('action', 'changed')->count());
