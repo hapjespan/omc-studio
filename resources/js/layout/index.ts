@@ -3,7 +3,8 @@ import { DIRECTION_HEIGHT, layoutDirection } from './direction';
 import { flowDomains, type Flow, type FlowContext } from './flowDomains';
 import { flowList } from './listAreas';
 import { resolveStyle } from './resolveStyle';
-import { buildDomains } from './tree';
+import { buildDomains, type TreeNode } from './tree';
+import { computeWarnings } from './warnings';
 import { wrapText } from './wrapText';
 import type { AreaKey, CanvasLayoutInput, DrawnBlock, DrawnCanvas, LayoutWarning, TextMeasurer } from './types';
 
@@ -13,11 +14,13 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
     const context: FlowContext = { measurer, style: (element, level) => resolveStyle(element.area, level, input.layouts?.[element.id]?.style) };
     const areas = [...input.areas].sort((a, b) => a.position - b.position);
     const flows = new Map<AreaKey, Flow>();
+    const domainsByArea = new Map<AreaKey, TreeNode[]>();
     const required: Partial<Record<AreaKey, number>> = {};
 
     for (const area of areas.filter((candidate) => candidate.key !== 'direction')) {
-        const flow: Flow =
-            (area.kind === 'list' ? flowList : flowDomains)(buildDomains(input.elements, area.key), area.key, areaWidth(area.key) - 2 * AREA_PADDING, context);
+        const domains = buildDomains(input.elements, area.key);
+        domainsByArea.set(area.key, domains);
+        const flow = (area.kind === 'list' ? flowList : flowDomains)(domains, area.key, areaWidth(area.key) - 2 * AREA_PADDING, context);
         flows.set(area.key, flow);
         required[area.key] = areaChrome() + flow.height;
     }
@@ -48,9 +51,10 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
     }
 
     const direction = layoutDirection(input.statements, input.directionLabels, measurer);
-    const warnings: LayoutWarning[] = direction.filter((column) => column.truncated).map((column) => ({ kind: 'directionTextCut', column: column.key }));
+    const cut: LayoutWarning[] = direction.filter((column) => column.truncated).map((column) => ({ kind: 'directionTextCut', column: column.key }));
+    const { warnings, beyondArtboardCount } = computeWarnings(domainsByArea, blocks);
 
-    return { blocks, direction, warnings, beyondArtboardCount: 0 };
+    return { blocks, direction, warnings: [...cut, ...warnings], beyondArtboardCount };
 }
 
 export type * from './types';
