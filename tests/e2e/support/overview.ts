@@ -1,4 +1,3 @@
-import { expect } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 
@@ -15,27 +14,4 @@ export function seedOrganisation(name: string, canvases: string[] = [], options:
     const output = tinker(`$o = App\\Models\\Organisation::factory()->create(['name' => '${name}']); ${make(canvases, '')} ${make(options.archivedCanvases ?? [], ", 'archived_at' => now()")} echo 'ID=' . $o->id;`);
 
     return Number(/ID=(\d+)/.exec(output)?.[1]);
-}
-
-export function stubEntry(page: import('@playwright/test').Page): { next(): Promise<void> } {
-    const targets: string[] = [];
-    let consumed = 0;
-    void page.route(
-        (url) => url.pathname === '/canvases',
-        async (route) => {
-            if (route.request().method() !== 'POST') return route.continue();
-            const response = await route.fetch();
-            if (!/\/canvases\/\d+\/entry$/.test(response.url())) return route.fulfill({ response });
-            const overview = await route.fetch({ url: new URL('/overview', response.url()).toString(), method: 'GET', postData: null });
-            await route.fulfill({ response: overview });
-            targets.push(response.url());
-        },
-    );
-
-    return {
-        async next() {
-            consumed += 1;
-            await expect.poll(() => targets.length).toBeGreaterThanOrEqual(consumed);
-        },
-    };
 }

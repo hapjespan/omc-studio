@@ -15,12 +15,14 @@ use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasController;
+use App\Http\Controllers\CanvasEntryController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 
@@ -114,4 +116,13 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
     Route::post('/{element}/archive', [ElementController::class, 'archive']);
     Route::post('/{element}/restore', [ElementController::class, 'restore']);
     Route::delete('/{element}', [ElementController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/entry', CanvasEntryController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::patch('/templates/{canvas}', [TemplateController::class, 'update']);
+    Route::delete('/templates/{canvas}', [TemplateController::class, 'destroy']);
 });
