@@ -26,7 +26,18 @@ test('the Kostenposten tab is shown to an Administrator with a Canvas and not to
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas}/view`);
     await page.getByRole('navigation', { name: 'Hoofdnavigatie' }).getByRole('link', { name: 'Kostenposten' }).click();
-    await expect(page).toHaveURL(new RegExp(`/organisations/${organisation}/cost-records`));
+    await expect(page).toHaveURL(new RegExp(`/canvases/${canvas}/cost-records`));
+});
+
+test('the Toewijzen tab opens the allocation page of the Canvas', async ({ page }) => {
+    const organisation = seedOrganisation(unique());
+    const canvas = Number(/ID=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); echo 'ID=' . $c->id;`))?.[1]);
+
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${canvas}/view`);
+    await page.getByRole('navigation', { name: 'Hoofdnavigatie' }).getByRole('link', { name: 'Toewijzen' }).click();
+    await expect(page).toHaveURL(new RegExp(`/canvases/${canvas}/allocation`));
+    await expect(page.getByRole('navigation', { name: 'Hoofdnavigatie' }).getByRole('link', { name: 'Toewijzen' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('a Reader sees no Kostenposten tab', async ({ page }) => {

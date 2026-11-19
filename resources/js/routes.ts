@@ -53,6 +53,7 @@ export const routes = {
     costRecordImport: (organisation: Id) => `/organisations/${organisation}/cost-records/import`,
     costRecordImportPreview: (organisation: Id) => `/organisations/${organisation}/cost-records/import/preview`,
     costRecords: (organisation: Id, year?: number) => withYear(`/organisations/${organisation}/cost-records`, year),
+    canvasCostRecords: (canvas: Id) => `/canvases/${canvas}/cost-records`,
     costRecordsBulkDelete: (organisation: Id) => `/organisations/${organisation}/cost-records/bulk-delete`,
     costRecord: (costRecord: Id) => `/cost-records/${costRecord}`,
     costRecordArchive: (costRecord: Id) => `/cost-records/${costRecord}/archive`,

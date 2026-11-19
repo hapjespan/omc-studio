@@ -606,5 +606,6 @@
     "carry_over.skipped": "Overgeslagen",
     "carry_over.manual": "Handmatig toewijzen",
     "carry_over.col_name": "Kostenpost",
-    "carry_over.col_reason": "Reden"
+    "carry_over.col_reason": "Reden",
+    "shell.tab.allocation": "Toewijzen"
 }
