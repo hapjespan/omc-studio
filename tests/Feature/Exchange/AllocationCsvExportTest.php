@@ -6,9 +6,11 @@ use App\Enums\ElementKind;
 use App\Models\AllocationLine;
 use App\Models\AllocationSet;
 use App\Models\CostRecord;
+use App\Models\Element;
 
 class AllocationCsvExportTest extends ExchangeTestCase
 {
+    /** @param list<array{Element, int}> $lines */
     private function set(CostRecord $record, array $lines): void
     {
         $set = AllocationSet::factory()->create(['canvas_id' => $this->canvas->id, 'cost_record_id' => $record->id, 'fiscal_year_id' => $this->year->id]);

@@ -15,6 +15,7 @@ use App\Models\YearlyFigure;
 use App\Services\Canvas\UnknownAllocationDomain;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -71,6 +72,7 @@ abstract class ExchangeTestCase extends TestCase
 
     /**
      * @param  list<string>  $lines
+     * @return TestResponse<JsonResponse>
      */
     protected function upload(string $header, array $lines, string $url): TestResponse
     {
