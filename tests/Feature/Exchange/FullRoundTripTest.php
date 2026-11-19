@@ -88,17 +88,6 @@ class FullRoundTripTest extends CanvasExchangeTestCase
         return is_array($node) ? 1 + max([0, ...array_map(fn (mixed $value) => $this->depth($value), $node)]) : 0;
     }
 
-    private function wipe(): void
-    {
-        DB::statement('PRAGMA foreign_keys = OFF');
-
-        foreach (['snapshots', 'allocation_lines', 'allocation_sets', 'yearly_figures', 'finalised_years', 'elements', 'statements', 'cost_records', 'owners', 'applications', 'fiscal_years', 'canvases', 'organisations'] as $table) {
-            DB::table($table)->delete();
-        }
-
-        DB::statement('PRAGMA foreign_keys = ON');
-    }
-
     /** @param array<string, mixed> $extra */
     private function importCanvas(string $file, array $extra): void
     {

@@ -4,6 +4,7 @@ namespace Tests\Feature\Exchange;
 
 use App\Enums\CanvasKind;
 use App\Models\Canvas;
+use App\Models\CostRecord;
 use App\Models\Organisation;
 use App\Models\Snapshot;
 use App\Models\User;
@@ -50,19 +51,6 @@ class FullImportTest extends CanvasExchangeTestCase
         return ['name' => $name, 'statements' => [], 'elements' => []];
     }
 
-    protected function wipe(): void
-    {
-        DB::statement('PRAGMA foreign_keys = OFF');
-
-        foreach (['snapshots', 'allocation_lines', 'allocation_sets', 'yearly_figures', 'finalised_years', 'elements', 'statements', 'cost_records', 'owners', 'applications', 'fiscal_years'] as $table) {
-            DB::table($table)->delete();
-        }
-
-        DB::table('canvases')->where('is_blank_template', false)->delete();
-        DB::table('organisations')->delete();
-        DB::statement('PRAGMA foreign_keys = ON');
-    }
-
     /**
      * @param  array<string, mixed>  $data
      * @return TestResponse<JsonResponse>
@@ -103,6 +91,7 @@ class FullImportTest extends CanvasExchangeTestCase
 
         $this->assertSame(1, $report['count']);
         $this->assertStringStartsWith('organisations[0].cost_records[0].yearly_figures[0].budget_cents', $report['errors'][0]['location']);
+        $this->assertStringStartsWith('organisations[0].cost_records[0].yearly_figures[0].budget_cents', $report['errors'][0]['message']);
         $this->send('/admin/import/full', $data)->assertUnprocessable();
         $this->assertSame(0, Organisation::count());
     }
@@ -118,6 +107,7 @@ class FullImportTest extends CanvasExchangeTestCase
 
         $this->assertSame(1, $report['count']);
         $this->assertSame('organisations[0].canvases[1].elements[0].name', $report['errors'][0]['location']);
+        $this->assertStringStartsWith('organisations[0].canvases[1].elements[0].name', $report['errors'][0]['message']);
     }
 
     public function test_a_file_of_another_format_is_refused(): void
@@ -170,6 +160,18 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->assertSame(['Sjabloon A', 'Sjabloon A (geïmporteerd)'], Canvas::where('scope_key', 'template')->where('is_blank_template', false)->orderBy('id')->pluck('name')->all());
     }
 
+    public function test_a_template_block_carries_no_allocation_sets_or_finalised_years(): void
+    {
+        $data = $this->emptyFull();
+        $data['templates'] = [[...$this->template('Sjabloon A'), 'allocation_sets' => [['cost_record_id' => 'onbekend', 'year' => 2026, 'lines' => []]], 'finalised_years' => [['year' => 2026, 'finalised_at' => now()->toIso8601String()]]]];
+
+        $this->send('/admin/import/full/preview', $data)->assertOk()->assertJsonPath('count', 0);
+        $this->send('/admin/import/full', $data)->assertOk();
+
+        $this->assertSame(0, DB::table('allocation_sets')->count());
+        $this->assertSame(0, DB::table('finalised_years')->count());
+    }
+
     public function test_a_suffixed_template_name_stays_within_150_characters(): void
     {
         $data = $this->emptyFull();
@@ -215,6 +217,44 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->assertSame('organisations[0].cost_records[0].id', $report['errors'][0]['location']);
         $this->send('/admin/import/full', $data)->assertUnprocessable();
         $this->assertSame(0, Organisation::count());
+    }
+
+    public function test_cost_record_ids_that_differ_only_in_case_are_reported_in_the_dry_run(): void
+    {
+        $data = $this->exportedFull();
+        $this->wipe();
+        $old = $data['organisations'][0]['cost_records'][1]['id'];
+        $shouted = mb_strtoupper((string) $data['organisations'][0]['cost_records'][0]['id']);
+        $data['organisations'][0]['cost_records'][1]['id'] = $shouted;
+        $data['organisations'][0]['canvases'][0]['allocation_sets'] = array_map(
+            fn (array $set) => $set['cost_record_id'] === $old ? [...$set, 'cost_record_id' => $shouted] : $set,
+            $data['organisations'][0]['canvases'][0]['allocation_sets'],
+        );
+
+        $report = $this->send('/admin/import/full/preview', $data)->assertOk()->json();
+
+        $this->assertSame(1, $report['count']);
+        $this->assertSame('organisations[0].cost_records[1].id', $report['errors'][0]['location']);
+        $this->send('/admin/import/full', $data)->assertUnprocessable();
+        $this->assertSame(0, Organisation::count());
+    }
+
+    public function test_a_cost_record_id_is_stored_in_lower_case(): void
+    {
+        $data = $this->exportedFull();
+        $this->wipe();
+        $records = $data['organisations'][0]['cost_records'];
+        $shouted = array_map(fn (array $record) => mb_strtoupper((string) $record['id']), $records);
+        $data['organisations'][0]['cost_records'] = array_map(fn (array $record, string $id) => [...$record, 'id' => $id], $records, $shouted);
+        $data['organisations'][0]['canvases'][0]['allocation_sets'] = array_map(
+            fn (array $set) => [...$set, 'cost_record_id' => mb_strtoupper((string) $set['cost_record_id'])],
+            $data['organisations'][0]['canvases'][0]['allocation_sets'],
+        );
+
+        $this->send('/admin/import/full', $data)->assertOk();
+
+        $this->assertSame(array_map(mb_strtolower(...), $shouted), CostRecord::orderBy('code')->pluck('id')->all());
+        $this->assertSame(4, DB::table('allocation_sets')->count());
     }
 
     public function test_the_same_cost_record_id_in_two_organisations_is_reported_in_the_dry_run(): void
@@ -264,17 +304,63 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->assertSame($data['organisations'][0]['canvases'][0]['snapshots'][0]['checksum'], $snapshot->checksum);
     }
 
-    public function test_a_snapshot_whose_checksum_does_not_match_refuses_the_file_by_name(): void
+    public function test_a_snapshot_whose_checksum_does_not_match_is_named_at_its_own_place(): void
     {
         $data = $this->exportedFullWithSnapshot();
         $this->wipe();
         $data['organisations'][0]['canvases'][0]['snapshots'][0]['content']['canvas_name'] = 'Vervalst';
+        $data['organisations'][0]['canvases'][0]['name'] = '';
 
-        $this->send('/admin/import/full/preview', $data)->assertUnprocessable()
-            ->assertJsonValidationErrors(['file' => 'Voor de stuurgroep']);
+        $report = $this->send('/admin/import/full/preview', $data)->assertOk()->json();
+
+        $this->assertSame(2, $report['count']);
+        $this->assertSame('organisations[0].canvases[0].snapshots[0].checksum', $report['errors'][1]['location']);
+        $this->assertStringContainsString('Voor de stuurgroep', $report['errors'][1]['message']);
         $this->send('/admin/import/full', $data)->assertUnprocessable();
         $this->assertSame(0, Organisation::count());
         $this->assertSame(0, Snapshot::count());
+    }
+
+    public function test_snapshot_fields_follow_the_rules_of_the_form(): void
+    {
+        $data = $this->exportedFullWithSnapshot();
+        $this->wipe();
+        $data['organisations'][0]['canvases'][0]['snapshots'][0] = [
+            ...$data['organisations'][0]['canvases'][0]['snapshots'][0],
+            'remark' => str_repeat('a', 2001),
+            'fiscal_year' => 1999,
+            'schema_version' => 2,
+            'checksum' => 'kort',
+            'content' => [],
+            'created_at' => '2026-03-01T12:00:00',
+            'archived_at' => '99999-03-01T12:00:00+00:00',
+        ];
+
+        $report = $this->send('/admin/import/full/preview', $data)->assertOk()->json();
+        $at = 'organisations[0].canvases[0].snapshots[0].';
+
+        $this->assertSame([$at.'remark', $at.'fiscal_year', $at.'schema_version', $at.'checksum', $at.'content', $at.'created_at', $at.'archived_at'], array_column($report['errors'], 'location'));
+        $this->send('/admin/import/full', $data)->assertUnprocessable();
+        $this->assertSame(0, Snapshot::count());
+    }
+
+    public function test_times_with_an_offset_are_stored_in_utc(): void
+    {
+        $data = $this->exportedFullWithSnapshot();
+        $this->wipe();
+        $data['organisations'][0]['archived_at'] = '2026-03-01T12:00:00+02:00';
+        $data['organisations'][0]['canvases'][0]['archived_at'] = '2026-03-02T12:00:00+02:00';
+        $data['organisations'][0]['canvases'][0]['snapshots'][0]['created_at'] = '2026-03-03T12:00:00+02:00';
+        $data['organisations'][0]['canvases'][0]['snapshots'][0]['archived_at'] = '2026-03-04T12:00:00+02:00';
+
+        $this->send('/admin/import/full', $data)->assertOk();
+
+        $snapshot = Snapshot::firstOrFail();
+
+        $this->assertSame('2026-03-01 10:00:00', Organisation::firstOrFail()->archived_at?->toDateTimeString());
+        $this->assertSame('2026-03-02 10:00:00', Canvas::where('name', 'Basis canvas')->firstOrFail()->archived_at?->toDateTimeString());
+        $this->assertSame('2026-03-03 10:00:00', $snapshot->created_at->toDateTimeString());
+        $this->assertSame('2026-03-04 10:00:00', $snapshot->archived_at?->toDateTimeString());
     }
 
     public function test_an_organisation_without_canvases_keeps_its_cost_records(): void
