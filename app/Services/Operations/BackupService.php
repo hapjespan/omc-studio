@@ -4,6 +4,7 @@ namespace App\Services\Operations;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Throwable;
 
 class BackupService
 {
@@ -25,17 +26,34 @@ class BackupService
 
     public function run(): string
     {
-        $folder = storage_path('backups/'.now()->format('Y-m-d_His'));
-        File::ensureDirectoryExists($folder);
+        $folder = $this->freshFolder();
 
-        DB::connection()->statement('VACUUM INTO ?', [$folder.'/'.self::DATABASE]);
+        try {
+            DB::connection()->statement('VACUUM INTO ?', [$folder.'/'.self::DATABASE]);
 
-        if (is_dir(self::uploadsPath())) {
-            File::copyDirectory(self::uploadsPath(), $folder.'/'.self::UPLOADS);
+            if (is_dir(self::uploadsPath())) {
+                File::copyDirectory(self::uploadsPath(), $folder.'/'.self::UPLOADS);
+            }
+
+            File::copy(storage_path(self::KEY), $folder.'/'.self::KEY);
+            chmod($folder.'/'.self::KEY, 0600);
+        } catch (Throwable $failure) {
+            File::deleteDirectory($folder);
+
+            throw $failure;
         }
 
-        File::copy(storage_path(self::KEY), $folder.'/'.self::KEY);
-        chmod($folder.'/'.self::KEY, 0600);
+        return $folder;
+    }
+
+    private function freshFolder(): string
+    {
+        $base = storage_path('backups/'.now()->format('Y-m-d_His'));
+        $folder = $base;
+
+        for ($suffix = 2; ! @mkdir($folder, 0755, true) && is_dir($folder); $suffix++) {
+            $folder = $base.'-'.$suffix;
+        }
 
         return $folder;
     }

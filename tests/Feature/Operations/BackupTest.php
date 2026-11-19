@@ -63,4 +63,26 @@ class BackupTest extends TestCase
         $this->assertSame('ok', $copy->query('PRAGMA integrity_check')->fetchColumn());
         $this->assertSame(1, (int) $copy->query('SELECT COUNT(*) FROM users')->fetchColumn());
     }
+
+    public function test_two_backups_in_the_same_second_get_different_folders(): void
+    {
+        $this->travelTo(now());
+        $first = app(BackupService::class)->run();
+        $second = app(BackupService::class)->run();
+
+        $this->assertNotSame($first, $second);
+        $this->assertFileExists($second.'/database.sqlite');
+    }
+
+    public function test_a_failed_backup_leaves_no_partial_folder(): void
+    {
+        unlink($this->storage.'/app.key');
+
+        try {
+            app(BackupService::class)->run();
+            $this->fail('expected a failure');
+        } catch (\Throwable) {
+            $this->assertSame([], glob($this->storage.'/backups/*'));
+        }
+    }
 }
