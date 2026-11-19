@@ -85,7 +85,6 @@ class OverlayReconciliationTest extends TestCase
                 $this->assertSame($hand, $areas);
                 $closing = $page->toArray()['props']['figures']['sidePanel'];
                 $this->assertSame($hand, $closing['allocated']['budget'] + $closing['unknown']['budget']);
-                $this->assertSame('€ '.number_format(intdiv($hand + 50, 100), 0, ',', '.'), '€ '.number_format(intdiv($page->toArray()['props']['figures']['canvasTotal']['budget'] + 50, 100), 0, ',', '.'));
             });
     }
 

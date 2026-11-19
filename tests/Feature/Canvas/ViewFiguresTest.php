@@ -97,6 +97,30 @@ class ViewFiguresTest extends TestCase
             ->assertJsonPath('props.contributions.0.basisPoints', 10000);
     }
 
+    public function test_a_partial_reload_for_contributions_skips_the_layout_and_the_elements(): void
+    {
+        $this->actingAs(User::factory()->create())->get("/canvases/{$this->canvas->id}/view?overlay=financial&year=2026&element={$this->domain->id}", ['X-Inertia' => 'true', 'X-Inertia-Partial-Component' => 'Canvas/View', 'X-Inertia-Partial-Data' => 'contributions', 'X-Inertia-Version' => $this->inertiaVersion()])
+            ->assertJsonMissingPath('props.elements')
+            ->assertJsonMissingPath('props.layout')
+            ->assertJsonMissingPath('props.statements')
+            ->assertJsonMissingPath('props.filterOptions');
+    }
+
+    public function test_array_valued_filter_parameters_are_ignored_not_a_server_error(): void
+    {
+        $this->actingAs(User::factory()->create())->get("/canvases/{$this->canvas->id}/view?overlay=financial&year=2026&cost_kind[]=x&owner[]=1&application[a]=2")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('filters.costKind', null)->where('filters.ownerId', null)->where('figures.canvasTotal.budget', 150000));
+    }
+
+    public function test_an_organisation_without_fiscal_years_gets_a_message_instead_of_figures(): void
+    {
+        $bare = Canvas::factory()->create(['organisation_id' => Organisation::factory()->create()->id]);
+
+        $this->actingAs(User::factory()->create())->get("/canvases/{$bare->id}/view?overlay=financial")
+            ->assertInertia(fn (Assert $page) => $page->where('figures', null)->where('figuresMessage', 'Deze organisatie heeft geen boekjaren; er zijn geen cijfers om te tonen'));
+    }
+
     public function test_a_failing_closing_check_sends_no_amounts_and_the_message(): void
     {
         $archived = Element::factory()->create(['canvas_id' => $this->canvas->id, 'archived_at' => now()]);

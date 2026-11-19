@@ -27,12 +27,13 @@ class CanvasViewController extends Controller
         $organisation = $canvas->organisation;
         $overlay = in_array($request->query('overlay'), self::OVERLAYS, true) ? $request->query('overlay') : 'none';
         $filters = [
-            'costKind' => CostKind::tryFrom((string) $request->query('cost_kind'))?->value,
-            'ownerId' => $organisation?->owners()->whereKey($request->query('owner'))->value('id'),
-            'applicationId' => $organisation?->applications()->whereKey($request->query('application'))->value('id'),
+            'costKind' => CostKind::tryFrom($this->text($request, 'cost_kind'))?->value,
+            'ownerId' => $organisation?->owners()->whereKey($this->text($request, 'owner'))->value('id'),
+            'applicationId' => $organisation?->applications()->whereKey($this->text($request, 'application'))->value('id'),
         ];
         $year = $request->attributes->get('fiscal_year');
-        $asked = $overlay === 'financial' && $year !== null;
+        $financial = $overlay === 'financial';
+        $asked = $financial && $year !== null;
         $figures = $asked ? $this->figures->figures($canvas, $year, $filters) : null;
         $element = $request->query('element');
         $modalities = Modality::orderBy('position')->get();
@@ -43,15 +44,15 @@ class CanvasViewController extends Controller
             'overlay' => $overlay,
             'year' => $year,
             'filters' => $filters,
-            'filterOptions' => [
+            'filterOptions' => fn () => [
                 'costKinds' => array_map(fn (CostKind $kind) => $kind->value, CostKind::cases()),
                 'owners' => $organisation?->owners()->orderBy('name_normalised')->get(['id', 'name'])->all() ?? [],
                 'applications' => $organisation?->applications()->orderBy('name_normalised')->get(['id', 'name'])->all() ?? [],
             ],
             'figures' => $figures === null ? null : CanvasFigures::from($figures),
-            'figuresMessage' => $asked && $figures === null ? __('overlay.closing_check_failed') : null,
+            'figuresMessage' => $financial && $year === null ? __('overlay.no_fiscal_years') : ($asked && $figures === null ? __('overlay.closing_check_failed') : null),
             'contributions' => Inertia::optional(fn () => $figures === null || ! is_string($element) ? [] : $this->contributions($figures, $element)),
-            'layout' => [
+            'layout' => fn () => [
                 'areas' => Area::orderBy('position')->get()->map(fn (Area $area) => [
                     'key' => $area->key,
                     'kind' => $area->kind,
@@ -60,7 +61,7 @@ class CanvasViewController extends Controller
                 ])->values(),
                 'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('overview.goals')],
             ],
-            'elements' => Element::where('canvas_id', $canvas->id)->whereNull('archived_at')->with('area:id,key')->get()->map(fn (Element $element) => [
+            'elements' => fn () => Element::where('canvas_id', $canvas->id)->whereNull('archived_at')->with('area:id,key')->get()->map(fn (Element $element) => [
                 'id' => $element->id,
                 'area' => $element->area->key,
                 'parent' => $element->parent_id,
@@ -72,14 +73,21 @@ class CanvasViewController extends Controller
                 'description' => $element->description,
                 'rationale' => $element->rationale,
             ])->values(),
-            'statements' => Statement::where('canvas_id', $canvas->id)->orderBy('position')->get()->map(fn (Statement $statement) => [
+            'statements' => fn () => Statement::where('canvas_id', $canvas->id)->orderBy('position')->get()->map(fn (Statement $statement) => [
                 'kind' => $statement->kind->value,
                 'title' => $statement->title,
                 'body' => $statement->body,
                 'position' => $statement->position,
             ])->values(),
-            'modalities' => $modalities->map(fn (Modality $modality) => ['key' => $modality->key, 'letter' => $modality->letter, 'colour' => $modality->colour])->values(),
+            'modalities' => fn () => $modalities->map(fn (Modality $modality) => ['key' => $modality->key, 'letter' => $modality->letter, 'colour' => $modality->colour])->values(),
         ]);
+    }
+
+    private function text(Request $request, string $key): string
+    {
+        $value = $request->query($key);
+
+        return is_string($value) ? $value : '';
     }
 
     /** @return list<array{name: string, id: string|int, amountCents: int, basisPoints: int}> */
