@@ -409,5 +409,7 @@
     "entry.warning.group_without_items": "Groep zonder items: :name",
     "entry.warning.beyond_artboard": "Past niet op het tekenvlak: :name",
     "entry.empty": "leeg",
-    "entry.search": "Zoek in deze area"
+    "entry.search": "Zoek in deze area",
+    "entry.system": "Systeem",
+    "entry.unknown_explanation": "Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld"
 }

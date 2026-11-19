@@ -27,7 +27,7 @@ const flatten = (nodes: TreeNode[], depth: 0 | 1 | 2, rows: EntryRowData[]): voi
         const row: EntryRowData = { element: node.element as EntryElement, depth, first: position === 0, last: position === peers.length - 1, closes: null, empty: kind === 'cluster' && node.children.length === 0 };
         rows.push(row);
         flatten(node.children, Math.min(depth + 1, 2) as 1 | 2, rows);
-        if (depth === 0) rows[rows.length - 1].closes = node.element as EntryElement;
+        if (depth === 0 && !node.element.unknownAllocation) rows[rows.length - 1].closes = node.element as EntryElement;
     }
 };
 

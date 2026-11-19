@@ -49,7 +49,8 @@ function save(): void {
 
 <template>
     <Teleport to="#detail-body" defer>
-        <form :key="element.id" novalidate class="flex flex-col gap-3" @submit.prevent="save">
+        <p v-if="element.unknownAllocation" class="text-[13px]">{{ t('entry.unknown_explanation') }}</p>
+        <form v-else :key="element.id" novalidate class="flex flex-col gap-3" @submit.prevent="save">
             <div role="alert"><ErrorSummary :errors="errors" /></div>
             <p class="text-[12.5px] text-[#454C57]"><span class="font-semibold">{{ t('entry.path') }}:</span> {{ path }}</p>
             <TextField id="element-name" v-model="form.name" :label="t('fields.name')" :error="errors.name" autocomplete="off" />
@@ -60,6 +61,6 @@ function save(): void {
                 <button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button>
             </div>
         </form>
-        <div class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" @gone="(kind, name) => $emit('gone', kind, name)" /></div>
+        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" @gone="(kind, name) => $emit('gone', kind, name)" /></div>
     </Teleport>
 </template>
