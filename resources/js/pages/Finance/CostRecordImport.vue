@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import ImportReport, { type ImportReportData } from '../../components/ImportReport.vue';
 import { announce } from '../../components/feedback/status';
@@ -33,6 +33,8 @@ async function refused(response: Response): Promise<void> {
     refusal.value = data.errors?.file?.[0] ?? data.errors?.rule?.[0] ?? data.message ?? '';
     report.value = null;
     announce(refusal.value);
+    await nextTick();
+    document.getElementById('import-file')?.focus();
 }
 
 async function check(): Promise<void> {

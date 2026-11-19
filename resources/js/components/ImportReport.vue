@@ -23,12 +23,12 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
             </tbody>
         </table>
     </section>
-    <section v-for="(names, kind) in report.creates ?? {}" :key="kind" :aria-labelledby="`import-creates-${kind}`" class="mt-4">
-        <template v-if="names.length">
+    <template v-for="(names, kind) in report.creates ?? {}" :key="kind">
+        <section v-if="names.length" :aria-labelledby="`import-creates-${kind}`" class="mt-4">
             <h2 :id="`import-creates-${kind}`" class="text-[16px] font-semibold">{{ t('import.creates') }}: {{ t(`import.${kind}`) }}</h2>
             <ul class="mt-2 list-disc pl-5 text-[13px]"><li v-for="name in names" :key="name">{{ name }}</li></ul>
-        </template>
-    </section>
+        </section>
+    </template>
     <section aria-labelledby="import-lines" class="mt-4">
         <h2 id="import-lines" class="text-[16px] font-semibold">{{ t('import.lines') }}</h2>
         <table class="mt-2 w-full text-[13px]">

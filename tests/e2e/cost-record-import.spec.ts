@@ -44,4 +44,5 @@ test('a file with another header is refused with the file message', async ({ pag
     await page.getByRole('button', { name: 'Controleren' }).click();
     await expect(page.getByText(/^Bestand: kies een CSV-bestand van maximaal 5 MB/)).toBeVisible();
     await expect(page.getByLabel('CSV-bestand')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.locator('#import-file')).toBeFocused();
 });
