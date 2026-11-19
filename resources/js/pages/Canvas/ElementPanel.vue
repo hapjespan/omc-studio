@@ -9,11 +9,12 @@ import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { detail } from '../../shell/detail';
-import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type EntryElement } from './entry';
+import { AREA_PREFIX, parentOptions, parentValue, type ElementCost, type EntryAreaInfo, type EntryElement } from './entry';
 import ElementActions from './ElementActions.vue';
+import ElementCostsLine from './ElementCostsLine.vue';
 import ParentSelect from './ParentSelect.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; year: number | null; cost?: ElementCost; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
 const emit = defineEmits<{ saved: []; changed: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element) });
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -59,6 +60,7 @@ function save(): void {
             <TextArea id="element-description" v-model="form.description" :label="t('fields.description')" :error="errors.description" />
             <SelectField v-if="list" id="element-icon" v-model="form.icon" :label="t('entry.icon')" :options="iconOptions" :placeholder="t('entry.no_icon')" :error="errors.icon" />
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
+            <ElementCostsLine :year="year" :cost="cost" />
             <div class="flex flex-wrap gap-2">
                 <button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button>
             </div>

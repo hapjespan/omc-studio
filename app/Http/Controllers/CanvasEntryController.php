@@ -8,6 +8,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
+use App\Services\Allocation\ElementCosts;
 use App\Services\Structure\ElementFields;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,7 @@ class CanvasEntryController extends Controller
             return redirect("/canvases/{$canvas->id}/view");
         }
 
+        $year = $request->attributes->get('fiscal_year');
         $counts = Element::where('canvas_id', $canvas->id)->whereNull('archived_at')->selectRaw('area_id, kind, count(*) as total')->groupBy('area_id', 'kind')->get()
             ->groupBy('area_id');
         $areas = Area::orderBy('position')->get()->map(fn (Area $area) => [
@@ -35,6 +37,8 @@ class CanvasEntryController extends Controller
         return Inertia::render('Canvas/Entry', [
             'areas' => $areas->values(),
             'elements' => $this->elements($canvas),
+            'year' => $year,
+            'costs' => (object) app(ElementCosts::class)->for($canvas, $year),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],

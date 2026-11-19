@@ -1005,5 +1005,10 @@
     "snap.banner_year": "Boekjaar :year",
     "snap.option": ":name (:year, :date)",
     "snap.option_archived": ":name (:year, :date, gearchiveerd)",
-    "snap.open": "Openen"
+    "snap.open": "Openen",
+    "entry_costs.none": "Geen kosten toegewezen in :year. Verwijderen kan direct.",
+    "entry_costs.none_no_year": "Geen kosten toegewezen. Verwijderen kan direct.",
+    "entry_costs.allocated": ":amount toegewezen in :year, verdeeld over :records. Herverdelen is nodig voor archiveren of verwijderen.",
+    "entry_costs.other_years": "Geen kosten toegewezen in :year, wel in :years. Herverdelen is nodig voor archiveren of verwijderen.",
+    "entry_costs.records": "1 kostenpost|:count kostenposten"
 }

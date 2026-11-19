@@ -10,6 +10,12 @@ export interface EntryElement extends LayoutElement {
     archived: boolean;
 }
 
+export interface ElementCost {
+    cents: number;
+    records: number;
+    years: number[];
+}
+
 export interface EntryRowData {
     element: EntryElement;
     depth: 0 | 1 | 2;

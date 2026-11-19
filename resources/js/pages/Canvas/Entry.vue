@@ -16,7 +16,7 @@ import ArchivedToggle from './ArchivedToggle.vue';
 import ListAreaEntry from './ListAreaEntry.vue';
 import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
-import { buildRows, createdElement, elementPath, entryWarnings, filterByName, type EntryAreaInfo, type EntryElement } from './entry';
+import { buildRows, createdElement, elementPath, entryWarnings, filterByName, type ElementCost, type EntryAreaInfo, type EntryElement } from './entry';
 import SaveTemplateButton from './SaveTemplateButton.vue';
 import ImportStructure from './ImportStructure.vue';
 
@@ -27,7 +27,7 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[] }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[]; year: number | null; costs: Record<string, ElementCost> }>();
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
@@ -126,7 +126,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             <Warnings :warnings="warnings" @select="select" />
             <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" @restore="restore" />
             <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
-            <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" :gone="gone" />
+            <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" :year="year" :cost="costs[selectedElement.id]" @saved="saved = true" @changed="saved = false" :gone="gone" />
         </section>
     </div>
 </template>
