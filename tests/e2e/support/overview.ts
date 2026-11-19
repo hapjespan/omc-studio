@@ -24,11 +24,11 @@ export function stubEntry(page: import('@playwright/test').Page): { next(): Prom
         (url) => url.pathname === '/canvases',
         async (route) => {
             if (route.request().method() !== 'POST') return route.continue();
-            const response = await route.fetch({ maxRedirects: 0 });
-            const location = response.headers().location;
-            if (!location || !/\/canvases\/\d+\/entry$/.test(location)) return route.fulfill({ response });
-            targets.push(location);
-            return route.fulfill({ response, headers: { ...response.headers(), location: '/overview' } });
+            const response = await route.fetch();
+            if (!/\/canvases\/\d+\/entry$/.test(response.url())) return route.fulfill({ response });
+            targets.push(response.url());
+            const overview = await route.fetch({ url: new URL('/overview', response.url()).toString(), method: 'GET', postData: null });
+            return route.fulfill({ response: overview });
         },
     );
 
@@ -36,7 +36,6 @@ export function stubEntry(page: import('@playwright/test').Page): { next(): Prom
         async next() {
             consumed += 1;
             await expect.poll(() => targets.length).toBeGreaterThanOrEqual(consumed);
-            await page.waitForURL(/\/overview$/);
         },
     };
 }

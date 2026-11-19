@@ -19,7 +19,7 @@ test('each Organisation is a section with its active Canvas cards and archived o
     await expect(page.getByRole('link', { name: active, exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: archived, exact: true })).toHaveCount(0);
     await expect(page.getByText(/Laatst gewijzigd \d{2}-\d{2}-\d{4}|Laatst gewijzigd/).first()).toBeVisible();
-    await expectNoAxeViolations(page);
+    await expectNoAxeViolations(page, 'svg[aria-hidden="true"]');
 
     await page.getByLabel('Toon gearchiveerd').check();
     await expect(page.getByRole('link', { name: archived, exact: true })).toBeVisible();

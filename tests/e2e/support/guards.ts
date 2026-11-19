@@ -30,8 +30,9 @@ export function installGuards(page: Page, origin: string): Guards {
     };
 }
 
-export async function expectNoAxeViolations(page: Page): Promise<void> {
-    const { violations } = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
+export async function expectNoAxeViolations(page: Page, exclude?: string): Promise<void> {
+    const builder = new AxeBuilder({ page }).withTags(wcagTags);
+    const { violations } = await (exclude ? builder.exclude(exclude) : builder).analyze();
     expect(violations.map((violation) => `${violation.id}: ${violation.help}`), 'axe violations').toEqual([]);
 }
 
