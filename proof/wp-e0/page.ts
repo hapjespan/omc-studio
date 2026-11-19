@@ -8,6 +8,7 @@ import fixtureJson from './fixtures/scene.json';
 import { loadBrowserFonts, loadFace, lockFontSources, registerFaces } from './fonts';
 import { computeBlocks, type Fixture } from './layout';
 import { watchFinishedActions } from './changes';
+import { renderHtmlView } from './html-view';
 import { canvasMeasurer } from './measure';
 import { inertShortcuts, restrict } from './restrict';
 import { readBlocks } from './roundtrip';
@@ -23,6 +24,12 @@ async function start() {
     await loadBrowserFonts();
     await registerFaces();
     const blocks = computeBlocks(fixture, canvasMeasurer());
+    if (new URLSearchParams(location.search).get('view') === 'html') {
+        renderHtmlView(document.getElementById('app')!, blocks, fixture.artboard);
+        Object.assign(window, { proof: { fixture, blocks } });
+        document.documentElement.dataset.ready = 'true';
+        return;
+    }
     const graph = new SceneGraph();
     buildScene(graph, fixture, blocks);
     const page = graph.getPages()[0];

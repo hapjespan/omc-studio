@@ -1,0 +1,532 @@
+{
+  "delta": {
+    "box": 0,
+    "lineLeft": 0,
+    "lineRight": 1,
+    "lineTop": 1,
+    "lineBottom": 0,
+    "centroidY": 0.02401676723673063,
+    "massRatio": 1.2589477167438783
+  },
+  "problems": [],
+  "blocks": 14,
+  "boxes": [
+    {
+      "id": "dom-1",
+      "expected": {
+        "x": 40,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      },
+      "canvas": {
+        "x": 40,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      },
+      "html": {
+        "x": 40,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      }
+    },
+    {
+      "id": "dom-2",
+      "expected": {
+        "x": 590,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      },
+      "canvas": {
+        "x": 590,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      },
+      "html": {
+        "x": 590,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      }
+    },
+    {
+      "id": "dom-3",
+      "expected": {
+        "x": 1140,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      },
+      "canvas": {
+        "x": 1140,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      },
+      "html": {
+        "x": 1140,
+        "y": 220,
+        "width": 500,
+        "height": 700
+      }
+    },
+    {
+      "id": "clu-1",
+      "expected": {
+        "x": 56,
+        "y": 300,
+        "width": 468,
+        "height": 440
+      },
+      "canvas": {
+        "x": 56,
+        "y": 300,
+        "width": 468,
+        "height": 440
+      },
+      "html": {
+        "x": 56,
+        "y": 300,
+        "width": 468,
+        "height": 440
+      }
+    },
+    {
+      "id": "act-1",
+      "expected": {
+        "x": 72,
+        "y": 360,
+        "width": 436,
+        "height": 44
+      },
+      "canvas": {
+        "x": 72,
+        "y": 360,
+        "width": 436,
+        "height": 44
+      },
+      "html": {
+        "x": 72,
+        "y": 360,
+        "width": 436,
+        "height": 44
+      }
+    },
+    {
+      "id": "act-2",
+      "expected": {
+        "x": 72,
+        "y": 520,
+        "width": 436,
+        "height": 64
+      },
+      "canvas": {
+        "x": 72,
+        "y": 520,
+        "width": 436,
+        "height": 64
+      },
+      "html": {
+        "x": 72,
+        "y": 520,
+        "width": 436,
+        "height": 64
+      }
+    },
+    {
+      "id": "act-3",
+      "expected": {
+        "x": 56,
+        "y": 780,
+        "width": 468,
+        "height": 44
+      },
+      "canvas": {
+        "x": 56,
+        "y": 780,
+        "width": 468,
+        "height": 44
+      },
+      "html": {
+        "x": 56,
+        "y": 780,
+        "width": 468,
+        "height": 44
+      }
+    },
+    {
+      "id": "act-4",
+      "expected": {
+        "x": 56,
+        "y": 840,
+        "width": 468,
+        "height": 64
+      },
+      "canvas": {
+        "x": 56,
+        "y": 840,
+        "width": 468,
+        "height": 64
+      },
+      "html": {
+        "x": 56,
+        "y": 840,
+        "width": 468,
+        "height": 64
+      }
+    },
+    {
+      "id": "act-5",
+      "expected": {
+        "x": 606,
+        "y": 300,
+        "width": 468,
+        "height": 44
+      },
+      "canvas": {
+        "x": 606,
+        "y": 300,
+        "width": 468,
+        "height": 44
+      },
+      "html": {
+        "x": 606,
+        "y": 300,
+        "width": 468,
+        "height": 44
+      }
+    },
+    {
+      "id": "act-6",
+      "expected": {
+        "x": 606,
+        "y": 420,
+        "width": 468,
+        "height": 44
+      },
+      "canvas": {
+        "x": 606,
+        "y": 420,
+        "width": 468,
+        "height": 44
+      },
+      "html": {
+        "x": 606,
+        "y": 420,
+        "width": 468,
+        "height": 44
+      }
+    },
+    {
+      "id": "act-7",
+      "expected": {
+        "x": 606,
+        "y": 540,
+        "width": 468,
+        "height": 44
+      },
+      "canvas": {
+        "x": 606,
+        "y": 540,
+        "width": 468,
+        "height": 44
+      },
+      "html": {
+        "x": 606,
+        "y": 540,
+        "width": 468,
+        "height": 44
+      }
+    },
+    {
+      "id": "act-8",
+      "expected": {
+        "x": 1156,
+        "y": 300,
+        "width": 468,
+        "height": 44
+      },
+      "canvas": {
+        "x": 1156,
+        "y": 300,
+        "width": 468,
+        "height": 44
+      },
+      "html": {
+        "x": 1156,
+        "y": 300,
+        "width": 468,
+        "height": 44
+      }
+    },
+    {
+      "id": "act-9",
+      "expected": {
+        "x": 1156,
+        "y": 420,
+        "width": 468,
+        "height": 64
+      },
+      "canvas": {
+        "x": 1156,
+        "y": 420,
+        "width": 468,
+        "height": 64
+      },
+      "html": {
+        "x": 1156,
+        "y": 420,
+        "width": 468,
+        "height": 64
+      }
+    },
+    {
+      "id": "act-10",
+      "expected": {
+        "x": 1156,
+        "y": 580,
+        "width": 468,
+        "height": 44
+      },
+      "canvas": {
+        "x": 1156,
+        "y": 580,
+        "width": 468,
+        "height": 44
+      },
+      "html": {
+        "x": 1156,
+        "y": 580,
+        "width": 468,
+        "height": 44
+      }
+    }
+  ],
+  "perLine": [
+    {
+      "id": "dom-1",
+      "line": 0,
+      "text": "Primary activities",
+      "font": "Space Grotesk 700 22",
+      "left": 0,
+      "right": 0,
+      "top": -1,
+      "bottom": 0,
+      "canvasWidth": 184,
+      "htmlWidth": 184,
+      "centroidY": -0.01
+    },
+    {
+      "id": "dom-2",
+      "line": 0,
+      "text": "Financial activities",
+      "font": "Space Grotesk 700 22",
+      "left": 0,
+      "right": 0,
+      "top": -1,
+      "bottom": 0,
+      "canvasWidth": 198,
+      "htmlWidth": 198,
+      "centroidY": -0.02
+    },
+    {
+      "id": "dom-3",
+      "line": 0,
+      "text": "Supporting activities",
+      "font": "Space Grotesk 700 22",
+      "left": 0,
+      "right": 0,
+      "top": -1,
+      "bottom": 0,
+      "canvasWidth": 223,
+      "htmlWidth": 223,
+      "centroidY": -0.01
+    },
+    {
+      "id": "clu-1",
+      "line": 0,
+      "text": "Order to delivery",
+      "font": "Inter 600 18",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 145,
+      "htmlWidth": 145,
+      "centroidY": 0
+    },
+    {
+      "id": "act-1",
+      "line": 0,
+      "text": "Receive and register customer requests",
+      "font": "Inter 700 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 309,
+      "htmlWidth": 309,
+      "centroidY": -0.01
+    },
+    {
+      "id": "act-2",
+      "line": 0,
+      "text": "Supercalifragilisticexpialidocious-handling",
+      "font": "Space Grotesk 400 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 328,
+      "htmlWidth": 328,
+      "centroidY": 0.01
+    },
+    {
+      "id": "act-2",
+      "line": 1,
+      "text": "procedure for exceptional cases",
+      "font": "Space Grotesk 400 16",
+      "left": 0,
+      "right": -1,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 249,
+      "htmlWidth": 250,
+      "centroidY": -0.02
+    },
+    {
+      "id": "act-3",
+      "line": 0,
+      "text": "Plan production",
+      "font": "Inter 400 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 117,
+      "htmlWidth": 117,
+      "centroidY": -0.02
+    },
+    {
+      "id": "act-4",
+      "line": 0,
+      "text": "Quality inspection of incoming goods and components",
+      "font": "Space Grotesk 700 16",
+      "left": 0,
+      "right": 0,
+      "top": -1,
+      "bottom": 0,
+      "canvasWidth": 423,
+      "htmlWidth": 423,
+      "centroidY": -0.01
+    },
+    {
+      "id": "act-4",
+      "line": 1,
+      "text": "from all suppliers",
+      "font": "Space Grotesk 700 16",
+      "left": 0,
+      "right": 0,
+      "top": -1,
+      "bottom": 0,
+      "canvasWidth": 133,
+      "htmlWidth": 133,
+      "centroidY": -0.01
+    },
+    {
+      "id": "act-5",
+      "line": 0,
+      "text": "Invoice customers",
+      "font": "Inter 400 16",
+      "left": 0,
+      "right": -1,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 136,
+      "htmlWidth": 137,
+      "centroidY": 0.01
+    },
+    {
+      "id": "act-6",
+      "line": 0,
+      "text": "Collect payments and follow up on late payments",
+      "font": "Space Grotesk 400 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 382,
+      "htmlWidth": 382,
+      "centroidY": 0
+    },
+    {
+      "id": "act-7",
+      "line": 0,
+      "text": "Report to the board",
+      "font": "Inter 700 16",
+      "left": 0,
+      "right": -1,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 148,
+      "htmlWidth": 149,
+      "centroidY": -0.02
+    },
+    {
+      "id": "act-8",
+      "line": 0,
+      "text": "Maintain the knowledge base",
+      "font": "Space Grotesk 400 16",
+      "left": 0,
+      "right": -1,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 225,
+      "htmlWidth": 226,
+      "centroidY": 0
+    },
+    {
+      "id": "act-9",
+      "line": 0,
+      "text": "Train new colleagues in the first three months of their",
+      "font": "Inter 400 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 402,
+      "htmlWidth": 402,
+      "centroidY": -0.01
+    },
+    {
+      "id": "act-9",
+      "line": 1,
+      "text": "employment",
+      "font": "Inter 400 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 92,
+      "htmlWidth": 92,
+      "centroidY": 0.02
+    },
+    {
+      "id": "act-10",
+      "line": 0,
+      "text": "Recruit",
+      "font": "Space Grotesk 700 16",
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "canvasWidth": 55,
+      "htmlWidth": 55,
+      "centroidY": -0.02
+    }
+  ]
+}

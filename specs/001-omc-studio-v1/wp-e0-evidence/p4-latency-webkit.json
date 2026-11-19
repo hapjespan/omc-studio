@@ -9,70 +9,70 @@
     },
     {
       "kind": "drag",
-      "ms": 0.2,
+      "ms": 0,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "drag",
-      "ms": 0.3,
+      "ms": 0,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "drag",
-      "ms": 0.1,
+      "ms": 0,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "drag",
-      "ms": 0.2,
+      "ms": 0,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "drag",
-      "ms": 0.3,
+      "ms": 1,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "drag",
-      "ms": 0.3,
+      "ms": 0,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "drag",
-      "ms": 0.2,
+      "ms": 1,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "nudge-debounced",
-      "ms": 306.5,
+      "ms": 302,
       "ids": [
         "act-1"
       ]
     },
     {
       "kind": "nudge-flushed",
-      "ms": 0.7,
+      "ms": 1,
       "ids": [
         "act-1"
       ]
     },
     {
       "kind": "command",
-      "ms": 0.8,
+      "ms": 1,
       "ids": [
         "act-5"
       ]

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { openProof } from './support';
 
-test('P4: a change notice arrives within 100 ms of the finished action', async ({ page }) => {
+test('P4: a change notice arrives within 100 ms of the finished action', async ({ page }, info) => {
     await openProof(page);
     await page.evaluate(() => {
         const w = window as any;
@@ -50,7 +50,7 @@ test('P4: a change notice arrives within 100 ms of the finished action', async (
         return notice ? { kind: trigger.kind, ms: +(notice.at - trigger.at).toFixed(2), ids: notice.ids } : { kind: trigger.kind, ms: null, ids: [] };
     });
     mkdirSync('../../specs/001-omc-studio-v1/wp-e0-evidence', { recursive: true });
-    writeFileSync('../../specs/001-omc-studio-v1/wp-e0-evidence/p4-latency.json', JSON.stringify({ pairs, notices: notices.length }, null, 2));
+    writeFileSync(`../../specs/001-omc-studio-v1/wp-e0-evidence/p4-latency-${info.project.name}.json`, JSON.stringify({ pairs, notices: notices.length }, null, 2));
     const drag = pairs.filter((pair: any) => pair.kind === 'drag');
     expect(drag.length).toBe(drags);
     for (const pair of drag) expect(pair.ms).toBeLessThan(100);

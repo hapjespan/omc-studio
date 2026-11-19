@@ -1,2 +1,5 @@
 html,body{margin:0;overflow:hidden}
 #stage{width:100vw;height:100vh;display:block}
+.html-artboard{position:relative;background:#fff;overflow:hidden}
+.html-block{position:absolute}
+.html-line{position:absolute;white-space:pre;margin:0;padding:0;text-rendering:geometricPrecision}

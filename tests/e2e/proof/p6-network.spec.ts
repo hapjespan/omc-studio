@@ -24,7 +24,7 @@ async function watch(page: Page) {
     return { outside, own, violations };
 }
 
-test('P6: loading and using the drawing sends nothing outside the own server, under the application policy', async ({ page }) => {
+test('P6: loading and using the drawing sends nothing outside the own server, under the application policy', async ({ page }, info) => {
     const seen = await watch(page);
     await page.goto('/');
     await page.waitForFunction(() => document.documentElement.dataset.ready === 'true' || document.documentElement.dataset.error, null, { timeout: 30000 });
@@ -44,7 +44,7 @@ test('P6: loading and using the drawing sends nothing outside the own server, un
 
     const policy = await page.evaluate(async () => (await fetch('/')).headers.get('content-security-policy'));
     mkdirSync('../../specs/001-omc-studio-v1/wp-e0-evidence', { recursive: true });
-    writeFileSync('../../specs/001-omc-studio-v1/wp-e0-evidence/p6-network.json', JSON.stringify({ policy, ownRequests: [...new Set(seen.own)].sort(), outside: seen.outside, violations: seen.violations }, null, 2));
+    writeFileSync(`../../specs/001-omc-studio-v1/wp-e0-evidence/p6-network-${info.project.name}.json`, JSON.stringify({ policy, ownRequests: [...new Set(seen.own)].sort(), outside: seen.outside, violations: seen.violations }, null, 2));
     expect(seen.outside).toEqual([]);
     expect(seen.violations).toEqual([]);
     expect(policy).toContain("script-src 'self' 'wasm-unsafe-eval'");
@@ -52,12 +52,12 @@ test('P6: loading and using the drawing sends nothing outside the own server, un
     expect(seen.own.length).toBeGreaterThan(5);
 });
 
-test('P6 observation: with the font switches left at their defaults, an unbundled font still sends nothing in this setup', async ({ page }) => {
+test('P6 observation: with the font switches left at their defaults, an unbundled font still sends nothing in this setup', async ({ page }, info) => {
     const seen = await watch(page);
     await page.goto('/?control-remote-font');
     await page.waitForFunction(() => document.documentElement.dataset.ready === 'true' || document.documentElement.dataset.error, null, { timeout: 30000 });
     await page.waitForTimeout(3000);
-    writeFileSync('../../specs/001-omc-studio-v1/wp-e0-evidence/p6-control.json', JSON.stringify({ attempted: seen.outside, blockedByPolicy: seen.violations }, null, 2));
+    writeFileSync(`../../specs/001-omc-studio-v1/wp-e0-evidence/p6-observation-${info.project.name}.json`, JSON.stringify({ attempted: seen.outside, blockedByPolicy: seen.violations }, null, 2));
     expect(seen.outside).toEqual([]);
     expect(seen.violations).toEqual([]);
 });

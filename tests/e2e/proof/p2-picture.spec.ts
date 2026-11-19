@@ -4,7 +4,7 @@ import { inkPixels, openProof, samplePixels, screenOrigin } from './support';
 
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 
-test('P2: the drawing matches the fixture', async ({ page }) => {
+test('P2: the drawing matches the fixture', async ({ page }, info) => {
     const errors = await openProof(page);
     expect(errors).toEqual([]);
     const origin = await screenOrigin(page);
@@ -24,7 +24,7 @@ test('P2: the drawing matches the fixture', async ({ page }) => {
     });
     const shot = await page.screenshot();
     mkdirSync('../../specs/001-omc-studio-v1/wp-e0-evidence', { recursive: true });
-    await page.screenshot({ path: '../../specs/001-omc-studio-v1/wp-e0-evidence/p2-scene.png' });
+    await page.screenshot({ path: `../../specs/001-omc-studio-v1/wp-e0-evidence/p2-scene-${info.project.name}.png` });
 
     const corners = await samplePixels(page, shot, blocks.map((block: any) => ({ x: origin.x + block.ax + block.width - 4, y: origin.y + block.ay + block.height - 4 })));
     blocks.forEach((block: any, index: number) => {
