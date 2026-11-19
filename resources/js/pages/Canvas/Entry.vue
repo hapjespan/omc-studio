@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { t } from '../../i18n';
 import EntryTree from './EntryTree.vue';
 import type { AreaKey, ElementKind } from '../../layout/types';
+import { detail, openDetail } from '../../shell/detail';
 import AddDomain from './AddDomain.vue';
-import { buildRows, createdElement, type EntryElement } from './entry';
+import ElementPanel from './ElementPanel.vue';
+import { buildRows, createdElement, elementPath, type EntryElement } from './entry';
 
 interface EntryArea {
     key: string;
@@ -14,12 +16,24 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ canvas: { id: number; name: string }; areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[] }>();
+const props = defineProps<{ canvas: { id: number; name: string }; areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[] }>();
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
 const selectedId = ref<string | null>(null);
+const saved = ref(false);
+const selectedElement = computed(() => props.elements.find(({ id }) => id === selectedId.value));
 const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
 const rows = computed(() => buildRows(props.elements.filter((element) => !element.archived), area.value.key as AreaKey));
+
+function select(id: string, opener: HTMLElement | null): void {
+    selectedId.value = id;
+    saved.value = false;
+    openDetail(props.elements.find((element) => element.id === id)?.name ?? '', opener);
+}
+
+watch(() => detail.open, (open) => {
+    if (!open) selectedId.value = null;
+});
 
 async function added(kind: ElementKind, name: string, parent: string | null): Promise<void> {
     await nextTick();
@@ -31,6 +45,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
 <template>
     <Head :title="canvas.name" />
     <header class="flex items-center gap-4">
+        <p role="status" class="order-last ml-auto text-[13px] font-semibold">{{ saved ? t('entry.saved') : '' }}</p>
         <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
     </header>
     <div class="mt-4 flex gap-4">
@@ -47,7 +62,8 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
             <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
-            <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="selectedId = $event" />
+            <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" />
+            <ElementPanel v-if="selectedElement" :canvas-id="canvas.id" :element="selectedElement" :path="elementPath(selectedElement, elements, area.label)" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" />
         </section>
     </div>
 </template>

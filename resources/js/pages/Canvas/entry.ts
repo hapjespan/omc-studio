@@ -46,3 +46,10 @@ export const firstError = (errors: object): string | undefined => {
 
     return messages.name ?? messages.rule;
 };
+
+export const elementPath = (element: EntryElement, elements: EntryElement[], areaLabel: string): string => {
+    const names: string[] = [];
+    for (let current: EntryElement | undefined = element; current; current = elements.find((candidate) => candidate.id === current?.parent)) names.unshift(current.name);
+
+    return [areaLabel, ...names].join(' > ');
+};

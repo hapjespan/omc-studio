@@ -10,6 +10,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
+use App\Services\Structure\ElementFields;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -39,6 +40,7 @@ class CanvasEntryController extends Controller
             'canvas' => ['id' => $canvas->id, 'name' => $canvas->name],
             'areas' => $areas->values(),
             'elements' => $this->elements($canvas),
+            'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],
         ]);

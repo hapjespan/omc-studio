@@ -382,5 +382,10 @@
     "entry.up_named": ":name omhoog",
     "entry.down_named": ":name omlaag",
     "entry.moved_up": ":name staat nu hoger",
-    "entry.moved_down": ":name staat nu lager"
+    "entry.moved_down": ":name staat nu lager",
+    "entry.path": "Pad",
+    "entry.icon": "Icoon",
+    "entry.no_icon": "Geen icoon",
+    "entry.save": "Opslaan",
+    "entry.saved": "Alles opgeslagen"
 }

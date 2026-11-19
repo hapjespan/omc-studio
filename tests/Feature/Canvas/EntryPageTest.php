@@ -60,7 +60,7 @@ class EntryPageTest extends TestCase
             $this->assertSame(['id' => $domain->id, 'area' => 'steering', 'parent' => null, 'kind' => 'domain', 'archived' => false], collect($elements['Inkoop'])->only(['id', 'area', 'parent', 'kind', 'archived'])->all());
             $this->assertSame($domain->id, $elements['Werving']['parent']);
             $this->assertTrue($elements['Werving']['archived']);
-            $page->has('modalities', 4)->where('modalities.0.letter', 'C');
+            $page->has('modalities', 4)->where('modalities.0.letter', 'C')->where('icons.0', 'users');
         });
     }
 
