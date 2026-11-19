@@ -293,5 +293,6 @@
     "users.copy": "Kopiëren",
     "users.password_copied": "Wachtwoord gekopieerd",
     "users.password_copy_failed": "Kopiëren is niet gelukt. Selecteer het wachtwoord en kopieer het zelf",
-    "audit_log.action.sessions_ended": "Sessies beëindigd"
+    "audit_log.action.sessions_ended": "Sessies beëindigd",
+    "rule.canvas_name_taken": "Naam: dit canvas bestaat al in deze organisatie"
 }
