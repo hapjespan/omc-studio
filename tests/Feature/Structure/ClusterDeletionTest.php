@@ -62,7 +62,7 @@ class ClusterDeletionTest extends StructureTestCase
 
         $this->assertSame('Terugzetten kan niet: werving staat al onder het domein', $message);
         $this->assertNotNull($this->cluster->fresh());
-        $this->assertSame(4, Element::count());
+        $this->assertSame(5, Element::count());
     }
 
     public function test_a_cluster_with_activities_needs_a_choice(): void
