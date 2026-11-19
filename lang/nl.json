@@ -635,5 +635,10 @@
     "jsonx.unknown_repeated": ":location: het bestand heeft meer dan een onbekende allocatie",
     "jsonx.unknown_invalid": ":location: de onbekende allocatie moet een domein zijn in ondersteunende activiteiten, zonder modaliteit, onderliggende elementen of toewijzingen",
     "jsonx.target_invalid": ":location: dit element kan geen kosten dragen",
-    "jsonx.hundred_percent": ":location: de verdeling moet samen precies 100% zijn"
+    "jsonx.hundred_percent": ":location: de verdeling moet samen precies 100% zijn",
+    "jsonx.cost_record_differs": "Kostenpost :code verschilt van de bestaande",
+    "jsonx.code_taken": ":location: code :code staat al op een andere kostenpost van deze organisatie",
+    "jsonx.year_finalised": ":location: :year is definitief in canvas :canvas, de jaarwaarden kunnen niet worden aangemaakt",
+    "jsonx.canvas_name_taken": "Canvasnaam: dit canvas bestaat al in deze organisatie",
+    "jsonx.organisation_name_taken": "Organisatienaam: deze organisatie bestaat al"
 }

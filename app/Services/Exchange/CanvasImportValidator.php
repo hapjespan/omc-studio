@@ -6,7 +6,13 @@ use App\Enums\CostKind;
 use App\Enums\ElementKind;
 use App\Enums\StatementKind;
 use App\Models\Area;
+use App\Models\Canvas;
+use App\Models\CostRecord;
+use App\Models\FinalisedYear;
+use App\Models\FiscalYear;
 use App\Models\Modality;
+use App\Models\Organisation;
+use App\Models\YearlyFigure;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
 use App\Rules\ElementName;
@@ -89,6 +95,147 @@ class CanvasImportValidator
         $this->canvas($data['canvas'] ?? null);
 
         return ['data' => $data, 'errors' => $this->errors, 'count' => $this->count];
+    }
+
+    /**
+     * @return array{data: ?array<string, mixed>, errors: list<array{location: string, message: string}>, count: int, reused: list<string>}
+     */
+    public function check(string $content, ?Organisation $target, string $canvasName, ?string $organisationName = null): array
+    {
+        $result = $this->validate($content);
+        $reused = [];
+
+        if ($result['data'] !== null) {
+            $found = $this->conflicts($result['data'], $target, $canvasName, $organisationName);
+            $reused = $found['reused'];
+
+            foreach ($found['errors'] as $error) {
+                $this->count++;
+                $result['count']++;
+                count($result['errors']) < self::MAX_ERRORS && $result['errors'][] = $error;
+            }
+        }
+
+        return [...$result, 'reused' => $reused];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{errors: list<array{location: string, message: string}>, reused: list<string>}
+     */
+    public function conflicts(array $data, ?Organisation $target, string $canvasName, ?string $organisationName = null): array
+    {
+        $errors = [];
+        $reused = [];
+        $add = function (string $location, string $key, array $replace = []) use (&$errors) {
+            $errors[] = ['location' => $location, 'message' => __($key, ['location' => $location, ...$replace])];
+        };
+
+        if ($target === null) {
+            $organisationName !== null && Organisation::where('name_normalised', Organisation::normalise($organisationName))->exists() && $add('organisation_name', 'jsonx.organisation_name_taken');
+
+            return ['errors' => $errors, 'reused' => $reused];
+        }
+
+        Canvas::where('scope_key', 'organisation:'.$target->getKey())->where('name_normalised', Canvas::normalise($canvasName))->exists() && $add('canvas_name', 'jsonx.canvas_name_taken');
+
+        $years = FiscalYear::where('organisation_id', $target->getKey())->pluck('year', 'id')->all();
+        $finalised = FinalisedYear::query()
+            ->join('canvases', 'canvases.id', '=', 'finalised_years.canvas_id')
+            ->whereIn('finalised_years.fiscal_year_id', array_keys($years))
+            ->orderByDesc('canvases.id')
+            ->pluck('canvases.name', 'finalised_years.fiscal_year_id')
+            ->mapWithKeys(fn (string $name, int $yearId) => [$years[$yearId] => $name])->all();
+        $existing = CostRecord::with(['owner', 'application', 'yearlyFigures'])->where('organisation_id', $target->getKey())->get();
+        $byId = $existing->keyBy('id');
+        $byCode = $existing->keyBy('code_normalised');
+
+        foreach ($data['cost_records'] as $position => $record) {
+            $at = 'cost_records['.$position.']';
+            $current = $byId->get($record['id']);
+
+            if ($current !== null) {
+                if ($this->signature($current, $years) === $this->fileSignature($record)) {
+                    $reused[] = $record['id'];
+                } else {
+                    $add($at, 'jsonx.cost_record_differs', ['code' => $record['code'] ?? $record['name']]);
+                }
+
+                continue;
+            }
+
+            $code = $record['code'] === null ? null : mb_strtolower(trim($record['code']));
+            $code !== null && $byCode->has($code) && $add($at.'.code', 'jsonx.code_taken', ['code' => $record['code']]);
+
+            foreach ($record['yearly_figures'] as $number => $figure) {
+                isset($finalised[$figure['year']]) && $add($at.'.yearly_figures['.$number.'].year', 'jsonx.year_finalised', ['year' => $figure['year'], 'canvas' => $finalised[$figure['year']]]);
+            }
+        }
+
+        return ['errors' => $errors, 'reused' => $reused];
+    }
+
+    /**
+     * @param  array<int, int>  $years
+     * @return array<string, mixed>
+     */
+    private function signature(CostRecord $record, array $years): array
+    {
+        return $this->normalised([
+            'code' => $record->code,
+            'name' => $record->name,
+            'cost_kind' => $record->cost_kind->value,
+            'supplier' => $record->supplier,
+            'owner' => $record->owner->name,
+            'cost_centre' => $record->cost_centre,
+            'application' => $record->application?->name,
+            'description' => $record->description,
+            'figures' => $record->yearlyFigures->mapWithKeys(fn (YearlyFigure $figure) => [$years[$figure->fiscal_year_id] => [
+                ...$figure->only(['budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths']),
+                'reference_date' => $figure->reference_date?->format('Y-m-d'),
+                'remark' => $figure->remark,
+            ]])->all(),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     * @return array<string, mixed>
+     */
+    private function fileSignature(array $record): array
+    {
+        $keys = ['budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths', 'reference_date', 'remark'];
+
+        return $this->normalised([
+            ...array_intersect_key($record, array_flip(['code', 'name', 'cost_kind', 'supplier', 'owner', 'cost_centre', 'application', 'description'])),
+            'figures' => array_column(array_map(fn (array $figure) => [$figure['year'], array_intersect_key($figure, array_flip($keys))], $record['yearly_figures']), 1, 0),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    private function normalised(array $values): array
+    {
+        ksort($values['figures']);
+
+        foreach ($values['figures'] as &$figure) {
+            $figure = array_map(fn ($value) => $value === '' ? null : $value, $figure);
+            ksort($figure);
+        }
+
+        foreach (['code', 'owner', 'application'] as $key) {
+            $values[$key] = $values[$key] === null ? null : mb_strtolower(trim($values[$key]));
+        }
+
+        foreach (['supplier', 'cost_centre', 'description'] as $key) {
+            $values[$key] = $values[$key] === '' ? null : $values[$key];
+        }
+
+        ksort($values);
+
+        return $values;
     }
 
     /** @return ?array<string, mixed> */
