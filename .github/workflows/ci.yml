@@ -115,7 +115,9 @@ jobs:
       - run: npm run build
       - run: sh scripts/serve-e2e.sh
       - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npx playwright test
+      - run: npx playwright test --grep-invert 'Secure session cookie'
+      - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
+      - run: npx playwright test --project=chromium --grep 'Secure session cookie'
 
   audit:
     name: Dependency audits
