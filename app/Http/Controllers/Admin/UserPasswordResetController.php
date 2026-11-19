@@ -11,6 +11,7 @@ class UserPasswordResetController extends Controller
 {
     public function __invoke(User $user, UserAdministration $users): RedirectResponse
     {
-        return redirect('/admin/users')->with('one_time_password', $users->resetPassword($user));
+        return redirect('/admin/users')->with('one_time_password', $users->resetPassword($user))
+            ->with('status', __('users.password_reset'));
     }
 }

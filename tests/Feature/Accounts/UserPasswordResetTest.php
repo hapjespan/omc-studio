@@ -34,6 +34,7 @@ class UserPasswordResetTest extends TestCase
             ->post('/admin/users/'.$user->getKey().'/password-reset');
 
         $response->assertRedirect('/admin/users');
+        $response->assertSessionHas('status', __('users.password_reset'));
         $password = (string) session('one_time_password');
         $user->refresh();
 

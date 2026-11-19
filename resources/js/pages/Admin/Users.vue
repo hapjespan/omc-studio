@@ -56,6 +56,7 @@ const initial = reactive({ name: '', email: '', role: 'reader' });
 const busy = ref(false);
 const confirmingDelete = ref(false);
 const confirmingSessions = ref(false);
+const confirmingFactor = ref(false);
 const changed = (): boolean => draft.name !== initial.name || draft.email !== initial.email || draft.role !== initial.role;
 const reauthenticating = (row: ListRow | null): boolean => isSelf(row) && draft.email !== initial.email;
 
@@ -66,6 +67,7 @@ function open(row: ListRow | null, setDirty: (value: boolean) => void): void {
     Object.assign(draft, initial, { currentPassword: '' });
     confirmingDelete.value = false;
     confirmingSessions.value = false;
+    confirmingFactor.value = false;
     setDirty(false);
 }
 
@@ -85,6 +87,7 @@ function resetPassword(row: ListRow, close: () => void): void {
 }
 
 function resetSecondFactor(row: ListRow, close: () => void): void {
+    confirmingFactor.value = false;
     router.delete(routes.userSecondFactor(row.id), { preserveScroll: true, onSuccess: close });
 }
 
@@ -126,12 +129,18 @@ async function copyPassword(): Promise<void> {
                         <button type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('users.save') }}</button>
                         <template v-if="row && !isSelf(row)">
                             <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</button>
-                            <button v-if="hasSecondFactor(row)" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="resetSecondFactor(row, close)">{{ t('users.reset_second_factor') }}</button>
+                            <button v-if="hasSecondFactor(row)" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</button>
                             <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</button>
                         </template>
                         <button v-if="row" type="button" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E] disabled:opacity-60" @click="confirmingDelete = true">{{ t('list.delete') }}</button>
                     </div>
                     <ConfirmDelete v-if="row" v-model:open="confirmingDelete" :name="String(row.name)" :consequence="t('users.delete_consequence')" @confirm="remove(row, close)" />
+                    <Dialog v-if="row" v-model:open="confirmingFactor" :title="t('users.reset_second_factor_title', { name: String(row.name) })" :description="t('users.reset_second_factor_consequence')">
+                        <div class="flex gap-2">
+                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingFactor = false">{{ t('list.cancel') }}</button>
+                            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="resetSecondFactor(row, close)">{{ t('users.reset_second_factor') }}</button>
+                        </div>
+                    </Dialog>
                     <Dialog v-if="row" v-model:open="confirmingSessions" :title="t('users.end_sessions_title', { name: String(row.name) })" :description="t('users.end_sessions_consequence')">
                         <div class="flex gap-2">
                             <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="confirmingSessions = false">{{ t('list.cancel') }}</button>
