@@ -8,6 +8,7 @@ use App\Enums\Role;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Models\Modality;
 use App\Models\Statement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,8 +38,32 @@ class CanvasEntryController extends Controller
         return Inertia::render('Canvas/Entry', [
             'canvas' => ['id' => $canvas->id, 'name' => $canvas->name],
             'areas' => $areas->values(),
+            'elements' => $this->elements($canvas),
+            'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],
         ]);
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function elements(Canvas $canvas): array
+    {
+        $areas = Area::pluck('key', 'id');
+        $modalities = Modality::pluck('key', 'id');
+
+        return Element::where('canvas_id', $canvas->id)->orderBy('position')->orderBy('id')->get()->map(fn (Element $element) => [
+            'id' => $element->id,
+            'area' => $areas[$element->area_id],
+            'parent' => $element->parent_id,
+            'kind' => $element->kind->value,
+            'name' => $element->name,
+            'description' => $element->description,
+            'modality' => $modalities[$element->modality_id] ?? null,
+            'rationale' => $element->rationale,
+            'icon' => $element->icon,
+            'position' => $element->position,
+            'unknownAllocation' => $element->is_unknown_allocation,
+            'archived' => $element->archived_at !== null,
+        ])->all();
     }
 
     /** @param  Collection<int, Element>  $counts */

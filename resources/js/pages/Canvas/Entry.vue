@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { t } from '../../i18n';
+import EntryTree from './EntryTree.vue';
+import type { AreaKey } from '../../layout/types';
+import { buildRows, type EntryElement } from './entry';
 
 interface EntryArea {
     key: string;
@@ -10,9 +13,12 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ canvas: { id: number; name: string }; areas: EntryArea[]; selected: string }>();
+const props = defineProps<{ canvas: { id: number; name: string }; areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[] }>();
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
+const selectedId = ref<string | null>(null);
+const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
+const rows = computed(() => buildRows(props.elements.filter((element) => !element.archived), area.value.key as AreaKey));
 </script>
 
 <template>
@@ -33,6 +39,7 @@ const area = computed(() => props.areas.find(({ key }) => key === current.value)
         </nav>
         <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
             <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+            <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" @select="selectedId = $event" />
         </section>
     </div>
 </template>
