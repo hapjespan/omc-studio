@@ -18,6 +18,7 @@ import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
 import { buildRows, createdElement, elementPath, entryWarnings, filterByName, type EntryAreaInfo, type EntryElement } from './entry';
 import SaveTemplateButton from './SaveTemplateButton.vue';
+import ImportStructure from './ImportStructure.vue';
 
 interface EntryArea {
     key: string;
@@ -103,6 +104,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
         <SaveTemplateButton />
     </header>
+    <ImportStructure :canvas-id="canvas.id" />
     <div class="mt-4 flex gap-4">
         <nav :aria-label="t('entry.areas')" class="w-[216px] shrink-0">
             <ul class="flex flex-col gap-2">

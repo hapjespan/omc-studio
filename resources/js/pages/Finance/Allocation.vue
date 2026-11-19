@@ -12,6 +12,7 @@ import { t } from '../../i18n';
 import { routes } from '../../routes';
 import AllocationEditor from './AllocationEditor.vue';
 import AllocationQuick from './AllocationQuick.vue';
+import ImportAllocations from './ImportAllocations.vue';
 import CostRecordStatusList from './CostRecordStatusList.vue';
 import TargetTree from './TargetTree.vue';
 
@@ -105,6 +106,7 @@ const canClear = computed(() => writable.value && record.value?.status === 'allo
 <template>
     <Head :title="t('allocation_page.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('allocation_page.title') }}: {{ canvas.name }}</h1>
+    <ImportAllocations v-if="!canvas.archived" :canvas-id="canvas.id" />
     <p v-if="finalised" role="status" class="mt-2 text-[13px] text-[#8A5A00]">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</p>
     <p v-if="year === null" role="status" class="mt-2 text-[13px]">{{ t('allocation_page.no_year') }}</p>
     <div v-if="errors.rule" role="alert" class="mt-3"><ErrorSummary :errors="errors" /></div>
