@@ -742,6 +742,8 @@ Any user exports the Canvas as PNG and prints it to PDF on landscape A3, with or
 2. **Given** "Afdrukken", **When** the browser prints a Canvas of any size, **Then** the Artboard prints one to one on one landscape A3 page, so every text of at least 10 pixels is at least 6 pt; content beyond the Artboard prints on the next landscape A3 pages below it, and the print dialog first warns "Niet alles past op het A3-tekenvlak: <n> blokken komen op een volgende pagina"; the print holds no top bar, left panel or detail panel, and holds the overlay when "Met overlay" is on.
 3. **Given** a PNG or PDF, **When** inspected, **Then** its file name and content name no reference application, platform or consultancy (H8), and it was produced without any request leaving the machine (H1).
 
+**Clarifications**: "Met overlay" is on by default when an overlay is chosen in Bekijken and absent when there is none, so the picture and the print equal the screen (`[ASSUMPTION overlay-switch]`); neither carries the overlay legend or the active filters, and whether a caption with year, overlay and filters should be added is open for the product owner (`[ASSUMPTION overlay-legend]`).
+
 **Accessibility**: WB1 to WB9. The export options are labelled controls; the print layout keeps the text contrast of WB3.
 
 ---

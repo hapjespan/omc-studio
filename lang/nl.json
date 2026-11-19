@@ -997,6 +997,7 @@
     "print.png_done": "PNG is gemaakt",
     "print.png_failed": "PNG maken is niet gelukt",
     "print.warning": "Niet alles past op het A3-tekenvlak: :count blokken komen op een volgende pagina",
+    "print.with_overlay": "Met overlay",
     "snap.banner": "Momentopname :name van :date",
     "snap.banner_label": "Momentopname",
     "snap.version": "Versie",
