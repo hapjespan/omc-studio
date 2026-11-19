@@ -27,14 +27,16 @@ function submit(): void {
 
 <template>
     <form novalidate @submit.prevent="submit">
-        <div class="flex flex-wrap items-center gap-2 rounded-control border border-dashed bg-white p-1">
-            <label :for="inputId" class="sr-only">{{ label }}</label>
-            <input :id="inputId" v-model="form.name" type="text" autocomplete="off" :placeholder="label" :aria-describedby="error ? `${inputId}-error` : undefined" :aria-invalid="error ? true : undefined" class="h-dense min-w-0 flex-1 rounded-control bg-transparent px-2.5 text-[13px] text-ink placeholder:text-secondary" />
-            <fieldset v-if="clusters" class="flex shrink-0 gap-1">
-                <legend class="sr-only">{{ t('entry_design.kind_choice') }}</legend>
-                <label class="relative"><input v-model="form.cluster" type="radio" name="kind" :value="false" class="peer absolute inset-0 cursor-pointer opacity-0" /><span :class="choiceClass">{{ itemLabel }}</span></label>
-                <label class="relative"><input v-model="form.cluster" type="radio" name="kind" :value="true" class="peer absolute inset-0 cursor-pointer opacity-0" /><span :class="choiceClass">{{ t('entry.kind.cluster') }}</span></label>
-            </fieldset>
+        <div class="rounded-control border border-dashed border-(--color-dashed) bg-white p-2">
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2">
+                <label :for="inputId" class="col-start-1 row-start-1 text-[12.5px] text-secondary">{{ label }}</label>
+                <input :id="inputId" v-model="form.name" type="text" autocomplete="off" :aria-describedby="error ? `${inputId}-error` : undefined" :aria-invalid="error ? true : undefined" class="col-span-2 row-start-2 mt-1.5 h-dense w-full rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink" />
+                <fieldset v-if="clusters" class="col-start-2 row-start-1 flex gap-1">
+                    <legend class="sr-only">{{ t('entry_design.kind_choice') }}</legend>
+                    <label class="relative"><input v-model="form.cluster" type="radio" name="kind" :value="false" class="peer absolute inset-0 cursor-pointer opacity-0" /><span :class="choiceClass">{{ itemLabel }}</span></label>
+                    <label class="relative"><input v-model="form.cluster" type="radio" name="kind" :value="true" class="peer absolute inset-0 cursor-pointer opacity-0" /><span :class="choiceClass">{{ t('entry.kind.cluster') }}</span></label>
+                </fieldset>
+            </div>
         </div>
         <p v-if="error" :id="`${inputId}-error`" class="mt-1 text-[12.5px] font-medium text-danger">{{ error }}</p>
     </form>

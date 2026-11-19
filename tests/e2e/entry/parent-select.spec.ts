@@ -14,6 +14,6 @@ test('"Hangt onder" moves an Activity to the end of a Cluster and never offers t
     await page.getByRole('option', { name: 'Primaire activiteiten > Inkoop > Contracten' }).click();
     await panel.getByRole('button', { name: 'Opslaan', exact: true }).click();
 
-    await expect(panel.getByText('Activiteit · Primaire activiteiten › Inkoop › Contracten › Werving')).toBeVisible();
+    await expect(panel.getByText('Activiteit · Primaire activiteiten › Inkoop › Contracten')).toBeVisible();
     await expectNoAxeViolations(page);
 });

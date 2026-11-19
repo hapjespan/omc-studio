@@ -14,8 +14,8 @@ defineEmits<{ select: [id: string, opener: HTMLElement | null]; restore: [elemen
 
 <template>
     <li data-testid="entry-row" :class="depthClass[row.depth]">
-        <div :class="['flex min-h-control items-center gap-2 rounded-control border border-hairline bg-white pr-1.5', selected && 'border-ink shadow-[inset_0_0_0_1px_var(--color-ink)]']">
-            <button type="button" :aria-current="selected ? 'true' : undefined" class="flex min-h-control min-w-0 flex-1 items-center gap-3 rounded-control px-2.5 text-left text-[13px]" @click="(event) => $emit('select', row.element.id, event.currentTarget as HTMLElement)">
+        <div :class="['flex min-h-control items-center gap-2 rounded-control border border-hairline bg-white pr-1.5', selected && 'selected-ring']">
+            <button :id="`row-${row.element.id}`" type="button" :aria-current="selected ? 'true' : undefined" class="flex min-h-control min-w-0 flex-1 items-center gap-3 rounded-control px-2.5 text-left text-[13px]" @click="(event) => $emit('select', row.element.id, event.currentTarget as HTMLElement)">
                 <span class="w-[72px] shrink-0 text-[10.5px] text-muted">{{ t(kindLabelKey(row.element.kind, row.element.area)) }}</span>
                 <span :class="['min-w-0 flex-1', row.element.kind !== 'activity' && 'font-semibold']">{{ row.element.name }}</span>
                 <span v-if="row.element.archived" class="text-[12.5px] font-semibold text-secondary">{{ t('list.archived') }}</span>

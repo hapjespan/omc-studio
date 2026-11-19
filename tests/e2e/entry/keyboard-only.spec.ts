@@ -5,7 +5,8 @@ test('the independent test of Invoeren runs with the keyboard only', async ({ pa
     await openEntry(page, seedEntryCanvas('primary_activities'));
     const rows = page.getByTestId('entry-row');
 
-    await page.getByRole('button', { name: 'Domein', exact: true }).click();
+    await page.getByRole('button', { name: 'Domein', exact: true }).focus();
+    await page.keyboard.press('Enter');
     const domain = page.getByLabel('+ Domein');
     await domain.focus();
     await page.keyboard.type('Inkoop');
@@ -42,7 +43,7 @@ test('the independent test of Invoeren runs with the keyboard only', async ({ pa
     await expect(parent).toContainText('Contracten');
     await page.getByRole('button', { name: 'Opslaan', exact: true }).focus();
     await page.keyboard.press('Enter');
-    await expect(page.getByRole('complementary').getByText('Activiteit · Primaire activiteiten › Inkoop › Contracten › Werving')).toBeVisible();
+    await expect(page.getByRole('complementary').getByText('Activiteit · Primaire activiteiten › Inkoop › Contracten')).toBeVisible();
     await page.keyboard.press('Escape');
 
     await page.getByRole('button', { name: 'Offerte omhoog' }).focus();

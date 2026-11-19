@@ -19,7 +19,7 @@ import ParentSelect from './ParentSelect.vue';
 import Warnings from './Warnings.vue';
 
 const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; list: boolean; icons: string[]; warnings: EntryWarning[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
-defineEmits<{ select: [id: string, opener: HTMLElement | null] }>();
+const emit = defineEmits<{ select: [id: string, opener: HTMLElement | null]; saved: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element), modality: props.element.modality ?? NO_MODALITY, rationale: props.element.rationale ?? '', confirm_rationale_clear: false });
 const confirming = ref(false);
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -64,6 +64,7 @@ function save(): void {
             form.confirm_rationale_clear = false;
             form.defaults().reset();
             detail.dirty = false;
+            emit('saved');
         },
         onError: () => nextTick(focusFirstInvalid),
     });
@@ -95,7 +96,7 @@ function save(): void {
                 <AppButton variant="primary" type="submit" form="element-form" :disabled="form.processing">{{ t('entry.save') }}</AppButton>
             </ElementActions>
         </div>
-        <p class="mt-4 border-t border-hairline pt-4 text-[12.5px] text-secondary">{{ t('entry_design.drawing_before') }} <strong class="font-semibold text-ink">{{ t('entry_design.drawing_mode') }}</strong>.</p>
+        <p class="mt-4 border-t border-hairline pt-4 text-[12.5px] text-secondary">{{ t('entry_design.drawing_hint') }}</p>
         <div v-if="warnings.length" class="mt-4 border-t border-hairline pt-1"><Warnings :warnings="warnings" @select="(id, opener) => $emit('select', id, opener)" /></div>
     </Teleport>
 </template>

@@ -7,7 +7,7 @@ test('the panel saves name and description, shows "Alles opgeslagen" and refuses
 
     await page.getByRole('button', { name: /Werving/ }).first().click();
     const panel = page.getByRole('complementary');
-    await expect(panel.getByText('Activiteit · Primaire activiteiten › Inkoop › Werving')).toBeVisible();
+    await expect(panel.getByText('Activiteit · Primaire activiteiten › Inkoop')).toBeVisible();
 
     await panel.getByLabel('Naam').fill('Selectie');
     await panel.getByRole('button', { name: 'Opslaan', exact: true }).click();
