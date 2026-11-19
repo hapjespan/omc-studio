@@ -23,6 +23,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\SampleDataController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\SystemNoticeController;
@@ -152,4 +153,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/imports/canvas/preview', [CanvasImportController::class, 'preview']);
     Route::post('/imports/canvas', [CanvasImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/sample-data')->group(function () {
+    Route::get('/', [SampleDataController::class, 'show']);
+    Route::post('/remove', [SampleDataController::class, 'remove']);
 });

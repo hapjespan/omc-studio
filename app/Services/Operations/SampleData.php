@@ -12,6 +12,8 @@ use App\Models\Modality;
 use App\Models\Organisation;
 use App\Models\Owner;
 use App\Models\Statement;
+use App\Models\UndoRecord;
+use App\Models\User;
 use App\Services\Allocation\AllocationSets;
 use App\Services\Canvas\CanvasLifecycle;
 use App\Services\Canvas\OrganisationService;
@@ -110,6 +112,27 @@ class SampleData
 
         $this->statements($canvas);
         $this->costs($organisation, $canvas, $this->fiscalYears->add($organisation, (int) now()->year), $this->structure($canvas));
+    }
+
+    public function remove(User $user): void
+    {
+        $organisation = Organisation::where('is_sample', true)->first();
+
+        DB::transaction(function () use ($organisation, $user) {
+            if ($organisation !== null) {
+                Canvas::where('organisation_id', $organisation->getKey())->each(fn (Canvas $canvas) => $this->canvases->delete($canvas, $canvas->name));
+                $deleted = $this->costRecords->deleteMany($organisation, CostRecord::where('organisation_id', $organisation->getKey())->get(), $user);
+                UndoRecord::whereKey($deleted['token'])->delete();
+                $this->organisations->delete($organisation);
+            }
+
+            DB::table('application_state')->updateOrInsert(['key' => self::REMOVED_KEY], ['value' => '1']);
+        });
+    }
+
+    public function sample(): ?Organisation
+    {
+        return Organisation::where('is_sample', true)->first();
     }
 
     private function removed(): bool

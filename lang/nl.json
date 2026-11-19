@@ -772,5 +772,13 @@
     "sample.cost_human_resources": "Personeelszaken",
     "sample.cost_procurement": "Inkoopcontracten",
     "sample.cost_training": "Opleidingsbudget",
-    "sample.cost_innovation": "Innovatiebudget"
+    "sample.cost_innovation": "Innovatiebudget",
+    "shell.admin.sample_data": "Voorbeelddata",
+    "sample.page_title": "Voorbeelddata",
+    "sample.page_present": "De voorbeeldorganisatie {name} staat in de installatie.",
+    "sample.page_absent": "De voorbeelddata is verwijderd en komt niet terug.",
+    "sample.remove": "Voorbeelddata verwijderen",
+    "sample.remove_title": "Voorbeelddata verwijderen?",
+    "sample.remove_consequence": "{name} met alle canvassen en kostenposten wordt definitief verwijderd en komt na een herstart niet terug.",
+    "sample.removed": "De voorbeelddata is verwijderd"
 }
