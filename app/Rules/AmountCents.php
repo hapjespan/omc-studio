@@ -32,7 +32,7 @@ class AmountCents implements ValidationRule
             return;
         }
 
-        if (! is_string($value) && ! is_int($value) || self::parse((string) $value) === null) {
+        if (! is_string($value) || self::parse($value) === null) {
             $fail(__('validation.amount_cents', ['label' => $this->label]));
         }
     }

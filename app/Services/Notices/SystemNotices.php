@@ -33,11 +33,7 @@ class SystemNotices
                 ]);
             }
 
-            $notice->update([
-                'details' => $details,
-                'occurrences' => $notice->occurrences + 1,
-                'last_occurred_at' => now(),
-            ]);
+            $notice->increment('occurrences', 1, ['details' => $details, 'last_occurred_at' => now()]);
 
             return $notice;
         });

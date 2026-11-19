@@ -30,7 +30,7 @@ class BasisPoints implements ValidationRule
             return;
         }
 
-        if (! is_string($value) && ! is_int($value) || self::parse((string) $value) === null) {
+        if (! is_string($value) || self::parse($value) === null) {
             $fail(__('validation.basis_points', ['label' => $this->label]));
         }
     }

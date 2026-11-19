@@ -19,12 +19,16 @@ class LockoutCounter
     {
         $cache = Cache::store(config('cache.throttle_store'));
         $now = Carbon::now();
-        $times = array_values(array_filter(
-            (array) $cache->get(self::KEY, []),
-            fn (int $time) => $time > $now->getTimestamp() - self::SECONDS,
-        ));
-        $times[] = $now->getTimestamp();
-        $cache->put(self::KEY, $times, self::SECONDS);
+        $times = Cache::lock(self::KEY.':lock', 5)->block(5, function () use ($cache, $now) {
+            $times = array_values(array_filter(
+                (array) $cache->get(self::KEY, []),
+                fn (int $time) => $time > $now->getTimestamp() - self::SECONDS,
+            ));
+            $times[] = $now->getTimestamp();
+            $cache->put(self::KEY, $times, self::SECONDS);
+
+            return $times;
+        });
 
         if (count($times) >= self::THRESHOLD) {
             $this->notices->record('repeated_lockouts', null, ['count' => count($times), 'lastTime' => $now->toIso8601String()]);

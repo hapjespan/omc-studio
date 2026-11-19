@@ -26,13 +26,11 @@ class FinanceModelsTest extends TestCase
     {
         parent::setUp();
 
-        Model::preventLazyLoading();
         Model::preventSilentlyDiscardingAttributes();
     }
 
     protected function tearDown(): void
     {
-        Model::preventLazyLoading(false);
         Model::preventSilentlyDiscardingAttributes(false);
 
         parent::tearDown();
