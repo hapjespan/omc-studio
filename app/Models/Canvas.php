@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CanvasKind;
+use App\Enums\Role;
 use App\Models\Concerns\NormalisesName;
 use App\Services\Audit\Audited;
 use Database\Factories\CanvasFactory;
@@ -32,6 +33,11 @@ class Canvas extends Model
         'is_blank_template' => 'boolean',
         'archived_at' => 'datetime',
     ];
+
+    public function acceptsEntryBy(?User $user): bool
+    {
+        return $user?->role === Role::Administrator && ($this->kind === CanvasKind::Template || $this->archived_at === null);
+    }
 
     /** @return BelongsTo<Organisation, $this> */
     public function organisation(): BelongsTo

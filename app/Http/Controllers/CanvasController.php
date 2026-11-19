@@ -6,14 +6,21 @@ use App\Http\Requests\CanvasRequest;
 use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Services\Canvas\CanvasLifecycle;
+use App\Services\Canvas\TemplateService;
 use Illuminate\Http\RedirectResponse;
 
 class CanvasController extends Controller
 {
-    public function __construct(private readonly CanvasLifecycle $lifecycle) {}
+    public function __construct(private readonly CanvasLifecycle $lifecycle, private readonly TemplateService $templates) {}
 
     public function store(CanvasRequest $request): RedirectResponse
     {
+        if ($request->input('source') === 'save_template') {
+            $this->templates->saveAsTemplate(Canvas::findOrFail($request->integer('canvas_id')), $request->string('name')->toString());
+
+            return back()->with('status', __('templates.saved'));
+        }
+
         $organisation = Organisation::findOrFail($request->integer('organisation_id'));
         $name = $request->string('name')->toString();
 
