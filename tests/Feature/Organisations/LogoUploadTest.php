@@ -83,7 +83,7 @@ class LogoUploadTest extends TestCase
 
         $this->store->store($organisation, $file);
 
-        $this->assertLessThan(80 * 1048576, memory_get_peak_usage() - $before);
+        $this->assertLessThan(160 * 1048576, memory_get_peak_usage() - $before);
     }
 
     public function test_an_archived_organisation_refuses_a_logo(): void

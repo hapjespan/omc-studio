@@ -31,9 +31,15 @@ test('the independent test of Invoeren runs with the keyboard only', async ({ pa
     const parent = page.getByLabel('Hangt onder');
     await parent.focus();
     await page.keyboard.press('Enter');
-    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('option').first()).toBeFocused();
+    const cluster = page.getByRole('option', { name: /Contracten/ });
+    await expect(async () => {
+        await page.keyboard.press('ArrowDown');
+        await expect(cluster).toBeFocused({ timeout: 500 });
+    }).toPass();
     await page.keyboard.press('Enter');
-    await page.getByRole('button', { name: 'Opslaan' }).focus();
+    await expect(parent).toContainText('Contracten');
+    await page.getByRole('button', { name: 'Opslaan', exact: true }).focus();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('complementary').getByText('Primaire activiteiten > Inkoop > Contracten > Werving')).toBeVisible();
     await page.keyboard.press('Escape');
