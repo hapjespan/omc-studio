@@ -15,8 +15,10 @@ import { buildScene } from './scene';
 
 const fixture = fixtureJson as Fixture;
 
+const remoteFontControl = new URLSearchParams(location.search).has('control-remote-font');
+
 async function start() {
-    lockFontSources();
+    if (!remoteFontControl) lockFontSources();
     await getCanvasKit({ locateFile: () => wasmUrl });
     await loadBrowserFonts();
     await registerFaces();
@@ -31,6 +33,7 @@ async function start() {
         getViewportSize: () => ({ width: window.innerWidth, height: window.innerHeight }),
         skipInitialGraphSetup: true,
     });
+    if (remoteFontControl) graph.updateNode('act-1#text', { fontFamily: 'Roboto', fontWeight: 400 });
     const restrictions = restrict(editor as any, graph, ['area-direction', 'area-logo']);
     const ready = new Promise<void>((resolve) => {
         createApp({ render: () => h(Proof, { editor, onReady: resolve }) }).mount('#app');

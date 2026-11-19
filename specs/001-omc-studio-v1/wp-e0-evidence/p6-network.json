@@ -1,0 +1,18 @@
+{
+  "policy": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "ownRequests": [
+    "/",
+    "/assets/Inter-Bold-CGGXExDp.ttf",
+    "/assets/Inter-Regular-C_F0_eS_.ttf",
+    "/assets/Inter-SemiBold-BEUPqj-s.ttf",
+    "/assets/SpaceGrotesk_400Regular-DhyBADTE.ttf",
+    "/assets/SpaceGrotesk_700Bold-wuXZARFU.ttf",
+    "/assets/canvaskit-DB1zH3nD.wasm",
+    "/assets/layout-VfCsTgeH.js",
+    "/assets/page-9GcbftoE.css",
+    "/assets/page-CASM6TtK.js",
+    "/assets/rolldown-runtime-XKyaHtl9.js"
+  ],
+  "outside": [],
+  "violations": []
+}
