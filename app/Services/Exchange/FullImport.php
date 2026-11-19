@@ -16,6 +16,7 @@ class FullImport
     public function __construct(
         private readonly CanvasImportValidator $validator,
         private readonly CanvasImport $import,
+        private readonly CanvasWriter $writer,
         private readonly SerialisedWrite $writes,
         private readonly AuditContext $context,
     ) {}
@@ -87,7 +88,7 @@ class FullImport
     {
         $documents = $this->documents($entry);
         $first = $this->validator->validate($documents[0]);
-        $organisation = $this->import->foundation((string) $entry['organisation']['name'], $first['data'] ?? []);
+        $organisation = $this->foundation((string) $entry['organisation']['name'], $first['data'] ?? []);
 
         foreach ($entry['canvases'] as $position => $canvas) {
             $result = $this->import->commit($documents[$position], $organisation, (string) $canvas['name'], null);
@@ -95,6 +96,17 @@ class FullImport
         }
 
         $this->archive($organisation, $entry['archived_at'] ?? null);
+    }
+
+    /** @param array<string, mixed> $data */
+    private function foundation(string $name, array $data): Organisation
+    {
+        $organisation = $this->writer->organisation($name);
+        $organisationId = (int) $organisation->getKey();
+        [$years, $owners, $applications] = $this->writer->prepare($organisationId, $data);
+        $this->writer->costRecords($organisationId, $data['cost_records'], [], $years, $owners, $applications, true);
+
+        return $organisation;
     }
 
     private function archive(Canvas|Organisation $model, mixed $at): void
@@ -109,7 +121,7 @@ class FullImport
         $taken = Canvas::where('scope_key', 'template')->where('name_normalised', Canvas::normalise($name))->exists();
         $result = $this->validator->validate($this->document($this->templateDocument($template)));
 
-        $this->import->template(['name' => $name, ...array_intersect_key($result['data']['canvas'] ?? [], array_flip(['statements', 'elements']))], $taken ? $name.__('fullx.imported_suffix') : $name);
+        $this->writer->template(array_intersect_key($result['data']['canvas'] ?? [], array_flip(['statements', 'elements'])), $taken ? $name.__('fullx.imported_suffix') : $name);
     }
 
     /**
