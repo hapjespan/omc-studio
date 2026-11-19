@@ -156,9 +156,10 @@ class AllocationCsvImportTest extends ExchangeTestCase
 
         $this->assertSame(['De verdeling moet precies 100,00% zijn; nu 75,00%'], $this->messages($response, 0));
         $this->assertSame([], $this->messages($response, 1));
+        $this->assertSame('error', $response->json('lines.1.status'));
         $this->assertSame(['Doel Offreren staat twee keer in de verdeling'], $this->messages($response, 2));
         $this->assertSame(['Geen jaarwaarden in 2026 voor deze kostenpost'], $this->messages($response, 4));
-        $response->assertJsonPath('totals.errors', 3);
+        $response->assertJsonPath('totals.errors', 5);
     }
 
     public function test_a_year_finalised_in_this_canvas_is_reported_per_group(): void
@@ -265,6 +266,24 @@ class AllocationCsvImportTest extends ExchangeTestCase
             ->assertOk()
             ->assertJsonPath('totals.new', 1);
         $this->assertSame(1, AllocationSet::count());
+    }
+
+    public function test_a_template_canvas_is_refused_with_a_rule_not_a_server_error(): void
+    {
+        $template = Canvas::factory()->template()->create(['is_blank_template' => true]);
+
+        $this->upload(self::HEADER, ['K1;2026;'.self::OFFREREN.';100,00'], '/canvases/'.$template->id.'/import/allocations')->assertStatus(422);
+        $this->upload(self::HEADER, [], '/canvases/'.$template->id.'/import/allocations')->assertOk();
+    }
+
+    public function test_a_row_with_more_cells_than_columns_is_a_line_error_and_a_year_must_be_digits(): void
+    {
+        $this->costRecord('K1');
+
+        $response = $this->preview(['K1;2026;'.self::OFFREREN.';100,00;x;y', 'K1;20 26;'.self::OFFREREN.';100,00'])->assertOk();
+
+        $this->assertStringContainsString('6 kolommen gevonden, verwacht 4', $this->messages($response)[0]);
+        $this->assertSame('error', $response->json('lines.1.status'));
     }
 
     public function test_a_reader_is_refused_on_both_routes(): void

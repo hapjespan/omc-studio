@@ -48,7 +48,7 @@ class AllocationCsvImport
     {
         $canvas->loadMissing('organisation');
 
-        return $this->write->run([$canvas->organisation, $canvas], fn () => $this->context->during('imported', function () use ($canvas, $path) {
+        return $this->write->run(array_filter([$canvas->organisation, $canvas]), fn () => $this->context->during('imported', function () use ($canvas, $path) {
             $scan = $this->scan($canvas, $path);
 
             if ($scan['totals']['errors'] > 0) {
@@ -83,9 +83,15 @@ class AllocationCsvImport
                 continue;
             }
 
-            $row = array_combine(AllocationCsv::COLUMNS, array_slice(array_pad(array_map('trim', $cells), count(AllocationCsv::COLUMNS), ''), 0, count(AllocationCsv::COLUMNS)));
+            if (count($cells) > count(AllocationCsv::COLUMNS)) {
+                $rows[$number] = ['key' => null, 'messages' => [(string) __('csvx.too_many_cells', ['line' => $number, 'count' => count($cells), 'expected' => count(AllocationCsv::COLUMNS)])]];
+
+                continue;
+            }
+
+            $row = array_combine(AllocationCsv::COLUMNS, array_pad(array_map('trim', $cells), count(AllocationCsv::COLUMNS), ''));
             $record = $records->get(mb_strtolower($row['kostenpost_code']));
-            $year = $years->get((int) $row['jaar']);
+            $year = ctype_digit($row['jaar']) ? $years->get((int) $row['jaar']) : null;
             $element = $targets[mb_strtolower($row['doel_pad'])] ?? null;
             $points = BasisPoints::parse($row['percentage']);
             $messages = [];
@@ -103,7 +109,7 @@ class AllocationCsvImport
                 $messages[] = (string) __('csvx.percentage_invalid', ['line' => $number, 'value' => $row['percentage']]);
             }
 
-            $key = mb_strtolower($row['kostenpost_code']).'|'.$row['jaar'];
+            $key = ($record?->getKey() ?? 'code:'.mb_strtolower($row['kostenpost_code'])).'|'.($year?->getKey() ?? 'year:'.$row['jaar']);
             $groups[$key] ??= ['first' => $number, 'record' => $record, 'year' => $year, 'lines' => [], 'elements' => [], 'failed' => false, 'messages' => [], 'status' => 'error'];
             $rows[$number] = ['key' => $key, 'messages' => $messages];
 
@@ -130,7 +136,7 @@ class AllocationCsvImport
     }
 
     /**
-     * @param  array<int, array{key: string, messages: list<string>}>  $rows
+     * @param  array<int, array{key: ?string, messages: list<string>}>  $rows
      * @param  array<string, array<string, mixed>>  $groups
      * @return array{lines: list<array{line: int, status: string, messages: list<string>}>, totals: array<string, int>}
      */
@@ -140,9 +146,9 @@ class AllocationCsvImport
         $totals = ['new' => 0, 'updated' => 0, 'unchanged' => 0, 'errors' => 0];
 
         foreach ($rows as $number => $row) {
-            $group = $groups[$row['key']];
-            $messages = [...$row['messages'], ...($number === $group['first'] ? $group['messages'] : [])];
-            $status = $messages !== [] ? 'error' : $group['status'];
+            $group = $row['key'] === null ? null : $groups[$row['key']];
+            $messages = [...$row['messages'], ...($group !== null && $number === $group['first'] ? $group['messages'] : [])];
+            $status = $messages !== [] || ($group !== null && ($group['failed'] || $group['messages'] !== [])) ? 'error' : $group['status'];
 
             $totals[$status === 'error' ? 'errors' : $status]++;
             $lines[] = ['line' => $number, 'status' => $status, 'messages' => $messages];

@@ -93,6 +93,13 @@ class CostRecordImport
                 continue;
             }
 
+            if (count($cells) > count(self::COLUMNS)) {
+                $lines[] = ['line' => $number, 'status' => 'error', 'messages' => [(string) __('csvx.too_many_cells', ['line' => $number, 'count' => count($cells), 'expected' => count(self::COLUMNS)])]];
+                $totals['errors']++;
+
+                continue;
+            }
+
             $row = array_combine(self::COLUMNS, array_pad(array_map('trim', $cells), count(self::COLUMNS), ''));
             [$messages, $figures, $fields] = (new CostRecordRowValidator)->validate($number, $row, $years);
             $code = mb_strtolower($row['code']);

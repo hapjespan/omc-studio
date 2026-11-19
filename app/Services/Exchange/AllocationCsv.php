@@ -24,10 +24,11 @@ class AllocationCsv
             ->whereNotNull('cost_records.code')
             ->orderBy('cost_records.code_normalised')
             ->orderBy('fiscal_years.year')
+            ->with('lines.element')
             ->get(['allocation_sets.*', 'cost_records.code as export_code', 'fiscal_years.year as export_year']);
 
         foreach ($sets as $set) {
-            foreach ($set->lines()->with('element')->get() as $line) {
+            foreach ($set->lines as $line) {
                 $writer->write([$set->getAttribute('export_code'), $set->getAttribute('export_year'), $paths->of($line->element), CsvWriter::decimal($line->basis_points)]);
             }
         }

@@ -622,5 +622,6 @@
     "csvx.name_sign": "Regel :line, :column: het teken > is niet toegestaan",
     "csvx.name_archived": "Regel :line, :column: ':value' is gearchiveerd. Zet het element eerst terug of kies een andere naam",
     "csvx.name_managed": "Regel :line, :column: ':value' wordt door het systeem beheerd",
-    "csvx.kind_conflict": "Regel :line, :column: ':value' bestaat hier al als een ander soort element"
+    "csvx.kind_conflict": "Regel :line, :column: ':value' bestaat hier al als een ander soort element",
+    "csvx.too_many_cells": "Regel :line: :count kolommen gevonden, verwacht :expected. Controleer de puntkomma's"
 }

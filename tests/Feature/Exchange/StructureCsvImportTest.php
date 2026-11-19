@@ -3,6 +3,7 @@
 namespace Tests\Feature\Exchange;
 
 use App\Enums\ElementKind;
+use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\User;
@@ -171,6 +172,33 @@ class StructureCsvImportTest extends ExchangeTestCase
 
         $this->assertLessThan($this->find('Alfa')->position, $this->find('Zeta')->position);
         $this->assertLessThan($this->find('Midden')->position, $this->find('Alfa')->position);
+    }
+
+    public function test_an_archived_canvas_is_reported_in_the_dry_run_and_refused_on_commit(): void
+    {
+        $this->canvas->update(['archived_at' => now()]);
+
+        $response = $this->preview(['Primaire activiteiten;Nieuw;;;;'])->assertOk();
+
+        $this->assertSame(['Dit canvas is gearchiveerd'], $this->messages($response));
+        $this->assertSame(1, $response->json('totals.errors'));
+        $this->commit(['Primaire activiteiten;Nieuw;;;;'])->assertStatus(422);
+    }
+
+    public function test_a_blank_template_is_reported_and_refused_without_a_server_error(): void
+    {
+        $template = Canvas::factory()->template()->create(['is_blank_template' => true]);
+        $url = '/canvases/'.$template->id.'/import/structure';
+
+        $this->assertSame(['Leeg canvas kan niet worden gewijzigd'], $this->upload(self::HEADER, ['Primaire activiteiten;Nieuw;;;;'], $url.'/preview')->json('lines.0.messages'));
+        $this->upload(self::HEADER, ['Primaire activiteiten;Nieuw;;;;'], $url)->assertStatus(422);
+    }
+
+    public function test_a_row_with_more_cells_than_columns_is_a_line_error(): void
+    {
+        $response = $this->preview(['Primaire activiteiten;Nieuw;;;;;x;y'])->assertOk();
+
+        $this->assertStringContainsString('8 kolommen gevonden, verwacht 6', $this->messages($response)[0]);
     }
 
     public function test_a_reader_is_refused_on_both_routes(): void

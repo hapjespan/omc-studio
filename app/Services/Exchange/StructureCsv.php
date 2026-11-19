@@ -11,10 +11,14 @@ use App\Services\Audit\AuditContext;
 use App\Services\Exchange\Csv\CsvReader;
 use App\Services\Structure\ElementTree;
 use App\Services\Support\SerialisedWrite;
+use App\Services\Support\WritableGuard;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 class StructureCsv
 {
+    use WritableGuard;
+
     public const COLUMNS = ['area', 'domein', 'cluster', 'activiteit', 'omschrijving', 'modaliteit'];
 
     private const NAME_MAX = 150;
@@ -51,7 +55,7 @@ class StructureCsv
     {
         $canvas->loadMissing('organisation');
 
-        return $this->write->run([$canvas->organisation, $canvas], fn () => $this->context->during('imported', function () use ($canvas, $path) {
+        return $this->write->run(array_filter([$canvas->organisation, $canvas]), fn () => $this->context->during('imported', function () use ($canvas, $path) {
             $report = $this->scan($canvas, $path, true);
 
             if ($report['totals']['errors'] > 0) {
@@ -73,20 +77,39 @@ class StructureCsv
 
         $lines = [];
         $totals = ['new' => 0, 'updated' => 0, 'unchanged' => 0, 'errors' => 0];
+        $blocked = $this->blocked($canvas);
 
         foreach ((new CsvReader($path))->lines() as $number => $cells) {
             if ($number === 1) {
                 continue;
             }
 
-            $cells = array_slice(array_pad(array_map('trim', $cells), count(self::COLUMNS), ''), 0, count(self::COLUMNS));
-            $line = $this->line($canvas, $number, array_combine(self::COLUMNS, $cells), $apply);
+            if ($blocked !== null) {
+                $line = ['status' => 'error', 'messages' => [$blocked]];
+            } elseif (count($cells) > count(self::COLUMNS)) {
+                $line = $this->refusal((string) __('csvx.too_many_cells', ['line' => $number, 'count' => count($cells), 'expected' => count(self::COLUMNS)]));
+            } else {
+                $line = $this->line($canvas, $number, array_combine(self::COLUMNS, array_pad(array_map('trim', $cells), count(self::COLUMNS), '')), $apply);
+            }
 
             $totals[$line['status'] === 'error' ? 'errors' : $line['status']]++;
             $lines[] = ['line' => $number, 'status' => $line['status'], 'messages' => $line['messages']];
         }
 
         return ['lines' => $lines, 'totals' => $totals];
+    }
+
+    private function blocked(Canvas $canvas): ?string
+    {
+        $canvas->loadMissing('organisation');
+
+        try {
+            $this->assertStructureWritable($canvas);
+
+            return null;
+        } catch (ValidationException $exception) {
+            return (string) Arr::first(Arr::flatten($exception->errors()));
+        }
     }
 
     /**
