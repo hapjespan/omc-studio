@@ -30,6 +30,13 @@ class AdministratorGuard
         $this->assertAnotherAdministratorRemains($target);
     }
 
+    public function assertAnotherUser(?User $actor, User $target): void
+    {
+        if ($actor !== null && $actor->is($target)) {
+            $this->refuse('own_row_action');
+        }
+    }
+
     private function assertNotSelf(?User $actor, User $target): void
     {
         if ($actor !== null && $actor->is($target)) {
