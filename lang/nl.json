@@ -158,5 +158,6 @@
     "list.sort_ascending": "oplopend gesorteerd",
     "list.sort_descending": "aflopend gesorteerd",
     "list.filter_all": "Alle",
-    "list.filter_remove": "Filter verwijderen: :filter :value"
+    "list.filter_remove": "Filter verwijderen: :filter :value",
+    "list.new": "Nieuw"
 }

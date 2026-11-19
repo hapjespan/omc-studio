@@ -65,3 +65,23 @@ describe('ListView filters', () => {
         expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, filters })).not.toContain('Filter verwijderen');
     });
 });
+
+describe('ListView form flow', () => {
+    const withForm = { form: () => h('p', 'formulier') };
+    const renderWith = (props: Record<string, unknown>, slots: Record<string, () => unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props, slots) }));
+
+    it('offers Nieuw and opens the first cell as a button when a form is provided', async () => {
+        const html = await renderWith({ title: 'Gebruikers', columns, rows, count: 2, query: idle }, withForm);
+
+        expect(html).toMatch(/>\s*Nieuw\s*<\/button>/);
+        expect(html).toMatch(/<td[^>]*><button[^>]*>Anna<\/button>/);
+    });
+
+    it('offers neither without a form or when creating is not allowed', async () => {
+        const plain = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle });
+        const readOnly = await renderWith({ title: 'Gebruikers', columns, rows, count: 2, query: idle, canCreate: false }, withForm);
+
+        expect(plain).not.toContain('Nieuw');
+        expect(readOnly).not.toContain('Nieuw');
+    });
+});
