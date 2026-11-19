@@ -79,4 +79,13 @@ export const routes = {
     finaliseYear: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/finalise`,
     carryOver: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/carry-over`,
     undo: (token: string) => `/undo/${token}`,
+    canvasJsonExport: (canvas: Id) => `/canvases/${canvas}/export/json`,
+    costRecordsCsvExport: (organisation: Id) => `/organisations/${organisation}/export/cost-records.csv`,
+    allocationsCsvExport: (canvas: Id) => `/canvases/${canvas}/export/allocations.csv`,
+    allocationImportPreview: (canvas: Id) => `/canvases/${canvas}/import/allocations/preview`,
+    allocationImport: (canvas: Id) => `/canvases/${canvas}/import/allocations`,
+    structureImportPreview: (canvas: Id) => `/canvases/${canvas}/import/structure/preview`,
+    structureImport: (canvas: Id) => `/canvases/${canvas}/import/structure`,
+    canvasImportPreview: () => '/imports/canvas/preview',
+    canvasImport: () => '/imports/canvas',
 };

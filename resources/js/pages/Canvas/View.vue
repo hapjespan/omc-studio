@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
+import ExportMenu from '../../canvas/ExportMenu.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
@@ -22,6 +23,7 @@ const props = defineProps<{
     modalities: ModalityMark[];
 }>();
 
+const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
@@ -43,6 +45,7 @@ const fit = (): void => {
 <template>
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
+    <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" class="mt-2" />
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>

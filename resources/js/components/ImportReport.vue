@@ -7,14 +7,14 @@ export interface ImportReportData {
     creates?: Record<string, string[]>;
 }
 
-defineProps<{ report: ImportReportData }>();
+withDefaults(defineProps<{ report: ImportReportData; heading?: 'h2' | 'h3' }>(), { heading: 'h2' });
 
 const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
 </script>
 
 <template>
     <section role="region" aria-labelledby="import-summary" class="mt-4">
-        <h2 id="import-summary" class="text-[16px] font-semibold">{{ t('import.summary') }}</h2>
+        <component :is="heading" id="import-summary" class="text-[16px] font-semibold">{{ t('import.summary') }}</component>
         <table class="mt-2 text-[13px]">
             <caption class="sr-only">{{ t('import.summary') }}</caption>
             <thead><tr><th scope="col" class="pr-6 text-left">{{ t('import.col_status') }}</th><th scope="col" class="text-right">{{ t('import.col_count') }}</th></tr></thead>
@@ -25,12 +25,12 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
     </section>
     <template v-for="(names, kind) in report.creates ?? {}" :key="kind">
         <section role="region" v-if="names.length" :aria-labelledby="`import-creates-${kind}`" class="mt-4">
-            <h2 :id="`import-creates-${kind}`" class="text-[16px] font-semibold">{{ t('import.creates') }}: {{ t(`import.${kind}`) }}</h2>
+            <component :is="heading" :id="`import-creates-${kind}`" class="text-[16px] font-semibold">{{ t('import.creates') }}: {{ t(`import.${kind}`) }}</component>
             <ul class="mt-2 list-disc pl-5 text-[13px]"><li v-for="name in names" :key="name">{{ name }}</li></ul>
         </section>
     </template>
     <section role="region" aria-labelledby="import-lines" class="mt-4">
-        <h2 id="import-lines" class="text-[16px] font-semibold">{{ t('import.lines') }}</h2>
+        <component :is="heading" id="import-lines" class="text-[16px] font-semibold">{{ t('import.lines') }}</component>
         <table class="mt-2 w-full text-[13px]">
             <caption class="sr-only">{{ t('import.lines') }}</caption>
             <thead><tr><th scope="col" class="text-left">{{ t('import.col_line') }}</th><th scope="col" class="text-left">{{ t('import.col_status') }}</th><th scope="col" class="text-left">{{ t('import.col_messages') }}</th></tr></thead>
