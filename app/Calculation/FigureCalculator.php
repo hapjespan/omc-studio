@@ -13,7 +13,7 @@ final class FigureCalculator
         $unknownId = null;
         $elements = [];
         foreach ($input->elements as $element) {
-            $elements[$element['id']] = ['direct' => Measures::zero()];
+            $elements[$element['id']] = ['direct' => Measures::zero(), 'total' => Measures::zero(), 'shareBp' => null];
             if ($element['isUnknownAllocation']) {
                 $unknownId = $element['id'];
             }
@@ -29,7 +29,52 @@ final class FigureCalculator
             }
         }
 
-        return new Figures($elements, $lines);
+        $children = [];
+        foreach ($input->elements as $element) {
+            $children[$element['parentId'] ?? ''][] = $element['id'];
+        }
+        $areas = [];
+        foreach ($input->areas as $area) {
+            $areas[$area['key']] = Measures::zero();
+        }
+        $canvasTotal = Measures::zero();
+        $totals = [];
+        foreach ($input->elements as $element) {
+            if ($element['parentId'] === null) {
+                $total = $this->rollUp($element['id'], $children, $elements, $totals);
+                $areas[$element['areaKey']] = Measures::add($areas[$element['areaKey']] ?? Measures::zero(), $total);
+            }
+        }
+        foreach ($totals as $id => $total) {
+            $elements[$id]['total'] = $total;
+        }
+        foreach ($areas as $area) {
+            $canvasTotal = Measures::add($canvasTotal, $area);
+        }
+        foreach ($elements as &$figures) {
+            $figures['shareBp'] = $canvasTotal['budget'] === 0
+                ? null
+                : intdiv(2 * $figures['total']['budget'] * 10000 + $canvasTotal['budget'], 2 * $canvasTotal['budget']);
+        }
+        unset($figures);
+
+        return new Figures($elements, $lines, $areas, $canvasTotal);
+    }
+
+    /**
+     * @param  array<string|int, list<string|int>>  $children
+     * @param  array<string|int, array{direct: array<string, int>, total: array<string, int>, shareBp: int|null}>  $elements
+     * @param  array<string|int, array<string, int>>  $totals
+     * @return array<string, int>
+     */
+    private function rollUp(string|int $id, array $children, array $elements, array &$totals): array
+    {
+        $total = $elements[$id]['direct'];
+        foreach ($children[$id] ?? [] as $child) {
+            $total = Measures::add($total, $this->rollUp($child, $children, $elements, $totals));
+        }
+
+        return $totals[$id] = $total;
     }
 
     /**
