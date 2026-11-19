@@ -166,5 +166,7 @@
     "list.delete_none": "Dit verwijdert verder niets",
     "list.delete_type_name": "Typ de naam :name om te bevestigen",
     "list.delete_name_field": "Naam ter bevestiging",
-    "list.cancel": "Annuleren"
+    "list.cancel": "Annuleren",
+    "list.undo": "Ongedaan maken",
+    "list.deleted": ":name verwijderd"
 }

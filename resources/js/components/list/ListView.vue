@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { t } from '../../i18n';
 import ConfirmDelete from './ConfirmDelete.vue';
 import FilterBar, { type FilterDef } from './FilterBar.vue';
+import UndoMessage from './UndoMessage.vue';
 import ListForm from './ListForm.vue';
 import SortHeader from './SortHeader.vue';
 
 export type ListRow = { id: number | string; name: string; archived_at?: string | null; [key: string]: unknown };
 export type ListColumn = { key: string; label: string; sortable?: boolean };
+export type UndoState = { id: number | string; message: string; refusal?: string | null };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean }>(), { canCreate: true });
-const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow] }>();
+const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null }>(), { canCreate: true });
+const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; undo: []; dismissUndo: [] }>();
 
 const editing = ref<ListRow | 'new' | null>(null);
 const formOpen = computed({ get: () => editing.value !== null, set: (open) => { if (!open) editing.value = null; } });
@@ -24,6 +26,12 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 
 watch(() => props.query.search, (value) => (search.value = value));
 onBeforeUnmount(() => clearTimeout(timer));
+watch(() => props.undo, async (now, before) => {
+    if (before && !now) {
+        await nextTick();
+        searchField.value?.focus();
+    }
+});
 
 function change(patch: Partial<ListState>): void {
     emit('change', { ...props.query, ...patch });
@@ -56,6 +64,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
             <button v-if="$slots.form && canCreate" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="editing = 'new'">{{ t('list.new') }}</button>
             <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-[#454C57]">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
         </div>
+        <UndoMessage v-if="undo" :key="undo.id" :message="undo.message" :refusal="undo.refusal" @undo="emit('undo')" @close="emit('dismissUndo')" />
         <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="change({ filters: $event })" />
         <table class="w-full border-collapse text-[13px]">
             <caption class="sr-only">{{ title }}</caption>

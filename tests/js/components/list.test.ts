@@ -2,6 +2,7 @@ import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
 import { matchesName } from '../../../resources/js/components/list/ConfirmDelete.vue';
+import UndoMessage from '../../../resources/js/components/list/UndoMessage.vue';
 import ListView, { type ListState } from '../../../resources/js/components/list/ListView.vue';
 
 const render = (props: Record<string, unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props) }));
@@ -106,5 +107,32 @@ describe('ListView deletion', () => {
 
     it('offers no delete button unless allowed', async () => {
         expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle })).not.toContain('Verwijderen');
+    });
+});
+
+describe('UndoMessage', () => {
+    it('offers Ongedaan maken next to the message', async () => {
+        const html = await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd' }) }));
+
+        expect(html).toContain('role="status"');
+        expect(html).toContain('Anna verwijderd');
+        expect(html).toMatch(/<button[^>]*>Ongedaan maken<\/button>/);
+    });
+
+    it('names the broken rule instead and offers only to close', async () => {
+        const html = await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd', refusal: 'Ongedaan maken kan niet meer' }) }));
+
+        expect(html).toContain('role="alert"');
+        expect(html).toContain('Ongedaan maken kan niet meer');
+        expect(html).not.toMatch(/>Ongedaan maken<\/button>/);
+        expect(html).toMatch(/>Sluiten<\/button>/);
+    });
+});
+
+describe('ListView undo', () => {
+    it('renders the undo message when the parent provides one', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, undo: { id: 'a', message: 'Anna verwijderd' } });
+
+        expect(html).toContain('Anna verwijderd');
     });
 });
