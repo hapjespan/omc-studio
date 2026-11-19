@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'canvas_id', 'area_id', 'parent_id', 'kind', 'name', 'description', 'modality_id',
@@ -37,6 +38,12 @@ class Element extends Model
     public function canvas(): BelongsTo
     {
         return $this->belongsTo(Canvas::class);
+    }
+
+    /** @return HasMany<Element, $this> */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     /** @return BelongsTo<Area, $this> */

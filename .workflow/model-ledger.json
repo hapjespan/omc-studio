@@ -123,5 +123,8 @@
   },
   "T039": {
     "built_by": "claude-sonnet-5-5"
+  },
+  "T040": {
+    "built_by": "claude-opus-5"
   }
 }
