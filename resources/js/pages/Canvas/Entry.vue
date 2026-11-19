@@ -114,8 +114,8 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
                 </li>
             </ul>
         </nav>
-        <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
-            <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+        <section :aria-label="area.label" class="min-w-0 flex-1">
+            <h2 class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
             <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntrySearch v-model="search" />
