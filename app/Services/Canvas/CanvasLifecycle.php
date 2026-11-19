@@ -26,6 +26,15 @@ class CanvasLifecycle
         });
     }
 
+    public function copy(Canvas $source, Organisation $target, string $name): Canvas
+    {
+        return $this->writes->run([$target, $source], function () use ($source, $target, $name) {
+            $this->assertWritable($target);
+
+            return $this->clone($source, $target, $name);
+        });
+    }
+
     protected function clone(Canvas $source, Organisation $organisation, string $name): Canvas
     {
         $this->assertNameFree($organisation, $name);
