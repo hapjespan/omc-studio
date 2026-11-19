@@ -26,3 +26,17 @@ test('no tab of a later delivery appears', async ({ page }) => {
     await signInAs(page, 'administrator');
     for (const name of ['Kostenposten', 'Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
 });
+
+test('Beheer lists Gebruikers, Organisaties and Logboek, and a Reader is refused', async ({ page }) => {
+    await signInAs(page, 'administrator');
+    await page.goto('/admin');
+    await expect(page.getByRole('heading', { level: 1, name: 'Beheer' })).toBeVisible();
+    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Logboek']);
+    await expectNoAxeViolations(page);
+});
+
+test('a Reader requesting Beheer gets Geen toegang', async ({ page }) => {
+    await signInAs(page, 'reader');
+    const response = await page.goto('/admin');
+    expect(response?.status()).toBe(403);
+});

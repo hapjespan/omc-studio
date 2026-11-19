@@ -85,5 +85,8 @@
     "shell.tab.admin": "Beheer",
     "shell.mode_group": "Modus",
     "shell.mode.entry": "Invoeren",
-    "shell.mode.view": "Bekijken"
+    "shell.mode.view": "Bekijken",
+    "shell.admin.users": "Gebruikers",
+    "shell.admin.organisations": "Organisaties",
+    "shell.admin.audit_log": "Logboek"
 }

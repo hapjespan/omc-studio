@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
@@ -29,4 +30,8 @@ Route::middleware('can:administer')->scopeBindings()->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/canvases/{canvas}', CanvasModeController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::get('/admin', AdminIndexController::class);
 });
