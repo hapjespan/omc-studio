@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\ReauthenticateController;
 use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
+use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\SecondFactorController;
@@ -89,4 +90,12 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
     Route::delete('/{organisation}', [OrganisationController::class, 'destroy']);
     Route::post('/{organisation}/archive', [OrganisationController::class, 'archive']);
     Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases', [CanvasController::class, 'store']);
+    Route::patch('/canvases/{canvas}', [CanvasController::class, 'update']);
+    Route::post('/canvases/{canvas}/archive', [CanvasController::class, 'archive']);
+    Route::post('/canvases/{canvas}/restore', [CanvasController::class, 'restore']);
+    Route::delete('/canvases/{canvas}', [CanvasController::class, 'destroy']);
 });
