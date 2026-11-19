@@ -10,6 +10,7 @@ test('Invoeren opens and an Element is added within one second on a Canvas of 50
 
     const opened = Date.now();
     await page.goto(`/canvases/${canvas}/entry`);
+    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
     await expect(page.getByTestId('entry-row').first()).toBeVisible();
     expect(Date.now() - opened).toBeLessThan(1000);
     await expect(page.getByTestId('entry-row')).toHaveCount(500);

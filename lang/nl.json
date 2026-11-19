@@ -398,7 +398,7 @@
     "entry.n_elements": ":count onderliggende elementen",
     "entry.cluster_title": ":name verwijderen?",
     "entry.cluster_description": "Dit cluster bevat: :names. Kies wat daarmee gebeurt",
-    "entry.cluster_lift": "Activiteiten onder het domein zetten",
+    "entry.cluster_lift": "Activiteiten terugzetten onder het domein",
     "entry.cluster_delete": "Activiteiten ook verwijderen",
     "entry.archived": ":name is gearchiveerd",
     "entry.deleted": ":name is verwijderd",

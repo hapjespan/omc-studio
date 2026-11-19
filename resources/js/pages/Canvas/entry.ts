@@ -22,7 +22,7 @@ export interface EntryRowData {
 const flatten = (nodes: TreeNode[], depth: 0 | 1 | 2, rows: EntryRowData[]): void => {
     for (const node of nodes) {
         const kind = node.element.kind;
-        const peers = nodes.filter((peer) => peer.element.kind === kind && !peer.element.unknownAllocation);
+        const peers = nodes.filter((peer) => peer.element.kind === kind && !peer.element.unknownAllocation && !(peer.element as EntryElement).archived);
         const position = peers.indexOf(node);
         const row: EntryRowData = { element: node.element as EntryElement, depth, first: position === 0, last: position === peers.length - 1, closes: null, empty: kind === 'cluster' && node.children.length === 0 };
         rows.push(row);

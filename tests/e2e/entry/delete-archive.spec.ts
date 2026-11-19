@@ -27,7 +27,7 @@ test('a Cluster with Activities asks what happens to them and Archiveren names t
 
     await panel.getByRole('button', { name: 'Verwijderen' }).click();
     await expect(page.getByRole('dialog')).toContainText('Offerte');
-    await page.getByRole('dialog').getByRole('button', { name: 'Activiteiten onder het domein zetten' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Activiteiten terugzetten onder het domein' }).click();
     await expect(page.getByTestId('entry-row').filter({ hasText: 'Offerte' })).toBeVisible();
     await expect(page.getByTestId('entry-row').filter({ hasText: 'Contracten' })).toHaveCount(0);
 });

@@ -11,13 +11,11 @@ test('the tree shows kind, name and Modality letter with Activities before Clust
     await expect(rows.nth(0)).toContainText('Domein');
     await expect(rows.nth(1)).toContainText('Activiteit');
     await expect(rows.nth(1)).toContainText('Werving');
-    await expect(rows.nth(1)).toContainText('A');
+    await expect(rows.nth(1).getByRole('button').first()).toHaveText(/Modaliteit\s*A$/);
     await expect(rows.nth(2)).toContainText('Cluster');
     await expect(rows.nth(3)).toContainText('Offerte');
 
     await rows.nth(0).getByRole('button', { name: /Inkoop/ }).first().focus();
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
     await expect(rows.nth(1).getByRole('button').first()).toBeFocused();
     await expectNoAxeViolations(page);

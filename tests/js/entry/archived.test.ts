@@ -28,3 +28,15 @@ describe('archived rows', () => {
         expect(html).toMatch(/<label[^>]*><input[^>]*type="checkbox"[^>]*>Toon gearchiveerd<\/label>/);
     });
 });
+
+describe('arrows with archived siblings', () => {
+    it('ignore archived Elements when finding the first and last of a kind', () => {
+        const list = [
+            entryElement('d', 'primary_activities', 'domain', 'Opvang'),
+            entryElement('a', 'primary_activities', 'activity', 'Spelen', 'd', 1),
+            entryElement('b', 'primary_activities', 'activity', 'Slapen', 'd', 2, { archived: true }),
+        ];
+
+        expect(buildRows(list, 'primary_activities').find((row) => row.element.id === 'a')?.last).toBe(true);
+    });
+});
