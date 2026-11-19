@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\NormalisesName;
+use App\Services\Audit\Audited;
 use Database\Factories\OrganisationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 class Organisation extends Model
 {
     /** @use HasFactory<OrganisationFactory> */
-    use HasFactory, NormalisesName;
+    use Audited, HasFactory, NormalisesName;
 
     protected static function booted(): void
     {

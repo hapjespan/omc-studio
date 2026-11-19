@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ElementKind;
 use App\Models\Concerns\NormalisesName;
+use App\Services\Audit\Audited;
 use Database\Factories\ElementFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Element extends Model
 {
     /** @use HasFactory<ElementFactory> */
-    use HasFactory, HasUuids, NormalisesName;
+    use Audited, HasFactory, HasUuids, NormalisesName;
 
     /** @var list<string> */
     protected $touches = ['canvas'];

@@ -46,7 +46,7 @@ class AuditEntryTest extends TestCase
         $user->delete();
 
         $this->assertNull($entry->fresh()->actor_id);
-        $this->assertSame(1, DB::table('audit_entries')->count());
+        $this->assertSame(1, DB::table('audit_entries')->where('id', $entry->id)->count());
     }
 
     public function test_an_entry_about_unknown_organisation_and_canvas_is_stored(): void

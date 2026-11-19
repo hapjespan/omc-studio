@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CanvasKind;
 use App\Models\Concerns\NormalisesName;
+use App\Services\Audit\Audited;
 use Database\Factories\CanvasFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Canvas extends Model
 {
     /** @use HasFactory<CanvasFactory> */
-    use HasFactory, NormalisesName;
+    use Audited, HasFactory, NormalisesName;
 
     protected $attributes = ['is_blank_template' => false];
 

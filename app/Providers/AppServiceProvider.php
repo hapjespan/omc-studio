@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Audit\AuditContext;
 use App\Services\Operations\InstallSteps;
 use App\Support\Session\DatabaseSessionHandler;
 use Illuminate\Contracts\Container\Container;
@@ -12,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(AuditContext::class);
         $this->app->singleton(InstallSteps::class);
     }
 

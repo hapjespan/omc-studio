@@ -22,5 +22,7 @@
     "areas.primary_activities.level_2": "Activiteit",
     "areas.supporting_activities.name": "Ondersteunende activiteiten",
     "areas.supporting_activities.level_1": "Domein",
-    "areas.supporting_activities.level_2": "Activiteit"
+    "areas.supporting_activities.level_2": "Activiteit",
+    "audit.action.password_changed": "Wachtwoord gewijzigd",
+    "audit.action.second_factor_changed": "Tweede factor gewijzigd"
 }
