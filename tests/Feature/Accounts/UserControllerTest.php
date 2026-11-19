@@ -30,18 +30,40 @@ class UserControllerTest extends TestCase
         $this->actingAs($administrator)->get('/admin/users')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->component('Admin/Users', false)
-                ->has('users', 2)
-                ->where('users.0.name', 'Ann')
-                ->where('users.0.email', 'ann@example.test')
-                ->where('users.0.role', Role::Reader->value)
-                ->where('users.0.isSelf', false)
-                ->where('users.0.hasSecondFactor', false)
-                ->where('users.1.name', 'Bea')
-                ->where('users.1.role', Role::Administrator->value)
-                ->where('users.1.isSelf', true)
-                ->where('users.1.hasSecondFactor', true)
+                ->component('Admin/Users')
+                ->has('rows', 2)
+                ->where('count', 2)
+                ->where('query.search', '')
+                ->where('rows.0.name', 'Ann')
+                ->where('rows.0.email', 'ann@example.test')
+                ->where('rows.0.role', Role::Reader->value)
+                ->where('rows.0.isSelf', false)
+                ->where('rows.0.hasSecondFactor', false)
+                ->where('rows.1.name', 'Bea')
+                ->where('rows.1.role', Role::Administrator->value)
+                ->where('rows.1.isSelf', true)
+                ->where('rows.1.hasSecondFactor', true)
                 ->where('oneTimePassword', null));
+    }
+
+    public function test_the_list_searches_on_name_and_e_mail_address_and_sorts_on_e_mail_address(): void
+    {
+        $administrator = User::factory()->administrator()->create(['name' => 'Bea', 'email' => 'bea@example.test']);
+        User::factory()->create(['name' => 'Ann', 'email' => 'ann@other.test']);
+
+        $this->actingAs($administrator)->get('/admin/users?search=OTHER')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('rows', 1)
+                ->where('rows.0.name', 'Ann')
+                ->where('query.search', 'OTHER'));
+
+        $this->get('/admin/users?sort=email&direction=desc')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('rows.0.email', 'bea@example.test')
+                ->where('query.sort', 'email')
+                ->where('query.direction', 'desc'));
+
+        $this->get('/admin/users?sort=password')->assertSessionHasErrors('sort');
     }
 
     public function test_a_new_reader_gets_a_one_time_password_shown_once(): void

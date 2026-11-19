@@ -7,6 +7,7 @@ use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Services\Accounts\UserAdministration;
 use App\Services\Accounts\UserDeletion;
+use App\Services\Lists\ListQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,17 +24,22 @@ class UserController extends Controller
             Inertia::clearHistory();
         }
 
-        return Inertia::render('Admin/Users', [
-            'users' => User::query()->orderBy('name')->get()->map(fn (User $user): array => [
-                'id' => $user->getKey(),
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role->value,
-                'isSelf' => $user->is($request->user()),
-                'hasSecondFactor' => $user->two_factor_confirmed_at !== null,
-            ])->all(),
-            'oneTimePassword' => $password,
-        ]);
+        $list = (new ListQuery(['name', 'email'], ['name', 'email', 'role'], [], null))->run(
+            User::query()->select(['id', 'name', 'email', 'role'])->selectRaw('CASE WHEN two_factor_confirmed_at IS NULL THEN 0 ELSE 1 END as second_factor')->orderBy('name'),
+            $request->query(),
+        );
+
+        $self = $request->user()?->getKey();
+        $list['rows'] = array_map(static fn (array $row): array => [
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'email' => $row['email'],
+            'role' => $row['role'],
+            'isSelf' => $row['id'] === $self,
+            'hasSecondFactor' => (bool) $row['second_factor'],
+        ], $list['rows']);
+
+        return Inertia::render('Admin/Users', [...$list, 'oneTimePassword' => $password]);
     }
 
     public function store(UserRequest $request, UserAdministration $users): RedirectResponse
