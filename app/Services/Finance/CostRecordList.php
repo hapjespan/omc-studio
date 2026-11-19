@@ -2,6 +2,7 @@
 
 namespace App\Services\Finance;
 
+use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
@@ -15,9 +16,10 @@ class CostRecordList
      * @param  array<string, mixed>  $input
      * @return array{rows: list<array<string, mixed>>, count: int, query: array<string, mixed>}
      */
-    public function run(Organisation $organisation, ?FiscalYear $year, array $input): array
+    public function run(Organisation $organisation, ?FiscalYear $year, array $input, ?Canvas $canvas = null): array
     {
         $yearId = $year?->getKey();
+        $canvasFilter = $canvas === null ? '' : ' AND canvas_id = '.(int) $canvas->getKey();
 
         $inner = CostRecord::query()
             ->from('cost_records')
@@ -30,8 +32,8 @@ class CostRecordList
                 'yearly_figures.fte_hundredths', 'yearly_figures.reference_date', 'yearly_figures.remark',
                 DB::raw('(SELECT COUNT(*) FROM yearly_figures AS yf WHERE yf.cost_record_id = cost_records.id) AS figure_count'),
                 DB::raw('(SELECT COUNT(*) FROM allocation_sets AS asets WHERE asets.cost_record_id = cost_records.id) AS set_count'),
-                DB::raw('(SELECT COUNT(*) FROM allocation_sets AS ysets WHERE ysets.cost_record_id = cost_records.id AND ysets.fiscal_year_id = '.(int) $yearId.') AS year_set_count'),
-                DB::raw('CASE WHEN EXISTS (SELECT 1 FROM allocation_sets WHERE allocation_sets.cost_record_id = cost_records.id AND allocation_sets.fiscal_year_id = '.(int) $yearId.") THEN 'allocated' ELSE 'unallocated' END AS allocation"),
+                DB::raw('(SELECT COUNT(*) FROM allocation_sets AS ysets WHERE ysets.cost_record_id = cost_records.id AND ysets.fiscal_year_id = '.(int) $yearId.str_replace('canvas_id', 'ysets.canvas_id', $canvasFilter).') AS year_set_count'),
+                DB::raw('CASE WHEN EXISTS (SELECT 1 FROM allocation_sets WHERE allocation_sets.cost_record_id = cost_records.id AND allocation_sets.fiscal_year_id = '.(int) $yearId.str_replace('canvas_id', 'allocation_sets.canvas_id', $canvasFilter).") THEN 'allocated' ELSE 'unallocated' END AS allocation"),
             ]);
 
         $list = (new ListQuery(['code', 'name'], ['code', 'name'], ['cost_kind' => 'cost_kind', 'owner_id' => 'owner_id', 'application_id' => 'application_id', 'allocation' => 'allocation'], 'archived_at'))

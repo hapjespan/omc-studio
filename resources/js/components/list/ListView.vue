@@ -126,6 +126,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                     <td v-if="bulkActions?.length" class="px-2 py-1.5"><input v-model="selected" type="checkbox" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></td>
                     <td v-for="(column, index) in columns" :key="column.key" class="px-2 py-1.5">
                         <button v-if="index === 0 && $slots.form" type="button" class="rounded-md px-1 py-0.5 text-left underline" @click="editing = row">{{ row[column.key] }}</button>
+                        <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                         <template v-else>{{ row[column.key] }}</template>
                         <span v-if="index === 0 && row.archived_at" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('list.archived') }}</span>
                     </td>

@@ -562,5 +562,11 @@
     "allocation_page.kind.domain": "Domein",
     "allocation_page.kind.cluster": "Cluster",
     "allocation_page.kind.activity": "Activiteit",
-    "allocation_page.total_hidden": "Totalen zijn niet beschikbaar: de controle van het canvas slaagt niet"
+    "allocation_page.total_hidden": "Totalen zijn niet beschikbaar: de controle van het canvas slaagt niet",
+    "cost_records.allocation_canvas": "Toegewezen",
+    "cost_records.allocation_unknown": "Onbekende allocatie",
+    "cost_records.cards": "Samenvatting van het canvas",
+    "cost_records.card_budget": "Totaal budget",
+    "cost_records.card_of": ":done van :total kostenposten",
+    "cost_records.card_count": ":count kostenpost|:count kostenposten"
 }

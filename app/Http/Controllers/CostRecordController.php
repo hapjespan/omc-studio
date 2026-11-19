@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\CostKind;
 use App\Http\Requests\CostRecordRequest;
+use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Finance\CostRecordList;
 use App\Services\Finance\CostRecords;
+use App\Services\Finance\FigureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,17 +22,40 @@ class CostRecordController extends Controller
 
     public function index(Request $request, Organisation $organisation): Response
     {
+        return Inertia::render('Finance/CostRecords', $this->props($request, $organisation));
+    }
+
+    public function canvasIndex(Request $request, Canvas $canvas, FigureService $figures): Response
+    {
+        $canvas->loadMissing('organisation');
+        $props = $this->props($request, $canvas->organisation, $canvas);
+        $result = $props['year'] === null ? null : $figures->figures($canvas, $props['year']);
+
+        return Inertia::render('Finance/CostRecords', $props + [
+            'canvas' => ['id' => $canvas->id, 'name' => $canvas->name],
+            'cards' => $result === null ? null : [
+                'budgetCents' => $result->canvasTotal['budget'],
+                'forecastCents' => $result->canvasTotal['forecast'],
+                'allocated' => $result->sidePanel['allocated'],
+                'unknown' => $result->sidePanel['unknown'],
+            ],
+        ]);
+    }
+
+    /** @return array<string, mixed> */
+    private function props(Request $request, Organisation $organisation, ?Canvas $canvas = null): array
+    {
         $years = $organisation->fiscalYears()->orderBy('year')->get();
         $year = $years->firstWhere('year', $request->attributes->get('fiscal_year'));
 
-        return Inertia::render('Finance/CostRecords', $this->list->run($organisation, $year, $request->query()) + [
+        return $this->list->run($organisation, $year, $request->query(), $canvas) + [
             'organisation' => ['id' => $organisation->id, 'name' => $organisation->name, 'archived' => $organisation->archived_at !== null],
             'year' => $year?->year,
             'years' => $years->map(fn ($fiscalYear) => ['id' => $fiscalYear->id, 'year' => $fiscalYear->year])->all(),
             'owners' => $organisation->owners()->orderBy('name_normalised')->get(['id', 'name'])->all(),
             'applications' => $organisation->applications()->orderBy('name_normalised')->get(['id', 'name'])->all(),
             'costKinds' => array_map(fn (CostKind $kind) => $kind->value, CostKind::cases()),
-        ]);
+        ];
     }
 
     public function store(CostRecordRequest $request, Organisation $organisation): RedirectResponse
