@@ -11,6 +11,7 @@ import EntryTree from './EntryTree.vue';
 import type { AreaKey, ElementKind } from '../../layout/types';
 import { detail, discardDetail, openDetail } from '../../shell/detail';
 import AddDomain from './AddDomain.vue';
+import DirectionEntry from './DirectionEntry.vue';
 import ElementPanel from './ElementPanel.vue';
 import ArchivedToggle from './ArchivedToggle.vue';
 import ListAreaEntry from './ListAreaEntry.vue';
@@ -27,7 +28,7 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[] }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
@@ -117,7 +118,9 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         </nav>
         <section :aria-label="area.label" class="min-w-0 flex-1">
             <h2 class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
-            <QuickEntry v-if="area.kind !== 'text'" :key="area.key" :canvas-id="canvas.id" :area="area.key" :area-label="area.label" />
+            <DirectionEntry v-if="area.kind === 'text'" :canvas-id="canvas.id" :statements="statements" />
+            <template v-if="area.kind !== 'text'">
+            <QuickEntry :key="area.key" :canvas-id="canvas.id" :area="area.key" :area-label="area.label" />
             <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntrySearch v-model="search" />
@@ -127,6 +130,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" @restore="restore" />
             <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
             <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" :gone="gone" />
+            </template>
         </section>
     </div>
 </template>
