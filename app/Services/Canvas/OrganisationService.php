@@ -3,6 +3,7 @@
 namespace App\Services\Canvas;
 
 use App\Models\Canvas;
+use App\Models\CostRecord;
 use App\Models\Organisation;
 use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditRemoval;
@@ -67,7 +68,7 @@ class OrganisationService
     public function delete(Organisation $organisation): void
     {
         $logo = $this->writes->run([$organisation], function () use ($organisation) {
-            if (Canvas::where('organisation_id', $organisation->getKey())->exists()) {
+            if (Canvas::where('organisation_id', $organisation->getKey())->exists() || CostRecord::where('organisation_id', $organisation->getKey())->exists()) {
                 throw ValidationException::withMessages(['rule' => __('organisations.delete_blocked')]);
             }
 

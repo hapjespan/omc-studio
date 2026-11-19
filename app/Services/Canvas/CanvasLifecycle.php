@@ -7,8 +7,10 @@ use App\Models\AllocationLine;
 use App\Models\AllocationSet;
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Models\FinalisedYear;
 use App\Models\Organisation;
 use App\Models\Statement;
+use App\Models\SystemNotice;
 use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditRemoval;
 use App\Services\Support\SerialisedWrite;
@@ -79,6 +81,7 @@ class CanvasLifecycle
 
             $counts = $this->deletionCounts($canvas);
 
+            $this->removeAllocationData($canvas);
             $canvas->deleteQuietly();
             $this->removal->purge($canvas, $counts);
         });
@@ -90,7 +93,34 @@ class CanvasLifecycle
         return [
             'elements' => Element::where('canvas_id', $canvas->getKey())->count(),
             'statements' => Statement::where('canvas_id', $canvas->getKey())->count(),
+            'allocation_sets' => AllocationSet::where('canvas_id', $canvas->getKey())->count(),
+            'finalised_years' => FinalisedYear::where('canvas_id', $canvas->getKey())->count(),
         ];
+    }
+
+    private function removeAllocationData(Canvas $canvas): void
+    {
+        $sets = AllocationSet::with('lines')->where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($sets as $set) {
+            foreach ($set->lines as $line) {
+                $line->delete();
+            }
+
+            $set->delete();
+        }
+
+        $years = FinalisedYear::where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($years as $year) {
+            $year->delete();
+        }
+
+        $notices = SystemNotice::where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($notices as $notice) {
+            $notice->delete();
+        }
     }
 
     private function stamp(Canvas $canvas, string $action, mixed $value, callable $applies): Canvas

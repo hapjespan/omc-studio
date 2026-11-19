@@ -506,5 +506,7 @@
     "shell.year.open": "open",
     "shell.year.final": "definitief",
     "yearly_figures.year_taken": "Er zijn al jaarwaarden voor dit boekjaar",
-    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd"
+    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd",
+    "canvas_dialog.count_allocation_sets": ":count toewijzingssets",
+    "canvas_dialog.count_finalised_years": ":count definitieve boekjaren"
 }

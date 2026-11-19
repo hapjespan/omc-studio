@@ -5,7 +5,7 @@ export interface DialogCanvas {
     id: number;
     name: string;
     organisationId: number;
-    counts: { elements: number; statements: number } | null;
+    counts: Record<string, number> | null;
 }
 
 export const exactName = (typed: string, name: string): boolean => typed !== '' && typed === name;
@@ -42,9 +42,9 @@ const titles: Record<DialogKind, () => string> = {
 const description = computed(() => {
     if (kind.value === 'archive') return t('canvas_dialog.archive_description');
     if (kind.value !== 'delete' || !canvas.value?.counts) return undefined;
-    const { elements, statements } = canvas.value.counts;
+    const counts = Object.entries(canvas.value.counts).map(([key, count]) => t(`canvas_dialog.count_${key}`, { count }));
 
-    return t('canvas_dialog.delete_description', { counts: [t('canvas_dialog.count_elements', { count: elements }), t('canvas_dialog.count_statements', { count: statements })].join(', ') });
+    return t('canvas_dialog.delete_description', { counts: counts.join(', ') });
 });
 const hasName = computed(() => kind.value === 'create' || kind.value === 'copy' || kind.value === 'rename');
 const canSubmit = computed(() => !form.processing && (kind.value !== 'delete' || exactName(form.confirmation, canvas.value?.name ?? '')));
