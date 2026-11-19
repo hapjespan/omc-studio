@@ -14,6 +14,7 @@ import AddDomain from './AddDomain.vue';
 import ElementPanel from './ElementPanel.vue';
 import ArchivedToggle from './ArchivedToggle.vue';
 import ListAreaEntry from './ListAreaEntry.vue';
+import QuickEntry from './QuickEntry.vue';
 import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
 import { buildRows, createdElement, elementPath, entryWarnings, filterByName, type EntryAreaInfo, type EntryElement } from './entry';
@@ -116,6 +117,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         </nav>
         <section :aria-label="area.label" class="min-w-0 flex-1">
             <h2 class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+            <QuickEntry v-if="area.kind !== 'text'" :key="area.key" :canvas-id="canvas.id" :area="area.key" :area-label="area.label" />
             <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntrySearch v-model="search" />
