@@ -15,11 +15,21 @@ class CostRecordImportController extends Controller
 
     public function preview(Request $request, Organisation $organisation): JsonResponse
     {
+        return response()->json($this->import->preview($organisation, $this->path($request)));
+    }
+
+    public function commit(Request $request, Organisation $organisation): JsonResponse
+    {
+        return response()->json($this->import->commit($organisation, $this->path($request)));
+    }
+
+    private function path(Request $request): string
+    {
         $request->validate(['file' => ['required', new CsvUploadRule(CostRecordImport::COLUMNS)]]);
 
         /** @var UploadedFile $file */
         $file = $request->file('file');
 
-        return response()->json($this->import->preview($organisation, (string) $file->getRealPath()));
+        return (string) $file->getRealPath();
     }
 }

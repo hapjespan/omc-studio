@@ -3,14 +3,20 @@
 namespace App\Services\Exchange;
 
 use App\Enums\CostKind;
+use App\Models\Application;
 use App\Models\CostRecord;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
+use App\Models\Owner;
 use App\Models\YearlyFigure;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
 use App\Services\Allocation\FinalisedYears;
+use App\Services\Audit\AuditContext;
 use App\Services\Exchange\Csv\CsvReader;
+use App\Services\Support\SerialisedWrite;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class CostRecordImport
 {
@@ -25,19 +31,62 @@ class CostRecordImport
 
     private const MAX_FTE_HUNDREDTHS = 999_999;
 
-    public function __construct(private readonly FinalisedYears $finalised) {}
+    public function __construct(
+        private readonly FinalisedYears $finalised,
+        private readonly SerialisedWrite $write,
+        private readonly AuditContext $context,
+    ) {}
 
     /**
      * @return array{lines: list<array{line: int, status: string, messages: list<string>}>, totals: array<string, int>, creates: array<string, list<string>>}
      */
     public function preview(Organisation $organisation, string $path): array
     {
-        $yearModels = FiscalYear::where('organisation_id', $organisation->getKey())->get()->keyBy('year');
-        $years = $yearModels->map->getKey()->all();
-        $records = CostRecord::with('yearlyFigures')->where('organisation_id', $organisation->getKey())->get()->keyBy('code_normalised');
-        $owners = $organisation->owners()->pluck('name_normalised', 'id')->all();
-        $applications = $organisation->applications()->pluck('name_normalised', 'id')->all();
+        /** @var array{lines: list<array{line: int, status: string, messages: list<string>}>, totals: array<string, int>, creates: array<string, list<string>>} $report */
+        $report = array_diff_key($this->scan($organisation, $path), array_flip(['rows', 'finalised', 'fingerprint']));
 
+        return $report;
+    }
+
+    /**
+     * @return array{totals: array<string, int>}
+     */
+    public function commit(Organisation $organisation, string $path): array
+    {
+        $scan = $this->scan($organisation, $path);
+
+        if ($scan['totals']['errors'] > 0) {
+            $this->refuse('import.refused_errors');
+        }
+
+        return $this->write->run([$organisation], fn () => $this->context->during('imported', function () use ($organisation, $scan) {
+            $data = $this->load($organisation);
+
+            if ($this->fingerprint($data, $this->refinalised($data, $scan['finalised'])) !== $scan['fingerprint']) {
+                $this->refuse('import.refused_changed');
+            }
+
+            foreach ($scan['rows'] as $row) {
+                $this->apply($organisation, $data, $row);
+            }
+
+            return ['totals' => $scan['totals']];
+        }));
+    }
+
+    /**
+     * @return array{lines: list<array{line: int, status: string, messages: list<string>}>, totals: array<string, int>, creates: array<string, list<string>>, rows: list<array{cells: array<string, string>, fields: array<string, ?string>, figures: ?array<string, ?int>, year: ?int}>, finalised: array<int, string|false>, fingerprint: string}
+     */
+    private function scan(Organisation $organisation, string $path): array
+    {
+        $data = $this->load($organisation);
+        $yearModels = $data['yearModels'];
+        $years = $data['years'];
+        $records = $data['records'];
+        $owners = $data['owners'];
+        $applications = $data['applications'];
+
+        $rows = [];
         $lines = [];
         $seenYears = [];
         $seenFields = [];
@@ -88,9 +137,136 @@ class CostRecordImport
             $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['jaar']] ?? null, $owners, $applications);
             $totals[$status === 'error' ? 'errors' : $status]++;
             $lines[] = ['line' => $number, 'status' => $status, 'messages' => $messages];
+            $messages === [] && $rows[] = ['cells' => $row, 'fields' => $fields, 'figures' => $figures, 'year' => $years[(int) $row['jaar']] ?? null];
         }
 
-        return ['lines' => $lines, 'totals' => $totals, 'creates' => ['owners' => array_values($creates['owners']), 'applications' => array_values($creates['applications'])]];
+        return [
+            'lines' => $lines,
+            'totals' => $totals,
+            'creates' => ['owners' => array_values($creates['owners']), 'applications' => array_values($creates['applications'])],
+            'rows' => $rows,
+            'finalised' => $finalised,
+            'fingerprint' => $this->fingerprint($data, $finalised),
+        ];
+    }
+
+    /**
+     * @return array{yearModels: Collection<int, FiscalYear>, years: array<int, int>, records: Collection<string, CostRecord>, owners: array<int, string>, applications: array<int, string>}
+     */
+    private function load(Organisation $organisation): array
+    {
+        /** @var Collection<int, FiscalYear> $yearModels */
+        $yearModels = FiscalYear::where('organisation_id', $organisation->getKey())->get()->keyBy('year');
+        /** @var Collection<string, CostRecord> $records */
+        $records = CostRecord::with('yearlyFigures')->where('organisation_id', $organisation->getKey())->get()->keyBy('code_normalised');
+
+        return [
+            'yearModels' => $yearModels,
+            'years' => $yearModels->map->getKey()->all(),
+            'records' => $records,
+            'owners' => $organisation->owners()->pluck('name_normalised', 'id')->all(),
+            'applications' => $organisation->applications()->pluck('name_normalised', 'id')->all(),
+        ];
+    }
+
+    /**
+     * @param  array{yearModels: Collection<int, FiscalYear>, years: array<int, int>, records: Collection<string, CostRecord>, owners: array<int, string>, applications: array<int, string>}  $data
+     * @param  array<int, string|false>  $finalised
+     */
+    private function fingerprint(array $data, array $finalised): string
+    {
+        $records = $data['records']
+            ->map(fn (CostRecord $record) => [
+                $record->only(['code_normalised', 'name', 'cost_kind', 'supplier', 'owner_id', 'cost_centre', 'application_id']),
+                $record->yearlyFigures->map->only(['fiscal_year_id', 'budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths'])->sortBy('fiscal_year_id')->values()->all(),
+            ])
+            ->sortKeys()
+            ->all();
+
+        return md5(serialize([$data['years'], $records, $data['owners'], $data['applications'], $finalised]));
+    }
+
+    /**
+     * @param  array{yearModels: Collection<int, FiscalYear>, years: array<int, int>, records: Collection<string, CostRecord>, owners: array<int, string>, applications: array<int, string>}  $data
+     * @param  array<int, string|false>  $finalised
+     * @return array<int, string|false|null>
+     */
+    private function refinalised(array $data, array $finalised): array
+    {
+        $again = [];
+
+        foreach (array_keys($finalised) as $year) {
+            $model = $data['yearModels']->get($year);
+            $again[$year] = $model instanceof FiscalYear ? $this->finalised->finalisedInOrganisation($model) ?? false : null;
+        }
+
+        return $again;
+    }
+
+    /**
+     * @param  array{yearModels: Collection<int, FiscalYear>, years: array<int, int>, records: Collection<string, CostRecord>, owners: array<int, string>, applications: array<int, string>}  $data
+     * @param  array{cells: array<string, string>, fields: array<string, ?string>, figures: ?array<string, ?int>, year: ?int}  $row
+     */
+    private function apply(Organisation $organisation, array &$data, array $row): void
+    {
+        $attributes = [
+            'name' => $row['fields']['name'],
+            'cost_kind' => $row['fields']['kind'],
+            'supplier' => $row['fields']['supplier'],
+            'cost_centre' => $row['fields']['cost_centre'],
+            'owner_id' => $this->entry(Owner::class, $organisation, $data['owners'], $row['cells']['eigenaar']),
+            'application_id' => $this->entry(Application::class, $organisation, $data['applications'], $row['cells']['applicatie']),
+        ];
+
+        $record = $data['records']->get(mb_strtolower($row['cells']['code']));
+
+        if ($record instanceof CostRecord) {
+            $record->fill($attributes)->save();
+        } else {
+            $record = CostRecord::create(['organisation_id' => $organisation->getKey(), 'code' => $row['cells']['code'], ...$attributes]);
+            $record->setRelation('yearlyFigures', new Collection);
+            $data['records']->put((string) $record->code_normalised, $record);
+        }
+
+        if ($row['figures'] === null || $row['year'] === null) {
+            return;
+        }
+
+        $figure = $record->yearlyFigures->firstWhere('fiscal_year_id', $row['year']);
+
+        if ($figure instanceof YearlyFigure) {
+            $figure->fill($row['figures'])->save();
+
+            return;
+        }
+
+        $record->yearlyFigures->push(YearlyFigure::create(['cost_record_id' => $record->getKey(), 'fiscal_year_id' => $row['year'], ...$row['figures']]));
+    }
+
+    /**
+     * @param  class-string<Application|Owner>  $class
+     * @param  array<int, string>  $names
+     */
+    private function entry(string $class, Organisation $organisation, array &$names, string $name): ?int
+    {
+        if ($name === '') {
+            return null;
+        }
+
+        $normalised = mb_strtolower($name);
+        $id = array_search($normalised, $names, true);
+
+        if ($id === false) {
+            $id = (int) $class::create(['organisation_id' => $organisation->getKey(), 'name' => $name])->getKey();
+            $names[$id] = $normalised;
+        }
+
+        return (int) $id;
+    }
+
+    private function refuse(string $key): never
+    {
+        throw ValidationException::withMessages(['file' => (string) __($key)]);
     }
 
     /**
