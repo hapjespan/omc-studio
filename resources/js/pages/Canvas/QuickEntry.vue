@@ -22,7 +22,7 @@ const lines = ref<PreviewLine[]>([]);
 const errors = ref<{ line: number; message: string }[]>([]);
 const refusal = ref('');
 const pending = ref(false);
-const opener = ref<HTMLButtonElement>();
+const opener = ref<InstanceType<typeof AppButton>>();
 const root = ref<HTMLElement>();
 const field = (): HTMLTextAreaElement | null => root.value?.querySelector('textarea') ?? null;
 let escaped = false;

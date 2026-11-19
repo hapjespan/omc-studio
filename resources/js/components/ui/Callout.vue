@@ -7,8 +7,8 @@ const tones = { warning: 'bg-warning-soft text-warning', success: 'bg-success-so
 </script>
 
 <template>
-    <div :class="['flex items-start gap-2 rounded-control p-2.5 text-[12.5px]', tones[props.tone]]">
+    <span :class="['flex items-start gap-2 rounded-control p-2.5 text-[12.5px]', tones[props.tone]]">
         <Icon :name="props.tone === 'success' ? 'check' : 'warning'" class="mt-px" />
-        <p class="min-w-0"><span v-if="props.label" class="font-semibold">{{ props.label }}</span> <slot /></p>
-    </div>
+        <span class="min-w-0"><span v-if="props.label" class="font-semibold">{{ props.label }}</span> <slot /></span>
+    </span>
 </template>

@@ -72,7 +72,7 @@ defineExpose({ show });
             <TextField v-else id="template_confirmation" v-model="form.confirmation" :label="t('canvas_dialog.confirmation')" :hint="t('canvas_dialog.confirmation_hint', { name: target?.name ?? '' })" :error="form.errors.confirmation" autocomplete="off" />
             <div class="flex gap-2">
                 <AppButton type="button" @click="open = false">{{ t('canvas_dialog.cancel') }}</AppButton>
-                <button type="submit" :disabled="!canSubmit" class="rounded-md border px-3 py-1.5 text-[13px] font-semibold disabled:opacity-60" :class="kind === 'delete' ? 'border-danger-edge text-danger' : 'border-edge'">{{ t(`canvas_dialog.${labels[kind]}`) }}</button>
+                <AppButton type="submit" :variant="kind === 'delete' ? 'danger' : 'secondary'" :disabled="!canSubmit">{{ t(`canvas_dialog.${labels[kind]}`) }}</AppButton>
             </div>
         </form>
     </Dialog>

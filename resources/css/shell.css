@@ -33,7 +33,7 @@
 }
 
 .shell-detail[hidden],
-.shell-menu-button {
+.shell-top .shell-menu-button {
     display: none;
 }
 
@@ -66,8 +66,8 @@
         visibility: hidden;
     }
 
-    .shell-menu-button {
-        display: inline-block;
+    .shell-top .shell-menu-button {
+        display: inline-flex;
         margin-left: auto;
     }
 
