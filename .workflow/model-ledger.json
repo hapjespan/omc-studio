@@ -217,6 +217,9 @@
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T070": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T071": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
