@@ -5,6 +5,7 @@ namespace Tests\Feature\Allocation;
 use App\Calculation\FigureCalculator;
 use App\Calculation\Figures;
 use App\Enums\ElementKind;
+use App\Models\AllocationLine;
 use App\Models\AllocationSet;
 use App\Models\Canvas;
 use App\Models\CostRecord;
@@ -12,6 +13,7 @@ use App\Models\Element;
 use App\Models\FiscalYear;
 use App\Models\Modality;
 use App\Models\YearlyFigure;
+use App\Services\Allocation\AllocationSets;
 use App\Services\Allocation\CarryOver;
 use App\Services\Allocation\Redistribution;
 use App\Services\Finance\CalculationInputBuilder;
@@ -38,6 +40,44 @@ class FinalisedFreezeTest extends AllocationTestCase
             ->where('cost_record_id', $record->getKey())
             ->where('fiscal_year_id', $this->fiscalYear($year)->id)
             ->firstOrFail();
+    }
+
+    public function test_saving_and_clearing_a_set_in_the_finalised_year_are_refused(): void
+    {
+        $record = $this->costRecord('Licentie', 2026);
+        $activity = $this->target();
+        $other = $this->target('Tweede');
+        $this->allocate($record, 2026, [$activity->id => 10000]);
+        $this->finalise(2026);
+
+        $sets = app(AllocationSets::class);
+        $year = FiscalYear::with('organisation')->whereKey($this->fiscalYear(2026)->id)->firstOrFail();
+
+        $this->assertSame(self::REFUSAL, $this->refusal(fn () => $sets->replace($this->canvas, $record, $year, [['element_id' => $other->id, 'basis_points' => 10000]])));
+        $this->assertSame(self::REFUSAL, $this->refusal(fn () => $sets->clear($this->canvas, $record, $year, $this->admin())));
+        $this->assertSame(1, AllocationSet::where('fiscal_year_id', $year->id)->count());
+        $this->assertSame([$activity->id], AllocationLine::pluck('element_id')->all());
+    }
+
+    public function test_sets_of_another_canvas_stay_writable_while_this_canvas_is_finalised(): void
+    {
+        $record = $this->costRecord('Licentie', 2026);
+        $other = Canvas::factory()->create(['organisation_id' => $this->canvas->organisation_id, 'name' => 'Tweede']);
+        $area = $this->area('primary_activities');
+        $domain = $this->tree()->create($other, $area, ElementKind::Domain, null, ['name' => 'Inkoop']);
+        $activity = $this->tree()->create($other, $area, ElementKind::Activity, (string) $domain->id, ['name' => 'Offreren']);
+        $this->finalise(2026);
+
+        $sets = app(AllocationSets::class);
+        $year = FiscalYear::with('organisation')->whereKey($this->fiscalYear(2026)->id)->firstOrFail();
+
+        $sets->replace($other, $record, $year, [['element_id' => $activity->id, 'basis_points' => 10000]]);
+
+        $this->assertSame(1, AllocationSet::where('canvas_id', $other->id)->where('fiscal_year_id', $year->id)->count());
+
+        $sets->clear($other, $record, $year, $this->admin());
+
+        $this->assertSame(0, AllocationSet::where('canvas_id', $other->id)->count());
     }
 
     public function test_a_redistribution_touching_the_finalised_year_is_refused(): void
