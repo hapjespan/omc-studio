@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { createEditor } from '@open-pencil/core/editor';
-import { SceneGraph } from '@open-pencil/scene-graph';
+import { SceneGraph, type SceneNode } from '@open-pencil/scene-graph';
 import { computeBlocks, type Fixture } from '../../../proof/wp-e0/layout';
 import { clampToParent, inertShortcuts, restrict } from '../../../proof/wp-e0/restrict';
 import { buildScene } from '../../../proof/wp-e0/scene';
@@ -13,7 +13,7 @@ function load() {
     const graph = new SceneGraph();
     buildScene(graph, fixture, computeBlocks(fixture, fake));
     const editor = createEditor({ graph, skipInitialGraphSetup: true });
-    const restrictions = restrict(editor as any, graph, ['area-direction', 'area-logo']);
+    const restrictions = restrict(editor as unknown as Parameters<typeof restrict>[0], graph, ['area-direction', 'area-logo']);
     return { graph, editor, restrictions };
 }
 
@@ -90,7 +90,7 @@ describe('P5 restrictions', () => {
 
     it('clamps without touching what the change does not name', () => {
         expect(clampToParent({ x: 5, y: 5, width: 20, height: 20 }, { width: 100, height: 100 }, { x: 95 })).toEqual({ x: 80 });
-        expect(clampToParent({ x: 5, y: 5, width: 20, height: 20 }, { width: 100, height: 100 }, { fills: [] } as any)).toEqual({ fills: [] });
+        expect(clampToParent({ x: 5, y: 5, width: 20, height: 20 }, { width: 100, height: 100 }, { fills: [] } as Partial<SceneNode>)).toEqual({ fills: [] });
     });
 
     it('accepts only the select and hand tools', () => {
