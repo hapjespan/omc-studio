@@ -492,7 +492,7 @@ No new question for the product owner came out of the decomposition. Two things 
 - [x] T166 [US16] Show the Unknown allocation card last in Supporting activities with the "Systeem" mark, and the hover and focus content (full names, Direction text) that stays while the pointer is over it and closes with Escape. Files: `resources/js/canvas/UnknownCard.vue`, `resources/js/canvas/HoverContent.vue`, `tests/e2e/view/hover.spec.ts`. Accept: US16 sc 2, WB12. WCAG: WB1, WB2, WB12.
 - [x] T167 [US15] Add the Default colour tests: every Area and level of a new Canvas matches `design-contract.md`, every pair meets WB3, and no route exists to change a Default colour. Files: `tests/e2e/view/default-colours.spec.ts`, `tests/Feature/Canvas/NoColourRouteTest.php`. Accept: US15 sc 1 to 3, FR-046; the router enumeration finds no colour route.
 - [x] T168 [US16] Add the 500 Element performance test: Bekijken visible within one second whether or not the content fits the Artboard. Files: `tests/e2e/view/performance.spec.ts`. Accept: US16 sc 7, P-1; the machine description is printed.
-- [ ] T169 [US16] Add the Bekijken end-to-end with axe on three engines: Reader opens a Canvas, zooms, selects an Element, reads its fields. Files: `tests/e2e/view/reader-flow.spec.ts`. Accept: US16 independent test, US15. WCAG: WB1-WB12.
+- [x] T169 [US16] Add the Bekijken end-to-end with axe on three engines: Reader opens a Canvas, zooms, selects an Element, reads its fields. Files: `tests/e2e/view/reader-flow.spec.ts`. Accept: US16 independent test, US15. WCAG: WB1-WB12.
 
 **Checkpoint**: US15 and US16 independent tests pass; overlays are added by D2.
 
