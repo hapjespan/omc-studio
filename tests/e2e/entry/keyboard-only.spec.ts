@@ -31,6 +31,7 @@ test('the independent test of Invoeren runs with the keyboard only', async ({ pa
     const parent = page.getByLabel('Hangt onder');
     await parent.focus();
     await page.keyboard.press('Enter');
+    await expect(page.getByRole('option').first()).toBeFocused();
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
     await page.getByRole('button', { name: 'Opslaan', exact: true }).focus();
