@@ -73,6 +73,11 @@ class CiWorkflowTest extends TestCase
         $this->assertStringContainsString('playwright test', $commands);
     }
 
+    public function test_the_browser_download_is_retried_a_bounded_number_of_times(): void
+    {
+        $this->assertMatchesRegularExpression('/until npx playwright install .*chromium firefox webkit; do .*-ge 3 .*exit 1/s', $this->commands('e2e'));
+    }
+
     public function test_both_audits_run(): void
     {
         $commands = $this->commands('audit');
