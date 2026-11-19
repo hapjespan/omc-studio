@@ -7,7 +7,10 @@ use Tests\TestCase;
 
 class QuickEntryParserTest extends TestCase
 {
-    /** @param list<string> $existing */
+    /**
+     * @param  list<string>  $existing
+     * @return array{lines: list<array<string, mixed>>, errors: list<array{line: int, message: string}>}
+     */
     private function parse(string $text, string $area = 'activities', array $existing = []): array
     {
         return (new QuickEntryParser)->parse($text, $area, $existing);
