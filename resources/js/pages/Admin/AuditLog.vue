@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { nextTick, reactive, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
+import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import Field from '../../components/fields/Field.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { hasMessage, t } from '../../i18n';
@@ -26,7 +27,7 @@ const props = defineProps<{
     page: number;
     lastPage: number;
     filters: Filters;
-    errors?: Record<string, string>;
+    filterErrors: Record<string, string>;
     options: { organisations: Option[]; canvases: Option[]; users: Option[]; kinds: string[] };
 }>();
 
@@ -45,6 +46,8 @@ const selects = [
     { id: 'subject_type', label: 'audit_log.filter.kind', options: () => props.options.kinds.map((kind) => ({ value: kind, label: t(`audit_log.kind.${kind}`) })) },
     { id: 'actor_id', label: 'audit_log.filter.user', options: () => props.options.users.map((o) => ({ value: String(o.id), label: o.name })) },
 ] as const;
+
+watch(() => props.filterErrors, (errors) => Object.keys(errors).length && nextTick(focusFirstInvalid), { immediate: true });
 
 function query(source: Filters, page?: number): Record<string, string | number> {
     const filled = Object.fromEntries(Object.entries(source).filter(([, value]) => value !== '' && value !== undefined)) as Record<string, string | number>;
@@ -73,16 +76,16 @@ const value = (text: string | null): string => (text === null || text === '' ? t
 <template>
     <Head :title="t('audit_log.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('audit_log.title') }}</h1>
-    <ErrorSummary v-if="errors" :errors="errors" />
+    <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
     <form class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
-        <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="errors?.[select.id]" v-slot="{ describedby, invalid }">
+        <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
             <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px] text-[#171B21]">
                 <option value="">{{ t('audit_log.filter.all') }}</option>
                 <option v-for="option in select.options()" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>
         </Field>
-        <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="errors?.from" />
-        <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="errors?.to" />
+        <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
+        <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
         <div class="flex items-end gap-2">
             <button type="submit" class="min-h-6 rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('audit_log.filter.apply') }}</button>
             <button type="button" class="min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" @click="reset">{{ t('audit_log.filter.reset') }}</button>

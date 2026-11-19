@@ -73,7 +73,19 @@ class AuditLogPageTest extends TestCase
         AuditEntry::create(['occurred_at' => now(), 'actor_type' => 'system', 'action' => 'created', 'subject_type' => 'canvas', 'subject_id' => '1', 'subject_label' => 'x', 'changes' => []]);
 
         $this->get('/admin/audit-log?subject_type=element')->assertInertia(fn (Assert $page) => $page->where('total', 0));
-        $this->get('/admin/audit-log?from=nonsense')->assertSessionHasErrors('from');
+        $this->get('/admin/audit-log?from=nonsense')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('filterErrors.from', 'Vanaf datum: kies een geldige datum, bijvoorbeeld 31-12-2026'));
+    }
+
+    public function test_a_reversed_date_range_keeps_the_page_open_with_the_entered_dates(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create());
+
+        $this->get('/admin/audit-log?from=2026-03-10&to=2026-03-01')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/AuditLog')
+            ->where('filterErrors.to', 'Tot en met datum: kies een datum op of na Vanaf datum')
+            ->where('filters.from', '2026-03-10')
+            ->where('filters.to', '2026-03-01'));
     }
 
     public function test_a_reader_gets_403(): void

@@ -210,5 +210,8 @@
     "audit_log.field.is_blank_template": "Leeg canvas",
     "audit_log.field.must_change_password": "Wachtwoord wijzigen verplicht",
     "audit_log.field.one_time_password_expires_at": "Eenmalig wachtwoord verloopt op",
-    "audit_log.field.two_factor_confirmed_at": "Tweede factor bevestigd op"
+    "audit_log.field.two_factor_confirmed_at": "Tweede factor bevestigd op",
+    "audit_log.error.range": "Tot en met datum: kies een datum op of na Vanaf datum",
+    "audit_log.error.date": ":attribute: kies een geldige datum, bijvoorbeeld 31-12-2026",
+    "audit_log.error.choose": ":attribute: kies een waarde uit de lijst"
 }
