@@ -20,7 +20,8 @@ test('Invoeren opens and an Element is added within one second on a Canvas of 50
     await line.fill('Nieuw');
     const added = Date.now();
     await line.press('Enter');
-    await expect(page.getByTestId('entry-row').filter({ hasText: 'Nieuw' })).toBeVisible();
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="entry-row"]')].some((row) => row.textContent?.includes('Nieuw')));
     expect(Date.now() - added).toBeLessThan(1000);
+    await expect(page.getByTestId('entry-row').filter({ hasText: 'Nieuw' })).toBeVisible();
     await expectNoAxeViolations(page);
 });

@@ -70,12 +70,12 @@ function pick(event: Event): void {
 <template>
     <Head :title="t('fullx.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('fullx.title') }}</h1>
-    <section aria-labelledby="full-export" class="mt-4 max-w-xl">
+    <div role="group" aria-labelledby="full-export" class="mt-4 max-w-xl">
         <h2 id="full-export" class="text-[16px] font-semibold">{{ t('fullx.export_heading') }}</h2>
         <p class="mt-1 text-[13px]">{{ t('fullx.export_hint') }}</p>
         <a :href="routes.fullExport()" download class="mt-2 inline-block rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('fullx.export') }}</a>
-    </section>
-    <section aria-labelledby="full-import" class="mt-6 max-w-xl">
+    </div>
+    <div role="group" aria-labelledby="full-import" class="mt-6 max-w-xl">
         <h2 id="full-import" class="text-[16px] font-semibold">{{ t('fullx.import_heading') }}</h2>
         <form novalidate class="mt-2 flex flex-col gap-3" @submit.prevent="check">
             <div class="flex flex-col gap-1">
@@ -89,7 +89,7 @@ function pick(event: Event): void {
                 <button type="button" :disabled="!canCommit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="commit">{{ t('fullx.commit') }}</button>
             </div>
         </form>
-    </section>
+    </div>
     <section v-if="report" role="region" aria-labelledby="full-summary" class="mt-4">
         <h2 id="full-summary" class="text-[16px] font-semibold">{{ t('fullx.summary') }}</h2>
         <table class="mt-2 text-[13px]">
