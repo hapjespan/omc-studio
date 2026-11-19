@@ -74,8 +74,13 @@ class OverviewTest extends TestCase
         $this->actingAs(User::factory()->administrator()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
             ->where('canWrite', true)->where('templates.0.name', 'Leeg canvas'));
 
+        $canvas = Canvas::factory()->create();
+        Element::factory()->create(['canvas_id' => $canvas->id]);
+        $this->actingAs(User::factory()->administrator()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
+            ->where('organisations.0.canvases.0.counts', ['elements' => 1, 'statements' => 0]));
+
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
-            ->where('canWrite', false)->where('templates', []));
+            ->where('canWrite', false)->where('templates', [])->where('organisations.0.canvases.0.counts', null));
     }
 
     public function test_the_root_shows_the_overview_and_a_guest_is_sent_to_sign_in(): void

@@ -10,12 +10,15 @@ use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Organisation;
 use App\Models\Statement;
+use App\Services\Canvas\CanvasLifecycle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OverviewController extends Controller
 {
+    public function __construct(private readonly CanvasLifecycle $lifecycle) {}
+
     public function __invoke(Request $request): Response
     {
         $showArchived = $request->boolean('archived');
@@ -43,6 +46,7 @@ class OverviewController extends Controller
                     'name' => $canvas->name,
                     'updated_at' => $canvas->updated_at?->toIso8601String(),
                     'archived' => $canvas->archived_at !== null,
+                    'counts' => $canWrite ? $this->lifecycle->deletionCounts($canvas) : null,
                     'elements' => ($elements[$canvas->id] ?? collect())->map(fn (Element $element) => [
                         'id' => $element->id,
                         'area' => $element->area->key,
