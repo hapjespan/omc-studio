@@ -1,0 +1,47 @@
+{
+    "ink": "#171B21",
+    "white": "#FFFFFF",
+    "directionLabels": "#C9CED6",
+    "areas": {
+        "direction": {
+            "domain": "#171B21",
+            "cluster": null,
+            "activity": null
+        },
+        "steering": {
+            "domain": "#ECE8F5",
+            "cluster": "#DFDCE8",
+            "activity": "#FFFFFF"
+        },
+        "governing": {
+            "domain": "#ECE8F5",
+            "cluster": "#DFDCE8",
+            "activity": "#FFFFFF"
+        },
+        "primary_activities": {
+            "domain": "#F6E6CC",
+            "cluster": "#E9DAC2",
+            "activity": "#FFFFFF"
+        },
+        "supporting_activities": {
+            "domain": "#D9E9F2",
+            "cluster": "#CDDDE5",
+            "activity": "#FFFFFF"
+        },
+        "actors": {
+            "domain": null,
+            "cluster": null,
+            "activity": null
+        },
+        "channels": {
+            "domain": null,
+            "cluster": null,
+            "activity": null
+        },
+        "value_propositions": {
+            "domain": null,
+            "cluster": null,
+            "activity": null
+        }
+    }
+}

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StatementKind;
+use App\Services\Audit\Audited;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -11,5 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['canvas_id', 'kind', 'title', 'body', 'position'])]
 class Statement extends Model
 {
+    use Audited;
+
     protected $casts = ['kind' => StatementKind::class, 'position' => 'integer'];
 }

@@ -26,7 +26,7 @@ export default [
         },
     },
     {
-        files: ['resources/js/pages/**/*.vue'],
+        files: ['resources/js/pages/**/*.vue', 'resources/js/components/**/*.vue'],
         rules: { 'vue/multi-word-component-names': 'off' },
     },
     {
