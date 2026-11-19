@@ -92,7 +92,7 @@ class OverviewTest extends TestCase
             ->has('templateCards', 1)
             ->where('templateCards.0.name', 'Basis')
             ->where('templateCards.0.elements.0.name', 'Zorg')
-            ->where('templateCards.0.counts', ['elements' => 1, 'statements' => 0]));
+            ->where('templateCards.0.counts', ['elements' => 1, 'statements' => 0, 'allocation_sets' => 0, 'finalised_years' => 0]));
 
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page->where('templateCards', []));
     }
