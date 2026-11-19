@@ -365,5 +365,7 @@
     "structure.icon.heart": "Hart",
     "structure.icon.package": "Pakket",
     "structure.icon.laptop": "Laptop",
-    "rule.element_archived": "Een gearchiveerd element kan niet worden verplaatst"
+    "rule.element_archived": "Een gearchiveerd element kan niet worden verplaatst",
+    "view.system": "Systeem",
+    "view.artboard": "Tekenvlak van het canvas"
 }
