@@ -123,4 +123,5 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
 
 Route::middleware('auth')->group(function () {
     Route::get('/organisations/{organisation}/export/cost-records.csv', [ExportController::class, 'costRecords']);
+    Route::get('/canvases/{canvas}/export/allocations.csv', [ExportController::class, 'allocations']);
 });
