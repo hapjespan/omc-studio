@@ -13,6 +13,7 @@ import { canvasMeasurer } from './measure';
 import { collectLoad, scaledFixture } from './measure-load';
 import { inertShortcuts, restrict } from './restrict';
 import { readBlocks } from './roundtrip';
+import { attachShiftMove, type MoveIntent } from './shift-move';
 import { buildScene } from './scene';
 
 const bulk = Number(new URLSearchParams(location.search).get('bulk') ?? 0);
@@ -48,7 +49,16 @@ async function start() {
         createApp({ render: () => h(Proof, { editor, onReady: resolve }) }).mount('#app');
     });
     await ready;
-    Object.assign(window, { proof: { editor, graph, fixture, blocks, restrictions, inertShortcuts, readBlocks: () => readBlocks(graph), watchFinishedActions: (listener: (action: { ids: string[]; at: number }) => void) => watchFinishedActions(editor, graph, listener) } });
+    const intents: MoveIntent[] = [];
+    const label = document.createElement('div');
+    label.className = 'shift-label';
+    label.id = 'shift-label';
+    label.hidden = true;
+    document.body.append(label);
+    const shiftMove = new URLSearchParams(location.search).has('no-shift-move')
+        ? null
+        : attachShiftMove({ editor, graph, restrictions, blocks, canvas: document.getElementById('stage') as HTMLCanvasElement, label, onIntent: (intent) => intents.push(intent) });
+    Object.assign(window, { proof: { editor, graph, fixture, blocks, restrictions, inertShortcuts, intents, shiftMove, readBlocks: () => readBlocks(graph), watchFinishedActions: (listener: (action: { ids: string[]; at: number }) => void) => watchFinishedActions(editor, graph, listener) } });
     Object.assign((window as any).proof, { load: collectLoad(performance.now()) });
     document.documentElement.dataset.ready = 'true';
 }

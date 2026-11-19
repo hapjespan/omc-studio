@@ -1,0 +1,55 @@
+{
+  "control": {
+    "before": {
+      "parent": "dom-1",
+      "x": 16,
+      "y": 560,
+      "width": 468,
+      "height": 44
+    },
+    "after": {
+      "parent": "dom-1",
+      "x": 16,
+      "y": 600,
+      "width": 468,
+      "height": 44
+    }
+  },
+  "noAxisLock": {
+    "start": {
+      "parent": "dom-1",
+      "x": 16,
+      "y": 560,
+      "width": 468,
+      "height": 44
+    },
+    "free": {
+      "parent": "dom-1",
+      "x": 26,
+      "y": 600,
+      "width": 468,
+      "height": 44
+    }
+  },
+  "intent": {
+    "kind": "move",
+    "elementId": "act-3",
+    "targetId": "dom-3",
+    "layout": {
+      "x": 26,
+      "y": 458,
+      "width": 468,
+      "height": 44
+    }
+  },
+  "revert": {
+    "restoredTo": {
+      "parent": "dom-1",
+      "x": 16,
+      "y": 560,
+      "width": 468,
+      "height": 44
+    },
+    "historyBefore": false
+  }
+}

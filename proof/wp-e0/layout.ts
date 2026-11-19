@@ -14,6 +14,7 @@ export interface FixtureBlock {
     fontSize: number;
     fontWeight: number;
     textColor: string;
+    area?: string;
 }
 
 export interface Fixture {
@@ -37,6 +38,8 @@ export interface Block {
     lineHeight: number;
     padding: number;
     lines: string[];
+    area?: string;
+    name: string;
 }
 
 export function computeBlocks(fixture: Fixture, measurer: TextMeasurer): Block[] {
@@ -58,6 +61,8 @@ export function computeBlocks(fixture: Fixture, measurer: TextMeasurer): Block[]
             lineHeight,
             padding: fixture.padding,
             lines,
+            area: block.area,
+            name: block.text,
         };
     });
 }

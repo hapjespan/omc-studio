@@ -10,6 +10,7 @@ export interface Refusal {
 export interface Restrictions {
     refusals: Refusal[];
     release(): void;
+    privileged<T>(action: () => T): T;
 }
 
 interface ToolHost {
@@ -111,6 +112,18 @@ export function restrict(editor: ToolHost, graph: SceneGraph, lockedIds: string[
 
     return {
         refusals,
+        privileged<T>(action: () => T): T {
+            const guarded = new Map<string, unknown>();
+            for (const [name, fn] of originals) {
+                guarded.set(name, (graph as any)[name]);
+                (graph as any)[name] = fn;
+            }
+            try {
+                return action();
+            } finally {
+                for (const [name, fn] of guarded) (graph as any)[name] = fn;
+            }
+        },
         release() {
             for (const [name, fn] of originals) (graph as any)[name] = fn;
             editor.setTool = setTool;
