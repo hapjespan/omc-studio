@@ -16,6 +16,8 @@ import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
 import { useOverlay } from '../../canvas/overlay/useOverlay';
 import Breakdown from '../../canvas/overlay/Breakdown.vue';
+import VersionSelect from '../../canvas/VersionSelect.vue';
+import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
@@ -29,6 +31,7 @@ import type { CanvasLayoutInput, DrawnBlock, TextMeasurer } from '../../layout';
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
     canWrite: boolean;
+    versions: VersionOption[];
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
@@ -72,6 +75,7 @@ const fit = (): void => {
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
     <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" class="mt-2" />
+    <VersionSelect v-if="versions.length" :canvas-id="canvas.id" :versions="versions" :current="null" class="mt-2" />
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <p v-if="figuresMessage" role="alert" class="mt-3 rounded-md border border-[#B3261E] px-3 py-2 text-[13px] text-[#8C1D18]" data-figures-message>{{ figuresMessage }}</p>
     <div class="mt-3 flex flex-wrap items-center gap-4">

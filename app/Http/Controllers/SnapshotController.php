@@ -9,6 +9,7 @@ use App\Models\Canvas;
 use App\Models\Snapshot;
 use App\Services\Lists\ListQuery;
 use App\Services\Snapshot\Snapshots;
+use App\Support\Format;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class SnapshotController extends Controller
             $request->query(),
         );
 
-        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Carbon::parse($row['created_at'])->format('d-m-Y'), 'imported' => (bool) $row['imported']], $list['rows']);
+        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Format::formatDate(Carbon::parse($row['created_at'])->toIso8601String()), 'imported' => (bool) $row['imported']], $list['rows']);
 
         return Inertia::render('Versions/Index', $list + [
             'canWrite' => $request->user()?->can('administer') ?? false,

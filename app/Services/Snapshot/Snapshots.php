@@ -71,12 +71,17 @@ class Snapshots
         $encoded = (string) $snapshot->content;
 
         if (! hash_equals((string) $snapshot->checksum, $this->content->checksum($encoded))) {
-            $this->notices->record('snapshot_damaged', $snapshot->canvas_id, ['snapshotId' => $snapshot->getKey(), 'snapshot' => $snapshot->name]);
+            $this->damaged($snapshot);
 
             return null;
         }
 
         return json_decode($encoded, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    public function damaged(Snapshot $snapshot): void
+    {
+        $this->notices->record('snapshot_damaged', $snapshot->canvas_id, ['snapshotId' => $snapshot->getKey(), 'snapshot' => $snapshot->name]);
     }
 
     /** @param array{name?: string, remark?: string|null} $changes */

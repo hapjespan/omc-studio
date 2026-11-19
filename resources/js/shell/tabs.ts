@@ -35,7 +35,7 @@ export function isActive(tab: Tab, url: string): boolean {
 
     if (tab.key === 'costs' && /^\/canvases\/[^/]+\/cost-records/.test(path)) return true;
     if (tab.key === 'allocation') return /^\/canvases\/[^/]+\/allocation/.test(path);
-    if (tab.key === 'versions') return /^\/canvases\/[^/]+\/versions/.test(path);
+    if (tab.key === 'versions') return /^\/(canvases\/[^/]+\/versions|snapshots\/)/.test(path);
     if (tab.exclude?.some((part) => path.includes(part))) return false;
 
     return tab.matches.some((match) => path === match || path.startsWith(`${match}/`));
