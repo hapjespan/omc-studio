@@ -6,9 +6,11 @@ import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
-import { descendantCounts } from '../../canvas/overlay/counts';
+import { descendantCounts, modalityCounts } from '../../canvas/overlay/counts';
+import type { ModalityCounts } from '../../canvas/overlay/counts';
 import type { CanvasFigures, ElementFigures, OverlayFilters as Filters } from '../../canvas/overlay/figures';
 import FinancialCard, { areaLine, cardLines } from '../../canvas/overlay/FinancialCard.vue';
+import ModalityOverlay, { countsLine } from '../../canvas/overlay/ModalityOverlay.vue';
 import OverlayFilters from '../../canvas/overlay/OverlayFilters.vue';
 import type { FilterOptions } from '../../canvas/overlay/OverlayFilters.vue';
 import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
@@ -54,8 +56,14 @@ const cardColours = computed(() => Object.fromEntries((drawn.value?.blocks ?? []
     return figures ? [[block.id, shareColour(figures.shareBp, block.style.fill)]] : [];
 })));
 const areaTotal = (block: DrawnBlock): string | null => (props.figures && block.kind === 'area' && costAreas.value.has(block.areaKey) && props.figures.areas[block.id] ? areaLine(props.figures.areas[block.id], props.figures.canvasTotal) : null);
+const letters = computed(() => props.modalities.map((modality) => modality.letter));
+const domainModalities = computed(() => modalityCounts(props.elements, letters.value));
+const modalityCard = (block: DrawnBlock): ModalityCounts | null =>
+    props.overlay === 'modality' && block.kind === 'domain' && !block.system && costAreas.value.has(block.areaKey) ? (domainModalities.value.get(block.id) ?? { byLetter: Object.fromEntries(letters.value.map((letter) => [letter, 0])), none: 0 }) : null;
 const figureLines = (id: string): string[] => {
     const block = drawn.value?.blocks.find((candidate) => candidate.id === id);
+    const marks = block ? modalityCard(block) : null;
+    if (marks) return [countsLine(marks, letters.value)];
     const area = block ? areaTotal(block) : null;
     if (area) return [area];
     const figures = block ? cardFigures(block) : null;
@@ -96,8 +104,9 @@ const fit = (): void => {
     <div class="mt-3 flex gap-4">
     <div ref="scroller" class="h-[calc(100vh-14rem)] min-w-0 flex-1 overflow-auto" tabindex="-1" data-scroller>
         <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="cardColours" @select="select">
-            <template v-if="figures" #card="{ block }">
+            <template v-if="figures || overlay === 'modality'" #card="{ block }">
                 <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
+                <ModalityOverlay v-else-if="modalityCard(block)" :block="block" :counts="modalityCard(block)!" :letters="letters" />
                 <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
             </template>
             <template #hover="{ id }">

@@ -948,5 +948,6 @@
     "overlay.filter.owner": "Eigenaar",
     "overlay.filter.application": "Applicatie",
     "overlay.filter.all": "Alle",
-    "overlay.filter.active": "Actieve filters"
+    "overlay.filter.active": "Actieve filters",
+    "overlay.modality_none": "geen"
 }
