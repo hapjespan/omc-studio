@@ -120,7 +120,7 @@ async function copyPassword(): Promise<void> {
         <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :create-title="t('users.new')" @change="load">
             <template #form="{ row, close, setDirty }">
                 <form :key="row?.id ?? 'new'" novalidate class="flex flex-col gap-3" @vue:mounted="open(row, setDirty)" @submit.prevent="submit(row, close)">
-                    <ErrorSummary :errors="errors" />
+                    <div role="alert"><ErrorSummary :errors="errors" /></div>
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="setDirty(changed())" />
                     <TextField id="email" v-model="draft.email" :label="t('fields.email')" type="email" autocomplete="email" :error="errors.email" @update:model-value="setDirty(changed())" />
                     <TextField v-if="reauthenticating(row)" id="current_password" v-model="draft.currentPassword" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="errors.current_password" />

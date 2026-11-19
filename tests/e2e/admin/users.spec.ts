@@ -123,7 +123,7 @@ test('the own row keeps the role and the account, and an e-mail change asks for 
     await panel.getByLabel('E-mailadres').fill(changed);
     await expect(panel.getByLabel('Huidig wachtwoord')).toBeVisible();
     await panel.getByRole('button', { name: 'Opslaan' }).click();
-    await expect(panel.getByRole('link', { name: reauthenticate })).toBeVisible();
+    await expect(panel.getByRole('alert').getByRole('link', { name: reauthenticate })).toBeVisible();
     await expect(panel.getByLabel('Huidig wachtwoord')).toBeFocused();
     await expectNoAxeViolations(page);
 
