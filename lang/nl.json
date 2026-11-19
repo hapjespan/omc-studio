@@ -77,6 +77,7 @@
     "second_factor.code_invalid": "Code: deze code klopt niet",
     "second_factor.remaining_codes": "Nog :count herstelcode|Nog :count herstelcodes",
     "second_factor.code_reused": "Code: deze code is al gebruikt, wacht op de volgende code",
+    "second_factor.not_active": "Tweede factor staat uit",
     "sign_in.second_factor.title": "Tweede factor",
     "sign_in.second_factor.intro": "Vul de code van zes cijfers uit je authenticator-app in, of een herstelcode",
     "sign_in.second_factor.code_label": "Code of herstelcode",

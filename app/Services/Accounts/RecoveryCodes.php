@@ -35,11 +35,16 @@ class RecoveryCodes
         $rows = array_map(fn (string $code) => ['user_id' => $user->getKey(), 'code_hash' => Hash::make($code)], $codes);
 
         $this->write->run([$user], function () use ($user, $rows): void {
-            RecoveryCode::query()->where('user_id', $user->getKey())->delete();
+            $this->clear($user);
             RecoveryCode::query()->insert($rows);
         });
 
         return $codes;
+    }
+
+    public function clear(User $user): int
+    {
+        return RecoveryCode::query()->where('user_id', $user->getKey())->delete();
     }
 
     public function consume(User $user, string $code): bool

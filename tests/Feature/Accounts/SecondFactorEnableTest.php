@@ -72,7 +72,7 @@ class SecondFactorEnableTest extends TestCase
         $user = $this->user();
         $started = $this->service()->begin($user, self::PASSWORD);
 
-        $this->service()->confirm($user, $this->code($started['secret']));
+        $this->service()->confirm($user, $this->code($started['secret']), 'this-session');
 
         $this->assertNotNull($user->fresh()?->two_factor_confirmed_at);
     }
@@ -83,7 +83,7 @@ class SecondFactorEnableTest extends TestCase
         $started = $this->service()->begin($user, self::PASSWORD);
 
         try {
-            $this->service()->confirm($user, $this->wrongCode($started['secret']));
+            $this->service()->confirm($user, $this->wrongCode($started['secret']), 'this-session');
             $this->fail('The wrong code was accepted.');
         } catch (ValidationException $refusal) {
             $this->assertArrayHasKey('code', $refusal->errors());
@@ -96,14 +96,14 @@ class SecondFactorEnableTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $this->service()->confirm($this->user(), '000000');
+        $this->service()->confirm($this->user(), '000000', 'this-session');
     }
 
     public function test_starting_again_while_the_factor_is_active_is_refused(): void
     {
         $user = $this->user();
         $started = $this->service()->begin($user, self::PASSWORD);
-        $this->service()->confirm($user, $this->code($started['secret']));
+        $this->service()->confirm($user, $this->code($started['secret']), 'this-session');
 
         $this->expectException(ValidationException::class);
 
@@ -114,11 +114,11 @@ class SecondFactorEnableTest extends TestCase
     {
         $user = $this->user();
         $started = $this->service()->begin($user, self::PASSWORD);
-        $this->service()->confirm($user, $this->code($started['secret']));
+        $this->service()->confirm($user, $this->code($started['secret']), 'this-session');
         $confirmed = $user->fresh()?->two_factor_confirmed_at;
 
         try {
-            $this->service()->confirm($user, $this->code($started['secret']));
+            $this->service()->confirm($user, $this->code($started['secret']), 'this-session');
             $this->fail('The second confirmation was accepted.');
         } catch (ValidationException $refusal) {
             $this->assertSame(['Tweede factor staat al aan'], $refusal->errors()['rule']);

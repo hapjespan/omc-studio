@@ -25,6 +25,7 @@ class SecondFactorService
         private readonly RecoveryCodes $codes,
         private readonly SerialisedWrite $write,
         private readonly TotpVerifier $verifier,
+        private readonly SessionTerminator $sessions,
     ) {}
 
     /** @return array{secret: string, qr: string} */
@@ -36,14 +37,13 @@ class SecondFactorService
             throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
         }
 
-        $secret = $this->google->generateSecretKey();
-        $user->fill(['two_factor_secret' => $secret])->save();
+        $user->fill(['two_factor_secret' => $this->google->generateSecretKey()])->save();
 
-        return ['secret' => $secret, 'qr' => $this->qrCode($user, $secret)];
+        return $this->pair($user);
     }
 
     /** @return list<string> */
-    public function confirm(User $user, string $code): array
+    public function confirm(User $user, string $code, string $currentSessionId): array
     {
         if ($user->two_factor_confirmed_at !== null) {
             throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
@@ -57,15 +57,63 @@ class SecondFactorService
             throw ValidationException::withMessages(['code' => __('second_factor.code_invalid')]);
         }
 
-        return $this->write->run([$user], function () use ($user): array {
+        $ended = 0;
+
+        $codes = $this->write->run([$user], function () use ($user, $currentSessionId, &$ended): array {
             if ($user->getAttribute('two_factor_confirmed_at') !== null) {
                 throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
             }
 
             $user->fill(['two_factor_confirmed_at' => Carbon::now()])->save();
+            $fresh = $this->codes->regenerate($user);
+            $ended = $this->sessions->endOthers($user, $currentSessionId);
 
-            return $this->codes->regenerate($user);
+            return $fresh;
         });
+
+        $this->record('second_factor_enabled', $user, $ended);
+
+        return $codes;
+    }
+
+    /** @return list<string> */
+    public function regenerate(User $user, string $password, string $currentSessionId): array
+    {
+        $this->requirePassword($user, $password);
+        $ended = 0;
+
+        $codes = $this->write->run([$user], function () use ($user, $currentSessionId, &$ended): array {
+            $this->requireActive($user);
+            $fresh = $this->codes->regenerate($user);
+            $ended = $this->sessions->endOthers($user, $currentSessionId);
+
+            return $fresh;
+        });
+
+        $this->record('recovery_codes_regenerated', $user, $ended);
+
+        return $codes;
+    }
+
+    public function disable(User $user, string $password, string $currentSessionId): void
+    {
+        $this->requirePassword($user, $password);
+
+        $ended = $this->write->run([$user], function () use ($user, $currentSessionId): int {
+            $this->requireActive($user);
+
+            $user->fill([
+                'two_factor_secret' => null,
+                'two_factor_confirmed_at' => null,
+                'two_factor_last_time_step' => null,
+            ])->save();
+
+            $this->codes->clear($user);
+
+            return $this->sessions->endOthers($user, $currentSessionId);
+        });
+
+        $this->record('second_factor_disabled', $user, $ended);
     }
 
     public function requirePassword(User $user, string $password): void
@@ -91,11 +139,25 @@ class SecondFactorService
         $throttle->clear($identifier);
     }
 
-    private function qrCode(User $user, string $secret): string
+    private function requireActive(User $user): void
     {
+        if ($user->getAttribute('two_factor_confirmed_at') === null) {
+            throw ValidationException::withMessages(['rule' => __('second_factor.not_active')]);
+        }
+    }
+
+    private function record(string $event, User $user, int $ended): void
+    {
+        SecurityLog::record($event, ['user_id' => $user->getKey(), 'sessions_ended' => $ended]);
+    }
+
+    /** @return array{secret: string, qr: string} */
+    private function pair(User $user): array
+    {
+        $secret = (string) $user->two_factor_secret;
         $url = $this->google->getQRCodeUrl((string) config('app.name'), (string) $user->email, $secret);
         $writer = new Writer(new ImageRenderer(new RendererStyle(self::QR_SIZE), new SvgImageBackEnd));
 
-        return 'data:image/svg+xml;base64,'.base64_encode($writer->writeString($url));
+        return ['secret' => $secret, 'qr' => 'data:image/svg+xml;base64,'.base64_encode($writer->writeString($url))];
     }
 }

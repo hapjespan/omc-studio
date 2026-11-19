@@ -113,7 +113,7 @@ class RecoveryCodesTest extends TestCase
         $started = $service->begin($user, 'a-long-enough-secret');
         $google = new Google2FA;
 
-        $codes = $service->confirm($user, $google->oathTotp($started['secret'], $google->getTimestamp()));
+        $codes = $service->confirm($user, $google->oathTotp($started['secret'], $google->getTimestamp()), 'this-session');
 
         $this->assertCount(8, $codes);
         $this->assertSame(8, $this->codes()->remaining($user));
