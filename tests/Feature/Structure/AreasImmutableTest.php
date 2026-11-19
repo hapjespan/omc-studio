@@ -10,7 +10,7 @@ class AreasImmutableTest extends TestCase
 {
     public function test_no_route_creates_renames_reorders_or_deletes_an_area(): void
     {
-        foreach (Route::getRoutes() as $route) {
+        foreach (Route::getRoutes()->getRoutes() as $route) {
             $this->assertDoesNotMatchRegularExpression('#(^|/)areas?(/|$|\{)#', $route->uri(), $route->uri());
             $this->assertStringNotContainsString('AreaController', $route->getActionName());
         }
