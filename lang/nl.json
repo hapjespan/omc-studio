@@ -372,5 +372,7 @@
     "entry.texts": "1 tekst|:count teksten",
     "entry.areas": "Areas",
     "templates.name_taken": "Naam: dit sjabloon bestaat al",
-    "templates.saved": "Sjabloon opgeslagen"
+    "templates.saved": "Sjabloon opgeslagen",
+    "templates.renamed": "Sjabloon hernoemd",
+    "templates.deleted": "Sjabloon verwijderd"
 }

@@ -435,6 +435,9 @@
   "T122": {
     "built_by": "claude-sonnet-5-5"
   },
+  "T123": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T126": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
