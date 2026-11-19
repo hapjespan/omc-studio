@@ -32,8 +32,10 @@ function luminance(hex: string): number {
 
 function contrast(one: string, other: string): number {
     const [high, low] = [luminance(one), luminance(other)].sort((a, b) => b - a);
-    return Math.round(((high + 0.05) / (low + 0.05)) * 10) / 10;
+    return (high + 0.05) / (low + 0.05);
 }
+
+const rounded = (ratio: number): number => Math.round(ratio * 10) / 10;
 
 const tokens = theme();
 const white = '#ffffff';
@@ -80,11 +82,16 @@ const ratios: [string, string, string, number, number][] = [
     ['warning text on its callout', 'color-warning', 'color-warning-soft', 4.5, 5.8],
     ['success text on white', 'color-success', white, 4.5, 5.3],
     ['danger text on white', 'color-danger', white, 4.5, 7.3],
-    ['the focus accent on white', 'color-accent', white, 3, 6],
+    ['the selection accent on white', 'color-accent', white, 3, 6],
     ['a control border on white', 'color-edge', white, 3, 3.4],
     ['a control border on the page', 'color-edge', 'color-page', 3, 3.1],
     ['a dashed border on white', 'color-dashed', white, 3, 3.2],
     ['a danger outline on white', 'color-danger-edge', white, 3, 4],
+    ['success text on its callout', 'color-success', 'color-success-soft', 4.5, 4.7],
+    ['secondary text on the page', 'color-secondary', 'color-page', 4.5, 7.8],
+    ['secondary text on a panel surface', 'color-secondary', 'color-surface', 4.5, 8.1],
+    ['muted text on a panel surface', 'color-muted', 'color-surface', 4.5, 5.3],
+    ['ink on a panel surface', 'color-ink', 'color-surface', 4.5, 16.1],
 ];
 
 describe('design tokens', () => {
@@ -100,7 +107,12 @@ describe('design tokens', () => {
     it.each(ratios)('keeps %s readable', (_label, foreground, background, minimum, documented) => {
         const measured = contrast(foreground.startsWith('#') ? foreground : value(foreground), background.startsWith('#') ? background : value(background));
         expect(measured).toBeGreaterThanOrEqual(minimum);
-        expect(measured).toBe(documented);
+        expect(rounded(measured)).toBe(documented);
+    });
+
+    it('keeps the dashed add line off the page and the panel surface, where it misses 3:1', () => {
+        expect(contrast(value('color-dashed'), value('color-page'))).toBeLessThan(3);
+        expect(contrast(value('color-dashed'), value('color-surface'))).toBeLessThan(3);
     });
 
     it('carries no navy left over from before the contract', () => {

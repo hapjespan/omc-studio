@@ -1,4 +1,5 @@
 import type { Locator } from '@playwright/test';
+import { openEntry, seedEntryCanvas } from '../support/entry';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { createCanvas, signInAs } from '../support/shell';
 
@@ -7,7 +8,7 @@ const styleOf = (locator: Locator, property: string): Promise<string> => locator
 test('the page carries the fonts, the page background and the one row top bar of the contract', async ({ page }) => {
     await signInAs(page, 'administrator');
 
-    expect(await styleOf(page.locator('body'), 'font-family')).toMatch(/^Inter/);
+    expect(await styleOf(page.locator('body'), 'font-family')).toMatch(/^"?Inter/);
     expect(await styleOf(page.getByRole('heading', { level: 1 }), 'font-family')).toMatch(/^"?Space Grotesk/);
     expect(await styleOf(page.locator('body'), 'background-color')).toBe('rgb(242, 243, 241)');
 
@@ -41,4 +42,14 @@ test('a control is 36 pixels high with the border colour of the contract', async
     const field = page.locator('#current_password');
     expect((await field.boundingBox())?.height).toBe(36);
     expect(await styleOf(field, 'border-top-color')).toBe('rgb(132, 139, 149)');
+});
+
+test('an icon button measures 28 by 28 and keeps its name', async ({ page }) => {
+    const canvas = seedEntryCanvas('primary_activities', [['domain', 'Inkoop'], ['activity', 'Werving', 'Inkoop'], ['activity', 'Selectie', 'Inkoop']]);
+    await openEntry(page, canvas);
+
+    const arrow = page.getByRole('button', { name: 'Selectie omhoog' });
+    const box = await arrow.boundingBox();
+    expect(box?.width).toBe(28);
+    expect(box?.height).toBe(28);
 });
