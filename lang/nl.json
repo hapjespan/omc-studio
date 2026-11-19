@@ -380,5 +380,7 @@
     "view.modality.common": "Common",
     "view.modality.adaptive": "Adaptive",
     "view.modality.specialized": "Specialized",
-    "view.modality.distinct": "Distinct"
+    "view.modality.distinct": "Distinct",
+    "view.edge": "Rand A3",
+    "view.overflow": "Niet alles past op het A3-tekenvlak: :count blokken vallen erbuiten"
 }

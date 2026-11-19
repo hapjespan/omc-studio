@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
+import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
@@ -42,6 +43,7 @@ const fit = (): void => {
 <template>
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
+    <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
     <div ref="scroller" class="mt-3 max-h-[calc(100vh-14rem)] overflow-auto">
         <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" @select="select" />

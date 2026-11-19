@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { t } from '../i18n';
 import { ARTBOARD } from '../layout';
 import type { DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
+import ArtboardEdge from './ArtboardEdge.vue';
 import Block from './Block.vue';
 import { contentHeight } from './extent';
 import { isNavigationKey, navigate } from './treeNavigation';
@@ -43,6 +44,7 @@ const blocks = computed(() => props.drawn.blocks);
 <template>
     <div class="relative" :style="{ width: `${ARTBOARD.width * scale}px`, height: `${height * scale}px` }">
     <div class="absolute left-0 top-0 origin-top-left" :style="{ width: `${ARTBOARD.width}px`, height: `${height}px`, transform: `scale(${scale})` }" ref="artboard" data-artboard @keydown="move">
+        <ArtboardEdge :height="height" />
         <Block
             v-for="block in blocks"
             :key="block.id"
