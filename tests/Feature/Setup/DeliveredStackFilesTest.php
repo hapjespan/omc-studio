@@ -76,8 +76,8 @@ class DeliveredStackFilesTest extends TestCase
     {
         $dockerfile = $this->read('Dockerfile');
 
-        $this->assertStringContainsString('upload_max_filesize=50M', $dockerfile);
-        $this->assertStringContainsString('post_max_size=55M', $dockerfile);
+        $this->assertStringContainsString('upload_max_filesize=51M', $dockerfile);
+        $this->assertStringContainsString('post_max_size=56M', $dockerfile);
     }
 
     public function test_the_writable_directories_exist_before_the_autoload_scripts_run(): void
