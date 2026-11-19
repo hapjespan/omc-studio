@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { t } from '../../i18n';
+import SaveTemplateButton from './SaveTemplateButton.vue';
 
 interface EntryArea {
     key: string;
@@ -20,6 +21,7 @@ const area = computed(() => props.areas.find(({ key }) => key === current.value)
     <Head :title="canvas.name" />
     <header class="flex items-center gap-4">
         <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
+        <SaveTemplateButton />
     </header>
     <div class="mt-4 flex gap-4">
         <nav :aria-label="t('entry.areas')" class="w-[216px] shrink-0">

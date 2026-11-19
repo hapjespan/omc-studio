@@ -2,10 +2,12 @@
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import CanvasDialogs from './Overview/CanvasDialogs.vue';
+import TemplateDialogs from './Overview/TemplateDialogs.vue';
 import Templates from './Overview/Templates.vue';
 import type { DialogKind } from './Overview/CanvasDialogs.vue';
 import CanvasCard from '../canvas/CanvasCard.vue';
 import type { CardCanvas } from '../canvas/CanvasCard.vue';
+import type { CardAction } from '../canvas/CardMenu.vue';
 import { announce } from '../components/feedback/status';
 import ArchiveToggle from '../components/list/ArchiveToggle.vue';
 import { t } from '../i18n';
@@ -40,9 +42,15 @@ const settle = async (): Promise<void> => {
 };
 const dialogs = ref<InstanceType<typeof CanvasDialogs>>();
 const organisationOptions = (): { id: number; name: string }[] => props.organisations.map(({ id, name }) => ({ id, name }));
-const openDialog = (kind: DialogKind | 'restore', canvas: CardCanvas | null, organisationId: number | null): void => {
-    if (kind === 'restore' && canvas) router.post(routes.canvasRestore(canvas.id), {}, { preserveScroll: true, onSuccess: settle });
-    else if (kind !== 'restore') dialogs.value?.show(kind, canvas && organisationId ? { id: canvas.id, name: canvas.name, organisationId, counts: canvas.counts } : null);
+const templateDialogs = ref<InstanceType<typeof TemplateDialogs>>();
+const openTemplateDialog = (action: CardAction, template: CardCanvas): void => {
+    const target = { id: template.id, name: template.name, counts: template.counts };
+    if (action === 'rename' || action === 'delete') templateDialogs.value?.show(action, target);
+};
+const openDialog = (kind: DialogKind | 'restore' | 'save_template', canvas: CardCanvas | null, organisationId: number | null): void => {
+    if (kind === 'save_template' && canvas) templateDialogs.value?.show('save', { id: canvas.id, name: canvas.name, counts: null });
+    else if (kind === 'restore' && canvas) router.post(routes.canvasRestore(canvas.id), {}, { preserveScroll: true, onSuccess: settle });
+    else if (kind !== 'restore' && kind !== 'save_template') dialogs.value?.show(kind, canvas && organisationId ? { id: canvas.id, name: canvas.name, organisationId, counts: canvas.counts } : null);
 };
 
 const toggle = (archived: boolean): void => router.get(routes.overview(), archived ? { archived: 1 } : {}, { preserveState: true, preserveScroll: true, replace: true });
@@ -64,6 +72,7 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
             </li>
         </ul>
     </section>
-    <Templates v-if="canWrite" :cards="templateCards" :layout="layout" :measurer="measurer" />
+    <Templates v-if="canWrite" :cards="templateCards" :layout="layout" :measurer="measurer" @action="openTemplateDialog" />
+    <TemplateDialogs v-if="canWrite" ref="templateDialogs" @done="settle" />
     <CanvasDialogs v-if="canWrite" ref="dialogs" @done="settle" :organisations="organisationOptions()" :templates="templates" />
 </template>

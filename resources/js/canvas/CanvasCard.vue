@@ -20,7 +20,7 @@ export interface CardCanvas {
     statements: CanvasLayoutInput['statements'];
 }
 
-const props = defineProps<{ canvas: CardCanvas; layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>; measurer: TextMeasurer | null; canWrite?: boolean }>();
+const props = defineProps<{ canvas: CardCanvas; layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>; measurer: TextMeasurer | null; canWrite?: boolean; template?: boolean }>();
 const emit = defineEmits<{ action: [action: CardAction, canvas: CardCanvas] }>();
 const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements }, props.measurer) : null));
 </script>
@@ -36,6 +36,6 @@ const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.la
             <span v-if="canvas.archived" class="font-semibold">{{ t('overview.archived_badge') }}. </span>
             <span v-if="canvas.updated_at">{{ t('overview.updated', { date: formatDate(canvas.updated_at) }) }}</span>
         </p>
-        <CardMenu v-if="canWrite" :name="canvas.name" :archived="canvas.archived" @select="emit('action', $event, canvas)" />
+        <CardMenu v-if="canWrite" :name="canvas.name" :archived="canvas.archived" :template="template" @select="emit('action', $event, canvas)" />
     </article>
 </template>
