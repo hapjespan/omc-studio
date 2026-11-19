@@ -140,5 +140,10 @@
     "second_factor.download": "Downloaden als tekstbestand",
     "second_factor.download_name": "herstelcodes.txt",
     "second_factor.codes_renewed": "Nieuwe herstelcodes aangemaakt",
-    "second_factor.qr_alt": "QR-code met de sleutel die hieronder als tekst staat"
+    "second_factor.qr_alt": "QR-code met de sleutel die hieronder als tekst staat",
+    "reauth.title": "Je sessie eindigt over 10 minuten",
+    "reauth.intro": "Bevestig je wachtwoord om door te werken",
+    "reauth.submit": "Doorwerken",
+    "reauth.password_wrong": "Wachtwoord: dit wachtwoord is onjuist",
+    "reauth.renewed": "Je sessie is verlengd"
 }

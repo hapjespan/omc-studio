@@ -15,11 +15,22 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'auth' => ['role' => $request->user()?->role?->value],
+            'auth' => [
+                'role' => $request->user()?->role?->value,
+                'secondFactor' => $request->user()?->two_factor_confirmed_at !== null,
+                'sessionEndsAt' => $this->sessionEndsAt($request),
+            ],
             'appName' => config('app.name'),
             'canvas' => $this->canvas($request),
             'flash' => ['status' => $request->session()->get('status')],
         ];
+    }
+
+    private function sessionEndsAt(Request $request): ?int
+    {
+        $signedInAt = $request->session()->get('signed_in_at');
+
+        return $request->user() === null || $signedInAt === null ? null : (int) $signedInAt + SessionLifetime::LIMIT;
     }
 
     /** @return array<string, mixed>|null */

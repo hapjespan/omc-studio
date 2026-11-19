@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\ReauthenticateController;
 use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
@@ -48,4 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/account/second-factor/confirm', [SecondFactorController::class, 'confirm']);
     Route::post('/account/second-factor/recovery-codes', [SecondFactorController::class, 'recoveryCodes']);
     Route::delete('/account/second-factor', [SecondFactorController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/session/reauthenticate', ReauthenticateController::class);
 });
