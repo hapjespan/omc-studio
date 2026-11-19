@@ -17,10 +17,9 @@ describe('tabs', () => {
         expect(keys('reader', true)).toEqual(['canvas']);
     });
 
-    it('registers no tab of a later delivery in D1', () => {
+    it('registers no tab of delivery 3', () => {
         const all = [...keys('administrator', true), ...keys('administrator', false)];
 
-        expect(all).not.toContain('allocate');
         expect(all).not.toContain('versions');
     });
 
