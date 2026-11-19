@@ -301,5 +301,12 @@
     "canvas_lifecycle.renamed": "Canvas hernoemd",
     "canvas_lifecycle.archived": "Canvas gearchiveerd",
     "canvas_lifecycle.restored": "Canvas teruggezet",
-    "canvas_lifecycle.deleted": "Canvas verwijderd"
+    "canvas_lifecycle.deleted": "Canvas verwijderd",
+    "overview.mission": "Missie",
+    "overview.vision": "Visie",
+    "overview.goals": "Doelen",
+    "overview.empty_organisation": "Deze organisatie heeft nog geen canvassen",
+    "overview.updated": "Laatst gewijzigd :date",
+    "overview.archived_badge": "Gearchiveerd",
+    "overview.new_canvas": "Nieuw canvas"
 }

@@ -17,10 +17,10 @@ use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\OrganisationLogoController;
+use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
     Route::get('/sign-in', [SignInController::class, 'create'])->name('login');
@@ -28,7 +28,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', fn () => Inertia::render('Home'));
+    Route::get('/', OverviewController::class);
+    Route::get('/overview', OverviewController::class);
     Route::post('/sign-out', SignOutController::class);
     Route::get('/password/new', [NewPasswordController::class, 'create']);
     Route::put('/password/new', [NewPasswordController::class, 'update']);
