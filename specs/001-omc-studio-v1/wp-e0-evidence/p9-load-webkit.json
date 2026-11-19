@@ -1,0 +1,97 @@
+{
+  "machine": {
+    "cpu": "unknown",
+    "arch": "arm64",
+    "cores": 11,
+    "memoryGigabytes": 7.7,
+    "kernel": "Linux version 7.0.14-linuxkit (root@buildkitsandbox) (gcc (A",
+    "browser": "webkit 27.2",
+    "note": "container in a virtual machine, headless, software rendering; not an ordinary laptop"
+  },
+  "scene": {
+    "samples": [
+      {
+        "wall": 375,
+        "readyAt": 345,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
+        "wall": 370,
+        "readyAt": 328,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      },
+      {
+        "wall": 348,
+        "readyAt": 316,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      },
+      {
+        "wall": 348,
+        "readyAt": 325,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
+        "wall": 363,
+        "readyAt": 327,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      }
+    ],
+    "medianReadyMs": 327,
+    "maxReadyMs": 345,
+    "maxWallMs": 375,
+    "maxActionMs": 1
+  },
+  "bulk-500": {
+    "samples": [
+      {
+        "wall": 523,
+        "readyAt": 480,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
+        "wall": 442,
+        "readyAt": 404,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      },
+      {
+        "wall": 448,
+        "readyAt": 412,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
+        "wall": 462,
+        "readyAt": 412,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
+        "wall": 545,
+        "readyAt": 496,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      }
+    ],
+    "medianReadyMs": 412,
+    "maxReadyMs": 496,
+    "maxWallMs": 545,
+    "maxActionMs": 1
+  }
+}
