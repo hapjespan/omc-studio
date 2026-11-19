@@ -8,8 +8,7 @@ import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { descendantNames, NAME_LIMIT, type EntryElement } from './entry';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[] }>();
-const emit = defineEmits<{ gone: [kind: 'archived' | 'deleted', name: string] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
 const refusal = ref('');
 const archiving = ref(false);
 const deleting = ref(false);
@@ -23,7 +22,7 @@ const refused = (errors: Record<string, string>): void => {
 };
 const outcome = (key: string) => () => {
     refusal.value = '';
-    emit('gone', key === 'deleted' ? 'deleted' : 'archived', props.element.name);
+    props.gone(key === 'deleted' ? 'deleted' : 'archived', props.element.name);
     void announce(t(`entry.${key}`, { name: props.element.name }));
 };
 
