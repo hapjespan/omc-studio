@@ -4,26 +4,27 @@ namespace App\Services\Exchange;
 
 use App\Models\Canvas;
 use App\Models\Organisation;
+use App\Services\Exchange\Concerns\CollectsFileErrors;
 use App\Services\Snapshot\SnapshotContent;
-use DateTimeImmutable;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use JsonException;
 
 class FullImportValidator
 {
-    public const DEPTH = 64;
+    use CollectsFileErrors;
 
-    private const MAX_ERRORS = 1000;
+    public const DEPTH = 64;
 
     private const NAME = 150;
 
+    private const TEXT = 2000;
+
+    private const CHECKSUM = 64;
+
+    private const YEARS = [2000, 2100];
+
     private const STUB = ['statements' => [], 'elements' => [], 'layout' => null, 'allocation_sets' => [], 'finalised_years' => []];
-
-    /** @var list<array{location: string, message: string}> */
-    private array $errors = [];
-
-    private int $count = 0;
 
     /** @var array<string, bool> */
     private array $recordIds = [];
@@ -71,17 +72,24 @@ class FullImportValidator
 
         return [
             'name' => $name,
-            'archived_at' => $entry['archived_at'] ?? null,
+            'archived_at' => $this->utc($entry['archived_at'] ?? null),
             'data' => $result['data'],
-            'canvases' => $this->canvases($entry['canvases'], $at),
+            'canvases' => $this->canvases($entry['canvases'], $at, $this->years($result['data']['organisation']['fiscal_years'] ?? null)),
         ];
+    }
+
+    /** @return list<int> */
+    private function years(mixed $node): array
+    {
+        return array_values(array_filter(is_array($node) ? $node : [], fn (mixed $year) => is_int($year) && $year >= self::YEARS[0] && $year <= self::YEARS[1]));
     }
 
     /**
      * @param  list<array<string, mixed>>  $canvases
+     * @param  list<int>  $years
      * @return list<array<string, mixed>>
      */
-    private function canvases(array $canvases, string $at): array
+    private function canvases(array $canvases, string $at, array $years): array
     {
         $prepared = [];
         $names = [];
@@ -98,17 +106,20 @@ class FullImportValidator
 
             $prepared[] = [
                 'name' => $name,
-                'archived_at' => $canvas['archived_at'] ?? null,
+                'archived_at' => $this->utc($canvas['archived_at'] ?? null),
                 'block' => $result['canvas'],
-                'snapshots' => $this->snapshots($canvas['snapshots'] ?? [], $where.'.snapshots'),
+                'snapshots' => $this->snapshots($canvas['snapshots'] ?? [], $where.'.snapshots', $years),
             ];
         }
 
         return $prepared;
     }
 
-    /** @return list<array<string, mixed>> */
-    private function snapshots(mixed $node, string $at): array
+    /**
+     * @param  list<int>  $years
+     * @return list<array<string, mixed>>
+     */
+    private function snapshots(mixed $node, string $at, array $years): array
     {
         $prepared = [];
 
@@ -120,40 +131,62 @@ class FullImportValidator
 
         foreach ($node as $index => $snapshot) {
             $where = $at.'['.$index.']';
-            $name = is_array($snapshot) ? ($snapshot['name'] ?? null) : null;
-            $content = is_array($snapshot) ? ($snapshot['content'] ?? null) : null;
-            $checksum = is_array($snapshot) ? ($snapshot['checksum'] ?? null) : null;
-            $remark = is_array($snapshot) ? ($snapshot['remark'] ?? null) : null;
 
-            $sound = $this->flag(is_array($snapshot), $where, 'jsonx.not_object')
-                && $this->flag(is_string($name) && trim($name) !== '' && mb_strlen(trim($name)) <= self::NAME, $where.'.name', 'jsonx.required')
-                && $this->flag(is_int($snapshot['fiscal_year'] ?? null) && is_int($snapshot['schema_version'] ?? null), $where.'.fiscal_year', 'jsonx.unknown_value')
-                && $this->flag($remark === null || is_string($remark), $where.'.remark', 'jsonx.not_text')
-                && $this->flag(is_array($content) && is_string($checksum), $where.'.content', 'jsonx.not_object')
-                && $this->moment($snapshot['created_at'] ?? null, $where.'.created_at', true)
-                && $this->moment($snapshot['archived_at'] ?? null, $where.'.archived_at');
+            if (! is_array($snapshot)) {
+                $this->fail($where, 'jsonx.not_object');
 
-            if (! $sound) {
                 continue;
             }
 
-            $encoded = $this->content->encode($content);
-
-            hash_equals($checksum, $this->content->checksum($encoded)) || $this->refuse('fullx.snapshot_damaged', ['name' => trim((string) $name)]);
-
-            $prepared[] = [
-                'name' => trim((string) $name),
-                'fiscal_year' => $snapshot['fiscal_year'],
-                'remark' => $remark,
-                'created_at' => $snapshot['created_at'],
-                'archived_at' => $snapshot['archived_at'] ?? null,
-                'schema_version' => $snapshot['schema_version'],
-                'content' => $encoded,
-                'checksum' => $checksum,
-            ];
+            $row = $this->snapshot($snapshot, $where, $years);
+            $row === null || $prepared[] = $row;
         }
 
         return $prepared;
+    }
+
+    /**
+     * @param  array<string, mixed>  $snapshot
+     * @param  list<int>  $years
+     * @return ?array<string, mixed>
+     */
+    private function snapshot(array $snapshot, string $at, array $years): ?array
+    {
+        $name = $snapshot['name'] ?? null;
+        $content = $snapshot['content'] ?? null;
+        $checksum = $snapshot['checksum'] ?? null;
+
+        $sound = $this->text($name, $at.'.name', self::NAME, true);
+        $sound = $this->text($snapshot['remark'] ?? null, $at.'.remark', self::TEXT) && $sound;
+        $sound = $this->flag(in_array($snapshot['fiscal_year'] ?? null, $years, true), $at.'.fiscal_year', 'jsonx.year_unknown') && $sound;
+        $sound = $this->flag(($snapshot['schema_version'] ?? null) === SnapshotContent::SCHEMA_VERSION, $at.'.schema_version', 'jsonx.unknown_value') && $sound;
+        $sound = $this->flag(is_string($checksum) && strlen($checksum) === self::CHECKSUM, $at.'.checksum', 'jsonx.unknown_value') && $sound;
+        $sound = $this->flag(is_array($content) && $content !== [], $at.'.content', 'jsonx.not_object') && $sound;
+        $sound = $this->moment($snapshot['created_at'] ?? null, $at.'.created_at', true) && $sound;
+        $sound = $this->moment($snapshot['archived_at'] ?? null, $at.'.archived_at') && $sound;
+
+        if (! $sound) {
+            return null;
+        }
+
+        $encoded = $this->content->encode($content);
+
+        if (! hash_equals((string) $checksum, $this->content->checksum($encoded))) {
+            $this->fail($at.'.checksum', 'fullx.snapshot_damaged', ['name' => trim((string) $name)]);
+
+            return null;
+        }
+
+        return [
+            'name' => trim((string) $name),
+            'fiscal_year' => $snapshot['fiscal_year'],
+            'remark' => is_string($snapshot['remark'] ?? null) ? trim($snapshot['remark']) : null,
+            'created_at' => $this->utc($snapshot['created_at']),
+            'archived_at' => $this->utc($snapshot['archived_at'] ?? null),
+            'schema_version' => $snapshot['schema_version'],
+            'content' => $encoded,
+            'checksum' => $checksum,
+        ];
     }
 
     /**
@@ -269,47 +302,14 @@ class FullImportValidator
         $this->count += $count;
 
         foreach ($errors as $error) {
-            $location = str_starts_with($error['location'], 'canvas.') ? substr($error['location'], 7) : $error['location'];
-            count($this->errors) < self::MAX_ERRORS && $this->errors[] = ['location' => $at.$location, 'message' => $error['message']];
+            $location = $at.(str_starts_with($error['location'], 'canvas.') ? substr($error['location'], 7) : $error['location']);
+            count($this->errors) < self::MAX_ERRORS && $this->errors[] = ['location' => $location, 'message' => str_replace($error['location'], $location, $error['message'])];
         }
     }
 
     /** @param array<string, bool> $seen */
-    private function once(string $key, array &$seen): bool
-    {
-        if (isset($seen[$key])) {
-            return false;
-        }
-
-        $seen[$key] = true;
-
-        return true;
-    }
-
-    private function moment(mixed $value, string $location, bool $required = false): bool
-    {
-        if ($value === null) {
-            return $required ? $this->flag(false, $location, 'jsonx.required') : true;
-        }
-
-        $date = is_string($value) ? DateTimeImmutable::createFromFormat(DATE_ATOM, $value) : false;
-
-        return $this->flag($date !== false && $date->format(DATE_ATOM) === $value, $location, 'jsonx.date_invalid');
-    }
-
-    private function flag(bool $sound, string $location, string $key): bool
-    {
-        $sound || $this->fail($location, $key);
-
-        return $sound;
-    }
 
     /** @param array<string, int|string> $replace */
-    private function fail(string $location, string $key, array $replace = []): void
-    {
-        $this->count++;
-        count($this->errors) < self::MAX_ERRORS && $this->errors[] = ['location' => $location, 'message' => (string) __($key, ['location' => $location, ...$replace])];
-    }
 
     /** @param array<string, int|string> $replace */
     private function refuse(string $key, array $replace = []): never
