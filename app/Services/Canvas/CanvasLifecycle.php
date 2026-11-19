@@ -121,7 +121,7 @@ class CanvasLifecycle
         return $canvas;
     }
 
-    protected function cloneElements(Canvas $source, Canvas $canvas, ?string $parentId = null, ?string $newParentId = null): void
+    public function cloneElements(Canvas $source, Canvas $canvas, ?string $parentId = null, ?string $newParentId = null): void
     {
         $elements = Element::where('canvas_id', $source->getKey())
             ->where('is_unknown_allocation', false)
@@ -141,7 +141,7 @@ class CanvasLifecycle
         }
     }
 
-    protected function cloneStatements(Canvas $source, Canvas $canvas): void
+    public function cloneStatements(Canvas $source, Canvas $canvas): void
     {
         foreach (Statement::where('canvas_id', $source->getKey())->orderBy('position')->get() as $statement) {
             Statement::create([...$statement->only(['kind', 'title', 'body', 'position']), 'canvas_id' => $canvas->getKey()]);

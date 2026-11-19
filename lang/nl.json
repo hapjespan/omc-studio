@@ -370,5 +370,7 @@
     "entry.activities": "1 activiteit|:count activiteiten",
     "entry.groups": "1 groep|:count groepen",
     "entry.texts": "1 tekst|:count teksten",
-    "entry.areas": "Areas"
+    "entry.areas": "Areas",
+    "templates.name_taken": "Naam: dit sjabloon bestaat al",
+    "templates.saved": "Sjabloon opgeslagen"
 }
