@@ -1,0 +1,44 @@
+@page {
+    size: A3 landscape;
+    margin: 0;
+}
+
+@media print {
+    .shell {
+        display: block;
+        min-height: 0;
+    }
+
+    .shell-top,
+    .shell-left,
+    #detail-panel,
+    .shell-main > :not(h1):not([data-scroller]):not([data-overflow-notice]) {
+        display: none !important;
+    }
+
+    .shell-main {
+        padding: 0;
+    }
+
+    [data-scroller] {
+        height: auto !important;
+        overflow: visible !important;
+        margin: 0 !important;
+    }
+
+    [data-scroller] > div {
+        width: auto !important;
+        height: auto !important;
+    }
+
+    [data-artboard] {
+        position: relative !important;
+        transform: none !important;
+        zoom: 0.9448;
+    }
+
+    * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

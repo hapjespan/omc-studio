@@ -10,7 +10,7 @@ test('a Reader sees the three entries and each CSV export states the omitted cou
     await page.goto(`/canvases/${canvas.id}/view`);
 
     await page.getByRole('button', { name: 'Exporteren' }).click();
-    await expect(page.getByRole('menuitem')).toHaveText(['Exporteren als JSON', 'Kostenposten exporteren', 'Toewijzingen exporteren']);
+    await expect(page.getByRole('menuitem')).toHaveText(['Exporteren als JSON', 'Kostenposten exporteren', 'Toewijzingen exporteren', 'Exporteren als PNG', 'Afdrukken']);
 
     const download = page.waitForEvent('download');
     await page.getByRole('menuitem', { name: 'Kostenposten exporteren' }).click();

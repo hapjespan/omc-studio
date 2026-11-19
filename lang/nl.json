@@ -941,5 +941,11 @@
     "csvx.export_allocations": "Toewijzingen exporteren",
     "csvx.omitted": "Niet geëxporteerd: :count kostenposten zonder code",
     "csvx.omitted_none": "Geëxporteerd: alle kostenposten zijn opgenomen",
-    "csvx.export_failed": "Exporteren is niet gelukt"
+    "csvx.export_failed": "Exporteren is niet gelukt",
+    "print.export_png": "Exporteren als PNG",
+    "print.print": "Afdrukken",
+    "print.png_working": "PNG wordt gemaakt",
+    "print.png_done": "PNG is gemaakt",
+    "print.png_failed": "PNG maken is niet gelukt",
+    "print.warning": "Niet alles past op het A3-tekenvlak: :count blokken komen op een volgende pagina"
 }

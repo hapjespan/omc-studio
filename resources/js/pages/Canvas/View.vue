@@ -45,7 +45,7 @@ const fit = (): void => {
 <template>
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
-    <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" class="mt-2" />
+    <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" class="mt-2" />
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
