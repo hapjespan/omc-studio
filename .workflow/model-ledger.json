@@ -97,6 +97,9 @@
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T030": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T031": {
     "built_by": "claude-sonnet-5-5"
   },

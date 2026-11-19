@@ -251,9 +251,12 @@ Per punt staat hieronder wat elke bron zegt, wat er uit de keuze volgt, een advi
   - QS-5: items in Actoren, Kanalen en Waardeproposities mogen met Shift naar een andere groep.
   - QS-6, letterlijk: "een domein alleen schuiven binnen zijn eigen area; Shift verplaatst steeds een blok (cluster of activiteit); een heel domein naar een andere area gaat via Invoeren". Een item is in de code een activiteit in een lijst-area (QS-5), dus het geldt ook voor items.
   - QS-7, letterlijk: "ja, altijd bevestigen; na het loslaten een dialoog 'Verplaatsen naar <doel>?' voordat er iets wordt opgeslagen, ook via de toetsenbordroute". **AFWIJKEND van het advies**. Uit de opdracht bij de antwoorden: annuleren zet het blok terug op zijn oude plek, en de dialoog is met het toetsenbord te bedienen.
-  - Daaruit volgden twee nieuwe vragen. De PO was niet bereikbaar, dus het advies staat er als **AANNAME, nog te bevestigen door de PO**. QS-8: een blok dat breder is dan het doel wordt zo breed als het doel, en dat wordt gemeld. QS-9: undo en redo van een verplaatsing tonen de dialoog ook.
+  - Daaruit volgden twee nieuwe vragen. De PO heeft beide op 2026-11-19 bevestigd zoals ze als aanname stonden (**beslist door PO**). QS-8: een blok dat breder is dan het doel wordt zo breed als het doel, en dat wordt gemeld. QS-9: undo en redo van een verplaatsing tonen de dialoog ook.
 - Status: **beslist door PO, AFWIJKEND** van v1.2 6.5.7, aanvulling H12, K13, 6.2 en 6.3, en van SD-29 voor de Shift-verplaatsing (`[GATE-C53]`).
 
 **54. Buurblokken bij handmatige opmaak.** Krijgt één element in Tekenen handmatige opmaak, wat doen dan zijn broertjes en zusjes met automatische opmaak?
 - Advies was: ze vastzetten op hun plek op dat moment.
 - Status: **beslist door PO, AFWIJKEND van het advies**: ze blijven automatisch en komen onder het laagste handmatige kind. Ze mogen daarbij verspringen (`[GATE-C54]`).
+
+**WP-E0 (2026-11-19).** Go voor Tekenen, drie deelbesluiten: nooit-aangeroepen adres-teksten in de meegebundelde tekenbibliotheek zijn toegestaan (FR-098 aangepast, de netwerktest blijft de harde eis); de verticale tekstverschuiving in Chromium wordt per lettertype gecorrigeerd in de adapter (grens 1 px blijft); de vier audit-meldingen zijn geaccepteerd met de PO als eigenaar.
+- Status: **beslist door PO**, vastgelegd in `docs/adr/0040-wp-e0-decision.md`.

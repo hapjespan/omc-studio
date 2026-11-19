@@ -327,3 +327,13 @@ Please decide, and record the decision through T030 (`docs/adr/0040-wp-e0-decisi
 ## Evidence index
 
 All files are under `specs/001-omc-studio-v1/wp-e0-evidence/`: `p2-scene-<engine>.png`, `p4-latency-<engine>.json`, `p6-network-<engine>.json`, `p6-observation-<engine>.json`, `p6-assets.json`, `p7-<engine>.json`, `p7-canvas-<engine>.png`, `p9-load-<engine>.json`, `p10-<engine>.json`, `p10-label-valid-<engine>.png`, `p10-label-invalid-<engine>.png`. Tests: `tests/js/proof/` (9 files, 42 tests) and `tests/e2e/proof/` (8 files, 36 runs over three engines). Code: `proof/wp-e0/`.
+
+## Decision of the product owner (recorded through T030, 2026-11-19)
+
+**Go for Tekenen (DT).** DT starts after D1, as the task list orders it. Recorded in `docs/adr/0040-wp-e0-decision.md`.
+
+1. **FR-098:** URL strings in the vendored drawing-library code that are never requested are allowed; the asset check is amended to pass them in vendored code and to keep failing application code and any outside request. The network test with no outside request stays the hard requirement. Spec FR-098 is amended.
+2. **P7:** the 0.03 px over the limit in Chromium is solved with a correction per font in the adapter; the limit of 1 px stays and DT must meet it.
+3. **Audit findings:** the four high findings (`image-size` with GHSA-5p2g-fcmc-qvqq and GHSA-w3rx-r6r6-pgpr, `pptxgenjs`, `@open-pencil/core`, `@open-pencil/vue`) are accepted, owner the product owner; an upgrade re-tests them.
+
+Open findings carried into DT as tasks: P1 (build repair and pins T375, audit set T376), P6 asset check (T374), P7 calibration (T377), unbuilt P10 rules (T378). The font files of finding 6 are covered by T101, the keyboard model of finding 7 by T200, the property panel package by T193.

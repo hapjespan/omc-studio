@@ -1,4 +1,4 @@
-# 0040: Memory limit of 256M in the delivered image, for logo re-encoding
+# 0042: Memory limit of 256M in the delivered image, for logo re-encoding
 
 Date: 2026-11-19
 Status: accepted (integrator choice, phase 6, after the delivered-image test run)
