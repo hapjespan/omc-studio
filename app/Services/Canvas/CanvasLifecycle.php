@@ -8,6 +8,7 @@ use App\Models\Element;
 use App\Models\Organisation;
 use App\Models\Statement;
 use App\Services\Audit\AuditContext;
+use App\Services\Audit\AuditRemoval;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Validation\ValidationException;
@@ -19,6 +20,7 @@ class CanvasLifecycle
     public function __construct(
         private readonly SerialisedWrite $writes,
         private readonly AuditContext $context,
+        private readonly AuditRemoval $removal,
     ) {}
 
     public function createFromTemplate(Organisation $organisation, Canvas $template, string $name): Canvas
@@ -58,6 +60,33 @@ class CanvasLifecycle
     public function restore(Canvas $canvas): Canvas
     {
         return $this->stamp($canvas, 'restored', null, fn () => $canvas->archived_at !== null);
+    }
+
+    public function delete(Canvas $canvas, string $typedName): void
+    {
+        $this->writes->run([$canvas], function () use ($canvas, $typedName) {
+            if ($canvas->kind === CanvasKind::Template) {
+                $this->refuse('template_write');
+            }
+
+            if ($typedName !== $canvas->name) {
+                throw ValidationException::withMessages(['confirmation' => __('rule.canvas_confirmation_mismatch')]);
+            }
+
+            $counts = $this->deletionCounts($canvas);
+
+            $canvas->deleteQuietly();
+            $this->removal->purge($canvas, $counts);
+        });
+    }
+
+    /** @return array<string, int> */
+    public function deletionCounts(Canvas $canvas): array
+    {
+        return [
+            'elements' => Element::where('canvas_id', $canvas->getKey())->count(),
+            'statements' => Statement::where('canvas_id', $canvas->getKey())->count(),
+        ];
     }
 
     private function stamp(Canvas $canvas, string $action, mixed $value, callable $applies): Canvas
