@@ -33,6 +33,7 @@ class YearlyFigures
     {
         return $this->writes->run([$record->organisation], function () use ($record, $year, $data) {
             $this->assertWritable($record->organisation);
+            $this->assertCostRecordActive($record);
             $this->finalisedYears->assertOpenInOrganisation($year);
 
             return YearlyFigure::updateOrCreate(
@@ -48,6 +49,7 @@ class YearlyFigures
 
         $this->writes->run([$organisation], function () use ($figure, $organisation) {
             $this->assertWritable($organisation);
+            $this->assertCostRecordActive($figure->costRecord);
             $this->finalisedYears->assertOpenInOrganisation($figure->fiscalYear);
 
             foreach ($this->sets($figure)->with('lines')->get() as $set) {

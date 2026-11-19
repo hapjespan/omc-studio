@@ -289,5 +289,13 @@
     "yearly_figures.reference_date_invalid": "Peildatum: kies een datum",
     "yearly_figures.delete_consequence": "Verwijdert ook :count toewijzingsset|Verwijdert ook :count toewijzingssets",
     "yearly_figures.saved": "Jaarwaarden opgeslagen",
-    "yearly_figures.deleted": "Jaarwaarden verwijderd"
+    "yearly_figures.deleted": "Jaarwaarden verwijderd",
+    "rule.cost_record_archived": "Deze kostenpost is gearchiveerd",
+    "rule.year_finalised_cost_record": ":year is definitief in canvas :canvas. Heropen het jaar eerst, of archiveer de kostenpost",
+    "cost_records.figure_count": ":count jaarwaarde|:count jaarwaarden",
+    "cost_records.set_count": ":count toewijzingsset|:count toewijzingssets",
+    "cost_records.delete_consequence": "Verwijdert ook :figures en :sets",
+    "cost_records.deleted": "Kostenpost verwijderd",
+    "cost_records.archived": "Kostenpost gearchiveerd",
+    "cost_records.restored": "Kostenpost teruggezet"
 }

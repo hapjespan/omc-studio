@@ -17,11 +17,17 @@ class UndoStore
 
     public const ELEMENT_DELETION = 'element_deletion';
 
+    public const COST_RECORD_DELETION = 'cost_record_deletion';
+
     private const LIFETIME_MINUTES = 10;
 
     private const TOKEN_LENGTH = 40;
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly AuditContext $context) {}
+    public function __construct(
+        private readonly SerialisedWrite $writes,
+        private readonly AuditContext $context,
+        private readonly CostRecordUndo $costRecords,
+    ) {}
 
     /** @param array<string, mixed> $payload */
     public function remember(string $kind, array $payload, User $user): string
@@ -53,10 +59,13 @@ class UndoStore
             $this->refuse('undo_unavailable');
         }
 
-        $rows = match ($record->kind) {
-            self::ELEMENT_DELETION => $this->rows($record),
-            default => $this->refuse('undo_unavailable'),
-        };
+        if ($record->kind === self::COST_RECORD_DELETION) {
+            $this->costRecords->restore($record);
+
+            return;
+        }
+
+        $rows = $record->kind === self::ELEMENT_DELETION ? $this->rows($record) : $this->refuse('undo_unavailable');
 
         $canvas = Canvas::query()->whereKey($rows[0]['canvas_id'] ?? null)->first();
 
