@@ -42,6 +42,8 @@ class CanvasImport
      */
     public function preview(string $content, ?Organisation $target, string $canvasName, ?string $organisationName): array
     {
+        $target !== null && $this->assertWritable($target);
+
         $result = $this->check($content, $target, $canvasName, $organisationName);
 
         return ['errors' => $result['errors'], 'count' => $result['count'], 'totals' => $this->totals($result['data'], $result['reused'])];
@@ -126,7 +128,7 @@ class CanvasImport
             FinalisedYear::create([
                 'canvas_id' => $canvas->getKey(),
                 'fiscal_year_id' => $years[$finalised['year']],
-                'finalised_at' => Carbon::parse($finalised['finalised_at']),
+                'finalised_at' => Carbon::parse($finalised['finalised_at'])->utc(),
                 'finalised_by' => null,
             ]);
         }
@@ -348,7 +350,7 @@ class CanvasImport
 
     private function moment(mixed $value): ?string
     {
-        return $value === null ? null : Carbon::parse((string) $value)->toDateTimeString();
+        return $value === null ? null : Carbon::parse((string) $value)->utc()->toDateTimeString();
     }
 
     /**

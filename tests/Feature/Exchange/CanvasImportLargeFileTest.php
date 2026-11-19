@@ -5,6 +5,7 @@ namespace Tests\Feature\Exchange;
 use App\Models\Element;
 use App\Models\Organisation;
 use App\Models\User;
+use App\Services\Exchange\CanvasImportConflicts;
 use App\Services\Exchange\CanvasImportValidator;
 use App\Services\Structure\ElementFields;
 use Illuminate\Http\UploadedFile;
@@ -35,14 +36,14 @@ class CanvasImportLargeFileTest extends ExchangeTestCase
         $this->assertLessThanOrEqual(CanvasImportValidator::MAX_BYTES, strlen($content));
 
         $baseline = DB::transactionLevel();
-        $this->app->bind(CanvasImportValidator::class, fn ($app) => new class($app->make(ElementFields::class), function () {
+        $this->app->bind(CanvasImportValidator::class, fn ($app) => new class($app->make(ElementFields::class), $app->make(CanvasImportConflicts::class), function () {
             $this->levels[] = DB::transactionLevel();
         }) extends CanvasImportValidator
         {
 
-            public function __construct(ElementFields $fields, private readonly \Closure $probe)
+            public function __construct(ElementFields $fields, CanvasImportConflicts $conflicts, private readonly \Closure $probe)
             {
-                parent::__construct($fields);
+                parent::__construct($fields, $conflicts);
             }
 
             public function check(string $content, ?Organisation $target, string $canvasName, ?string $organisationName = null): array

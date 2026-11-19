@@ -3,34 +3,24 @@
 namespace App\Services\Exchange;
 
 use App\Enums\CostKind;
-use App\Enums\ElementKind;
 use App\Enums\StatementKind;
 use App\Models\Area;
-use App\Models\Canvas;
-use App\Models\CostRecord;
-use App\Models\FinalisedYear;
-use App\Models\FiscalYear;
 use App\Models\Modality;
 use App\Models\Organisation;
-use App\Models\YearlyFigure;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
-use App\Rules\ElementName;
 use App\Rules\HexColour;
 use App\Rules\IntegerRange;
-use App\Rules\TrimmedText;
+use App\Services\Exchange\Concerns\ChecksFields;
+use App\Services\Exchange\Concerns\ChecksStructure;
 use App\Services\Structure\ElementFields;
-use Carbon\Carbon;
-use DateTimeImmutable;
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Translation\PotentiallyTranslatedString;
 use JsonException;
 
 class CanvasImportValidator
 {
-    public const MAX_BYTES = 52_428_800;
+    use ChecksFields, ChecksStructure;
 
-    private const MAX_ERRORS = 1000;
+    public const MAX_BYTES = 52_428_800;
 
     private const DEPTH = 16;
 
@@ -48,33 +38,7 @@ class CanvasImportValidator
 
     private const COLOURS = ['fill', 'border_colour', 'text_colour'];
 
-    /** @var list<array{location: string, message: string}> */
-    private array $errors = [];
-
-    private int $count = 0;
-
-    /** @var list<int> */
-    private array $years = [];
-
-    /** @var array<string, bool> */
-    private array $recordIds = [];
-
-    /** @var array<string, string> */
-    private array $areaKinds = [];
-
-    /** @var array<string, bool> */
-    private array $carriers = [];
-
-    /** @var list<string> */
-    private array $importableAreas = [];
-
-    /** @var list<string> */
-    private array $modalities = [];
-
-    /** @var list<string> */
-    private array $icons = [];
-
-    public function __construct(private readonly ElementFields $fields) {}
+    public function __construct(private readonly ElementFields $fields, private readonly CanvasImportConflicts $conflicts) {}
 
     /** @return array{data: ?array<string, mixed>, errors: list<array{location: string, message: string}>, count: int} */
     public function validate(string $content): array
@@ -83,6 +47,9 @@ class CanvasImportValidator
         $this->count = 0;
         $this->years = [];
         $this->recordIds = [];
+        $this->recordYears = [];
+        $this->setYears = [];
+        $this->recordLabels = [];
 
         $data = $this->decode($content);
 
@@ -90,12 +57,23 @@ class CanvasImportValidator
             return ['data' => null, 'errors' => [['location' => 'file', 'message' => __('jsonx.refused_file')]], 'count' => 1];
         }
 
+        $data = CanvasImportShape::apply($data);
+
         $this->reference();
         $this->organisation($data['organisation'] ?? null);
         $this->costRecords($data['cost_records'] ?? null);
         $this->canvas($data['canvas'] ?? null);
 
         return ['data' => $data, 'errors' => $this->errors, 'count' => $this->count];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{errors: list<array{location: string, message: string}>, reused: list<string>}
+     */
+    public function conflicts(array $data, ?Organisation $target, string $canvasName, ?string $organisationName = null): array
+    {
+        return $this->conflicts->find($data, $target, $canvasName, $organisationName);
     }
 
     /**
@@ -118,125 +96,6 @@ class CanvasImportValidator
         }
 
         return [...$result, 'reused' => $reused];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     * @return array{errors: list<array{location: string, message: string}>, reused: list<string>}
-     */
-    public function conflicts(array $data, ?Organisation $target, string $canvasName, ?string $organisationName = null): array
-    {
-        $errors = [];
-        $reused = [];
-        $add = function (string $location, string $key, array $replace = []) use (&$errors) {
-            $errors[] = ['location' => $location, 'message' => __($key, ['location' => $location, ...$replace])];
-        };
-
-        if ($target === null) {
-            $organisationName !== null && Organisation::where('name_normalised', Organisation::normalise($organisationName))->exists() && $add('organisation_name', 'jsonx.organisation_name_taken');
-
-            return ['errors' => $errors, 'reused' => $reused];
-        }
-
-        Canvas::where('scope_key', 'organisation:'.$target->getKey())->where('name_normalised', Canvas::normalise($canvasName))->exists() && $add('canvas_name', 'jsonx.canvas_name_taken');
-
-        $years = FiscalYear::where('organisation_id', $target->getKey())->pluck('year', 'id')->all();
-        $finalised = FinalisedYear::query()
-            ->join('canvases', 'canvases.id', '=', 'finalised_years.canvas_id')
-            ->whereIn('finalised_years.fiscal_year_id', array_keys($years))
-            ->orderByDesc('canvases.id')
-            ->pluck('canvases.name', 'finalised_years.fiscal_year_id')
-            ->mapWithKeys(fn (string $name, int $yearId) => [$years[$yearId] => $name])->all();
-        $existing = CostRecord::with(['owner', 'application', 'yearlyFigures'])->where('organisation_id', $target->getKey())->get();
-        $byId = $existing->keyBy('id');
-        $byCode = $existing->keyBy('code_normalised');
-
-        foreach ($data['cost_records'] as $position => $record) {
-            $at = 'cost_records['.$position.']';
-            $current = $byId->get($record['id']);
-
-            if ($current !== null) {
-                if ($this->signature($current, $years) === $this->fileSignature($record)) {
-                    $reused[] = $record['id'];
-                } else {
-                    $add($at, 'jsonx.cost_record_differs', ['code' => $record['code'] ?? $record['name']]);
-                }
-
-                continue;
-            }
-
-            $code = $record['code'] === null ? null : mb_strtolower(trim($record['code']));
-            $code !== null && $byCode->has($code) && $add($at.'.code', 'jsonx.code_taken', ['code' => $record['code']]);
-
-            foreach ($record['yearly_figures'] as $number => $figure) {
-                isset($finalised[$figure['year']]) && $add($at.'.yearly_figures['.$number.'].year', 'jsonx.year_finalised', ['year' => $figure['year'], 'canvas' => $finalised[$figure['year']]]);
-            }
-        }
-
-        return ['errors' => $errors, 'reused' => $reused];
-    }
-
-    /**
-     * @param  array<int, int>  $years
-     * @return array<string, mixed>
-     */
-    private function signature(CostRecord $record, array $years): array
-    {
-        return $this->normalised([
-            'code' => $record->code,
-            'name' => $record->name,
-            'cost_kind' => $record->cost_kind->value,
-            'supplier' => $record->supplier,
-            'owner' => $record->owner->name,
-            'cost_centre' => $record->cost_centre,
-            'application' => $record->application?->name,
-            'description' => $record->description,
-            'figures' => $record->yearlyFigures->mapWithKeys(fn (YearlyFigure $figure) => [$years[$figure->fiscal_year_id] => [
-                ...$figure->only(['budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths']),
-                'reference_date' => $figure->reference_date?->format('Y-m-d'),
-                'remark' => $figure->remark,
-            ]])->all(),
-        ]);
-    }
-
-    /**
-     * @param  array<string, mixed>  $record
-     * @return array<string, mixed>
-     */
-    private function fileSignature(array $record): array
-    {
-        $keys = ['budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths', 'reference_date', 'remark'];
-
-        return $this->normalised([
-            ...array_intersect_key($record, array_flip(['code', 'name', 'cost_kind', 'supplier', 'owner', 'cost_centre', 'application', 'description'])),
-            'figures' => array_column(array_map(fn (array $figure) => [$figure['year'], array_intersect_key($figure, array_flip($keys))], $record['yearly_figures']), 1, 0),
-        ]);
-    }
-
-    /**
-     * @param  array<string, mixed>  $values
-     * @return array<string, mixed>
-     */
-    private function normalised(array $values): array
-    {
-        ksort($values['figures']);
-
-        foreach ($values['figures'] as &$figure) {
-            $figure = array_map(fn ($value) => $value === '' ? null : $value, $figure);
-            ksort($figure);
-        }
-
-        foreach (['code', 'owner', 'application'] as $key) {
-            $values[$key] = $values[$key] === null ? null : mb_strtolower(trim($values[$key]));
-        }
-
-        foreach (['supplier', 'cost_centre', 'description'] as $key) {
-            $values[$key] = $values[$key] === '' ? null : $values[$key];
-        }
-
-        ksort($values);
-
-        return $values;
     }
 
     /** @return ?array<string, mixed> */
@@ -320,13 +179,15 @@ class CanvasImportValidator
 
             if ($id !== null && $this->unique($id, $at.'.id', $ids)) {
                 $this->recordIds[$id] = true;
+                $this->recordYears[$id] = [];
             }
 
             if ($code !== null) {
                 $this->unique(mb_strtolower(trim($code)), $at.'.code', $codes);
             }
 
-            $this->text($record, 'name', $at.'.name', self::NAME, true);
+            $name = $this->text($record, 'name', $at.'.name', self::NAME, true);
+            $id !== null && $this->recordLabels[$id] = $code ?? $name ?? $id;
             $this->oneOf($record['cost_kind'] ?? null, $at.'.cost_kind', array_column(CostKind::cases(), 'value'));
             $this->text($record, 'supplier', $at.'.supplier', self::NAME);
             $this->text($record, 'owner', $at.'.owner', self::NAME, true);
@@ -334,11 +195,11 @@ class CanvasImportValidator
             $this->text($record, 'application', $at.'.application', self::NAME);
             $this->text($record, 'description', $at.'.description', self::TEXT);
             $this->date($record['archived_at'] ?? null, $at.'.archived_at');
-            $this->figures($record['yearly_figures'] ?? null, $at);
+            $this->figures($record['yearly_figures'] ?? null, $at, $id);
         }
     }
 
-    private function figures(mixed $node, string $parent): void
+    private function figures(mixed $node, string $parent, ?string $recordId): void
     {
         $seen = [];
 
@@ -347,6 +208,10 @@ class CanvasImportValidator
             $figure = $this->object($figure, $at);
 
             $this->year($figure['year'] ?? null, $at.'.year', $seen);
+
+            if ($recordId !== null && is_int($figure['year'] ?? null)) {
+                $this->recordYears[$recordId][$figure['year']] = true;
+            }
             $this->integer($figure, 'budget_cents', $at.'.budget_cents', 0, AmountCents::MAX_CENTS, true);
             $this->integer($figure, 'forecast_cents', $at.'.forecast_cents', 0, AmountCents::MAX_CENTS);
 
@@ -391,295 +256,10 @@ class CanvasImportValidator
                 $this->unique($kind, $at, $once, 'jsonx.statement_repeated');
             }
 
-            if (! array_key_exists('body', $statement)) {
-                $this->fail($at.'.body', 'jsonx.required');
-            }
-
             $this->text($statement, 'title', $at.'.title', self::NAME);
-            $this->text($statement, 'body', $at.'.body', self::TEXT);
+            $this->text($statement, 'body', $at.'.body', self::TEXT, true);
             $this->integer($statement, 'position', $at.'.position', 0, self::POSITION, true);
         }
-    }
-
-    /** @return array<string, array<string, mixed>> */
-    private function elements(mixed $node): array
-    {
-        $index = [];
-        $ids = [];
-        $names = [];
-
-        foreach ($this->listOf($node, 'canvas.elements') as $position => $element) {
-            $at = 'canvas.elements['.$position.']';
-            $element = $this->object($element, $at);
-
-            $id = $this->value($element['id'] ?? null, $at.'.id', self::NAME, true);
-            $area = $this->oneOf($element['area'] ?? null, $at.'.area', $this->importableAreas);
-            $areaKind = $area === null ? null : $this->areaKinds[$area];
-            $kind = $this->oneOf($element['kind'] ?? null, $at.'.kind', array_column(ElementKind::cases(), 'value'));
-            $name = $this->text($element, 'name', $at.'.name', self::NAME, true, true);
-            $this->text($element, 'description', $at.'.description', self::TEXT);
-            $modality = $this->modality($element['modality'] ?? null, $at.'.modality', $areaKind);
-
-            if ($this->text($element, 'rationale', $at.'.rationale', self::TEXT) !== null && $modality === null) {
-                $this->fail($at.'.rationale', 'jsonx.rationale_without_modality');
-            }
-
-            $this->icon($element['icon'] ?? null, $at.'.icon', $areaKind);
-            $this->integer($element, 'position', $at.'.position', 0, self::POSITION, true);
-
-            $unknown = $element['is_unknown_allocation'] ?? null;
-
-            if (! is_bool($unknown)) {
-                $this->fail($at.'.is_unknown_allocation', 'jsonx.not_boolean');
-            }
-
-            $archived = $element['archived_at'] ?? null;
-            $this->date($archived, $at.'.archived_at');
-
-            $parent = $element['parent_id'] ?? null;
-
-            if ($parent !== null && ! is_string($parent)) {
-                $this->fail($at.'.parent_id', 'jsonx.not_text');
-
-                $parent = null;
-            }
-
-            if ($name !== null && $area !== null && $archived === null && $unknown !== true) {
-                $this->unique([$area, $parent, mb_strtolower(trim($name))], $at.'.name', $names, 'jsonx.name_taken');
-            }
-
-            if ($id === null || ! $this->unique($id, $at.'.id', $ids)) {
-                continue;
-            }
-
-            $index[$id] = [
-                'at' => $at,
-                'area' => $area,
-                'kind' => $kind,
-                'parent' => $parent,
-                'modality' => $modality,
-                'archived' => $archived !== null,
-                'unknown' => $unknown === true,
-            ];
-        }
-
-        return $index;
-    }
-
-    private function modality(mixed $value, string $location, ?string $areaKind): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (! is_string($value) || ! in_array($value, $this->modalities, true)) {
-            $this->fail($location, 'jsonx.unknown_value');
-
-            return null;
-        }
-
-        if ($areaKind !== 'activities') {
-            $this->fail($location, 'jsonx.modality_not_allowed');
-        }
-
-        return $value;
-    }
-
-    private function icon(mixed $value, string $location, ?string $areaKind): void
-    {
-        if ($value === null) {
-            return;
-        }
-
-        if (! is_string($value) || ! in_array($value, $this->icons, true)) {
-            $this->fail($location, 'jsonx.unknown_value');
-
-            return;
-        }
-
-        if ($areaKind !== 'list') {
-            $this->fail($location, 'jsonx.icon_not_allowed');
-        }
-    }
-
-    /** @param array<string, array<string, mixed>> $index */
-    private function structure(array $index): void
-    {
-        foreach ($index as $element) {
-            $at = $element['at'].'.parent_id';
-            $kind = $element['kind'];
-
-            if ($kind === null) {
-                continue;
-            }
-
-            if ($kind === ElementKind::Domain->value) {
-                if ($element['parent'] !== null) {
-                    $this->structureFail($at, 'domain_parent');
-                }
-
-                continue;
-            }
-
-            $cluster = $kind === ElementKind::Cluster->value;
-            $reason = $cluster ? 'cluster_parent' : 'activity_parent';
-
-            if ($cluster && $element['area'] !== null && $this->areaKinds[$element['area']] !== 'activities') {
-                $this->structureFail($at, 'cluster_area');
-
-                continue;
-            }
-
-            $parent = $element['parent'] === null ? null : ($index[$element['parent']] ?? null);
-
-            if ($element['parent'] !== null && $parent === null) {
-                $this->fail($at, 'jsonx.unknown_reference');
-
-                continue;
-            }
-
-            if ($parent === null || $parent['area'] !== $element['area'] || ! $this->parentFits($cluster, $parent['kind'])) {
-                $this->structureFail($at, $reason);
-            }
-        }
-    }
-
-    private function parentFits(bool $cluster, ?string $parentKind): bool
-    {
-        return $cluster ? $parentKind === ElementKind::Domain->value : $parentKind === ElementKind::Domain->value || $parentKind === ElementKind::Cluster->value;
-    }
-
-    private function structureFail(string $location, string $reason): void
-    {
-        $this->fail($location, 'jsonx.structure', ['reason' => __('jsonx.reason_'.$reason)]);
-    }
-
-    /**
-     * @param  array<string, array<string, mixed>>  $index
-     * @return array<string, bool>
-     */
-    private function sets(mixed $node, array $index): array
-    {
-        $targeted = [];
-        $seen = [];
-
-        foreach ($this->listOf($node, 'canvas.allocation_sets') as $position => $set) {
-            $at = 'canvas.allocation_sets['.$position.']';
-            $set = $this->object($set, $at);
-            $recordId = $set['cost_record_id'] ?? null;
-            $year = $set['year'] ?? null;
-
-            if (! is_string($recordId) || ! isset($this->recordIds[$recordId])) {
-                $this->fail($at.'.cost_record_id', 'jsonx.unknown_reference');
-            }
-
-            if (! in_array($year, $this->years, true)) {
-                $this->fail($at.'.year', 'jsonx.year_unknown');
-            }
-
-            $this->unique([$recordId, $year], $at, $seen);
-
-            $lines = $this->listOf($set['lines'] ?? null, $at.'.lines');
-
-            if ($lines === []) {
-                ($set['lines'] ?? null) === [] && $this->fail($at.'.lines', 'jsonx.required');
-
-                continue;
-            }
-
-            $sum = 0;
-            $sound = true;
-            $elements = [];
-
-            foreach ($lines as $number => $line) {
-                $location = $at.'.lines['.$number.']';
-                $line = $this->object($line, $location);
-                $elementId = $line['element_id'] ?? null;
-                $target = is_string($elementId) ? ($index[$elementId] ?? null) : null;
-
-                if ($target === null) {
-                    $this->fail($location.'.element_id', 'jsonx.unknown_reference');
-
-                    $sound = false;
-                } elseif (! $this->carries($target)) {
-                    $this->fail($location.'.element_id', 'jsonx.target_invalid');
-
-                    $sound = false;
-                } elseif (! $this->unique($elementId, $location.'.element_id', $elements)) {
-                    $sound = false;
-                } else {
-                    $targeted[$elementId] = true;
-                }
-
-                $points = $this->integer($line, 'basis_points', $location.'.basis_points', 1, BasisPoints::MAX, true);
-
-                if ($points === null) {
-                    $sound = false;
-
-                    continue;
-                }
-
-                $sum += $points;
-            }
-
-            if ($sound && $sum !== BasisPoints::MAX) {
-                $this->fail($at, 'jsonx.hundred_percent');
-            }
-        }
-
-        return $targeted;
-    }
-
-    /** @param array<string, mixed> $target */
-    private function carries(array $target): bool
-    {
-        return ! $target['archived'] && ! $target['unknown'] && $target['area'] !== null && ($this->carriers[$target['area']] ?? false);
-    }
-
-    /**
-     * @param  array<string, array<string, mixed>>  $index
-     * @param  array<string, bool>  $targeted
-     */
-    private function unknownAllocation(array $index, array $targeted): void
-    {
-        $seen = false;
-
-        foreach ($index as $id => $element) {
-            if (! $element['unknown']) {
-                continue;
-            }
-
-            if ($seen) {
-                $this->fail($element['at'], 'jsonx.unknown_repeated');
-
-                continue;
-            }
-
-            $seen = true;
-
-            $sound = $element['kind'] === ElementKind::Domain->value
-                && $element['area'] === 'supporting_activities'
-                && $element['parent'] === null
-                && $element['modality'] === null
-                && ! isset($targeted[$id])
-                && ! $this->hasChildren($index, $id);
-
-            if (! $sound) {
-                $this->fail($element['at'], 'jsonx.unknown_invalid');
-            }
-        }
-    }
-
-    /** @param array<string, array<string, mixed>> $index */
-    private function hasChildren(array $index, string $id): bool
-    {
-        foreach ($index as $element) {
-            if ($element['parent'] === $id) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function finalisedYears(mixed $node): void
@@ -691,8 +271,24 @@ class CanvasImportValidator
             $finalised = $this->object($finalised, $at);
 
             $this->year($finalised['year'] ?? null, $at.'.year', $seen);
+            $this->complete($finalised['year'] ?? null, $at.'.year');
             $this->date($finalised['finalised_at'] ?? null, $at.'.finalised_at', null, true);
         }
+    }
+
+    private function complete(mixed $year, string $location): void
+    {
+        if (! is_int($year) || ! in_array($year, $this->years, true)) {
+            return;
+        }
+
+        $missing = [];
+
+        foreach ($this->recordYears as $id => $years) {
+            isset($years[$year]) && ! isset($this->setYears[$id][$year]) && $missing[] = $this->recordLabels[$id] ?? $id;
+        }
+
+        $missing !== [] && $this->fail($location, 'jsonx.finalised_incomplete', ['year' => $year, 'records' => implode(', ', array_slice($missing, 0, 5))]);
     }
 
     private function layout(mixed $node): void
@@ -725,165 +321,6 @@ class CanvasImportValidator
             if ($value !== null && is_string($key) && in_array($key, self::COLOURS, true)) {
                 $this->rule(new HexColour($location), $location, $value);
             }
-        }
-    }
-
-    /** @param array<string, bool> $seen */
-    private function year(mixed $value, string $location, array &$seen): void
-    {
-        if (! in_array($value, $this->years, true)) {
-            $this->fail($location, 'jsonx.year_unknown');
-
-            return;
-        }
-
-        $this->unique($value, $location, $seen);
-    }
-
-    /** @param array<mixed, mixed> $node */
-    private function text(array $node, string $key, string $location, int $max, bool $required = false, bool $isName = false): ?string
-    {
-        return $this->value($node[$key] ?? null, $location, $max, $required, $isName);
-    }
-
-    private function value(mixed $value, string $location, int $max, bool $required = false, bool $isName = false): ?string
-    {
-        if ($value === null || $value === '') {
-            if ($required) {
-                $this->fail($location, 'jsonx.required');
-            }
-
-            return null;
-        }
-
-        if (! is_string($value)) {
-            $this->fail($location, 'jsonx.not_text');
-
-            return null;
-        }
-
-        $this->rule($isName ? new ElementName($location) : new TrimmedText($location, $max), $location, $value);
-
-        return $value;
-    }
-
-    /** @param array<mixed, mixed> $node */
-    private function integer(array $node, string $key, string $location, int $min, int $max, bool $required = false): ?int
-    {
-        $value = $node[$key] ?? null;
-
-        if ($value === null) {
-            if ($required) {
-                $this->fail($location, 'jsonx.required');
-            }
-
-            return null;
-        }
-
-        $this->rule(new IntegerRange($location, $min, $max), $location, $value);
-
-        return is_int($value) ? $value : null;
-    }
-
-    /** @param list<string> $allowed */
-    private function oneOf(mixed $value, string $location, array $allowed): ?string
-    {
-        if (is_string($value) && in_array($value, $allowed, true)) {
-            return $value;
-        }
-
-        $this->fail($location, 'jsonx.unknown_value');
-
-        return null;
-    }
-
-    private function date(mixed $value, string $location, ?string $format = null, bool $required = false): void
-    {
-        if ($value === null) {
-            if ($required) {
-                $this->fail($location, 'jsonx.required');
-            }
-
-            return;
-        }
-
-        $sound = is_string($value) && $value !== '' && ($format === null
-            ? rescue(fn () => Carbon::parse($value)->isValid(), false, false)
-            : $this->matches($value, $format));
-
-        if (! $sound) {
-            $this->fail($location, 'jsonx.date_invalid');
-        }
-    }
-
-    private function matches(string $value, string $format): bool
-    {
-        $date = DateTimeImmutable::createFromFormat('!'.$format, $value);
-
-        return $date !== false && $date->format($format) === $value;
-    }
-
-    /** @return array<mixed, mixed> */
-    private function object(mixed $value, string $location): array
-    {
-        if (is_array($value) && ($value === [] || ! array_is_list($value))) {
-            return $value;
-        }
-
-        $this->fail($location, 'jsonx.not_object');
-
-        return [];
-    }
-
-    /** @return list<mixed> */
-    private function listOf(mixed $value, string $location): array
-    {
-        if (is_array($value) && array_is_list($value)) {
-            return $value;
-        }
-
-        $this->fail($location, 'jsonx.not_list');
-
-        return [];
-    }
-
-    /** @param array<string, bool> $seen */
-    private function unique(mixed $value, string $location, array &$seen, string $key = 'jsonx.duplicate'): bool
-    {
-        $hash = is_array($value) ? serialize($value) : gettype($value).':'.$value;
-
-        if (isset($seen[$hash])) {
-            $this->fail($location, $key);
-
-            return false;
-        }
-
-        $seen[$hash] = true;
-
-        return true;
-    }
-
-    private function rule(ValidationRule $rule, string $location, mixed $value): void
-    {
-        $rule->validate($location, $value, function (string $message) use ($location) {
-            $this->record($location, $message);
-
-            return new PotentiallyTranslatedString($message, app('translator'));
-        });
-    }
-
-    /** @param array<string, string> $replace */
-    private function fail(string $location, string $key, array $replace = []): void
-    {
-        $this->record($location, __($key, ['location' => $location, ...$replace]));
-    }
-
-    private function record(string $location, string $message): void
-    {
-        $this->count++;
-
-        if (count($this->errors) < self::MAX_ERRORS) {
-            $this->errors[] = ['location' => $location, 'message' => $message];
         }
     }
 }

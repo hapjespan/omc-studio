@@ -46,6 +46,7 @@ abstract class ExchangeTestCase extends AllocationTestCase
         }
 
         $this->allocate($this->costRecordByCode('LC-001'), 2027, [$third->id => 10000]);
+        $this->allocate($this->costRecordByCode('LC-002'), 2027, [$third->id => 10000]);
         $this->finalise(2027);
     }
 

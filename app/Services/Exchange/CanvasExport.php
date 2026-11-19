@@ -100,7 +100,7 @@ class CanvasExport
     {
         $modalities = Modality::pluck('key', 'id')->all();
 
-        return Element::with(['area', 'canvas'])->where('canvas_id', $canvas->getKey())->orderBy('position')->orderBy('name')->get()
+        return Element::without('canvas')->with('area')->where('canvas_id', $canvas->getKey())->orderBy('position')->orderBy('name')->get()
             ->map(fn (Element $element) => [
                 'id' => $element->id,
                 'parent_id' => $element->parent_id,

@@ -150,7 +150,7 @@ class CanvasImportTest extends ExchangeTestCase
             ->assertExactJson([
                 'errors' => [],
                 'count' => 0,
-                'totals' => ['cost_records' => 2, 'reused' => 0, 'elements' => 7, 'statements' => 2, 'allocation_sets' => 3, 'finalised_years' => 1],
+                'totals' => ['cost_records' => 2, 'reused' => 0, 'elements' => 7, 'statements' => 2, 'allocation_sets' => 4, 'finalised_years' => 1],
             ]);
     }
 
@@ -194,7 +194,7 @@ class CanvasImportTest extends ExchangeTestCase
         $this->assertNotSame($this->canvas->getKey(), $copy->getKey());
         $this->assertSame($target->getKey(), $copy->organisation_id);
         $this->assertSame($target->getKey(), $response->json('organisation_id'));
-        $this->assertSame(['cost_records' => 2, 'reused' => 0, 'elements' => 7, 'statements' => 2, 'allocation_sets' => 3, 'finalised_years' => 1], $response->json('totals'));
+        $this->assertSame(['cost_records' => 2, 'reused' => 0, 'elements' => 7, 'statements' => 2, 'allocation_sets' => 4, 'finalised_years' => 1], $response->json('totals'));
 
         $this->assertSame([], array_intersect($elementIds, Element::where('canvas_id', $copy->getKey())->pluck('id')->all()));
         $this->assertSame([], array_intersect($recordIds, CostRecord::where('organisation_id', $target->getKey())->pluck('id')->all()));

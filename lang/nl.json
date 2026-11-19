@@ -640,5 +640,8 @@
     "jsonx.code_taken": ":location: code :code staat al op een andere kostenpost van deze organisatie",
     "jsonx.year_finalised": ":location: :year is definitief in canvas :canvas, de jaarwaarden kunnen niet worden aangemaakt",
     "jsonx.canvas_name_taken": "Canvasnaam: dit canvas bestaat al in deze organisatie",
-    "jsonx.organisation_name_taken": "Organisatienaam: deze organisatie bestaat al"
+    "jsonx.organisation_name_taken": "Organisatienaam: deze organisatie bestaat al",
+    "jsonx.archived_parent": ":location: een actief element hangt onder een gearchiveerd element",
+    "jsonx.set_without_figures": ":location: deze kostenpost heeft geen jaarwaarden in dit jaar, dus er kan geen verdeling zijn",
+    "jsonx.finalised_incomplete": ":location: :year kan niet definitief zijn: er is geen verdeling in dit canvas voor :records"
 }
