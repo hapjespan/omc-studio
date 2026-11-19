@@ -30,11 +30,14 @@ const roleOptions = [
 ];
 const rows = computed(() => props.rows.map((row) => ({ ...row, roleLabel: t(`users.role_${String(row.role)}`) })));
 
-const restored = (event: PageTransitionEvent): void => {
-    if (event.persisted && props.oneTimePassword) window.location.reload();
+const forget = (): void => {
+    if (props.oneTimePassword) router.clearHistory();
 };
-onMounted(() => window.addEventListener('pageshow', restored));
-onBeforeUnmount(() => window.removeEventListener('pageshow', restored));
+onMounted(() => window.addEventListener('pagehide', forget));
+onBeforeUnmount(() => {
+    window.removeEventListener('pagehide', forget);
+    forget();
+});
 
 const isSelf = (row: ListRow | null): boolean => Boolean(row?.isSelf);
 const hasSecondFactor = (row: ListRow): boolean => Boolean(row.hasSecondFactor);

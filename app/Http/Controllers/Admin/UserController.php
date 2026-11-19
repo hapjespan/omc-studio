@@ -21,6 +21,7 @@ class UserController extends Controller
         $password = is_string($password) ? $password : null;
 
         if ($password !== null) {
+            Inertia::encryptHistory();
             Inertia::clearHistory();
         }
 
