@@ -156,5 +156,7 @@
     "list.count_one": "1 resultaat",
     "list.empty": "Geen resultaten",
     "list.sort_ascending": "oplopend gesorteerd",
-    "list.sort_descending": "aflopend gesorteerd"
+    "list.sort_descending": "aflopend gesorteerd",
+    "list.filter_all": "Alle",
+    "list.filter_remove": "Filter verwijderen: :filter :value"
 }

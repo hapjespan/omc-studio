@@ -43,3 +43,25 @@ describe('ListView rows, search and sort', () => {
         expect(html).toContain('b@example.test');
     });
 });
+
+describe('ListView filters', () => {
+    const filters = [{ name: 'role', label: 'Rol', options: [{ value: 'admin', label: 'Beheerder' }, { value: 'reader', label: 'Lezer' }] }];
+
+    it('offers a labelled select per filter', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, filters });
+
+        expect(html).toContain('>Rol</label>');
+        expect(html).toContain('<option value="reader"');
+    });
+
+    it('shows an active filter as a chip button naming the filter', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 1, query: { ...idle, filters: { role: 'admin' } }, filters });
+
+        expect(html).toMatch(/<button[^>]*>Rol: Beheerder<span class="sr-only">/);
+        expect(html).toContain('Filter verwijderen: Rol Beheerder');
+    });
+
+    it('shows no chips without an active filter', async () => {
+        expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, filters })).not.toContain('Filter verwijderen');
+    });
+});

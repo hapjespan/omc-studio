@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue';
 import { t } from '../../i18n';
+import FilterBar, { type FilterDef } from './FilterBar.vue';
 import SortHeader from './SortHeader.vue';
 
 export type ListRow = { id: number | string; name: string; archived_at?: string | null; [key: string]: unknown };
 export type ListColumn = { key: string; label: string; sortable?: boolean };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState }>();
+const props = defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[] }>();
 const emit = defineEmits<{ change: [query: ListState] }>();
 
 const SEARCH_DELAY_MS = 250;
@@ -48,6 +49,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
             </div>
             <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-[#454C57]">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
         </div>
+        <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="change({ filters: $event })" />
         <table class="w-full border-collapse text-[13px]">
             <caption class="sr-only">{{ title }}</caption>
             <thead>
