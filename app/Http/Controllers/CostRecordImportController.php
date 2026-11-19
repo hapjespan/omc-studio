@@ -8,10 +8,20 @@ use App\Services\Exchange\CostRecordImport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CostRecordImportController extends Controller
 {
     public function __construct(private readonly CostRecordImport $import) {}
+
+    public function show(Organisation $organisation): Response
+    {
+        return Inertia::render('Finance/CostRecordImport', [
+            'organisation' => $organisation->only(['id', 'name']),
+            'columns' => CostRecordImport::COLUMNS,
+        ]);
+    }
 
     public function preview(Request $request, Organisation $organisation): JsonResponse
     {

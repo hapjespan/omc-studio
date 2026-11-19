@@ -15,6 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class CostRecordImportPreviewTest extends TestCase
@@ -172,6 +173,12 @@ class CostRecordImportPreviewTest extends TestCase
         $this->assertSame(1, Owner::count());
         $this->assertSame(0, Application::count());
         $this->assertSame(0, YearlyFigure::count());
+    }
+
+    public function test_the_import_page_renders_for_an_administrator(): void
+    {
+        $this->get('/organisations/'.$this->organisation->id.'/cost-records/import')
+            ->assertInertia(fn (Assert $page) => $page->component('Finance/CostRecordImport')->where('organisation.id', $this->organisation->id)->has('columns', 13));
     }
 
     public function test_a_bad_header_is_refused_with_the_file_message(): void

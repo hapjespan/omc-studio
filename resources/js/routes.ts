@@ -46,5 +46,7 @@ export const routes = {
     goal: (canvas: Id, goal: Id) => `/canvases/${canvas}/goals/${goal}`,
     goalReorder: (canvas: Id, goal: Id) => `/canvases/${canvas}/goals/${goal}/reorder`,
     template: (canvas: Id) => `/templates/${canvas}`,
+    costRecordImport: (organisation: Id) => `/organisations/${organisation}/cost-records/import`,
+    costRecordImportPreview: (organisation: Id) => `/organisations/${organisation}/cost-records/import/preview`,
     undo: (token: string) => `/undo/${token}`,
 };
