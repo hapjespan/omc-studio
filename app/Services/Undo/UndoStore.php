@@ -95,7 +95,15 @@ class UndoStore
 
         $this->writes->run([$canvas], function () use ($canvas, $record, $row) {
             $this->assertStructureWritable($canvas);
-            $this->context->during('undone', fn () => (new Statement)->forceFill($row)->save());
+            $this->context->during('undone', function () use ($canvas, $row) {
+                $later = Statement::where('canvas_id', $canvas->id)->where('kind', $row['kind'])->where('position', '>=', $row['position'])->get();
+
+                foreach ($later as $statement) {
+                    $statement->update(['position' => $statement->position + 1]);
+                }
+
+                (new Statement)->forceFill($row)->save();
+            });
 
             $record->delete();
         });

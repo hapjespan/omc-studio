@@ -135,4 +135,21 @@ class DirectionStatementsTest extends TestCase
     {
         $this->put("/canvases/{$this->canvas->id}/statements/goal", ['body' => 'x'])->assertNotFound();
     }
+
+    public function test_an_undone_goal_keeps_distinct_positions_after_a_reorder_in_between(): void
+    {
+        $a = $this->goal('A');
+        $b = $this->goal('B');
+        $this->goal('C');
+
+        $token = $this->delete("/canvases/{$this->canvas->id}/goals/{$b->id}")->getSession()->get('undo_token');
+        $this->post("/canvases/{$this->canvas->id}/goals/{$a->id}/reorder", ['direction' => 'down']);
+        $this->post("/undo/{$token}")->assertRedirect();
+
+        $positions = Statement::where('kind', 'goal')->pluck('position')->all();
+
+        $this->assertSame($positions, array_values(array_unique($positions)));
+        $this->assertCount(3, $positions);
+        $this->assertSame(['C', 'B', 'A'], $this->goals());
+    }
 }
