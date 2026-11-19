@@ -66,15 +66,17 @@ class OrganisationService
 
     public function delete(Organisation $organisation): void
     {
-        $logo = $organisation->logo_path;
-
-        $this->writes->run([$organisation], function () use ($organisation) {
+        $logo = $this->writes->run([$organisation], function () use ($organisation) {
             if (Canvas::where('organisation_id', $organisation->getKey())->exists()) {
                 throw ValidationException::withMessages(['rule' => __('organisations.delete_blocked')]);
             }
 
-            $organisation->delete();
+            $path = $organisation->logo_path;
+
+            $organisation->deleteQuietly();
             $this->removal->purge($organisation);
+
+            return $path;
         });
 
         if (is_string($logo) && $logo !== '') {
