@@ -1227,7 +1227,7 @@ Each criterion maps to a kickoff acceptance criterion where one exists and is de
 - **SC-017** (D3, acc. 13): Full export, wiping all Organisations and full import give identical figures to the cent for every Canvas, year and filter.
 - **SC-018** (D3, acc. 14): A Snapshot shows the old structure and amounts after later changes.
 - **SC-019** (D3, acc. 15): PNG and PDF hold the whole Canvas with every text at least 6 pt; the Artboard fills one A3 page and content beyond it, if any, follows on further A3 pages.
-- **SC-020** (D1 to D3): With 500 Elements and 1000 Cost records in a Canvas, every screen responds within 1 second on an ordinary laptop (4 cores, 8 GB memory).
+- **SC-020** (D1 to D3): With 500 Elements and 1000 Cost records in a Canvas, every screen responds within 1 second on an ordinary laptop (4 cores, 8 GB memory); the end-to-end specs check it as the 95th percentile of twenty samples, alone in their own CI job (ADR 0044).
 - **SC-021** (D1 to D3): Every screen passes the automated WCAG 2.2 AA scan without violations, and every story's keyboard-only scenario passes.
 - **SC-022** (D1 to D3): During a full end-to-end run, no request leaves the machine.
 - **SC-023** (D2): The property test of FR-095 passes on every run; no defect of the kind "figures do not close" or "rule can be bypassed" is open at delivery (kickoff 17.3).
