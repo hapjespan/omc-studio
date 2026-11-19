@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
+use App\Http\Controllers\Admin\OrganisationController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ReauthenticateController;
@@ -63,4 +64,13 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/organisations/{organisation}/logo', OrganisationLogoController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->group(function () {
+    Route::get('/', [OrganisationController::class, 'index']);
+    Route::post('/', [OrganisationController::class, 'store']);
+    Route::patch('/{organisation}', [OrganisationController::class, 'update']);
+    Route::delete('/{organisation}', [OrganisationController::class, 'destroy']);
+    Route::post('/{organisation}/archive', [OrganisationController::class, 'archive']);
+    Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });
