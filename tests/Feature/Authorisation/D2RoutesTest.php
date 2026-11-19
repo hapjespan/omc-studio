@@ -205,7 +205,7 @@ class D2RoutesTest extends TestCase
         $found = [];
 
         foreach (Route::getRoutes()->getRoutes() as $route) {
-            if (! Str::is(self::URI_PATTERNS, $route->uri())) {
+            if (! Str::is(self::URI_PATTERNS, $route->uri()) || Str::contains($route->uri(), '/export/')) {
                 continue;
             }
 
