@@ -29,7 +29,7 @@ class OverlayReconciliationTest extends TestCase
 
     private Owner $ict;
 
-    /** @var array<string, int> */
+    /** @var array<int, int> */
     private array $budgetByOwner = [];
 
     protected function setUp(): void
