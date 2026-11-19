@@ -17,6 +17,7 @@ import ListAreaEntry from './ListAreaEntry.vue';
 import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
 import { buildRows, createdElement, elementPath, entryWarnings, filterByName, type EntryAreaInfo, type EntryElement } from './entry';
+import SaveTemplateButton from './SaveTemplateButton.vue';
 
 interface EntryArea {
     key: string;
@@ -100,6 +101,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
     <header class="flex items-center gap-4">
         <p role="status" class="order-last ml-auto text-[13px] font-semibold">{{ saved ? t('entry.saved') : '' }}</p>
         <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
+        <SaveTemplateButton />
     </header>
     <div class="mt-4 flex gap-4">
         <nav :aria-label="t('entry.areas')" class="w-[216px] shrink-0">

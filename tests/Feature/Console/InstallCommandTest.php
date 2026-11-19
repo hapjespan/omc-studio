@@ -3,6 +3,7 @@
 namespace Tests\Feature\Console;
 
 use App\Services\Operations\InstallSteps;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
@@ -11,6 +12,8 @@ use Tests\TestCase;
 
 class InstallCommandTest extends TestCase
 {
+    use RefreshDatabase;
+
     private string $storage;
 
     protected function setUp(): void

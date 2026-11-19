@@ -22,6 +22,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 
@@ -119,4 +120,9 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
 
 Route::middleware('auth')->group(function () {
     Route::get('/canvases/{canvas}/entry', CanvasEntryController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::patch('/templates/{canvas}', [TemplateController::class, 'update']);
+    Route::delete('/templates/{canvas}', [TemplateController::class, 'destroy']);
 });

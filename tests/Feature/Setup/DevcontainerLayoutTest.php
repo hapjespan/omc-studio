@@ -81,4 +81,15 @@ class DevcontainerLayoutTest extends TestCase
             $this->assertStringContainsString($variable, $readme);
         }
     }
+
+    public function test_the_image_installs_the_browsers_at_the_playwright_version_the_lock_file_pins(): void
+    {
+        $lock = json_decode($this->read('package-lock.json'), true);
+        $version = $lock['packages']['node_modules/@playwright/test']['version'];
+        $dockerfile = $this->read('.devcontainer/Dockerfile');
+
+        $this->assertStringContainsString('ARG PLAYWRIGHT_VERSION='.$version, $dockerfile);
+        $this->assertStringContainsString('playwright@${PLAYWRIGHT_VERSION} install --with-deps chromium firefox webkit', $dockerfile);
+        $this->assertMatchesRegularExpression('/\bxvfb\b/', $dockerfile);
+    }
 }

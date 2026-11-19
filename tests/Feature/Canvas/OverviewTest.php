@@ -83,6 +83,20 @@ class OverviewTest extends TestCase
             ->where('canWrite', false)->where('templates', [])->where('organisations.0.canvases.0.counts', null));
     }
 
+    public function test_template_cards_skip_the_blank_template_and_carry_their_elements_for_an_administrator_only(): void
+    {
+        $template = Canvas::factory()->template()->create(['name' => 'Basis']);
+        Element::factory()->create(['canvas_id' => $template->id, 'name' => 'Zorg']);
+
+        $this->actingAs(User::factory()->administrator()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
+            ->has('templateCards', 1)
+            ->where('templateCards.0.name', 'Basis')
+            ->where('templateCards.0.elements.0.name', 'Zorg')
+            ->where('templateCards.0.counts', ['elements' => 1, 'statements' => 0]));
+
+        $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page->where('templateCards', []));
+    }
+
     public function test_the_root_shows_the_overview_and_a_guest_is_sent_to_sign_in(): void
     {
         $this->actingAs(User::factory()->create())->get('/')->assertInertia(fn (Assert $page) => $page->component('Overview'));
