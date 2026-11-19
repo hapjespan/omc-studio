@@ -25,6 +25,8 @@ class Element extends Model
     /** @var list<string> */
     protected $touches = ['canvas'];
 
+    protected $with = ['canvas'];
+
     protected $attributes = ['position' => 0, 'is_unknown_allocation' => false];
 
     protected $casts = [

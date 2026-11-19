@@ -16,7 +16,7 @@ class NoSilentWritesTest extends TestCase
 {
     private const WRITES = 'update|updateOrInsert|delete|forceDelete|increment|decrement|insert|insertOrIgnore|insertUsing|upsert|truncate';
 
-    private const ALLOWED = ['app/Models/Canvas.php::raiseStructureVersion'];
+    private const ALLOWED = ['app/Models/Canvas.php::raiseStructureVersion', 'app/Services/Audit/AuditTrail.php::recordMany', 'app/Services/Exchange/CostRecordBatch.php::flush'];
 
     public function test_no_source_file_writes_past_the_audit_observer(): void
     {

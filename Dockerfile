@@ -24,7 +24,7 @@ COPY --from=assets /build/public/build public/build
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && composer dump-autoload --optimize --no-dev
-RUN printf 'zend.exception_ignore_args=On\nmemory_limit=256M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
+RUN printf 'zend.exception_ignore_args=On\nmemory_limit=256M\nupload_max_filesize=50M\npost_max_size=55M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
 ENV APP_ENV=production APP_DEBUG=false
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
