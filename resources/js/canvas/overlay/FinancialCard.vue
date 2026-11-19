@@ -1,7 +1,7 @@
 <script lang="ts">
 import { basisPointsOf, formatBasisPoints, formatWholeEuros } from '../../format';
 import { t } from '../../i18n';
-import type { ElementFigures } from './figures';
+import type { ElementFigures, Money } from './figures';
 import { hasCosts } from './figures';
 
 export interface CardCounts {
@@ -31,6 +31,11 @@ export interface CardLines {
     share: string;
     forecast: string;
     counts: string;
+}
+
+export function areaLine(total: Money, canvasTotal: Money): string {
+    const share = basisPointsOf(total.budget, canvasTotal.budget);
+    return t('overlay.area_total', { amount: formatWholeEuros(total.budget), percentage: share === null ? '-' : formatBasisPoints(share) });
 }
 
 export function cardLines(figures: ElementFigures, counts: CardCounts, year: number | null): CardLines {

@@ -914,5 +914,11 @@
     "overlay.share": ":percentage van totaal",
     "overlay.forecast": "Prognose :amount",
     "overlay.forecast_line": "Prognose :amount · :percentage van budget",
-    "overlay.counts": "Activiteiten :activities · Clusters :clusters"
+    "overlay.counts": "Activiteiten :activities · Clusters :clusters",
+    "overlay.area_total": "Totaal :amount · :percentage",
+    "overlay.legend.scale_label": "Kleur",
+    "overlay.legend.scale": "Hoe donkerder de kaart, hoe groter het aandeel van het totaal; het cijfer staat er altijd bij",
+    "overlay.legend.bar": "Balk: het gevulde deel is de prognose, de streep is het budget",
+    "overlay.legend.lists": "Lijst-areas (Actoren, Kanalen, Waardeproposities) hebben geen kosten en tonen geen bedragen",
+    "overlay.legend.modality": "Modaliteit"
 }

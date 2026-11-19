@@ -8,8 +8,10 @@ import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
 import { descendantCounts } from '../../canvas/overlay/counts';
 import type { CanvasFigures, ElementFigures } from '../../canvas/overlay/figures';
-import FinancialCard, { cardLines } from '../../canvas/overlay/FinancialCard.vue';
+import FinancialCard, { areaLine, cardLines } from '../../canvas/overlay/FinancialCard.vue';
+import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
+import { shareColour } from '../../canvas/overlay/ShareColour';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
@@ -34,8 +36,15 @@ const props = defineProps<{
 const costAreas = computed(() => new Set(props.layout.areas.filter((area) => area.kind === 'activities').map((area) => area.key)));
 const domainCounts = computed(() => descendantCounts(props.elements));
 const cardFigures = (block: DrawnBlock): ElementFigures | null => (props.figures && block.kind === 'domain' && costAreas.value.has(block.areaKey) ? (props.figures.elements[block.id] ?? null) : null);
+const cardColours = computed(() => Object.fromEntries((drawn.value?.blocks ?? []).flatMap((block) => {
+    const figures = cardFigures(block);
+    return figures ? [[block.id, shareColour(figures.shareBp, block.style.fill)]] : [];
+})));
+const areaTotal = (block: DrawnBlock): string | null => (props.figures && block.kind === 'area' && costAreas.value.has(block.areaKey) && props.figures.areas[block.id] ? areaLine(props.figures.areas[block.id], props.figures.canvasTotal) : null);
 const figureLines = (id: string): string[] => {
     const block = drawn.value?.blocks.find((candidate) => candidate.id === id);
+    const area = block ? areaTotal(block) : null;
+    if (area) return [area];
     const figures = block ? cardFigures(block) : null;
     if (!figures) return [];
     const lines = cardLines(figures, domainCounts.value.get(id) ?? { activities: 0, clusters: 0 }, props.year);
@@ -69,10 +78,12 @@ const fit = (): void => {
         <ZoomToolbar v-if="drawn" v-model:zoom="zoom" @fit="fit" />
         <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
     </div>
+    <OverlayLegend :overlay="overlay" :modalities="modalities" />
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
-        <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" @select="select">
+        <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="cardColours" @select="select">
             <template #card="{ block }">
-                <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" />
+                <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
+                <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
             </template>
         </CanvasView>
     </div>
