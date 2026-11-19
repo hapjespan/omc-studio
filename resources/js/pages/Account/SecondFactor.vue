@@ -2,7 +2,6 @@
 import { computed, nextTick } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
-import StatusRegion from '../../components/feedback/StatusRegion.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { announce } from '../../components/feedback/status';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
@@ -69,7 +68,6 @@ function downloadCodes(): void {
     <section aria-labelledby="second_factor_title" class="flex flex-col gap-4">
         <h2 id="second_factor_title" class="text-[16px] font-semibold text-[#171B21]">{{ t('second_factor.title') }}</h2>
         <p class="text-[13px] text-[#454C57]">{{ active ? t('second_factor.active') : t('second_factor.inactive') }}</p>
-        <StatusRegion />
 
         <div v-if="codes?.length" class="flex flex-col gap-2">
             <h3 id="second_factor_codes_title" tabindex="-1" class="text-[14px] font-semibold text-[#171B21]">{{ t('second_factor.codes_title') }}</h3>

@@ -44,6 +44,7 @@ async function signIn(page: Page, email: string, password: string): Promise<void
     await page.getByLabel('E-mailadres').fill(email);
     await page.getByLabel('Wachtwoord', { exact: true }).fill(password);
     await page.getByRole('button', { name: 'Inloggen' }).click();
+    await page.waitForURL((url) => url.pathname !== '/sign-in');
 }
 
 async function readCodes(page: Page): Promise<string[]> {
@@ -97,7 +98,8 @@ test('turn the second factor on, sign in with a code and once with a recovery co
     await expect(page.getByText('Nog 8 herstelcodes')).toBeVisible();
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'Uitloggen' }).click();
+    await page.getByRole('banner').getByRole('button', { name: /^(Lezer|Administrator)$/ }).click();
+    await page.getByRole('menuitem', { name: 'Uitloggen' }).click();
     await expect(page.getByRole('heading', { name: 'Inloggen' })).toBeVisible();
 
     await signIn(page, user.email, user.password);
@@ -107,13 +109,14 @@ test('turn the second factor on, sign in with a code and once with a recovery co
 
     await page.getByLabel('Code of herstelcode').fill(await unusedCode(key, enrolled));
     await page.getByRole('button', { name: 'Doorgaan' }).click();
-    await expect(page.getByRole('heading', { name: 'OMC Studio' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Uitloggen' }).click();
+    await page.getByRole('banner').getByRole('button', { name: /^(Lezer|Administrator)$/ }).click();
+    await page.getByRole('menuitem', { name: 'Uitloggen' }).click();
     await signIn(page, user.email, user.password);
     await page.getByLabel('Code of herstelcode').fill(codes[0]);
     await page.getByRole('button', { name: 'Doorgaan' }).click();
-    await expect(page.getByRole('heading', { name: 'OMC Studio' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 
     await page.goto('/account');
     await expect(page.getByText('Nog 7 herstelcodes')).toBeVisible();
@@ -137,6 +140,7 @@ test('new recovery codes replace the earlier ones and the factor can be turned o
 
     await section.getByLabel('Huidig wachtwoord').fill(user.password);
     await section.getByRole('button', { name: 'Nieuwe herstelcodes' }).click();
+    await expect(page.getByText('Nieuwe herstelcodes aangemaakt')).toBeVisible();
 
     const later = await readCodes(page);
     expect(later).toHaveLength(8);
@@ -151,8 +155,9 @@ test('new recovery codes replace the earlier ones and the factor can be turned o
     await expect(section.getByRole('button', { name: 'Tweede factor aanzetten' })).toBeVisible();
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'Uitloggen' }).click();
+    await page.getByRole('banner').getByRole('button', { name: /^(Lezer|Administrator)$/ }).click();
+    await page.getByRole('menuitem', { name: 'Uitloggen' }).click();
     await signIn(page, user.email, user.password);
 
-    await expect(page.getByRole('heading', { name: 'OMC Studio' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 });
