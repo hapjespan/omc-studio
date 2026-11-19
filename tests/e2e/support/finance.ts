@@ -19,3 +19,17 @@ export function seedCostRecord(organisation: number, name: string, options: { co
     const sets = Array.from({ length: options.sets ?? 0 }, () => `App\\Models\\AllocationSet::factory()->create(['cost_record_id' => $r->id, 'fiscal_year_id' => $f->id]);`).join(' ');
     tinker(`$r = App\\Models\\CostRecord::factory()->create(['organisation_id' => ${organisation}, 'name' => '${name}'${code}]); ${figure} ${sets}`);
 }
+
+export interface AllocationSeed {
+    organisation: number;
+    canvas: number;
+    records: Record<string, string>;
+}
+
+export function seedAllocation(name: string, records: Record<string, number>, structure: { domain: string; activities: string[] }[] = [{ domain: 'Inkoop', activities: ['Offreren', 'Bestellen', 'Betalen'] }]): AllocationSeed {
+    const recordCode = Object.entries(records).map(([label, cents]) => `$r = App\\Models\\CostRecord::factory()->create(['organisation_id' => $o->id, 'owner_id' => $w->id, 'name' => '${label}']); App\\Models\\YearlyFigure::factory()->create(['cost_record_id' => $r->id, 'fiscal_year_id' => $f->id, 'budget_cents' => ${cents}]); $ids['${label}'] = $r->id;`).join(' ');
+    const elementCode = structure.map(({ domain, activities }) => `$d = App\\Models\\Element::factory()->create(['canvas_id' => $c->id, 'area_id' => $a->id, 'kind' => 'domain', 'name' => '${domain}']); ${activities.map((activity) => `App\\Models\\Element::factory()->create(['canvas_id' => $c->id, 'area_id' => $a->id, 'kind' => 'activity', 'parent_id' => $d->id, 'name' => '${activity}']);`).join(' ')}`).join(' ');
+    const output = tinker(`app(App\\Services\\Operations\\Steps\\ReferenceDataStep::class)(); $o = App\\Models\\Organisation::factory()->create(['name' => '${name}']); $f = App\\Models\\FiscalYear::factory()->create(['organisation_id' => $o->id, 'year' => 2026]); $w = App\\Models\\Owner::factory()->create(['organisation_id' => $o->id]); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => $o->id, 'name' => '${name} canvas']); $a = App\\Models\\Area::where('key', 'primary_activities')->first(); $ids = []; ${recordCode} ${elementCode} echo 'OUT=' . json_encode(['organisation' => $o->id, 'canvas' => $c->id, 'records' => $ids]);`);
+
+    return JSON.parse(/OUT=(.*)/.exec(output)?.[1] ?? '{}') as AllocationSeed;
+}

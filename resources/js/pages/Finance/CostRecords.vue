@@ -11,10 +11,11 @@ import CostRecordForm from './CostRecordForm.vue';
 import FiscalYearsPanel from './FiscalYearsPanel.vue';
 import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
+import { formatAmount, formatShare } from '../../format';
 
 export type Option = { id: number; name: string };
 
-const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
+const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; canvas?: { id: number; name: string }; cards?: { budgetCents: number; forecastCents: number; allocated: { budget: number; count: number }; unknown: { budget: number; count: number } } | null; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
 
 const page = usePage();
 watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | undefined)?.status && announce((flash as { status: string }).status));
@@ -35,10 +36,10 @@ const columns: ListColumn[] = [
     { key: 'code', label: t('fields.code'), sortable: true },
     { key: 'budgetText', label: t('fields.budget') },
     { key: 'forecastText', label: t('fields.forecast') },
-    { key: 'allocationText', label: t('cost_records.allocation') },
+    { key: 'allocationText', label: props.canvas ? t('cost_records.allocation_canvas') : t('cost_records.allocation') },
 ];
 
-const shownRows = computed(() => props.rows.map((row) => ({ ...row, budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: t(`cost_records.allocation_${row.allocation}`) })));
+const shownRows = computed(() => props.rows.map((row) => ({ ...row, budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: props.canvas ? (row.allocation === 'allocated' ? '100%' : t('cost_records.allocation_unknown')) : t(`cost_records.allocation_${row.allocation}`) })));
 const fresh = (row: ListRow): ListRow => shownRows.value.find((candidate) => candidate.id === row.id) ?? row;
 const options = (items: Option[]) => items.map((item) => ({ value: String(item.id), label: item.name }));
 const filters = computed(() => [
@@ -79,9 +80,18 @@ function load(query: ListState, year: number | null = props.year): void {
     <h1 class="text-[20px] font-semibold">{{ t('cost_records.title') }}: {{ organisation.name }}</h1>
     <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
     <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :writable="!organisation.archived" />
+    <section v-if="canvas && cards" :aria-label="t('cost_records.cards')" class="mt-3 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('cost_records.card_budget') }}</h2><p>{{ formatAmount(cards.budgetCents) }}</p><p>{{ t('fields.forecast') }}: {{ formatAmount(cards.forecastCents) }}</p></div>
+        <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_allocated') }}</h2><p>{{ formatAmount(cards.allocated.budget) }}</p><p>{{ t('cost_records.card_of', { done: cards.allocated.count, total: cards.allocated.count + cards.unknown.count }) }}</p></div>
+        <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_unallocated') }}</h2><p>{{ formatAmount(cards.unknown.budget) }}</p><p>{{ plural('cost_records.card_count', cards.unknown.count) }}, {{ formatShare(cards.unknown.budget, cards.budgetCents) }}</p></div>
+    </section>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
         <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
+            <template v-if="canvas" #cell="{ row, column }">
+                <span v-if="column.key === 'allocationText'" class="inline-flex items-center gap-1.5"><span aria-hidden="true" class="inline-block h-2.5 w-2.5 rounded-full" :class="row.allocation === 'allocated' ? 'bg-[#1F7A3D]' : 'bg-[#8A5A00]'" />{{ row[column.key] }}</span>
+                <template v-else>{{ row[column.key] }}</template>
+            </template>
             <template #form="{ row, close, setDirty }">
                 <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
                 <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty" />

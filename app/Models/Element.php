@@ -53,4 +53,12 @@ class Element extends Model
     {
         return $this->belongsTo(Area::class);
     }
+
+    public function carriesCosts(Canvas $canvas): bool
+    {
+        return $this->canvas_id === $canvas->getKey()
+            && $this->archived_at === null
+            && ! $this->is_unknown_allocation
+            && $this->area?->carries_costs === true;
+    }
 }

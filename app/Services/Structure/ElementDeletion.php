@@ -23,6 +23,7 @@ class ElementDeletion
         private readonly ElementNames $names,
         private readonly SiblingPosition $positions,
         private readonly UnknownAllocationGuard $unknown,
+        private readonly ElementTree $tree,
     ) {}
 
     public function delete(Element $element, User $user, ?string $clusterChildren = null): string
@@ -37,6 +38,8 @@ class ElementDeletion
             $this->unknown->assertNone($element);
 
             $this->liftWhenAsked($element, $clusterChildren);
+
+            $this->tree->assertNoAllocationLines($element);
 
             $token = $this->undo->remember(UndoStore::ELEMENT_DELETION, ['elements' => $this->rows($element)], $user);
 
