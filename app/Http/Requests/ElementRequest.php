@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Area;
+use App\Models\Modality;
 use Illuminate\Validation\Rule;
 
 class ElementRequest extends AppFormRequest
@@ -24,6 +25,9 @@ class ElementRequest extends AppFormRequest
             'name' => [$creating ? 'required' : 'sometimes', 'string'],
             'description' => ['nullable', 'string'],
             'icon' => ['nullable', 'string'],
+            'modality' => ['sometimes', 'string', Rule::in([...Modality::pluck('key')->all(), 'none'])],
+            'rationale' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'confirm_rationale_clear' => ['sometimes', 'boolean'],
         ];
     }
 
