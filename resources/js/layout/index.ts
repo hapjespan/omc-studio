@@ -1,6 +1,7 @@
 import { areaChrome, AREA_HEADER, AREA_PADDING, arrangeAreas, areaWidth, ARTBOARD_HEIGHT, ARTBOARD_WIDTH } from './arrangeAreas';
 import { DIRECTION_HEIGHT, layoutDirection } from './direction';
 import { flowDomains, type Flow, type FlowContext } from './flowDomains';
+import { flowList } from './listAreas';
 import { resolveStyle } from './resolveStyle';
 import { buildDomains } from './tree';
 import { wrapText } from './wrapText';
@@ -16,9 +17,7 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
 
     for (const area of areas.filter((candidate) => candidate.key !== 'direction')) {
         const flow: Flow =
-            area.kind === 'list'
-                ? { blocks: [], height: 0 }
-                : flowDomains(buildDomains(input.elements, area.key), area.key, areaWidth(area.key) - 2 * AREA_PADDING, context);
+            (area.kind === 'list' ? flowList : flowDomains)(buildDomains(input.elements, area.key), area.key, areaWidth(area.key) - 2 * AREA_PADDING, context);
         flows.set(area.key, flow);
         required[area.key] = areaChrome() + flow.height;
     }
