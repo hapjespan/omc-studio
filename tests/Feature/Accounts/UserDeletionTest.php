@@ -119,6 +119,43 @@ class UserDeletionTest extends TestCase
         }
     }
 
+    public function test_a_short_name_inside_a_longer_word_leaves_an_unrelated_entry_untouched(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+        Auth::login($administrator);
+        $target = User::factory()->create(['name' => 'Ed', 'email' => 'ed@example.test']);
+        Auth::logout();
+        $unrelated = $this->canvasEntry('Education Fund', ['name' => [null, 'Edward Edison'], 'note' => [null, 'edition of the Education Fund']]);
+        $mentioning = $this->canvasEntry(str_repeat('a', 140).' Ed', ['note' => [null, 'Ed wrote to ed@example.test.']]);
+        $untouched = (array) $unrelated->fresh()?->getAttributes();
+
+        app(UserDeletion::class)->delete($target, $administrator);
+
+        $this->assertSame($untouched, (array) $unrelated->fresh()?->getAttributes());
+
+        $mentioning->refresh();
+        $pseudonym = (string) __('users.deleted_user');
+        $this->assertSame(150, mb_strlen((string) $mentioning->subject_label));
+        $this->assertStringNotContainsString(' Ed', (string) $mentioning->subject_label);
+        $this->assertStringContainsString(mb_substr($pseudonym, 0, 9), (string) $mentioning->subject_label);
+        $this->assertSame($pseudonym.' wrote to '.$pseudonym.'.', $mentioning->changes['note'][1]);
+    }
+
+    /** @param array<string, array{mixed, mixed}> $changes */
+    private function canvasEntry(string $label, array $changes): AuditEntry
+    {
+        return AuditEntry::create([
+            'occurred_at' => Carbon::now(),
+            'actor_type' => 'system',
+            'actor_id' => null,
+            'action' => 'created',
+            'subject_type' => 'canvas',
+            'subject_id' => '9',
+            'subject_label' => $label,
+            'changes' => $changes,
+        ]);
+    }
+
     private function targetWithHistory(User $administrator): User
     {
         Auth::login($administrator);

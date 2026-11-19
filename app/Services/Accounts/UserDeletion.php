@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Audit\SecurityLog;
 use App\Services\Support\SerialisedWrite;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserDeletion
 {
@@ -39,13 +40,13 @@ class UserDeletion
     private function pseudonymise(int $identifier, array $known): void
     {
         $pseudonym = (string) __('users.deleted_user');
-        $needles = $this->needles($identifier, $known);
+        $patterns = $this->patterns($identifier, $known);
 
         AuditEntry::query()->where('actor_id', $identifier)->update(['actor_id' => null]);
 
-        AuditEntry::query()->lazyById()->each(function (AuditEntry $entry) use ($needles, $pseudonym): void {
-            $label = str_ireplace($needles, $pseudonym, (string) $entry->subject_label);
-            $changes = $this->replace($entry->changes, $needles, $pseudonym);
+        AuditEntry::query()->lazyById()->each(function (AuditEntry $entry) use ($patterns, $pseudonym): void {
+            $label = Str::limit((string) $this->replace((string) $entry->subject_label, $patterns, $pseudonym), 150, '');
+            $changes = $this->replace($entry->changes, $patterns, $pseudonym);
 
             if ($label === $entry->subject_label && $changes === $entry->changes) {
                 return;
@@ -59,7 +60,7 @@ class UserDeletion
      * @param  array<int, string>  $known
      * @return array<int, string>
      */
-    private function needles(int $identifier, array $known): array
+    private function patterns(int $identifier, array $known): array
     {
         $entries = AuditEntry::query()->where('subject_type', 'user')->where('subject_id', (string) $identifier)->get();
 
@@ -74,16 +75,16 @@ class UserDeletion
         $needles = array_values(array_unique(array_filter($known, fn (string $needle) => $needle !== '')));
         usort($needles, fn (string $first, string $second) => mb_strlen($second) <=> mb_strlen($first));
 
-        return $needles;
+        return array_map(fn (string $needle) => '/(?<![\p{L}\p{N}@.])'.preg_quote($needle, '/').'(?![\p{L}\p{N}@])/iu', $needles);
     }
 
-    /** @param array<int, string> $needles */
-    private function replace(mixed $value, array $needles, string $pseudonym): mixed
+    /** @param array<int, string> $patterns */
+    private function replace(mixed $value, array $patterns, string $pseudonym): mixed
     {
         if (is_array($value)) {
-            return array_map(fn (mixed $item) => $this->replace($item, $needles, $pseudonym), $value);
+            return array_map(fn (mixed $item) => $this->replace($item, $patterns, $pseudonym), $value);
         }
 
-        return is_string($value) ? str_ireplace($needles, $pseudonym, $value) : $value;
+        return is_string($value) ? (string) preg_replace_callback($patterns, fn () => $pseudonym, $value) : $value;
     }
 }
