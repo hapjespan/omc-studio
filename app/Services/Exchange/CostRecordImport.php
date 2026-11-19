@@ -10,6 +10,7 @@ use App\Models\Owner;
 use App\Models\YearlyFigure;
 use App\Services\Allocation\FinalisedYears;
 use App\Services\Audit\AuditContext;
+use App\Services\Audit\AuditTrail;
 use App\Services\Exchange\Csv\CsvReader;
 use App\Services\Support\SerialisedWrite;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,6 +24,7 @@ class CostRecordImport
         private readonly FinalisedYears $finalised,
         private readonly SerialisedWrite $write,
         private readonly AuditContext $context,
+        private readonly AuditTrail $trail,
     ) {}
 
     /**
@@ -54,7 +56,7 @@ class CostRecordImport
                 $this->refuse('import.refused_changed');
             }
 
-            $batch = new CostRecordBatch($this->context, (int) $organisation->getKey());
+            $batch = new CostRecordBatch($this->context, $this->trail, (int) $organisation->getKey());
 
             foreach ($scan['rows'] as $row) {
                 $this->apply($organisation, $data, $row, $batch);

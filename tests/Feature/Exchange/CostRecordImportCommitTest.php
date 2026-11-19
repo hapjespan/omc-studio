@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -107,6 +109,7 @@ class CostRecordImportCommitTest extends TestCase
         $subjects = AuditEntry::where('action', 'imported')->orderBy('id')->pluck('subject_type')->all();
 
         $this->assertSame(['owner', 'application', 'cost_record', 'yearly_figure'], $subjects);
+        $this->assertNull(AuditEntry::where('subject_type', 'yearly_figure')->value('organisation_id'));
         $this->assertSame(0, AuditEntry::whereIn('action', ['created', 'changed'])->where('subject_type', 'cost_record')->count());
     }
 
@@ -159,6 +162,29 @@ class CostRecordImportCommitTest extends TestCase
         $this->assertSame(0, CostRecord::count());
         $this->assertSame(0, Owner::count());
         $this->assertSame(0, AuditEntry::where('action', 'imported')->count());
+    }
+
+    public function test_over_long_values_are_refused_and_write_nothing(): void
+    {
+        $this->commit([str_repeat('a', 51).';Licenties;Project;;Ada;;;;;;;;'])->assertStatus(422);
+
+        $this->assertSame(0, CostRecord::count());
+    }
+
+    public function test_one_security_log_entry_is_written_per_commit_without_personal_data(): void
+    {
+        $logged = [];
+        Log::listen(function (MessageLogged $event) use (&$logged): void {
+            $logged[] = $event;
+        });
+
+        $this->commit(['K1;Licenties;Project;;Ada;;;2026;10,00;;;;'])->assertOk();
+        $this->commit([';Hosting;Project;;Bo;;;;;;;;'])->assertStatus(422);
+
+        $entries = array_values(array_filter($logged, fn (MessageLogged $event) => $event->message === 'cost_records_imported'));
+        $this->assertCount(1, $entries);
+        $this->assertSame(['organisation_id' => $this->organisation->id, 'new' => 1, 'updated' => 0, 'unchanged' => 0, 'errors' => 0, 'user_id' => auth()->id()], $entries[0]->context);
+        $this->assertStringNotContainsString('Ada', (string) json_encode($entries[0]->context));
     }
 
     public function test_a_year_finalised_between_the_check_and_the_write_rolls_everything_back(): void

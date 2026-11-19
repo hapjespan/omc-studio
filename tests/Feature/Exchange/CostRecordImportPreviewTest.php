@@ -75,6 +75,26 @@ class CostRecordImportPreviewTest extends TestCase
             ->assertJsonPath('totals', ['new' => 1, 'updated' => 1, 'unchanged' => 1, 'errors' => 0]);
     }
 
+    public function test_over_long_text_fields_are_reported_per_column(): void
+    {
+        $long = fn (int $length) => str_repeat('a', $length);
+
+        $response = $this->preview([
+            $long(51).';'.$long(151).';Project;'.$long(151).';'.$long(151).';'.$long(51).';'.$long(151).';;;;;;',
+            $long(50).';'.$long(150).';Project;'.$long(150).';'.$long(150).';'.$long(50).';'.$long(150).';;;;;;',
+        ])->assertOk();
+
+        $this->assertSame([
+            'Regel 2, code: gebruik hoogstens 50 tekens',
+            'Regel 2, naam: gebruik hoogstens 150 tekens',
+            'Regel 2, eigenaar: gebruik hoogstens 150 tekens',
+            'Regel 2, applicatie: gebruik hoogstens 150 tekens',
+            'Regel 2, leverancier: gebruik hoogstens 150 tekens',
+            'Regel 2, kostenplaats: gebruik hoogstens 50 tekens',
+        ], $this->messages($response));
+        $this->assertSame([], $this->messages($response, 1));
+    }
+
     public function test_a_missing_code_is_reported(): void
     {
         $response = $this->preview(['K1;A;Project;;Ada;;;;;;;;', ';B;Project;;Ada;;;;;;;;']);

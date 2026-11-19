@@ -304,6 +304,7 @@
     "import.total_errors": "Fouten",
     "import.checked_clean": "Controle klaar: geen fouten",
     "import.checked_errors": "Controle klaar: :count fouten, importeren kan pas zonder fouten",
+    "import.text_max": "Regel :line, :column: gebruik hoogstens :max tekens",
     "import.done": "Geïmporteerd: :new nieuw, :updated bijgewerkt, :unchanged ongewijzigd",
     "fields.supplier": "Leverancier",
     "lists.name_taken": "Naam: deze naam staat al in de lijst",

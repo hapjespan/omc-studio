@@ -8,6 +8,8 @@ use App\Rules\BasisPoints;
 
 class CostRecordRowValidator
 {
+    private const LIMITS = ['code' => 50, 'naam' => 150, 'eigenaar' => 150, 'applicatie' => 150, 'leverancier' => 150, 'kostenplaats' => 50];
+
     private const KINDS = [
         'leverancierscontract' => CostKind::SupplierContract,
         'personeel' => CostKind::Personnel,
@@ -35,6 +37,10 @@ class CostRecordRowValidator
         $row['naam'] === '' && $fail('import.name_missing');
         $row['eigenaar'] === '' && $fail('import.owner_missing');
         $kind === null && $fail('import.kind_invalid', ['value' => $row['soort']]);
+
+        foreach (self::LIMITS as $column => $max) {
+            mb_strlen($row[$column]) > $max && $fail('import.text_max', ['column' => $column, 'max' => $max]);
+        }
 
         $fields = [
             'name' => $row['naam'],

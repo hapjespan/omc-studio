@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organisation;
 use App\Rules\CsvUploadRule;
+use App\Services\Audit\SecurityLog;
 use App\Services\Exchange\CostRecordImport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,7 +31,11 @@ class CostRecordImportController extends Controller
 
     public function commit(Request $request, Organisation $organisation): JsonResponse
     {
-        return response()->json($this->import->commit($organisation, $this->path($request)));
+        $result = $this->import->commit($organisation, $this->path($request));
+
+        SecurityLog::record('cost_records_imported', ['organisation_id' => $organisation->getKey(), ...$result['totals']]);
+
+        return response()->json($result);
     }
 
     private function path(Request $request): string
