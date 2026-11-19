@@ -8,6 +8,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use InvalidArgumentException;
 
 class ElementTree
 {
@@ -70,6 +71,49 @@ class ElementTree
             $this->carry($element);
 
             return $element;
+        });
+    }
+
+    public function reorder(Element $element, string $direction): void
+    {
+        $step = match ($direction) {
+            'up' => -1,
+            'down' => 1,
+            default => throw new InvalidArgumentException('Unknown direction '.$direction),
+        };
+
+        $canvas = $element->canvas;
+
+        $this->writes->run([$canvas], function () use ($canvas, $element, $step) {
+            $this->assertStructureWritable($canvas);
+
+            $siblings = Element::query()
+                ->where('canvas_id', $element->canvas_id)
+                ->where('area_id', $element->area_id)
+                ->where('parent_id', $element->parent_id)
+                ->where('kind', $element->kind)
+                ->where('is_unknown_allocation', false)
+                ->whereNull('archived_at')
+                ->orderBy('position')
+                ->orderBy('id')
+                ->get()
+                ->values();
+
+            $from = $siblings->search(fn (Element $sibling) => $sibling->is($element));
+            $to = $from + $step;
+
+            if ($from === false || ! isset($siblings[$to])) {
+                return;
+            }
+
+            $order = $siblings->all();
+            [$order[$from], $order[$to]] = [$order[$to], $order[$from]];
+
+            foreach ($order as $index => $sibling) {
+                if ($sibling->position !== $index) {
+                    $sibling->update(['position' => $index]);
+                }
+            }
         });
     }
 
