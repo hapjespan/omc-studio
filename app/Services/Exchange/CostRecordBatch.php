@@ -17,7 +17,7 @@ class CostRecordBatch
     /** @var list<array<string, mixed>> */
     private array $figures = [];
 
-    public function __construct(private readonly AuditContext $context, private readonly AuditTrail $trail, private readonly int $organisationId) {}
+    public function __construct(private readonly AuditContext $context, private readonly AuditTrail $trail, private readonly int $organisationId, private readonly bool $keepIds = false) {}
 
     public function has(string $key): bool
     {
@@ -32,7 +32,7 @@ class CostRecordBatch
     /** @param array<string, mixed> $attributes */
     public function record(string $key, ?string $code, array $attributes): void
     {
-        $this->records[$key] = ['id' => (string) Str::uuid(), 'organisation_id' => $this->organisationId, 'code' => $code, ...$attributes, 'code_normalised' => $code === null ? null : mb_strtolower($code)];
+        $this->records[$key] = ['id' => $this->keepIds ? $key : (string) Str::uuid(), 'organisation_id' => $this->organisationId, 'code' => $code, ...$attributes, 'code_normalised' => $code === null ? null : mb_strtolower($code)];
     }
 
     /** @param array<string, mixed> $figures */

@@ -22,6 +22,7 @@ use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FullExchangeController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SampleDataController;
@@ -182,4 +183,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->prefix('admin/sample-data')->group(function () {
     Route::get('/', [SampleDataController::class, 'show']);
     Route::post('/remove', [SampleDataController::class, 'remove']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin')->group(function () {
+    Route::get('/exchange', [FullExchangeController::class, 'page']);
+    Route::get('/export/full', [FullExchangeController::class, 'export']);
+    Route::post('/import/full/preview', [FullExchangeController::class, 'preview']);
+    Route::post('/import/full', [FullExchangeController::class, 'commit']);
 });
