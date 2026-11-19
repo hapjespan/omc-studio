@@ -12,7 +12,14 @@ class ElementNames
         $this->refuseWhen(trim($name) === '', __('rule.name_required'));
         $this->refuseWhen(str_contains($name, '>'), __('validation.name_forbidden_sign', ['label' => __('fields.name')]));
 
-        $taken = Element::query()
+        $taken = $this->isTaken($canvasId, $areaId, $parentId, $name, $ignoring);
+
+        $this->refuseWhen($taken, __('rule.element_name_taken'));
+    }
+
+    public function isTaken(int $canvasId, int $areaId, ?string $parentId, string $name, ?string $ignoring = null): bool
+    {
+        return Element::query()
             ->where('canvas_id', $canvasId)
             ->where('area_id', $areaId)
             ->where('parent_id', $parentId)
@@ -20,8 +27,6 @@ class ElementNames
             ->whereNull('archived_at')
             ->when($ignoring, fn ($query) => $query->whereKeyNot($ignoring))
             ->exists();
-
-        $this->refuseWhen($taken, __('rule.element_name_taken'));
     }
 
     private function refuseWhen(bool $condition, string $message): void

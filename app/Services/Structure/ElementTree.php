@@ -16,7 +16,7 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions) {}
 
     /** @param array<string, mixed> $fields */
     public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = []): Element
@@ -34,7 +34,7 @@ class ElementTree
                 'area_id' => $area->id,
                 'parent_id' => $parent?->id,
                 'kind' => $kind,
-                'position' => $this->position($canvas, $area, $kind, $parent),
+                'position' => $this->positions->next($canvas->id, $area->id, $parent?->id, $kind),
             ]);
         });
     }
@@ -65,7 +65,7 @@ class ElementTree
             $element->update([
                 'area_id' => $area->id,
                 'parent_id' => $parent?->id,
-                'position' => $this->position($canvas, $area, $element->kind, $parent),
+                'position' => $this->positions->next($canvas->id, $area->id, $parent?->id, $element->kind),
             ]);
 
             $this->carry($element);
@@ -149,19 +149,5 @@ class ElementTree
             $kind === ElementKind::Cluster => $fits && $parent->kind === ElementKind::Domain ? $parent : $this->refuse('cluster_parent'),
             default => $fits && $parent->kind !== ElementKind::Activity ? $parent : $this->refuse('activity_parent'),
         };
-    }
-
-    private function position(Canvas $canvas, Area $area, ElementKind $kind, ?Element $parent): int
-    {
-        $highest = Element::query()
-            ->where('canvas_id', $canvas->id)
-            ->where('area_id', $area->id)
-            ->where('parent_id', $parent?->id)
-            ->where('kind', $kind)
-            ->where('is_unknown_allocation', false)
-            ->whereNull('archived_at')
-            ->max('position');
-
-        return $highest === null ? 0 : (int) $highest + 1;
     }
 }
