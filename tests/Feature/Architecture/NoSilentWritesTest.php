@@ -35,6 +35,7 @@ class NoSilentWritesTest extends TestCase
 
         $this->assertSame(['app/Planted.php::run update'], $this->violations($planted('Element::where("kind", "domain")->update(["name" => "Nieuw"])'), 'app/Planted.php'));
         $this->assertSame(['app/Planted.php::run delete'], $this->violations($planted('DB::table(\'elements\')->where(\'canvas_id\', $id)->delete()'), 'app/Planted.php'));
+        $this->assertSame(['app/Planted.php::run update'], $this->violations($planted('Snapshot::where("canvas_id", $id)->update(["name" => "Nieuw"])'), 'app/Planted.php'));
         $this->assertSame(['app/Planted.php::run delete'], $this->violations($planted('$element->children()->delete()'), 'app/Planted.php'));
         $this->assertSame([], $this->violations($planted('$element->delete()'), 'app/Planted.php'));
         $this->assertSame([], $this->violations($planted('UndoRecord::where(\'expires_at\', \'<\', now())->delete()'), 'app/Planted.php'));

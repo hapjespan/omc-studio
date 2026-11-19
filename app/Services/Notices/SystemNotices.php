@@ -7,9 +7,26 @@ use Illuminate\Support\Facades\DB;
 
 class SystemNotices
 {
-    private const FACT_KEYS = ['year', 'filter', 'check', 'snapshot'];
+    private const FACT_KEYS = ['year', 'filter', 'check', 'snapshotId'];
 
-    private const DETAIL_KEYS = ['year', 'filter', 'check', 'snapshot', 'differenceCents', 'count', 'lastTime'];
+    private const DETAIL_KEYS = ['year', 'filter', 'check', 'snapshotId', 'snapshot', 'differenceCents', 'count', 'lastTime'];
+
+    /**
+     * @param  array<string, mixed>  $filter
+     * @param  array{check: string, differenceCents: int}  $failure
+     */
+    public function recordClosingCheckFailed(int $canvasId, int $year, array $filter, array $failure): SystemNotice
+    {
+        $filter = array_map(fn ($value) => (string) $value, array_filter($filter, fn ($value) => $value !== null && $value !== ''));
+        ksort($filter);
+
+        return $this->record('closing_check_failed', $canvasId, [
+            'year' => $year,
+            'filter' => $filter,
+            'check' => $failure['check'],
+            'differenceCents' => $failure['differenceCents'],
+        ]);
+    }
 
     /** @param array<string, mixed> $details */
     public function record(string $kind, ?int $canvasId = null, array $details = []): SystemNotice

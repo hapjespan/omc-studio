@@ -25,6 +25,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\SnapshotController;
 use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\TemplateController;
@@ -163,4 +164,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/imports/canvas/preview', [CanvasImportController::class, 'preview']);
     Route::post('/imports/canvas', [CanvasImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/versions', [SnapshotController::class, 'store']);
+    Route::patch('/snapshots/{snapshot}', [SnapshotController::class, 'update']);
+    Route::post('/snapshots/{snapshot}/archive', [SnapshotController::class, 'archive']);
+    Route::post('/snapshots/{snapshot}/restore', [SnapshotController::class, 'restore']);
+    Route::delete('/snapshots/{snapshot}', [SnapshotController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/versions', [SnapshotController::class, 'index']);
 });
