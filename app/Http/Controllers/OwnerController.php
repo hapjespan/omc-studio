@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\ListEntryRequest;
+use App\Models\Organisation;
+use App\Models\Owner;
+use App\Services\Finance\OrganisationLists;
+use App\Services\Lists\ListQuery;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class OwnerController extends Controller
+{
+    public function __construct(private readonly OrganisationLists $lists) {}
+
+    public function index(Request $request, Organisation $organisation): Response
+    {
+        $list = (new ListQuery(['name'], ['name']))->run(
+            Owner::query()->where('organisation_id', $organisation->id)->withCount('costRecords')->orderBy('name_normalised'),
+            $request->query(),
+        );
+
+        return Inertia::render('Admin/Owners', $list + [
+            'organisation' => $organisation->only(['id', 'name', 'archived_at']),
+            'organisations' => Organisation::query()->orderBy('name_normalised')->get(['id', 'name', 'archived_at']),
+            'others' => Owner::query()->where('organisation_id', $organisation->id)->orderBy('name_normalised')->get(['id', 'name']),
+        ]);
+    }
+
+    public function store(ListEntryRequest $request, Organisation $organisation): RedirectResponse
+    {
+        $this->lists->create($organisation, Owner::class, $request->safe()->all());
+
+        return back()->with('status', __('lists.created'));
+    }
+
+    public function update(ListEntryRequest $request, Organisation $organisation, Owner $owner): RedirectResponse
+    {
+        $this->lists->update($organisation, $owner, $request->safe()->all());
+
+        return back()->with('status', __('lists.saved'));
+    }
+
+    public function destroy(Organisation $organisation, Owner $owner): RedirectResponse
+    {
+        $this->lists->delete($organisation, $owner);
+
+        return back()->with('status', __('lists.deleted'));
+    }
+}

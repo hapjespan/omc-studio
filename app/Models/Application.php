@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['organisation_id', 'name', 'supplier'])]
 class Application extends Model
@@ -20,5 +21,11 @@ class Application extends Model
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
+    }
+
+    /** @return HasMany<CostRecord, $this> */
+    public function costRecords(): HasMany
+    {
+        return $this->hasMany(CostRecord::class);
     }
 }

@@ -262,5 +262,12 @@
     "organisations.deleted": "Organisatie verwijderd",
     "organisations.archived": "Organisatie gearchiveerd",
     "organisations.restored": "Organisatie teruggezet",
-    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet"
+    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet",
+    "fields.supplier": "Leverancier",
+    "lists.name_taken": "Naam: deze naam staat al in de lijst",
+    "lists.name_required": "Naam: vul een naam in van 1 tot 150 tekens",
+    "lists.in_use": "Deze waarde is in gebruik. Kies een andere waarde bij Vervangen door",
+    "lists.created": "Opgeslagen",
+    "lists.saved": "Opgeslagen",
+    "lists.deleted": "Verwijderd"
 }
