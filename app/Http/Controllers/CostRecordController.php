@@ -21,8 +21,7 @@ class CostRecordController extends Controller
     public function index(Request $request, Organisation $organisation): Response
     {
         $years = $organisation->fiscalYears()->orderBy('year')->get();
-        $requested = $request->query('year');
-        $year = $years->firstWhere('year', is_scalar($requested) ? (int) $requested : null) ?? $years->last();
+        $year = $years->firstWhere('year', $request->attributes->get('fiscal_year'));
 
         return Inertia::render('Finance/CostRecords', $this->list->run($organisation, $year, $request->query()) + [
             'organisation' => ['id' => $organisation->id, 'name' => $organisation->name, 'archived' => $organisation->archived_at !== null],

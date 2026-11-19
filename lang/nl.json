@@ -328,5 +328,9 @@
     "cost_records.bulk_verb": "verwijderd",
     "fiscal_years.title": "Boekjaren",
     "fiscal_years.year_label": "Jaar",
-    "fiscal_years.add": "Boekjaar toevoegen"
+    "fiscal_years.add": "Boekjaar toevoegen",
+    "shell.tab.costs": "Kostenposten",
+    "shell.year.label": "Boekjaar",
+    "shell.year.open": "open",
+    "shell.year.final": "definitief"
 }

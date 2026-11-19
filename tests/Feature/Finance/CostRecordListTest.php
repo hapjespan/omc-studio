@@ -28,7 +28,7 @@ class CostRecordListTest extends TestCase
         parent::setUp();
 
         $this->organisation = Organisation::factory()->create();
-        $this->year = FiscalYear::factory()->create(['organisation_id' => $this->organisation->id, 'year' => 2026]);
+        $this->year = FiscalYear::factory()->create(['organisation_id' => $this->organisation->id, 'year' => (int) now()->year]);
         $this->actingAs(User::factory()->administrator()->create());
     }
 
@@ -92,11 +92,11 @@ class CostRecordListTest extends TestCase
         $this->assertLessThan(20, count(DB::getQueryLog()));
     }
 
-    public function test_the_year_defaults_to_the_latest_and_a_reader_is_refused(): void
+    public function test_the_year_follows_the_shared_resolution_and_a_reader_is_refused(): void
     {
         FiscalYear::factory()->create(['organisation_id' => $this->organisation->id, 'year' => 2030]);
 
-        $this->get("/organisations/{$this->organisation->id}/cost-records")->assertInertia(fn (Assert $page) => $page->where('year', 2030)->has('years', 2));
+        $this->get("/organisations/{$this->organisation->id}/cost-records?year=2026")->assertInertia(fn (Assert $page) => $page->where('year', 2026)->has('years', 2));
         $this->actingAs(User::factory()->create())->get("/organisations/{$this->organisation->id}/cost-records")->assertForbidden();
     }
 }

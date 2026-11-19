@@ -93,12 +93,6 @@ function load(query: ListState, year: number | null = props.year): void {
 <template>
     <Head :title="t('cost_records.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('cost_records.title') }}: {{ organisation.name }}</h1>
-    <div class="mt-3 flex flex-col gap-1">
-        <label for="fiscal-year" class="text-[13px] font-semibold">{{ t('cost_records.year') }}</label>
-        <select id="fiscal-year" :value="year ?? ''" class="w-40 rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]" @change="load(query, Number(($event.target as HTMLSelectElement).value))">
-            <option v-for="item in years" :key="item.id" :value="item.year">{{ item.year }}</option>
-        </select>
-    </div>
     <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
     <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :writable="!organisation.archived" />
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
