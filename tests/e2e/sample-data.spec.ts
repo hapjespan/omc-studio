@@ -1,7 +1,17 @@
+import { execFileSync } from 'node:child_process';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
 
-test('the sample Organisation is removed after one confirmation and the page says it will not return', async ({ page }) => {
+const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+
+function reseed(): void {
+    const code = "App\\Models\\Organisation::where('is_sample', true)->exists() || (Illuminate\\Support\\Facades\\DB::table('application_state')->where('key', 'sample_data_removed')->delete() && app(App\\Services\\Operations\\SampleData::class)->seed());";
+    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+}
+
+test('the sample Organisation is removed after one confirmation and the page says it will not return', async ({ page }, info) => {
+    test.skip(info.project.name !== 'chromium', 'the sample Organisation is unique per database, so only one browser removes it');
+    reseed();
     await signInAs(page, 'administrator');
     await page.goto('/admin');
     await page.getByRole('link', { name: 'Voorbeelddata' }).click();

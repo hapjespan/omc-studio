@@ -55,7 +55,7 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
         <ArchiveToggle :model-value="showArchived" @update:model-value="toggle" />
     </div>
     <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-6">
-        <h2 :id="`organisation-${organisation.id}`" class="font-[Space_Grotesk] text-base font-semibold">{{ organisation.name }}<span v-if="organisation.is_sample" class="ml-2 rounded border border-[#848B95] px-1.5 text-[12px] font-normal">{{ t('sample.label') }}</span></h2>
+        <h2 :id="`organisation-${organisation.id}`" class="font-[Space_Grotesk] text-base font-semibold">{{ organisation.name }} <span v-if="organisation.is_sample" class="rounded border border-[#848B95] px-1.5 text-[12px] font-normal">{{ t('sample.label') }}</span></h2>
         <Link v-if="canWrite" :href="routes.costRecords(organisation.id)" class="mt-1 inline-block text-[13px] underline">{{ t('overview.cost_records') }}</Link>
         <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-[#454C57]">{{ t('overview.empty_organisation') }}</p>
         <ul v-else class="mt-2 flex flex-wrap gap-4">

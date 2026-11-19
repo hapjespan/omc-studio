@@ -2,7 +2,9 @@
 
 namespace App\Services\Operations\Steps;
 
+use App\Services\Audit\SecurityLog;
 use App\Services\Operations\SampleData;
+use Throwable;
 
 class SampleDataStep
 {
@@ -10,6 +12,10 @@ class SampleDataStep
 
     public function __invoke(): void
     {
-        $this->data->install();
+        try {
+            $this->data->install();
+        } catch (Throwable $failure) {
+            SecurityLog::record('sample_data_failed', ['error' => $failure::class]);
+        }
     }
 }

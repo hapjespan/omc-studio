@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
             $steps = new InstallSteps;
             $steps->add(new ReferenceDataStep);
             $steps->add(new BlankTemplateStep);
-            $steps->add($app->make(SampleDataStep::class));
             $steps->add(new FirstAdministratorStep(new OneTimePassword));
+            $steps->add($app->make(SampleDataStep::class));
 
             return $steps;
         });

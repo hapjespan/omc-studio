@@ -4,6 +4,7 @@ namespace Tests\Feature\Shell;
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Canvas;
+use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -70,6 +71,9 @@ class CanvasModeTest extends TestCase
 
         $shared = (new HandleInertiaRequests)->share($request($canvas));
         $this->assertSame(['id' => $canvas->id, 'name' => $canvas->name, 'kind' => 'canvas', 'archived' => true, 'organisation' => ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name, 'is_sample' => false]], $shared['canvas']);
+
+        $sample = Canvas::factory()->create(['organisation_id' => Organisation::factory()->create(['is_sample' => true])->id]);
+        $this->assertTrue((new HandleInertiaRequests)->share($request($sample))['canvas']['organisation']['is_sample']);
 
         $shared = (new HandleInertiaRequests)->share($request($template));
         $this->assertSame(['id' => $template->id, 'name' => $template->name, 'kind' => 'template', 'archived' => false, 'organisation' => null], $shared['canvas']);

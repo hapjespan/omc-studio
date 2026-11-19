@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import Dialog from '../../components/overlays/Dialog.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
 defineProps<{ present: boolean; name: string | null }>();
 const confirming = ref(false);
+const page = usePage<{ errors: Record<string, string>; flash: { status: string | null } }>();
 
 function remove(): void {
     confirming.value = false;
@@ -17,6 +18,8 @@ function remove(): void {
 <template>
     <Head :title="t('sample.page_title')" />
     <h1 class="text-[20px] font-semibold">{{ t('sample.page_title') }}</h1>
+    <p v-if="page.props.errors.rule" role="alert" class="mt-3 text-[13px] text-[#A12A1E]">{{ page.props.errors.rule }}</p>
+    <p v-if="page.props.flash.status" role="status" class="mt-3 text-[13px]">{{ page.props.flash.status }}</p>
     <template v-if="present">
         <p class="mt-3 text-[13px]">{{ t('sample.page_present', { name: name ?? '' }) }}</p>
         <button type="button" class="mt-3 rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="confirming = true">{{ t('sample.remove') }}</button>

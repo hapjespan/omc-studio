@@ -22,6 +22,7 @@ use App\Services\Finance\FiscalYears;
 use App\Services\Finance\OrganisationLists;
 use App\Services\Finance\YearlyFigures;
 use App\Services\Structure\ElementTree;
+use App\Services\Support\SerialisedWrite;
 use Illuminate\Support\Facades\DB;
 
 class SampleData
@@ -96,38 +97,58 @@ class SampleData
         private readonly CostRecords $costRecords,
         private readonly YearlyFigures $figures,
         private readonly AllocationSets $allocations,
+        private readonly SerialisedWrite $writes,
     ) {}
 
     public function install(): void
     {
-        if ($this->removed() || Organisation::where('is_sample', true)->exists()) {
+        if ($this->removed() || Organisation::exists()) {
             return;
         }
 
-        $organisation = $this->organisations->create($this->text('organisation_name'));
-        $organisation->update(['is_sample' => true]);
+        $this->seed();
+    }
 
-        $template = Canvas::where('is_blank_template', true)->firstOrFail();
-        $canvas = $this->canvases->createFromTemplate($organisation, $template, $this->text('canvas_name'));
+    public function seed(): void
+    {
+        DB::transaction(function () {
+            $organisation = $this->organisations->create($this->text('organisation_name'), true);
+            $template = Canvas::where('is_blank_template', true)->firstOrFail();
+            $canvas = $this->canvases->createFromTemplate($organisation, $template, $this->text('canvas_name'));
 
-        $this->statements($canvas);
-        $this->costs($organisation, $canvas, $this->fiscalYears->add($organisation, (int) now()->year), $this->structure($canvas));
+            $this->statements($canvas);
+            $this->costs($organisation, $canvas, $this->fiscalYears->add($organisation, (int) now()->year), $this->structure($canvas));
+        });
     }
 
     public function remove(User $user): void
     {
-        $organisation = Organisation::where('is_sample', true)->first();
+        $sample = $this->sample();
 
-        DB::transaction(function () use ($organisation, $user) {
-            if ($organisation !== null) {
-                Canvas::where('organisation_id', $organisation->getKey())->each(fn (Canvas $canvas) => $this->canvases->delete($canvas, $canvas->name));
-                $deleted = $this->costRecords->deleteMany($organisation, CostRecord::where('organisation_id', $organisation->getKey())->get(), $user);
-                UndoRecord::whereKey($deleted['token'])->delete();
-                $this->organisations->delete($organisation);
+        if ($sample === null) {
+            $this->markRemoved();
+
+            return;
+        }
+
+        $this->writes->run([$sample], function () use ($sample, $user) {
+            $canvases = Canvas::where('organisation_id', $sample->getKey())->get();
+
+            foreach ($canvases as $canvas) {
+                $this->canvases->delete($canvas, $canvas->name);
             }
 
-            DB::table('application_state')->updateOrInsert(['key' => self::REMOVED_KEY], ['value' => '1']);
+            $records = CostRecord::where('organisation_id', $sample->getKey())->get();
+            $deleted = $this->costRecords->deleteMany($sample, $records, $user);
+            UndoRecord::whereKey($deleted['token'])->delete();
+            $this->organisations->delete($sample);
+            $this->markRemoved();
         });
+    }
+
+    private function markRemoved(): void
+    {
+        DB::table('application_state')->updateOrInsert(['key' => self::REMOVED_KEY], ['value' => '1']);
     }
 
     public function sample(): ?Organisation

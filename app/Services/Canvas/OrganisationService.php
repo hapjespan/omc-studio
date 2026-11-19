@@ -23,12 +23,15 @@ class OrganisationService
         private readonly AuditContext $context,
     ) {}
 
-    public function create(string $name): Organisation
+    public function create(string $name, bool $sample = false): Organisation
     {
-        return $this->writes->run([], function () use ($name) {
+        return $this->writes->run([], function () use ($name, $sample) {
             $this->assertNameFree($name);
 
-            return Organisation::create(['name' => trim($name), 'slug' => $this->uniqueSlug($name)]);
+            $organisation = new Organisation(['name' => trim($name), 'slug' => $this->uniqueSlug($name)]);
+            $organisation->forceFill(['is_sample' => $sample])->save();
+
+            return $organisation;
         });
     }
 
