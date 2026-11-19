@@ -10,7 +10,7 @@ watch(open, () => (dirty.value = false));
 </script>
 
 <template>
-    <SidePanel v-model:open="open" :title="title" :kind="kind" :dirty="dirty">
-        <slot :close="() => (open = false)" :set-dirty="(value: boolean) => (dirty = value)" />
+    <SidePanel v-model:open="open" :title="title" :kind="kind" :dirty="dirty" v-slot="{ requestClose }">
+        <slot :close="() => (open = false)" :set-dirty="(value: boolean) => (dirty = value)" :request-close="requestClose" />
     </SidePanel>
 </template>

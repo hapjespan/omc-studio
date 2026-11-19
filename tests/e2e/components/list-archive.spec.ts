@@ -33,3 +33,15 @@ test('Terugzetten returns the row to the default list', async ({ page }) => {
     await expect(page.getByRole('button', { name: 'Persoon N', exact: true })).toBeVisible();
     await expect(page.getByText('Gearchiveerd', { exact: true })).toBeHidden();
 });
+
+test('the archive toggle is a 16 pixel box inside a 24 pixel target', async ({ page }) => {
+    await page.goto('/?demo=List');
+
+    const box = await page.getByLabel('Toon gearchiveerd').boundingBox();
+    const target = await page.locator('label:has(input[type=checkbox])').first().boundingBox();
+
+    expect(box?.width).toBe(16);
+    expect(box?.height).toBe(16);
+    expect(target?.width).toBe(24);
+    expect(target?.height).toBe(24);
+});

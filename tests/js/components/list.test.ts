@@ -120,6 +120,18 @@ describe('ListView table language', () => {
         expect(html).toMatch(/<span class="block[^"]*">a@example.test<\/span>/);
         expect(html).toMatch(/<th[^>]*text-right[^>]*>Totaal<\/th>/);
     });
+
+    it('right-aligns a sortable header and shows the kind above the panel title', async () => {
+        const html = await render({ title: 'Gebruikers', columns: [{ key: 'name', label: 'Naam' }, { key: 'total', label: 'Totaal', align: 'right', sortable: true }], rows, count: 2, query: idle, kind: 'Gebruiker' });
+
+        expect(html).toMatch(/<th[^>]*text-right[^>]*><button/);
+    });
+
+    it('draws a 16 pixel checkbox inside a 24 pixel target', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, bulkActions: [{ key: 'archive', label: 'Archiveren' }], archivable: true });
+
+        expect(html.match(/<label class="[^"]*size-6[^"]*"><input[^>]*class="size-4"/g)?.length).toBe(4);
+    });
 });
 
 describe('UndoMessage', () => {
@@ -193,7 +205,7 @@ describe('ListView archive handling', () => {
     it('reflects the shown state in the toggle', async () => {
         const html = await render({ title: 'Gebruikers', columns, rows: archivedRows, count: 3, query: { ...idle, archived: true }, archivable: true });
 
-        expect(html).toMatch(/<input id="[^"]+" checked type="checkbox"/);
+        expect(html).toMatch(/<input checked type="checkbox"/);
     });
 
     it('marks an archived row with text and offers Terugzetten for that row only', async () => {

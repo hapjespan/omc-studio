@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '../../i18n';
 import LogoMark from '../../components/ui/LogoMark.vue';
 
 defineProps<{ title: string }>();
@@ -9,7 +10,7 @@ defineProps<{ title: string }>();
         <div class="flex w-full max-w-[400px] flex-col gap-4 rounded-panel border border-hairline bg-white p-8">
             <div class="flex items-center gap-2.5">
                 <LogoMark />
-                <span class="font-display text-[17px] font-bold">OMC Studio</span>
+                <span class="font-display text-[17px] font-bold">{{ t('app.title') }}</span>
             </div>
             <h1 class="font-display text-[22px] font-semibold text-ink">{{ title }}</h1>
             <slot />

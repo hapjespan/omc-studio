@@ -118,7 +118,7 @@ async function copyPassword(): Promise<void> {
     </section>
     <div class="mt-3">
         <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :kind="t('users.kind')" :create-title="t('users.new')" @change="load">
-            <template #form="{ row, close, setDirty }">
+            <template #form="{ row, close, setDirty, requestClose }">
                 <form :key="row?.id ?? 'new'" novalidate class="flex flex-col gap-3" @vue:mounted="open(row, setDirty)" @submit.prevent="submit(row, close)">
                     <div role="alert"><ErrorSummary :errors="errors" /></div>
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="setDirty(changed())" />
@@ -127,18 +127,16 @@ async function copyPassword(): Promise<void> {
                     <SelectField id="role" v-model="draft.role" :label="t('users.role')" :options="roleOptions" :disabled="isSelf(row)" :hint="isSelf(row) ? t('users.own_account') : undefined" :error="errors.role" @update:model-value="setDirty(changed())" />
                     <div class="flex gap-2">
                         <AppButton variant="primary" type="submit" :disabled="busy">{{ t('users.save') }}</AppButton>
-                        <AppButton type="button" @click="close">{{ t('list.cancel') }}</AppButton>
+                        <AppButton type="button" @click="requestClose">{{ t('list.cancel') }}</AppButton>
+                    </div>
+                    <div v-if="row && !isSelf(row)" class="flex flex-wrap gap-2">
+                        <AppButton type="button" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</AppButton>
+                        <AppButton v-if="hasSecondFactor(row)" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</AppButton>
+                        <AppButton type="button" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</AppButton>
                     </div>
                     <div v-if="row" class="flex flex-col gap-3 border-t border-hairline pt-3">
-                        <p class="text-[12.5px] text-secondary">{{ t('users.delete_consequence') }}</p>
-                        <div class="flex flex-wrap gap-2">
-                            <template v-if="!isSelf(row)">
-                                <AppButton type="button" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</AppButton>
-                                <AppButton v-if="hasSecondFactor(row)" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</AppButton>
-                                <AppButton type="button" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</AppButton>
-                            </template>
-                            <AppButton variant="danger" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" @click="confirmingDelete = true">{{ t('list.delete') }}</AppButton>
-                        </div>
+                        <p v-if="!isSelf(row)" class="text-[12.5px] text-secondary">{{ t('users.delete_consequence') }}</p>
+                        <div><AppButton variant="danger" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" @click="confirmingDelete = true">{{ t('list.delete') }}</AppButton></div>
                     </div>
                     <ConfirmDelete v-if="row" v-model:open="confirmingDelete" :name="String(row.name)" :consequence="t('users.delete_consequence')" @confirm="remove(row, close)" />
                     <Dialog v-if="row" v-model:open="confirmingFactor" :title="t('users.reset_second_factor_title', { name: String(row.name) })" :description="t('users.reset_second_factor_consequence')">

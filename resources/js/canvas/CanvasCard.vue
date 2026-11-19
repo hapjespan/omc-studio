@@ -27,7 +27,7 @@ const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.la
 </script>
 
 <template>
-    <article class="flex max-w-full flex-col gap-1 rounded-panel border border-hairline bg-white p-2 hover:border-edge hover:shadow-sm">
+    <article class="flex max-w-full flex-col gap-1 rounded-card border border-hairline bg-white p-2 hover:border-edge">
         <Link :href="routes.canvas(canvas.id)" class="flex flex-col gap-1 font-display font-semibold">
             <Miniature v-if="drawn" :canvas="drawn" :width="240" class="h-auto max-w-full" />
             <span v-else class="block h-[170px] w-[240px] max-w-full" aria-hidden="true" />
@@ -35,7 +35,7 @@ const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.la
         </Link>
         <p class="text-[12.5px] text-secondary">
             <Pill v-if="canvas.archived">{{ t('overview.archived_badge') }}</Pill>
-            <span v-if="canvas.updated_at" class="ml-1">{{ t('overview.updated', { date: formatDate(canvas.updated_at) }) }}</span>
+            <span v-if="canvas.updated_at" :class="canvas.archived && 'ml-1'">{{ t('overview.updated', { date: formatDate(canvas.updated_at) }) }}</span>
         </p>
         <CardMenu v-if="canWrite" :name="canvas.name" :archived="canvas.archived" :template="template" @select="emit('action', $event, canvas)" />
     </article>

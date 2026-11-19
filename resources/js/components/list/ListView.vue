@@ -10,6 +10,7 @@ import ListForm from './ListForm.vue';
 import { SearchEcho } from './searchEcho';
 import SortHeader from './SortHeader.vue';
 import AppButton from '../ui/AppButton.vue';
+import CheckBox from '../ui/CheckBox.vue';
 import SearchField from '../ui/SearchField.vue';
 
 export type ListRow = { id: number | string; name: string; archived_at?: string | null; [key: string]: unknown };
@@ -26,6 +27,7 @@ const deleting = ref<ListRow | null>(null);
 const deleteOpen = computed({ get: () => deleting.value !== null, set: (open) => { if (!open) deleting.value = null; } });
 const selected = ref<(number | string)[]>([]);
 const allSelected = computed(() => props.rows.length > 0 && selected.value.length === props.rows.length);
+const allChecked = computed({ get: () => allSelected.value, set: (checked: boolean) => toggleAll(checked) });
 const searchId = useId();
 const SEARCH_DELAY_MS = 250;
 const search = ref(props.query.search);
@@ -97,7 +99,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
 </script>
 
 <template>
-    <section :aria-label="title" :class="['flex flex-col gap-3', formOpen && 'min-[48rem]:pr-[376px]']">
+    <section :aria-label="title" :class="['flex flex-col gap-3', formOpen && 'min-[48rem]:pr-[calc(var(--spacing-detail-panel)+16px)]']">
         <div class="flex flex-wrap items-center gap-3">
             <div class="w-64"><SearchField :id="searchId" ref="searchField" v-model="search" :label="t('list.search')" @input="onSearch" /></div>
             <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="onFilters" />
@@ -112,7 +114,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
             <caption class="sr-only">{{ title }}</caption>
             <thead>
                 <tr class="border-b border-hairline">
-                    <th v-if="bulkActions?.length" scope="col" class="px-3 py-2.5"><input type="checkbox" :checked="allSelected" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" @change="toggleAll(($event.target as HTMLInputElement).checked)" /></th>
+                    <th v-if="bulkActions?.length" scope="col" class="px-3 py-2.5"><CheckBox v-model="allChecked" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" /></th>
                     <template v-for="column in columns" :key="column.key">
                         <SortHeader v-if="column.sortable" :label="column.label" :direction="directionOf(column.key)" :align="column.align" @sort="sortBy(column.key)" />
                         <th v-else scope="col" :class="['px-3 py-2.5 text-[12px] font-medium text-muted', column.align === 'right' ? 'text-right' : 'text-left']">{{ column.label }}</th>
@@ -122,8 +124,8 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline first:border-t-0 hover:bg-surface', editing === row && 'bg-surface']">
-                    <td v-if="bulkActions?.length" class="px-3 py-2.5"><input v-model="selected" type="checkbox" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></td>
+                <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline first:border-t-0 hover:bg-surface', editing !== 'new' && editing?.id === row.id && 'bg-surface [&>td:first-child]:shadow-[inset_2px_0_0_var(--color-ink)]']">
+                    <td v-if="bulkActions?.length" class="px-3 py-2.5"><CheckBox v-model="selected" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></td>
                     <td v-for="(column, index) in columns" :key="column.key" :class="['px-3 py-2.5', column.align === 'right' && 'text-right tabular-nums']">
                         <button v-if="index === 0 && $slots.form" type="button" class="rounded-control text-left font-semibold" @click="editing = row">{{ row[column.key] }}</button>
                         <template v-else>{{ row[column.key] }}</template>
@@ -142,8 +144,8 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
         </table>
         </div>
         <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="onDelete(deleting)" />
-        <ListForm v-if="$slots.form" v-model:open="formOpen" :kind="kind ? t(editing === 'new' || editing === null ? 'list.kind_new' : 'list.kind_edit', { kind }) : undefined" :title="editing === 'new' || editing === null ? (createTitle ?? t('list.new')) : editing.name" v-slot="{ close, setDirty }">
-            <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :set-dirty="setDirty" />
+        <ListForm v-if="$slots.form" v-model:open="formOpen" :kind="kind ? t(editing === 'new' || editing === null ? 'list.kind_new' : 'list.kind_edit', { kind }) : undefined" :title="editing === 'new' || editing === null ? (createTitle ?? t('list.new')) : editing.name" v-slot="{ close, setDirty, requestClose }">
+            <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :set-dirty="setDirty" :request-close="requestClose" />
         </ListForm>
     </section>
 </template>
