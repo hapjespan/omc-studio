@@ -20,6 +20,7 @@ class CalculationInputBuilder
             ->where('elements.canvas_id', $canvas->id)
             ->whereNull('elements.archived_at')
             ->orderBy('elements.position')
+            ->orderBy('elements.id')
             ->get(['elements.id', 'elements.parent_id', 'areas.key as area_key', 'elements.kind', 'modalities.key as modality_key', 'elements.is_unknown_allocation'])
             ->map(fn (object $row) => [
                 'id' => $row->id,

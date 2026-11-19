@@ -815,6 +815,10 @@
   "T319": {
     "built_by": "claude-sonnet-5-5"
   },
+  "T320": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
   "T321": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
