@@ -43,28 +43,57 @@ class CanvasImportValidator
     /** @return array{data: ?array<string, mixed>, errors: list<array{location: string, message: string}>, count: int} */
     public function validate(string $content): array
     {
-        $this->errors = [];
-        $this->count = 0;
-        $this->years = [];
-        $this->recordIds = [];
-        $this->recordYears = [];
-        $this->setYears = [];
-        $this->recordLabels = [];
-
         $data = $this->decode($content);
 
         if ($data === null) {
             return ['data' => null, 'errors' => [['location' => 'file', 'message' => __('jsonx.refused_file')]], 'count' => 1];
         }
 
+        $foundation = $this->foundation($data);
+        $block = $this->block($data['canvas'] ?? null);
+
+        return [
+            'data' => [...$foundation['data'], 'canvas' => $block['canvas']],
+            'errors' => [...$foundation['errors'], ...$block['errors']],
+            'count' => $foundation['count'] + $block['count'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{data: array<string, mixed>, errors: list<array{location: string, message: string}>, count: int}
+     */
+    public function foundation(array $data): array
+    {
+        $this->errors = [];
+        $this->count = 0;
+        $this->years = [];
+        $this->recordIds = [];
+        $this->recordYears = [];
+        $this->recordLabels = [];
+
         $data = CanvasImportShape::apply($data);
 
         $this->reference();
         $this->organisation($data['organisation'] ?? null);
         $this->costRecords($data['cost_records'] ?? null);
-        $this->canvas($data['canvas'] ?? null);
 
         return ['data' => $data, 'errors' => $this->errors, 'count' => $this->count];
+    }
+
+    /** @return array{canvas: mixed, errors: list<array{location: string, message: string}>, count: int} */
+    public function block(mixed $node): array
+    {
+        $this->errors = [];
+        $this->count = 0;
+        $this->setYears = [];
+
+        $this->reference();
+
+        $node = CanvasImportShape::canvas($node);
+        $this->canvas($node);
+
+        return ['canvas' => $node, 'errors' => $this->errors, 'count' => $this->count];
     }
 
     /**
@@ -124,6 +153,10 @@ class CanvasImportValidator
 
     private function reference(): void
     {
+        if ($this->areaKinds !== []) {
+            return;
+        }
+
         $areas = Area::all();
 
         $this->areaKinds = $areas->pluck('kind', 'key')->all();
