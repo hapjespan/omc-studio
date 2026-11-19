@@ -62,7 +62,7 @@ class CostRecordController extends Controller
         /** @var User $user */
         $user = $request->user();
         /** @var array<int, string> $identifiers */
-        $identifiers = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['string']])['ids'];
+        $identifiers = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['uuid']])['ids'];
 
         $result = $this->records->deleteMany($organisation, $organisation->costRecords()->whereKey($identifiers)->get(), $user);
 
