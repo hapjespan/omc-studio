@@ -10,7 +10,7 @@ class HistoryEncryptionTest extends TestCase
     {
         $this->withoutVite();
 
-        $response = $this->get('/');
+        $response = $this->get('/sign-in');
 
         $response->assertOk();
         $response->assertSee('"encryptHistory":true', false);

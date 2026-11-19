@@ -11,10 +11,10 @@ class InertiaBootTest extends TestCase
     {
         $this->withoutVite();
 
-        $response = $this->get('/');
+        $response = $this->get('/sign-in');
 
         $response->assertOk();
-        $response->assertInertia(fn (AssertableInertia $page) => $page->component('Home'));
+        $response->assertInertia(fn (AssertableInertia $page) => $page->component('Auth/SignIn'));
         $response->assertSee('<html lang="nl">', false);
     }
 
