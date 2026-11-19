@@ -15,7 +15,8 @@ test('the idle warning moves no focus and extending keeps unsaved input', async 
     await page.clock.install();
     await signIn(page, user.email, user.password);
 
-    await page.getByRole('link', { name: 'Mijn account' }).first().click();
+    await page.getByRole('banner').getByRole('button', { name: 'Lezer' }).click();
+    await page.getByRole('menuitem', { name: 'Mijn account' }).click();
     await expect(page.getByRole('heading', { name: 'Mijn account' })).toBeVisible();
     const field = page.getByLabel('Herhaal wachtwoord');
     await field.fill('nog-niet-opgeslagen');
