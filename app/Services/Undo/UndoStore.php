@@ -26,6 +26,8 @@ class UndoStore
 
     public const COST_RECORD_DELETION = 'cost_record_deletion';
 
+    public const YEARLY_FIGURES_DELETION = 'yearly_figures_deletion';
+
     private const LIFETIME_MINUTES = 10;
 
     private const TOKEN_LENGTH = 40;
@@ -70,7 +72,7 @@ class UndoStore
             self::ELEMENT_DELETION => $this->restoreElements($record),
             self::OWNER_DELETION => $this->restoreListEntry($record, Owner::class),
             self::APPLICATION_DELETION => $this->restoreListEntry($record, Application::class),
-            self::COST_RECORD_DELETION => $this->costRecords->restore($record),
+            self::COST_RECORD_DELETION, self::YEARLY_FIGURES_DELETION => $this->costRecords->restore($record),
             default => $this->refuse('undo_unavailable'),
         };
     }

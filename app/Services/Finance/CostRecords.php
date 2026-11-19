@@ -66,6 +66,7 @@ class CostRecords
             $lines = AllocationLine::whereIn('allocation_set_id', $sets->modelKeys())->get();
 
             $token = $this->undo->remember(UndoStore::COST_RECORD_DELETION, [
+                'organisation_id' => $record->organisation_id,
                 'cost_records' => [$record->getAttributes()],
                 'yearly_figures' => $this->raw($figures),
                 'allocation_sets' => $this->raw($sets),

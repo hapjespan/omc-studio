@@ -7,6 +7,8 @@ import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import ConfirmDelete from '../../components/list/ConfirmDelete.vue';
 import type { ListRow } from '../../components/list/ListView.vue';
+import UndoMessage from '../../components/list/UndoMessage.vue';
+import { useUndoFlash } from '../../components/list/undoFlash';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 
@@ -41,8 +43,12 @@ function save(): void {
     router.put(routes.costRecordYear(props.row.id, props.year), { ...draft }, { errorBag: 'figures', preserveScroll: true, preserveState: true, onStart: () => (busy.value = true), onFinish: () => (busy.value = false), onError: () => nextTick(focusFirstInvalid) });
 }
 
+const undo = useUndoFlash('figures');
 const consequence = (): string | null => (Number(props.row.year_set_count) > 0 ? plural('yearly_figures.delete_consequence', Number(props.row.year_set_count)) : null);
-const remove = (): void => router.delete(routes.costRecordYear(props.row.id, props.year), { errorBag: 'figures', preserveScroll: true, preserveState: true });
+const remove = (): void => {
+    undo.start();
+    router.delete(routes.costRecordYear(props.row.id, props.year), { errorBag: 'figures', preserveScroll: true, preserveState: true });
+};
 </script>
 
 <template>
@@ -65,6 +71,7 @@ const remove = (): void => router.delete(routes.costRecordYear(props.row.id, pro
                 <button v-if="hasFigures" type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="deleting = true">{{ t('yearly_figures.delete') }}</button>
             </div>
         </form>
+        <UndoMessage v-if="undo.state.value" :key="undo.state.value.id" class="mt-3" :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" />
         <ConfirmDelete v-if="deleting" v-model:open="deleting" :name="String(year)" :consequence="consequence()" @confirm="remove" />
     </section>
 </template>
