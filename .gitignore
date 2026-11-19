@@ -39,3 +39,4 @@ test-results/
 .playwright-browsers/
 .scratch/
 /proof/wp-e0/dist
+/proof/wp-e0/dist-page

@@ -4,14 +4,19 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "check-pins": "node check-pins.mjs"
+        "check-pins": "node check-pins.mjs",
+        "build:page": "vite build --config vite.page.config.ts"
     },
     "dependencies": {
+        "@expo-google-fonts/space-grotesk": "0.4.1",
         "@fontsource/inter": "5.3.0",
         "@fontsource/space-grotesk": "5.3.0",
         "@open-pencil/canvaskit": "0.16.0",
         "@open-pencil/core": "0.16.0",
-        "@open-pencil/scene-graph": "0.16.0"
+        "@open-pencil/scene-graph": "0.16.0",
+        "@open-pencil/vue": "0.16.0",
+        "@vitejs/plugin-vue": "6.0.11",
+        "vue": "3.5.45"
     },
     "devDependencies": {
         "vite": "8.3.8"
