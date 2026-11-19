@@ -114,7 +114,9 @@ class FinanceModelsTest extends TestCase
 
         $this->expectException(LazyLoadingViolationException::class);
 
-        CostRecord::get()->first()->owner;
+        foreach (CostRecord::get() as $loadedRecord) {
+            $loadedRecord->getRelationValue('owner');
+        }
     }
 
     public function test_an_organisation_has_its_fiscal_years_owners_and_applications(): void
