@@ -7,8 +7,9 @@ FROM php:8.4-cli
 # so it is installed here explicitly rather than assumed.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git gh curl ca-certificates unzip python3 \
-        libpq-dev libzip-dev libicu-dev \
-    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pgsql zip intl bcmath \
+        libpq-dev libzip-dev libicu-dev libpng-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pgsql zip intl bcmath gd \
     && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/* \
