@@ -42,5 +42,8 @@
     "dialog.keep_editing": "Verder bewerken",
     "form.error_summary": "Controleer deze velden",
     "form.optional": "optioneel",
-    "fields.name": "Naam"
+    "fields.name": "Naam",
+    "validation.password_min": "Wachtwoord: gebruik minstens :min tekens",
+    "validation.password_max": "Wachtwoord: gebruik hoogstens :max tekens",
+    "validation.password_common": "Wachtwoord: dit wachtwoord is te bekend, kies een ander"
 }
