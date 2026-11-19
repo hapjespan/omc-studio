@@ -8,6 +8,8 @@ use App\Models\AuditEntry;
 use App\Models\User;
 use App\Services\Accounts\UserAdministration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
@@ -88,5 +90,41 @@ class UserAdministrationTest extends TestCase
         $errors = $this->validate(['name' => '', 'email' => '', 'role' => 'owner']);
 
         $this->assertSame(['name', 'email', 'role'], array_keys($errors));
+    }
+
+    private function securityLog(): string
+    {
+        return storage_path('logs/security-'.Carbon::now()->format('Y-m-d').'.log');
+    }
+
+    public function test_creating_a_user_is_written_to_the_security_log_without_the_address(): void
+    {
+        File::delete($this->securityLog());
+        $this->actingAs($admin = User::factory()->administrator()->create());
+
+        [$user] = $this->app->make(UserAdministration::class)->create(['name' => 'Ann', 'email' => 'ann.log@example.org', 'role' => 'reader']);
+
+        $written = (string) File::get($this->securityLog());
+        $this->assertStringContainsString('user_created', $written);
+        $this->assertStringContainsString('"subject_id":'.$user->getKey(), $written);
+        $this->assertStringContainsString('"user_id":'.$admin->getKey(), $written);
+        $this->assertStringNotContainsString('ann.log@example.org', $written);
+    }
+
+    public function test_a_role_change_is_written_to_the_security_log_and_a_plain_edit_is_not(): void
+    {
+        File::delete($this->securityLog());
+        $this->actingAs(User::factory()->administrator()->create());
+        $user = User::factory()->create(['role' => Role::Reader]);
+        $service = $this->app->make(UserAdministration::class);
+
+        $service->update($user, ['name' => 'Renamed', 'email' => $user->email, 'role' => 'reader']);
+        $this->assertFalse(File::exists($this->securityLog()) && str_contains((string) File::get($this->securityLog()), 'user_role_changed'));
+
+        $service->update($user, ['name' => 'Renamed', 'email' => $user->email, 'role' => 'administrator']);
+        $written = (string) File::get($this->securityLog());
+        $this->assertStringContainsString('user_role_changed', $written);
+        $this->assertStringContainsString('"subject_id":'.$user->getKey(), $written);
+        $this->assertStringNotContainsString($user->email, $written);
     }
 }
