@@ -26,8 +26,8 @@ export function registerTab(tab: Tab, position = registry.length): void {
     registry.splice(position, 0, tab);
 }
 
-export function visibleTabs(role: string, hasCanvas: boolean): Tab[] {
-    return registry.filter((tab) => tab.roles.includes(role) && (tab.context === 'any' || (tab.context === 'canvas') === hasCanvas));
+export function visibleTabs(role: string, hasCanvas: boolean, kind?: string): Tab[] {
+    return registry.filter((tab) => tab.roles.includes(role) && !(tab.key === 'versions' && kind === 'template') && (tab.context === 'any' || (tab.context === 'canvas') === hasCanvas));
 }
 
 export function isActive(tab: Tab, url: string): boolean {

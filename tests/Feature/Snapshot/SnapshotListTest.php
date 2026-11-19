@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Snapshot;
 
+use App\Enums\CanvasKind;
+use App\Models\Canvas;
 use App\Models\User;
+use App\Services\Operations\Steps\BlankTemplateStep;
 use App\Services\Snapshot\Snapshots;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Feature\Allocation\AllocationTestCase;
@@ -53,5 +56,13 @@ class SnapshotListTest extends AllocationTestCase
         auth()->logout();
 
         $this->get("/canvases/{$this->canvas->id}/versions")->assertRedirect();
+    }
+
+    public function test_a_template_has_no_versions_page(): void
+    {
+        (new BlankTemplateStep)();
+        $template = Canvas::where('kind', CanvasKind::Template->value)->firstOrFail();
+
+        $this->get("/canvases/{$template->id}/versions")->assertNotFound();
     }
 }

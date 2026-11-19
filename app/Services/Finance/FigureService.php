@@ -24,14 +24,7 @@ class FigureService
             return $figures;
         }
 
-        $filter = array_map(fn ($value) => (string) $value, array_filter($filter, fn ($value) => $value !== null && $value !== ''));
-        ksort($filter);
-        $this->notices->record('closing_check_failed', $canvas->id, [
-            'year' => $year,
-            'filter' => $filter,
-            'check' => $failure['check'],
-            'differenceCents' => $failure['differenceCents'],
-        ]);
+        $this->notices->recordClosingCheckFailed($canvas->id, $year, $filter, $failure);
 
         return null;
     }

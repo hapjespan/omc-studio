@@ -157,4 +157,11 @@ class TakeSnapshotTest extends AllocationTestCase
 
         $this->assertSame(0, Snapshot::count());
     }
+
+    public function test_a_remark_of_zero_is_kept(): void
+    {
+        $this->take(['remark' => '0'])->assertRedirect();
+
+        $this->assertSame('0', Snapshot::sole()->remark);
+    }
 }

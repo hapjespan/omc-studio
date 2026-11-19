@@ -33,7 +33,7 @@ class UpdateSnapshotRequest extends AppFormRequest
     public function after(): array
     {
         return [function (Validator $validator): void {
-            if (array_diff(array_keys($this->all()), self::EDITABLE) !== []) {
+            if (array_diff(array_keys($this->post()), self::EDITABLE) !== []) {
                 $validator->errors()->add('rule', __('snap.field_not_editable'));
             }
         }];

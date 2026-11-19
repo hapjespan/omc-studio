@@ -60,12 +60,7 @@ class Snapshots
             return $taken;
         }
 
-        $this->notices->record('closing_check_failed', $canvas->getKey(), [
-            'year' => $year->year,
-            'filter' => [],
-            'check' => $taken['check'],
-            'differenceCents' => $taken['differenceCents'],
-        ]);
+        $this->notices->recordClosingCheckFailed($canvas->getKey(), $year->year, [], $taken);
 
         throw ValidationException::withMessages(['rule' => (string) __('snap.closing_check_failed')]);
     }
@@ -76,7 +71,7 @@ class Snapshots
         $encoded = (string) $snapshot->content;
 
         if (! hash_equals((string) $snapshot->checksum, $this->content->checksum($encoded))) {
-            $this->notices->record('snapshot_damaged', $snapshot->canvas_id, ['snapshot' => $snapshot->name]);
+            $this->notices->record('snapshot_damaged', $snapshot->canvas_id, ['snapshotId' => $snapshot->getKey(), 'snapshot' => $snapshot->name]);
 
             return null;
         }
@@ -125,7 +120,8 @@ class Snapshots
     {
         $canvas = Canvas::findOrFail($snapshot->canvas_id);
 
-        return $this->writes->run([Organisation::findOrFail($canvas->organisation_id), $canvas], function () use ($snapshot, $work) {
+        return $this->writes->run([Organisation::findOrFail($canvas->organisation_id), $canvas], function () use ($snapshot, $work, $canvas) {
+            $this->assertWritable($canvas);
             $snapshot->refresh();
 
             return $work();

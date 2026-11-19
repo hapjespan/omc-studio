@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CanvasKind;
 use App\Http\Requests\StoreSnapshotRequest;
 use App\Http\Requests\UpdateSnapshotRequest;
 use App\Models\Canvas;
@@ -21,6 +22,8 @@ class SnapshotController extends Controller
 
     public function index(Request $request, Canvas $canvas): Response
     {
+        abort_if($canvas->kind === CanvasKind::Template, 404);
+
         $list = (new ListQuery(['name'], ['name', 'fiscal_year', 'created_at'], [], 'archived_at'))->run(
             Snapshot::query()
                 ->where('canvas_id', $canvas->getKey())
@@ -43,7 +46,7 @@ class SnapshotController extends Controller
             $canvas,
             $request->fiscalYear(),
             $request->string('name')->toString(),
-            $request->string('remark')->toString() ?: null,
+            $request->filled('remark') ? $request->string('remark')->toString() : null,
         );
 
         return back()->with('status', __('snap.created', ['name' => $snapshot->name]));

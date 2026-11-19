@@ -85,4 +85,16 @@ class DamagedSnapshotTest extends AllocationTestCase
     {
         $this->assertSame('Deze momentopname is beschadigd en wordt niet getoond', __(Snapshots::DAMAGED_MESSAGE));
     }
+
+    public function test_two_damaged_snapshots_with_the_same_name_get_their_own_notice(): void
+    {
+        $this->damage($this->stored('Gelijk'));
+        $this->damage($this->stored('Gelijk'));
+
+        foreach (Snapshot::orderBy('id')->get() as $snapshot) {
+            $this->assertNull($this->snapshots->read($snapshot));
+        }
+
+        $this->assertSame(2, SystemNotice::count());
+    }
 }

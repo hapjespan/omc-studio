@@ -6,6 +6,7 @@ use App\Models\AuditEntry;
 use App\Models\Snapshot;
 use App\Models\User;
 use App\Services\Snapshot\Snapshots;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Feature\Allocation\AllocationTestCase;
 
 class UpdateSnapshotTest extends AllocationTestCase
@@ -83,5 +84,41 @@ class UpdateSnapshotTest extends AllocationTestCase
         $this->postJson("/snapshots/{$this->snapshot->id}/archive")->assertForbidden();
         $this->postJson("/snapshots/{$this->snapshot->id}/restore")->assertForbidden();
         $this->deleteJson("/snapshots/{$this->snapshot->id}", ['confirm' => true])->assertForbidden();
+    }
+
+    /** @return array<string, array{string}> */
+    public static function routes(): array
+    {
+        return ['rename' => ['patch'], 'archive' => ['archive'], 'restore' => ['restore'], 'delete' => ['delete']];
+    }
+
+    private function send(string $route): void
+    {
+        $id = $this->snapshot->id;
+        $response = match ($route) {
+            'archive' => $this->postJson("/snapshots/{$id}/archive"),
+            'restore' => $this->postJson("/snapshots/{$id}/restore"),
+            'delete' => $this->deleteJson("/snapshots/{$id}", ['confirm' => true]),
+            default => $this->patchJson("/snapshots/{$id}", ['name' => 'Nieuw']),
+        };
+        $response->assertUnprocessable()->assertJsonValidationErrors('rule');
+    }
+
+    #[DataProvider('routes')]
+    public function test_a_snapshot_of_an_archived_canvas_is_refused(string $route): void
+    {
+        $this->canvas->update(['archived_at' => now()]);
+
+        $this->send($route);
+        $this->assertSame('Eerste', $this->snapshot->fresh()?->name);
+    }
+
+    #[DataProvider('routes')]
+    public function test_a_snapshot_of_an_archived_organisation_is_refused(string $route): void
+    {
+        $this->canvas->organisation->update(['archived_at' => now()]);
+
+        $this->send($route);
+        $this->assertSame(1, Snapshot::count());
     }
 }

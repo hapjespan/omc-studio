@@ -17,6 +17,10 @@ describe('tabs', () => {
         expect(keys('reader', true)).toEqual(['canvas', 'versions']);
     });
 
+    it('hides Versies on a Template', () => {
+        expect(visibleTabs('administrator', true, 'template').map((tab) => tab.key)).not.toContain('versions');
+    });
+
     it('marks Versies and not Canvas on the versions address', () => {
         const [canvas, , , versions] = visibleTabs('administrator', true);
 
