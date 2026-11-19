@@ -16,7 +16,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => ['role' => $request->user()?->role?->value],
-            'appName' => __('app.title'),
+            'appName' => config('app.name'),
             'canvas' => $this->canvas($request),
             'flash' => ['status' => $request->session()->get('status')],
         ];

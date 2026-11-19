@@ -29,6 +29,7 @@ class SharedPropsTest extends TestCase
 
     public function test_the_shared_props_hold_role_application_name_and_flash(): void
     {
+        config(['app.name' => 'OMC Studio']);
         $user = User::factory()->create(['role' => 'reader']);
 
         $props = $this->shared($user, 'Opgeslagen');
@@ -36,6 +37,13 @@ class SharedPropsTest extends TestCase
         $this->assertSame('reader', $props['auth']['role']);
         $this->assertSame('OMC Studio', $props['appName']);
         $this->assertSame('Opgeslagen', $props['flash']['status']);
+    }
+
+    public function test_the_application_name_follows_the_configuration(): void
+    {
+        config(['app.name' => 'Another Name']);
+
+        $this->assertSame('Another Name', $this->shared()['appName']);
     }
 
     public function test_a_guest_has_no_role_and_no_flash(): void
