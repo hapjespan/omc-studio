@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Calculation\Figures;
 use App\Enums\CostKind;
 use App\Http\Resources\CanvasFigures;
+use App\Http\Resources\SnapshotVersions;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\CostRecord;
@@ -41,6 +42,7 @@ class CanvasViewController extends Controller
 
         return Inertia::render('Canvas/View', [
             'canWrite' => false,
+            'versions' => SnapshotVersions::for($canvas),
             'overlay' => $overlay,
             'year' => $year,
             'filters' => $filters,

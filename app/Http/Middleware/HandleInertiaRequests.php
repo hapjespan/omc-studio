@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
     /** @return array<string, mixed>|null */
     private function canvas(Request $request): ?array
     {
-        $canvas = $request->route('canvas');
+        $canvas = $request->route('canvas') ?? $request->route('snapshot')?->canvas;
 
         return $canvas instanceof Canvas
             ? [
