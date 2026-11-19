@@ -4,6 +4,7 @@ namespace App\Services\Exchange;
 
 use App\Models\Canvas;
 use App\Models\Organisation;
+use App\Models\Snapshot;
 use App\Services\Audit\AuditContext;
 use App\Services\Support\SerialisedWrite;
 use Illuminate\Validation\ValidationException;
@@ -78,6 +79,10 @@ class FullImport
 
         foreach ($entry['canvases'] as $block) {
             $canvas = $this->writer->canvas($organisationId, (string) $block['name'], $block['block'], $records, $years);
+
+            foreach ($block['snapshots'] as $snapshot) {
+                Snapshot::create([...$snapshot, 'canvas_id' => $canvas->getKey(), 'created_by' => null, 'imported' => true]);
+            }
 
             $this->archive($canvas, $block['archived_at']);
         }

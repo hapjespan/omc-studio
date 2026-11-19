@@ -5,7 +5,9 @@ namespace Tests\Feature\Exchange;
 use App\Enums\CanvasKind;
 use App\Models\Canvas;
 use App\Models\Organisation;
+use App\Models\Snapshot;
 use App\Models\User;
+use App\Services\Snapshot\Snapshots;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +21,16 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->richCanvas();
         Canvas::create(['organisation_id' => null, 'kind' => CanvasKind::Template, 'name' => 'Sjabloon A']);
         $this->actingAs(User::factory()->administrator()->create());
+
+        return json_decode((string) $this->get('/admin/export/full')->assertOk()->getContent(), true);
+    }
+
+    /** @return array<string, mixed> */
+    private function exportedFullWithSnapshot(): array
+    {
+        $this->richCanvas();
+        $this->actingAs(User::factory()->administrator()->create());
+        app(Snapshots::class)->take($this->canvas, $this->fiscalYear(2026), 'Voor de stuurgroep');
 
         return json_decode((string) $this->get('/admin/export/full')->assertOk()->getContent(), true);
     }
@@ -233,6 +245,36 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->assertSame(['organisations[0].organisation.name', 'organisations[0].canvases[0].name', 'templates[0].name'], array_column($report['errors'], 'location'));
         $this->send('/admin/import/full', $data)->assertUnprocessable();
         $this->assertSame(0, Organisation::count());
+    }
+
+    public function test_a_snapshot_is_imported_with_its_checksum_and_marked_as_imported(): void
+    {
+        $data = $this->exportedFullWithSnapshot();
+        $this->wipe();
+
+        $this->send('/admin/import/full', $data)->assertOk();
+
+        $snapshot = Snapshot::firstOrFail();
+
+        $this->assertSame('Voor de stuurgroep', $snapshot->name);
+        $this->assertSame(2026, $snapshot->fiscal_year);
+        $this->assertTrue($snapshot->imported);
+        $this->assertNull($snapshot->created_by);
+        $this->assertNotNull(app(Snapshots::class)->read($snapshot));
+        $this->assertSame($data['organisations'][0]['canvases'][0]['snapshots'][0]['checksum'], $snapshot->checksum);
+    }
+
+    public function test_a_snapshot_whose_checksum_does_not_match_refuses_the_file_by_name(): void
+    {
+        $data = $this->exportedFullWithSnapshot();
+        $this->wipe();
+        $data['organisations'][0]['canvases'][0]['snapshots'][0]['content']['canvas_name'] = 'Vervalst';
+
+        $this->send('/admin/import/full/preview', $data)->assertUnprocessable()
+            ->assertJsonValidationErrors(['file' => 'Voor de stuurgroep']);
+        $this->send('/admin/import/full', $data)->assertUnprocessable();
+        $this->assertSame(0, Organisation::count());
+        $this->assertSame(0, Snapshot::count());
     }
 
     public function test_an_organisation_without_canvases_keeps_its_cost_records(): void

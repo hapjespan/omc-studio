@@ -838,6 +838,7 @@
     "fullx.refused_file": "Bestand: kies een volledige export van deze applicatie van maximaal 50 MB",
     "fullx.not_empty": "Volledige import kan alleen in een lege applicatie. Verwijder eerst alle organisaties",
     "fullx.imported_suffix": " (geïmporteerd)",
+    "fullx.snapshot_damaged": "Bestand: momentopname :name is beschadigd; het controlegetal klopt niet bij de inhoud",
     "fullx.record_id_invalid": ":location: dit moet een uuid zijn",
     "fullx.template_name_taken": ":location: deze sjabloonnaam is al in gebruik, ook met de toevoeging (geïmporteerd)",
     "fullx.title": "Volledige export en import",

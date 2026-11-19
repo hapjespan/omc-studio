@@ -4,6 +4,7 @@ namespace App\Services\Exchange;
 
 use App\Models\Canvas;
 use App\Models\Organisation;
+use App\Services\Snapshot\SnapshotContent;
 use DateTimeImmutable;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -11,7 +12,7 @@ use JsonException;
 
 class FullImportValidator
 {
-    private const DEPTH = 64;
+    public const DEPTH = 64;
 
     private const MAX_ERRORS = 1000;
 
@@ -27,7 +28,7 @@ class FullImportValidator
     /** @var array<string, bool> */
     private array $recordIds = [];
 
-    public function __construct(private readonly CanvasImportValidator $validator) {}
+    public function __construct(private readonly CanvasImportValidator $validator, private readonly SnapshotContent $content) {}
 
     /**
      * @return array{organisations: list<array<string, mixed>>, templates: list<array{name: string, block: array<string, mixed>}>, errors: list<array{location: string, message: string}>, count: int}
@@ -95,7 +96,61 @@ class FullImportValidator
             is_string($name) && ! $this->once(Canvas::normalise($name), $names) && $this->fail($where.'.name', 'jsonx.canvas_name_taken');
             $this->moment($canvas['archived_at'] ?? null, $where.'.archived_at');
 
-            $prepared[] = ['name' => $name, 'archived_at' => $canvas['archived_at'] ?? null, 'block' => $result['canvas']];
+            $prepared[] = [
+                'name' => $name,
+                'archived_at' => $canvas['archived_at'] ?? null,
+                'block' => $result['canvas'],
+                'snapshots' => $this->snapshots($canvas['snapshots'] ?? [], $where.'.snapshots'),
+            ];
+        }
+
+        return $prepared;
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function snapshots(mixed $node, string $at): array
+    {
+        $prepared = [];
+
+        if (! is_array($node) || ! array_is_list($node)) {
+            $this->fail($at, 'jsonx.not_list');
+
+            return $prepared;
+        }
+
+        foreach ($node as $index => $snapshot) {
+            $where = $at.'['.$index.']';
+            $name = is_array($snapshot) ? ($snapshot['name'] ?? null) : null;
+            $content = is_array($snapshot) ? ($snapshot['content'] ?? null) : null;
+            $checksum = is_array($snapshot) ? ($snapshot['checksum'] ?? null) : null;
+            $remark = is_array($snapshot) ? ($snapshot['remark'] ?? null) : null;
+
+            $sound = $this->flag(is_array($snapshot), $where, 'jsonx.not_object')
+                && $this->flag(is_string($name) && trim($name) !== '' && mb_strlen(trim($name)) <= self::NAME, $where.'.name', 'jsonx.required')
+                && $this->flag(is_int($snapshot['fiscal_year'] ?? null) && is_int($snapshot['schema_version'] ?? null), $where.'.fiscal_year', 'jsonx.unknown_value')
+                && $this->flag($remark === null || is_string($remark), $where.'.remark', 'jsonx.not_text')
+                && $this->flag(is_array($content) && is_string($checksum), $where.'.content', 'jsonx.not_object')
+                && $this->moment($snapshot['created_at'] ?? null, $where.'.created_at', true)
+                && $this->moment($snapshot['archived_at'] ?? null, $where.'.archived_at');
+
+            if (! $sound) {
+                continue;
+            }
+
+            $encoded = $this->content->encode($content);
+
+            hash_equals($checksum, $this->content->checksum($encoded)) || $this->refuse('fullx.snapshot_damaged', ['name' => trim((string) $name)]);
+
+            $prepared[] = [
+                'name' => trim((string) $name),
+                'fiscal_year' => $snapshot['fiscal_year'],
+                'remark' => $remark,
+                'created_at' => $snapshot['created_at'],
+                'archived_at' => $snapshot['archived_at'] ?? null,
+                'schema_version' => $snapshot['schema_version'],
+                'content' => $encoded,
+                'checksum' => $checksum,
+            ];
         }
 
         return $prepared;
@@ -229,15 +284,22 @@ class FullImportValidator
         return true;
     }
 
-    private function moment(mixed $value, string $location): void
+    private function moment(mixed $value, string $location, bool $required = false): bool
     {
         if ($value === null) {
-            return;
+            return $required ? $this->flag(false, $location, 'jsonx.required') : true;
         }
 
         $date = is_string($value) ? DateTimeImmutable::createFromFormat(DATE_ATOM, $value) : false;
 
-        $date !== false && $date->format(DATE_ATOM) === $value || $this->fail($location, 'jsonx.date_invalid');
+        return $this->flag($date !== false && $date->format(DATE_ATOM) === $value, $location, 'jsonx.date_invalid');
+    }
+
+    private function flag(bool $sound, string $location, string $key): bool
+    {
+        $sound || $this->fail($location, $key);
+
+        return $sound;
     }
 
     /** @param array<string, int|string> $replace */

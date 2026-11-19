@@ -6,6 +6,7 @@ use App\Models\CostRecord;
 use App\Models\User;
 use App\Services\Exchange\CanvasImportValidator;
 use App\Services\Exchange\FullImportValidator;
+use App\Services\Snapshot\SnapshotContent;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -25,14 +26,14 @@ class FullImportLargeFileTest extends CanvasExchangeTestCase
         $content = $this->file();
         $baseline = DB::transactionLevel();
 
-        $this->app->bind(FullImportValidator::class, fn ($app) => new class($app->make(CanvasImportValidator::class), function () {
+        $this->app->bind(FullImportValidator::class, fn ($app) => new class($app->make(CanvasImportValidator::class), $app->make(SnapshotContent::class), function () {
             $this->levels[] = DB::transactionLevel();
         }) extends FullImportValidator
         {
 
-            public function __construct(CanvasImportValidator $validator, private readonly \Closure $probe)
+            public function __construct(CanvasImportValidator $validator, SnapshotContent $content, private readonly \Closure $probe)
             {
-                parent::__construct($validator);
+                parent::__construct($validator, $content);
             }
 
             public function check(string $content): array

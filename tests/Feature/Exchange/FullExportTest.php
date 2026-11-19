@@ -5,7 +5,10 @@ namespace Tests\Feature\Exchange;
 use App\Enums\CanvasKind;
 use App\Models\Canvas;
 use App\Models\Organisation;
+use App\Models\SystemNotice;
 use App\Models\User;
+use App\Services\Snapshot\Snapshots;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -33,6 +36,26 @@ class FullExportTest extends CanvasExchangeTestCase
         $this->assertSame(['Sjabloon A'], array_column($data['templates'], 'name'));
         $this->assertStringNotContainsString('password', (string) $response->getContent());
         $this->assertArrayNotHasKey('users', $data);
+    }
+
+    public function test_every_snapshot_rides_along_and_a_damaged_one_is_left_out_and_named(): void
+    {
+        $this->richCanvas();
+        $this->actingAs(User::factory()->administrator()->create());
+        $snapshots = app(Snapshots::class);
+        $sound = $snapshots->take($this->canvas, $this->fiscalYear(2026), 'Voor de stuurgroep');
+        $damaged = $snapshots->take($this->canvas, $this->fiscalYear(2027), 'Tweede ronde');
+
+        DB::table('snapshots')->where('id', $damaged->getKey())->update(['content' => '{"schema_version":1}']);
+
+        $data = json_decode((string) $this->get('/admin/export/full')->assertOk()->getContent(), true);
+        $exported = $data['organisations'][0]['canvases'][0]['snapshots'];
+
+        $this->assertSame(['Voor de stuurgroep'], array_column($exported, 'name'));
+        $this->assertSame($sound->checksum, $exported[0]['checksum']);
+        $this->assertSame(2026, $exported[0]['fiscal_year']);
+        $this->assertSame(1, $exported[0]['content']['schema_version']);
+        $this->assertSame(['Tweede ronde'], SystemNotice::where('kind', 'snapshot_damaged')->get()->map(fn (SystemNotice $notice) => $notice->details['snapshot'])->all());
     }
 
     public function test_the_export_is_logged_without_file_contents(): void
