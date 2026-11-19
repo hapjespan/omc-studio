@@ -262,5 +262,6 @@
     "organisations.deleted": "Organisatie verwijderd",
     "organisations.archived": "Organisatie gearchiveerd",
     "organisations.restored": "Organisatie teruggezet",
-    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet"
+    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet",
+    "validation.csv_upload": "Bestand: kies een CSV-bestand van maximaal 5 MB met de kolommen :columns"
 }
