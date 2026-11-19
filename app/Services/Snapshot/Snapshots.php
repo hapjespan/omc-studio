@@ -16,6 +16,8 @@ class Snapshots
 {
     use WritableGuard;
 
+    public const DAMAGED_MESSAGE = 'snap.damaged';
+
     public function __construct(
         private readonly SerialisedWrite $writes,
         private readonly SnapshotContent $content,
@@ -64,5 +66,19 @@ class Snapshots
         ]);
 
         throw ValidationException::withMessages(['rule' => (string) __('snap.closing_check_failed')]);
+    }
+
+    /** @return array<string, mixed>|null */
+    public function read(Snapshot $snapshot): ?array
+    {
+        $encoded = (string) $snapshot->content;
+
+        if (! hash_equals((string) $snapshot->checksum, $this->content->checksum($encoded))) {
+            $this->notices->record('snapshot_damaged', $snapshot->canvas_id, ['snapshot' => $snapshot->name]);
+
+            return null;
+        }
+
+        return json_decode($encoded, true, 512, JSON_THROW_ON_ERROR);
     }
 }
