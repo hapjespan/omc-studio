@@ -7,6 +7,7 @@ use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Inertia\Testing\AssertableInertia as Assert;
 
 class FullExportTest extends CanvasExchangeTestCase
 {
@@ -41,6 +42,13 @@ class FullExportTest extends CanvasExchangeTestCase
         $this->actingAs(User::factory()->administrator()->create());
 
         $this->get('/admin/export/full')->assertOk();
+    }
+
+    public function test_the_exchange_page_renders_for_an_administrator(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create());
+
+        $this->get('/admin/exchange')->assertInertia(fn (Assert $page) => $page->component('Admin/Exchange'));
     }
 
     public function test_a_reader_may_not_export(): void
