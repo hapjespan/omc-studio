@@ -72,7 +72,9 @@ final class FigureCalculator
             }
         }
 
-        return new Figures($elements, $lines, $areas, $canvasTotal, $this->breakdowns($input, $lines, $elements), $this->sidePanel($input, $elements, $unknownId));
+        $figures = new Figures($elements, $lines, $areas, $canvasTotal, $this->breakdowns($input, $lines, $elements), $this->sidePanel($input, $elements, $unknownId));
+
+        return new Figures($figures->elements, $figures->lines, $figures->areas, $figures->canvasTotal, $figures->breakdowns, $figures->sidePanel, ClosingCheck::run($input, $figures));
     }
 
     /**

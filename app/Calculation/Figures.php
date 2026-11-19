@@ -16,6 +16,7 @@ final readonly class Figures
      * @param  Money  $canvasTotal
      * @param  array{costKind: array<string, Money>, modality: array<string, Money>, split: array{run: int, change: int, undetermined: int}}  $breakdowns
      * @param  array{allocated: array{budget: int, forecast: int, count: int}, unknown: array{budget: int, forecast: int, count: int}}  $sidePanel
+     * @param  array{passed: bool, failures: list<array{check: string, differenceCents: int}>}|null  $closingCheck
      */
     public function __construct(
         public array $elements,
@@ -24,5 +25,6 @@ final readonly class Figures
         public array $canvasTotal,
         public array $breakdowns,
         public array $sidePanel,
+        public ?array $closingCheck = null,
     ) {}
 }
