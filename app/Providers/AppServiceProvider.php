@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\Accounts\OneTimePassword;
 use App\Services\Audit\AuditContext;
 use App\Services\Operations\InstallSteps;
 use App\Services\Operations\Steps\BlankTemplateStep;
+use App\Services\Operations\Steps\FirstAdministratorStep;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use App\Support\Session\DatabaseSessionHandler;
 use Illuminate\Contracts\Container\Container;
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
             $steps = new InstallSteps;
             $steps->add(new ReferenceDataStep);
             $steps->add(new BlankTemplateStep);
+            $steps->add(new FirstAdministratorStep(new OneTimePassword));
 
             return $steps;
         });

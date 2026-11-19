@@ -2,6 +2,9 @@
 
 namespace App\Services\Operations;
 
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
+
 class InstallSteps
 {
     /** @var list<callable> */
@@ -12,10 +15,10 @@ class InstallSteps
         $this->steps[] = $step;
     }
 
-    public function run(): void
+    public function run(OutputInterface $output = new NullOutput): void
     {
         foreach ($this->steps as $step) {
-            $step();
+            $step($output);
         }
     }
 }

@@ -17,7 +17,7 @@ class InstallCommand extends Command
         $this->useApplicationKey();
         $this->createSqliteDatabase();
         $this->call('migrate', ['--force' => true]);
-        $steps->run();
+        $steps->run($this->getOutput());
 
         return self::SUCCESS;
     }

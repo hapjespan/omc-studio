@@ -114,4 +114,16 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | First Administrator
+    |--------------------------------------------------------------------------
+    |
+    | The e-mail address of the Administrator created at the first start, with
+    | a one-time password printed to the container log once.
+    |
+    */
+
+    'first_administrator_email' => env('ADMIN_EMAIL', 'admin@localhost'),
+
 ];
