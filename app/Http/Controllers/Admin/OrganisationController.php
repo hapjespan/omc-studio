@@ -21,7 +21,7 @@ class OrganisationController extends Controller
     public function index(Request $request): Response
     {
         $list = (new ListQuery(['name'], ['name'], [], 'archived_at'))->run(
-            Organisation::query()->select(['id', 'name', 'slug', 'archived_at'])->selectRaw('logo_path IS NOT NULL as has_logo')->orderBy('name_normalised'),
+            Organisation::query()->select(['id', 'name', 'slug', 'archived_at'])->selectRaw('CASE WHEN logo_path IS NULL THEN 0 ELSE 1 END as has_logo')->orderBy('name_normalised'),
             $request->query(),
         );
 
@@ -35,7 +35,7 @@ class OrganisationController extends Controller
             $this->storeLogo($request, $organisation);
         });
 
-        return back();
+        return back()->with('status', __('organisations.created'));
     }
 
     public function update(OrganisationRequest $request, Organisation $organisation): RedirectResponse
@@ -45,28 +45,28 @@ class OrganisationController extends Controller
             $this->storeLogo($request, $organisation);
         });
 
-        return back();
+        return back()->with('status', __('organisations.saved'));
     }
 
     public function destroy(Organisation $organisation): RedirectResponse
     {
         $this->organisations->delete($organisation);
 
-        return back();
+        return back()->with('status', __('organisations.deleted'));
     }
 
     public function archive(Organisation $organisation): RedirectResponse
     {
         $this->organisations->archive($organisation);
 
-        return back();
+        return back()->with('status', __('organisations.archived'));
     }
 
     public function restore(Organisation $organisation): RedirectResponse
     {
         $this->organisations->restore($organisation);
 
-        return back();
+        return back()->with('status', __('organisations.restored'));
     }
 
     private function storeLogo(OrganisationRequest $request, Organisation $organisation): void

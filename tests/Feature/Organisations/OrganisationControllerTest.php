@@ -82,4 +82,23 @@ class OrganisationControllerTest extends TestCase
         $this->admin()->get('/admin/organisations?archived=1')->assertInertia(fn (Assert $page) => $page->where('count', 3));
         $this->admin()->get('/admin/organisations?search=ost')->assertInertia(fn (Assert $page) => $page->where('count', 1)->where('rows.0.name', 'Oost'));
     }
+
+    public function test_every_write_flashes_a_status_message(): void
+    {
+        $this->admin()->post('/admin/organisations', ['name' => 'Noord'])->assertSessionHas('status', 'Organisatie aangemaakt');
+        $organisation = Organisation::firstOrFail();
+
+        $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => 'Zuid'])->assertSessionHas('status', 'Organisatie opgeslagen');
+        $this->admin()->post('/admin/organisations/'.$organisation->id.'/archive')->assertSessionHas('status', 'Organisatie gearchiveerd');
+        $this->admin()->post('/admin/organisations/'.$organisation->id.'/restore')->assertSessionHas('status', 'Organisatie teruggezet');
+        $this->admin()->delete('/admin/organisations/'.$organisation->id)->assertSessionHas('status', 'Organisatie verwijderd');
+    }
+
+    public function test_a_logo_sent_as_an_array_is_a_validation_error_not_a_server_error(): void
+    {
+        $this->admin()->post('/admin/organisations', ['name' => 'Noord', 'logo' => ['x']])
+            ->assertSessionHasErrors(['logo' => 'Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels']);
+
+        $this->assertSame(0, Organisation::count());
+    }
 }
