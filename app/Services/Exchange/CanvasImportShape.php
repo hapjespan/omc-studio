@@ -26,12 +26,16 @@ class CanvasImportShape
             return self::with($record, 'yearly_figures', fn (mixed $figure) => self::tidy($figure, self::FIGURE));
         });
 
-        $canvas = self::tidy($data['canvas'] ?? null, ['name']);
+        return $data;
+    }
+
+    public static function canvas(mixed $node): mixed
+    {
+        $canvas = self::tidy($node, ['name']);
         $canvas = self::with($canvas, 'statements', fn (mixed $statement) => self::tidy($statement, ['title', 'body']));
         $canvas = self::with($canvas, 'elements', fn (mixed $element) => self::tidy($element, self::ELEMENT));
-        $data['canvas'] = self::with($canvas, 'finalised_years', fn (mixed $year) => self::tidy($year, ['finalised_at']));
 
-        return $data;
+        return self::with($canvas, 'finalised_years', fn (mixed $year) => self::tidy($year, ['finalised_at']));
     }
 
     private static function blank(mixed $value): mixed

@@ -13,7 +13,7 @@ function seed(name: string): number {
 }
 
 function cleanUp(name: string): void {
-    const code = `$o = App\\Models\\Organisation::where('name', '${name}')->first(); App\\Models\\Canvas::where('organisation_id', $o->id)->each->deleteQuietly(); $o->deleteQuietly();`;
+    const code = `$o = App\\Models\\Organisation::where('name', '${name}')->first(); App\\Models\\Canvas::where('organisation_id', $o->id)->get()->each->deleteQuietly(); $o->deleteQuietly();`;
     execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
 }
 

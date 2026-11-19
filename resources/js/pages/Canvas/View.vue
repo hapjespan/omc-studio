@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
+import ExportMenu from '../../canvas/ExportMenu.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
@@ -72,6 +73,7 @@ const figureLines = (id: string): string[] => {
     return lines.empty ? [lines.empty] : [lines.total, lines.share, lines.forecast, lines.counts];
 };
 
+const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
@@ -93,6 +95,7 @@ const fit = (): void => {
 <template>
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
+    <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" class="mt-2" />
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <p v-if="figuresMessage" role="alert" class="mt-3 rounded-md border border-[#B3261E] px-3 py-2 text-[13px] text-[#8C1D18]" data-figures-message>{{ figuresMessage }}</p>
     <div class="mt-3 flex flex-wrap items-center gap-4">

@@ -8,7 +8,7 @@ test('an unseen notice shows a status warning that leads to the list and clears 
     createClosingNotice(canvas, 5);
     await signInAs(page, 'administrator');
 
-    const warning = page.getByRole('status').getByRole('link', { name: /nieuwe? systeemmeldingen?/ });
+    const warning = page.getByRole('status').getByRole('link', { name: /nieuwe systeemmelding(en)?/ });
     await expect(warning).toBeVisible();
     await warning.click();
     await expect(page).toHaveURL(/\/admin\/system-notices$/);

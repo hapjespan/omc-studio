@@ -32,7 +32,7 @@ class CostRecordBatch
     /** @param array<string, mixed> $attributes */
     public function record(string $key, ?string $code, array $attributes): void
     {
-        $this->records[$key] = ['id' => $this->keepIds ? $key : (string) Str::uuid(), 'organisation_id' => $this->organisationId, 'code' => $code, ...$attributes, 'code_normalised' => $code === null ? null : mb_strtolower($code)];
+        $this->records[$key] = ['id' => $this->keepIds ? mb_strtolower($key) : (string) Str::uuid(), 'organisation_id' => $this->organisationId, 'code' => $code, ...$attributes, 'code_normalised' => $code === null ? null : mb_strtolower($code)];
     }
 
     /** @param array<string, mixed> $figures */

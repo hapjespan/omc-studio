@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import ImportCanvas from './Overview/ImportCanvas.vue';
 import CanvasDialogs from './Overview/CanvasDialogs.vue';
 import TemplateDialogs from './Overview/TemplateDialogs.vue';
 import Templates from './Overview/Templates.vue';
@@ -64,6 +65,7 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
         <button v-if="canWrite" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</button>
         <ArchiveToggle :model-value="showArchived" @update:model-value="toggle" />
     </div>
+    <ImportCanvas v-if="canWrite" :organisations="organisationOptions()" />
     <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-6">
         <h2 :id="`organisation-${organisation.id}`" class="font-[Space_Grotesk] text-base font-semibold">{{ organisation.name }} <span v-if="organisation.is_sample" class="rounded border border-[#848B95] px-1.5 text-[12px] font-normal">{{ t('sample.label') }}</span></h2>
         <Link v-if="canWrite" :href="routes.costRecords(organisation.id)" class="mt-1 inline-block text-[13px] underline">{{ t('overview.cost_records') }}</Link>
