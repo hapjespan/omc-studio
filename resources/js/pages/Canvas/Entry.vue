@@ -12,6 +12,7 @@ import type { AreaKey, ElementKind } from '../../layout/types';
 import { detail, discardDetail, openDetail } from '../../shell/detail';
 import AddDomain from './AddDomain.vue';
 import ElementPanel from './ElementPanel.vue';
+import ArchivedToggle from './ArchivedToggle.vue';
 import ListAreaEntry from './ListAreaEntry.vue';
 import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
@@ -39,7 +40,9 @@ const selectedElement = computed(() => props.elements.find(({ id }) => id === se
 const warnings = computed(() => (measurer.value ? entryWarnings(props.elements, areaInfo.value, area.value.key as AreaKey, measurer.value) : []));
 const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
 const search = ref('');
-const rows = computed(() => buildRows(filterByName(props.elements.filter((element) => !element.archived), search.value), area.value.key as AreaKey));
+const showArchived = ref(false);
+const restoreError = ref('');
+const rows = computed(() => buildRows(filterByName(props.elements.filter((element) => showArchived.value || !element.archived), search.value), area.value.key as AreaKey));
 
 function select(id: string, opener: HTMLElement | null): void {
     selectedId.value = id;
@@ -66,6 +69,16 @@ function undoDeletion(): void {
             document.getElementById('add-domain')?.focus();
         },
         onError: (errors) => (current.refusal = errors.rule ?? ''),
+    });
+}
+
+function restore(element: EntryElement): void {
+    restoreError.value = '';
+    router.post(routes.elementRestore(canvas.value.id, element.id), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => void announce(t('entry.restored', { name: element.name })),
+        onError: (errors) => (restoreError.value = errors.rule ?? ''),
     });
 }
 
@@ -104,9 +117,11 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntrySearch v-model="search" />
+            <ArchivedToggle v-model="showArchived" />
+            <p v-if="restoreError" role="alert" class="mt-2 text-[12.5px] font-medium text-[#A12A1E]">{{ restoreError }}</p>
             <Warnings :warnings="warnings" @select="select" />
-            <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" />
-            <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" />
+            <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" @restore="restore" />
+            <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
             <ElementPanel v-if="selectedElement" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" @gone="gone" />
         </section>
     </div>

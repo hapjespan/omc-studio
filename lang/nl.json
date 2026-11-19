@@ -411,5 +411,7 @@
     "entry.empty": "leeg",
     "entry.search": "Zoek in deze area",
     "entry.system": "Systeem",
-    "entry.unknown_explanation": "Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld"
+    "entry.unknown_explanation": "Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld",
+    "entry.restore_named": ":name terugzetten",
+    "entry.restored": ":name is teruggezet"
 }
