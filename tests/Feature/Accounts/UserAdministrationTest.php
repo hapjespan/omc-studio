@@ -16,6 +16,10 @@ class UserAdministrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @param  array<string, string>  $data
+     * @return array<string, array<int, string>>
+     */
     private function validate(array $data, ?User $editing = null): array
     {
         $request = UserRequest::create('/admin/users', 'POST', $data);
