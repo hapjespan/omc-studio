@@ -69,7 +69,7 @@ class CanvasModeTest extends TestCase
         });
 
         $shared = (new HandleInertiaRequests)->share($request($canvas));
-        $this->assertSame(['id' => $canvas->id, 'name' => $canvas->name, 'kind' => 'canvas', 'archived' => true, 'organisation' => ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name]], $shared['canvas']);
+        $this->assertSame(['id' => $canvas->id, 'name' => $canvas->name, 'kind' => 'canvas', 'archived' => true, 'organisation' => ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name, 'is_sample' => false]], $shared['canvas']);
 
         $shared = (new HandleInertiaRequests)->share($request($template));
         $this->assertSame(['id' => $template->id, 'name' => $template->name, 'kind' => 'template', 'archived' => false, 'organisation' => null], $shared['canvas']);

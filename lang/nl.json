@@ -780,5 +780,7 @@
     "sample.remove": "Voorbeelddata verwijderen",
     "sample.remove_title": "Voorbeelddata verwijderen?",
     "sample.remove_consequence": "{name} met alle canvassen en kostenposten wordt definitief verwijderd en komt na een herstart niet terug.",
-    "sample.removed": "De voorbeelddata is verwijderd"
+    "sample.removed": "De voorbeelddata is verwijderd",
+    "sample.badge": "Voorbeelddata",
+    "sample.label": "Voorbeeld"
 }
