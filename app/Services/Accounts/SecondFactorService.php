@@ -4,6 +4,7 @@ namespace App\Services\Accounts;
 
 use App\Models\User;
 use App\Services\Audit\SecurityLog;
+use App\Services\Support\SerialisedWrite;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -19,7 +20,11 @@ class SecondFactorService
 
     private const QR_SIZE = 200;
 
-    public function __construct(private readonly Google2FA $google) {}
+    public function __construct(
+        private readonly Google2FA $google,
+        private readonly RecoveryCodes $codes,
+        private readonly SerialisedWrite $write,
+    ) {}
 
     /** @return array{secret: string, qr: string} */
     public function begin(User $user, string $password): array
@@ -36,12 +41,9 @@ class SecondFactorService
         return ['secret' => $secret, 'qr' => $this->qrCode($user, $secret)];
     }
 
-    public function confirm(User $user, string $code): void
+    /** @return list<string> */
+    public function confirm(User $user, string $code): array
     {
-        if ($user->two_factor_confirmed_at !== null) {
-            throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
-        }
-
         if ($user->two_factor_secret === null) {
             throw ValidationException::withMessages(['rule' => __('second_factor.not_started')]);
         }
@@ -50,7 +52,15 @@ class SecondFactorService
             throw ValidationException::withMessages(['code' => __('second_factor.code_invalid')]);
         }
 
-        $user->fill(['two_factor_confirmed_at' => Carbon::now()])->save();
+        return $this->write->run([$user], function () use ($user): array {
+            if ($user->two_factor_confirmed_at !== null) {
+                throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
+            }
+
+            $user->fill(['two_factor_confirmed_at' => Carbon::now()])->save();
+
+            return $this->codes->regenerate($user);
+        });
     }
 
     public function requirePassword(User $user, string $password): void
