@@ -24,6 +24,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\SnapshotController;
 use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\UndoController;
@@ -152,4 +153,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/imports/canvas/preview', [CanvasImportController::class, 'preview']);
     Route::post('/imports/canvas', [CanvasImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/versions', [SnapshotController::class, 'store']);
 });

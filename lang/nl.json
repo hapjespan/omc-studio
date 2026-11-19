@@ -707,5 +707,9 @@
     "jsonx.organisation_name_taken": "Organisatienaam: deze organisatie bestaat al",
     "jsonx.archived_parent": ":location: een actief element hangt onder een gearchiveerd element",
     "jsonx.set_without_figures": ":location: deze kostenpost heeft geen jaarwaarden in dit jaar, dus er kan geen verdeling zijn",
-    "jsonx.finalised_incomplete": ":location: :year kan niet definitief zijn: er is geen verdeling in dit canvas voor :records"
+    "jsonx.finalised_incomplete": ":location: :year kan niet definitief zijn: er is geen verdeling in dit canvas voor :records",
+    "snap.created": "Momentopname :name is gemaakt",
+    "snap.closing_check_failed": "De cijfers sluiten niet; een momentopname kan niet",
+    "snap.name_required": "Naam: vul een naam in van 1 tot 150 tekens",
+    "snap.fiscal_year_invalid": "Boekjaar: kies een boekjaar van deze organisatie"
 }
