@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'slug', 'archived_at'])]
+#[Fillable(['name', 'slug', 'is_sample', 'archived_at'])]
 class Organisation extends Model
 {
     /** @use HasFactory<OrganisationFactory> */
@@ -24,7 +24,7 @@ class Organisation extends Model
         });
     }
 
-    protected $casts = ['archived_at' => 'datetime'];
+    protected $casts = ['is_sample' => 'boolean', 'archived_at' => 'datetime'];
 
     /** @return HasMany<FiscalYear, $this> */
     public function fiscalYears(): HasMany
