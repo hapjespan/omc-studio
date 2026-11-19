@@ -20,7 +20,9 @@ test('a Reader sees cards that open Bekijken and no create, copy, archive or del
 
 test('a Reader request to a write route is refused', async ({ page }) => {
     await signInAs(page, 'reader');
-    const response = await page.request.post('/canvases', { form: { source: 'copy', name: 'X' }, headers: { Accept: 'application/json' } });
+    const cookies = await page.context().cookies();
+    const token = decodeURIComponent(cookies.find((cookie) => cookie.name === 'XSRF-TOKEN')?.value ?? '');
+    const response = await page.request.post('/canvases', { form: { source: 'copy', name: 'X' }, headers: { Accept: 'application/json', 'X-XSRF-TOKEN': token } });
 
     expect(response.status()).toBe(403);
 });
