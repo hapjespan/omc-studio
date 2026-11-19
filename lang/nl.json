@@ -506,5 +506,8 @@
     "shell.year.open": "open",
     "shell.year.final": "definitief",
     "yearly_figures.year_taken": "Er zijn al jaarwaarden voor dit boekjaar",
-    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd"
+    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd",
+    "rule.redistribution_choice_required": ":year: kies wat er met de verdeling gebeurt",
+    "rule.redistribution_target_inside": "Kies een doel buiten het element dat je verwijdert",
+    "rule.redistribution_target_cannot_carry": "Doel :name kan geen kosten dragen"
 }
