@@ -979,6 +979,10 @@
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T352": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
   "T353": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
