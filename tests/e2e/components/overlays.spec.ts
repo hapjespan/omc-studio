@@ -1,7 +1,7 @@
 import { expect, test } from '../support/guards';
 import { expectNoAxeViolations } from '../support/guards';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: process.env.E2E_HARNESS_URL ?? 'http://127.0.0.1:4187' });
 
 for (const [opener, title, input] of [['Open dialoog', 'Dialoog', 'dialog-text'], ['Open paneel', 'Paneel', 'panel-text']] as const) {
     test.describe(title, () => {

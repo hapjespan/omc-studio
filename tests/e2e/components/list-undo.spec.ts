@@ -1,6 +1,6 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: process.env.E2E_HARNESS_URL ?? 'http://127.0.0.1:4187' });
 
 async function deleteRow(page: import('@playwright/test').Page, name: string): Promise<void> {
     await page.getByRole('button', { name: `Verwijderen ${name}`, exact: true }).click();
