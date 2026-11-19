@@ -6,7 +6,7 @@ const page = { props: { auth: { role: 'administrator' }, appName: 'OMC Studio' }
 
 vi.mock('@inertiajs/vue3', () => ({
     usePage: () => page,
-    router: { post: () => {}, visit: () => {} },
+    router: { post: () => {}, visit: () => {}, on: () => () => {} },
     Link: { props: ['href'], template: '<a :href="href"><slot /></a>' },
     Head: { render: () => null },
 }));

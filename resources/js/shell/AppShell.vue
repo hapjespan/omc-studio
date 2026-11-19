@@ -10,6 +10,7 @@ import MenuButton from './MenuButton.vue';
 import ModeSwitch from './ModeSwitch.vue';
 import ReauthDialog from './ReauthDialog.vue';
 import { reauth, scheduleReauth } from './session';
+import SessionTimer from './SessionTimer.vue';
 import SkipLink from './SkipLink.vue';
 import Tabs from './Tabs.vue';
 import TopBar, { type ShellCanvas } from './TopBar.vue';
@@ -47,6 +48,7 @@ watch(
             <StatusRegion />
         </main>
         <DetailPanel />
+        <SessionTimer />
         <ReauthDialog v-if="reauth" />
     </div>
 </template>
