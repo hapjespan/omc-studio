@@ -11,130 +11,130 @@
   "scene": {
     "samples": [
       {
-        "wall": 454,
-        "readyAt": 348,
-        "totalBytes": 12319640,
+        "wall": 419,
+        "readyAt": 337,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
         "actionMs": 0.5
       },
       {
-        "wall": 385,
-        "readyAt": 302,
-        "totalBytes": 12319640,
+        "wall": 394,
+        "readyAt": 312,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 0.6
+        "actionMs": 0.3
       },
       {
-        "wall": 376,
-        "readyAt": 301,
-        "totalBytes": 12319640,
+        "wall": 401,
+        "readyAt": 313,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 0.5
+        "actionMs": 0.4
       },
       {
-        "wall": 425,
-        "readyAt": 352,
-        "totalBytes": 12319640,
+        "wall": 411,
+        "readyAt": 326,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 1
+        "actionMs": 0.4
       },
       {
-        "wall": 391,
-        "readyAt": 305,
-        "totalBytes": 12319640,
+        "wall": 401,
+        "readyAt": 320,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
         "actionMs": 0.4
       }
     ],
-    "medianReadyMs": 305,
-    "maxReadyMs": 352,
-    "maxWallMs": 454,
-    "maxActionMs": 1
+    "medianReadyMs": 320,
+    "maxReadyMs": 337,
+    "maxWallMs": 419,
+    "maxActionMs": 0.5
   },
   "scene-cpu-x4": {
     "samples": [
       {
-        "wall": 1011,
-        "readyAt": 923,
-        "totalBytes": 12319640,
+        "wall": 1056,
+        "readyAt": 977,
+        "totalBytes": 12324014,
+        "heapMegabytes": 16.3,
+        "actionMs": 1.8
+      },
+      {
+        "wall": 1007,
+        "readyAt": 931,
+        "totalBytes": 12324014,
+        "heapMegabytes": 16.3,
+        "actionMs": 1.9
+      },
+      {
+        "wall": 1021,
+        "readyAt": 947,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
         "actionMs": 2
       },
       {
-        "wall": 974,
-        "readyAt": 899,
-        "totalBytes": 12319640,
+        "wall": 1075,
+        "readyAt": 994,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 2.9
+        "actionMs": 1.6
       },
       {
-        "wall": 1052,
-        "readyAt": 962,
-        "totalBytes": 12319640,
+        "wall": 990,
+        "readyAt": 909,
+        "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 2.2
-      },
-      {
-        "wall": 1065,
-        "readyAt": 972,
-        "totalBytes": 12319640,
-        "heapMegabytes": 16.3,
-        "actionMs": 1.5
-      },
-      {
-        "wall": 1022,
-        "readyAt": 944,
-        "totalBytes": 12319640,
-        "heapMegabytes": 16.3,
-        "actionMs": 2.1
+        "actionMs": 1.3
       }
     ],
-    "medianReadyMs": 944,
-    "maxReadyMs": 972,
-    "maxWallMs": 1065,
-    "maxActionMs": 2.9
+    "medianReadyMs": 947,
+    "maxReadyMs": 994,
+    "maxWallMs": 1075,
+    "maxActionMs": 2
   },
   "bulk-500": {
     "samples": [
       {
-        "wall": 561,
-        "readyAt": 468,
-        "totalBytes": 12319640,
-        "heapMegabytes": 33.5,
-        "actionMs": 1
+        "wall": 555,
+        "readyAt": 464,
+        "totalBytes": 12324014,
+        "heapMegabytes": 31.6,
+        "actionMs": 0.6
       },
       {
-        "wall": 547,
+        "wall": 549,
         "readyAt": 465,
-        "totalBytes": 12319640,
+        "totalBytes": 12324014,
+        "heapMegabytes": 31.6,
+        "actionMs": 1.8
+      },
+      {
+        "wall": 546,
+        "readyAt": 460,
+        "totalBytes": 12324014,
+        "heapMegabytes": 31.6,
+        "actionMs": 0.6
+      },
+      {
+        "wall": 525,
+        "readyAt": 450,
+        "totalBytes": 12324014,
         "heapMegabytes": 35.6,
-        "actionMs": 0.5
-      },
-      {
-        "wall": 522,
-        "readyAt": 444,
-        "totalBytes": 12319640,
-        "heapMegabytes": 31.6,
         "actionMs": 0.6
       },
       {
-        "wall": 516,
-        "readyAt": 446,
-        "totalBytes": 12319640,
+        "wall": 549,
+        "readyAt": 469,
+        "totalBytes": 12324014,
         "heapMegabytes": 31.6,
-        "actionMs": 0.5
-      },
-      {
-        "wall": 535,
-        "readyAt": 443,
-        "totalBytes": 12319640,
-        "heapMegabytes": 31.6,
-        "actionMs": 0.6
+        "actionMs": 0.9
       }
     ],
-    "medianReadyMs": 446,
-    "maxReadyMs": 468,
-    "maxWallMs": 561,
-    "maxActionMs": 1
+    "medianReadyMs": 464,
+    "maxReadyMs": 469,
+    "maxWallMs": 555,
+    "maxActionMs": 1.8
   }
 }

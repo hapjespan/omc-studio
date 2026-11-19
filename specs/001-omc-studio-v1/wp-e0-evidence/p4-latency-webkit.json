@@ -30,7 +30,7 @@
     },
     {
       "kind": "drag",
-      "ms": 0,
+      "ms": 1,
       "ids": [
         "dom-1"
       ]
@@ -51,14 +51,14 @@
     },
     {
       "kind": "drag",
-      "ms": 1,
+      "ms": 0,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "nudge-debounced",
-      "ms": 302,
+      "ms": 303,
       "ids": [
         "act-1"
       ]
