@@ -2,7 +2,7 @@ import { appendFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 test('records whether a Secure session cookie is accepted on the loopback origin', async ({ page, context, browserName }) => {
-    await page.goto('/');
+    await page.goto('/sign-in');
 
     const cookies = await context.cookies();
     const session = cookies.find((cookie) => cookie.httpOnly);

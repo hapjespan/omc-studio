@@ -61,5 +61,6 @@
     "validation.password_confirmed": "Herhaal wachtwoord: de twee wachtwoorden zijn niet gelijk",
     "fields.email": "E-mailadres",
     "fields.password": "Wachtwoord",
-    "fields.password_confirmation": "Herhaal wachtwoord"
+    "fields.password_confirmation": "Herhaal wachtwoord",
+    "auth.sign_out": "Uitloggen"
 }

@@ -1,7 +1,7 @@
 import { expect, test } from '../support/guards';
 
 test('the browser history is encrypted with a key in session storage', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/sign-in');
     await page.waitForLoadState('networkidle');
 
     const key = await page.evaluate(() => window.sessionStorage.getItem('historyKey'));

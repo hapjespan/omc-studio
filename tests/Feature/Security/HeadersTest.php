@@ -21,7 +21,7 @@ class HeadersTest extends TestCase
     {
         $this->withoutVite();
 
-        $response = $this->get('/');
+        $response = $this->get('/sign-in');
 
         $response->assertOk();
         $response->assertHeader('Content-Security-Policy', self::POLICY);
