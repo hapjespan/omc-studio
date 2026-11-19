@@ -57,6 +57,20 @@ class CostRecordController extends Controller
         return back()->with('undo', ['token' => $token, 'message' => __('cost_records.deleted')]);
     }
 
+    public function bulkDestroy(Request $request, Organisation $organisation): RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        /** @var array<int, string> $identifiers */
+        $identifiers = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['string']])['ids'];
+
+        $result = $this->records->deleteMany($organisation, $organisation->costRecords()->whereKey($identifiers)->get(), $user);
+
+        return back()
+            ->with('bulk', ['done' => $result['done'], 'skipped' => $result['skipped']])
+            ->with('undo', $result['token'] === null ? null : ['token' => $result['token'], 'message' => trans_choice('cost_records.deleted_count', $result['done'])]);
+    }
+
     public function archive(CostRecord $costRecord): RedirectResponse
     {
         $this->records->archive($costRecord);

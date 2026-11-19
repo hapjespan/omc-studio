@@ -398,5 +398,7 @@
     "shell.tab.costs": "Kostenposten",
     "shell.year.label": "Boekjaar",
     "shell.year.open": "open",
-    "shell.year.final": "definitief"
+    "shell.year.final": "definitief",
+    "yearly_figures.year_taken": "Er zijn al jaarwaarden voor dit boekjaar",
+    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd"
 }

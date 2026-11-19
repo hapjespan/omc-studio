@@ -2,15 +2,18 @@
 
 namespace App\Services\Finance;
 
+use App\Models\AllocationLine;
 use App\Models\AllocationSet;
 use App\Models\CostRecord;
 use App\Models\FiscalYear;
+use App\Models\User;
 use App\Models\YearlyFigure;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
 use App\Services\Allocation\FinalisedYears;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use App\Services\Undo\UndoStore;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -26,6 +29,7 @@ class YearlyFigures
     public function __construct(
         private readonly SerialisedWrite $writes,
         private readonly FinalisedYears $finalisedYears,
+        private readonly UndoStore $undo,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -43,24 +47,35 @@ class YearlyFigures
         });
     }
 
-    public function delete(YearlyFigure $figure): void
+    public function delete(YearlyFigure $figure, User $user): string
     {
         $organisation = $figure->costRecord->organisation;
 
-        $this->writes->run([$organisation], function () use ($figure, $organisation) {
+        return $this->writes->run([$organisation], function () use ($figure, $organisation, $user) {
             $this->assertWritable($organisation);
             $this->assertCostRecordActive($figure->costRecord);
             $this->finalisedYears->assertOpenInOrganisation($figure->fiscalYear);
 
-            foreach ($this->sets($figure)->with('lines')->get() as $set) {
-                foreach ($set->lines as $line) {
-                    $line->delete();
-                }
+            $sets = $this->sets($figure)->get();
+            $lines = AllocationLine::whereIn('allocation_set_id', $sets->modelKeys())->get();
 
-                $set->delete();
+            $token = $this->undo->remember(UndoStore::YEARLY_FIGURES_DELETION, [
+                'organisation_id' => $organisation->getKey(),
+                'cost_records' => [],
+                'yearly_figures' => [$figure->getAttributes()],
+                'allocation_sets' => $sets->map(fn (AllocationSet $set) => $set->getAttributes())->all(),
+                'allocation_lines' => $lines->map(fn (AllocationLine $line) => $line->getAttributes())->all(),
+            ], $user);
+
+            foreach ([$lines, $sets] as $dependents) {
+                foreach ($dependents as $dependent) {
+                    $dependent->delete();
+                }
             }
 
             $figure->delete();
+
+            return $token;
         });
     }
 

@@ -51,4 +51,12 @@ test('a bulk deletion reports deleted and skipped rows', async ({ page }) => {
     await page.getByRole('button', { name: 'Verwijderen', exact: true }).first().click();
 
     await expect(page.getByText('2 verwijderd, 1 overgeslagen')).toBeVisible();
+    await expect(page.getByText('Drie: 2026 is definitief in canvas Strategie')).toBeVisible();
+    await expect(page.getByRole('row', { name: /Een/ })).toHaveCount(0);
+
+    await expect(page.getByText('2 kostenposten verwijderd')).toBeVisible();
+    await page.getByRole('button', { name: 'Ongedaan maken' }).click();
+
+    await expect(page.getByRole('row', { name: /Een/ })).toBeVisible();
+    await expect(page.getByRole('row', { name: /Twee/ })).toBeVisible();
 });

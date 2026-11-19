@@ -5,6 +5,7 @@ import { announce } from '../../components/feedback/status';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import type { BulkSummary } from '../../components/list/BulkBar.vue';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
+import { useUndoFlash } from '../../components/list/undoFlash';
 import { plural, t } from '../../i18n';
 import CostRecordForm from './CostRecordForm.vue';
 import FiscalYearsPanel from './FiscalYearsPanel.vue';
@@ -21,17 +22,17 @@ watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | 
 const list = ref<InstanceType<typeof ListView>>();
 const errors = computed(() => page.props.errors as Record<string, string>);
 const listError = computed(() => (errors.value.rule ? { rule: errors.value.rule } : {}));
-const flashUndo = computed(() => (page.props.flash as { undo?: { token: string; message: string } | null } | undefined)?.undo ?? null);
-const dismissed = ref('');
-const refusal = ref<string | null>(null);
-const undo = computed(() => (flashUndo.value && flashUndo.value.token !== dismissed.value ? { id: flashUndo.value.token, message: flashUndo.value.message, refusal: refusal.value } : null));
-const bulkResult = ref<BulkSummary | null>(null);
+const undo = useUndoFlash();
+const bulkResult = computed<BulkSummary | null>(() => {
+    const result = (page.props.flash as { bulk?: { done: number; skipped: { name: string; reason: string }[] } | null } | undefined)?.bulk ?? null;
+    return result ? { done: result.done, verb: t('cost_records.bulk_verb'), skipped: result.skipped } : null;
+});
 const yearsOpen = ref(false);
 const keep = { preserveScroll: true, preserveState: true };
 
 const columns: ListColumn[] = [
-    { key: 'code', label: t('fields.code'), sortable: true },
     { key: 'name', label: t('fields.name'), sortable: true },
+    { key: 'code', label: t('fields.code'), sortable: true },
     { key: 'budgetText', label: t('fields.budget') },
     { key: 'forecastText', label: t('fields.forecast') },
     { key: 'allocationText', label: t('cost_records.allocation') },
@@ -57,32 +58,15 @@ const focusList = async (): Promise<void> => {
     list.value?.focusSearch();
 };
 const remove = (row: ListRow): void => {
-    refusal.value = null;
+    undo.start();
     router.delete(routes.costRecord(row.id), keep);
 };
 const restore = (row: ListRow): void => router.post(routes.costRecordRestore(row.id), {}, { ...keep, onSuccess: focusList });
 const archive = (row: ListRow, close: () => void): void => router.post(routes.costRecordArchive(row.id), {}, { ...keep, onSuccess: () => { close(); focusList(); } });
-const undoDelete = (): void => {
-    const token = flashUndo.value?.token;
-    if (!token) return;
-    router.post(routes.undo(token), {}, { ...keep, onSuccess: () => (dismissed.value = token), onError: (failed) => (refusal.value = failed.rule ?? Object.values(failed)[0] ?? null) });
-};
-const dismissUndo = (): void => {
-    dismissed.value = flashUndo.value?.token ?? '';
-    refusal.value = null;
-};
-const deleteOne = (row: ListRow): Promise<string | null> => new Promise((resolve) => {
-    let reason: string | null = null;
-    router.delete(routes.costRecord(row.id), { ...keep, onError: (failed) => (reason = failed.rule ?? Object.values(failed)[0] ?? ''), onFinish: () => resolve(reason) });
-});
-async function bulk(key: string, selected: ListRow[]): Promise<void> {
+function bulk(key: string, selected: ListRow[]): void {
     if (key !== 'delete') return;
-    const skipped: { name: string; reason: string }[] = [];
-    for (const row of selected) {
-        const reason = await deleteOne(row);
-        if (reason !== null) skipped.push({ name: row.name, reason });
-    }
-    bulkResult.value = { done: selected.length - skipped.length, verb: t('cost_records.bulk_verb'), skipped };
+    undo.start();
+    router.post(routes.costRecordsBulkDelete(props.organisation.id), { ids: selected.map((row) => row.id) }, keep);
 }
 
 function load(query: ListState, year: number | null = props.year): void {
@@ -97,7 +81,7 @@ function load(query: ListState, year: number | null = props.year): void {
     <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :writable="!organisation.archived" />
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
-        <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable can-delete :consequence="consequence" :undo="undo" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undoDelete" @dismiss-undo="dismissUndo" @bulk="bulk">
+        <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
             <template #form="{ row, close, setDirty }">
                 <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
                 <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty" />

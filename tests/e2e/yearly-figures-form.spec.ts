@@ -50,6 +50,20 @@ test('refusals show next to the field and values are kept', async ({ page }) => 
     await expect(panel.getByRole('alert')).toContainText('Run en change: samen maximaal 100%');
 });
 
+test('Ongedaan maken restores deleted Yearly figures with their Allocation sets', async ({ page }) => {
+    const organisation = seedOrganisation(unique());
+    seedCostRecord(organisation, 'Licentie', { budgetCents: 100, sets: 2 });
+    const panel = await open(page, organisation, 'Licentie');
+
+    await panel.getByRole('button', { name: 'Jaarwaarden verwijderen' }).click();
+    await page.getByRole('dialog', { name: '2026 verwijderen?' }).getByRole('button', { name: 'Verwijderen' }).click();
+    await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('geen jaarwaarden');
+
+    await expect(panel.getByText('Jaarwaarden verwijderd')).toBeVisible();
+    await panel.getByRole('button', { name: 'Ongedaan maken' }).click();
+    await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('€ 1,00');
+});
+
 test('a Finalised year refuses with the Canvas name and deletion is counted', async ({ page }) => {
     const organisation = seedOrganisation(unique());
     seedCostRecord(organisation, 'Licentie', { budgetCents: 100, sets: 2 });

@@ -61,26 +61,34 @@ class CostRecords
             $this->assertWritable($record->organisation);
             $this->assertEveryYearOpen($record);
 
-            $figures = $record->yearlyFigures()->get();
-            $sets = $this->sets($record)->get();
-            $lines = AllocationLine::whereIn('allocation_set_id', $sets->modelKeys())->get();
+            return $this->undo->remember(UndoStore::COST_RECORD_DELETION, $this->remove($record->organisation, [$record]), $user);
+        });
+    }
 
-            $token = $this->undo->remember(UndoStore::COST_RECORD_DELETION, [
-                'cost_records' => [$record->getAttributes()],
-                'yearly_figures' => $this->raw($figures),
-                'allocation_sets' => $this->raw($sets),
-                'allocation_lines' => $this->raw($lines),
-            ], $user);
+    /**
+     * @param  Collection<int, CostRecord>  $records
+     * @return array{token: string|null, done: int, skipped: list<array{name: string, reason: string}>}
+     */
+    public function deleteMany(Organisation $organisation, Collection $records, User $user): array
+    {
+        return $this->writes->run([$organisation], function () use ($organisation, $records, $user) {
+            $this->assertWritable($organisation);
 
-            foreach ([$lines, $sets, $figures] as $dependents) {
-                foreach ($dependents as $dependent) {
-                    $dependent->delete();
+            $deletable = [];
+            $skipped = [];
+
+            foreach ($records as $record) {
+                try {
+                    $this->assertEveryYearOpen($record);
+                    $deletable[] = $record;
+                } catch (ValidationException $refusal) {
+                    $skipped[] = ['name' => (string) $record->name, 'reason' => (string) $refusal->validator->errors()->first()];
                 }
             }
 
-            $record->delete();
+            $token = $deletable === [] ? null : $this->undo->remember(UndoStore::COST_RECORD_DELETION, $this->remove($organisation, $deletable), $user);
 
-            return $token;
+            return ['token' => $token, 'done' => count($deletable), 'skipped' => $skipped];
         });
     }
 
@@ -124,6 +132,36 @@ class CostRecords
                 ]);
             }
         }
+    }
+
+    /**
+     * @param  list<CostRecord>  $records
+     * @return array<string, mixed>
+     */
+    private function remove(Organisation $organisation, array $records): array
+    {
+        $tables = ['cost_records' => [], 'yearly_figures' => [], 'allocation_sets' => [], 'allocation_lines' => []];
+
+        foreach ($records as $record) {
+            $figures = $record->yearlyFigures()->get();
+            $sets = $this->sets($record)->get();
+            $lines = AllocationLine::whereIn('allocation_set_id', $sets->modelKeys())->get();
+
+            $tables['cost_records'][] = $record->getAttributes();
+            $tables['yearly_figures'] = array_merge($tables['yearly_figures'], $this->raw($figures));
+            $tables['allocation_sets'] = array_merge($tables['allocation_sets'], $this->raw($sets));
+            $tables['allocation_lines'] = array_merge($tables['allocation_lines'], $this->raw($lines));
+
+            foreach ([$lines, $sets, $figures] as $dependents) {
+                foreach ($dependents as $dependent) {
+                    $dependent->delete();
+                }
+            }
+
+            $record->delete();
+        }
+
+        return ['organisation_id' => $organisation->getKey()] + $tables;
     }
 
     /** @return Builder<AllocationSet> */

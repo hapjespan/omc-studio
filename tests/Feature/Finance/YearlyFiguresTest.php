@@ -11,6 +11,7 @@ use App\Models\FinalisedYear;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
 use App\Models\Owner;
+use App\Models\UndoRecord;
 use App\Models\User;
 use App\Models\YearlyFigure;
 use App\Services\Finance\YearlyFigures;
@@ -31,6 +32,8 @@ class YearlyFiguresTest extends TestCase
 
     private FiscalYear $year;
 
+    private ?User $administrator = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,7 +48,7 @@ class YearlyFiguresTest extends TestCase
 
     private function admin(): static
     {
-        return $this->actingAs(User::factory()->administrator()->create());
+        return $this->actingAs($this->administrator ??= User::factory()->administrator()->create());
     }
 
     /** @param array<string, mixed> $overrides
@@ -73,6 +76,22 @@ class YearlyFiguresTest extends TestCase
     private function figures(): YearlyFigures
     {
         return app(YearlyFigures::class);
+    }
+
+    private function figure(): YearlyFigure
+    {
+        return YearlyFigure::factory()->create(['cost_record_id' => $this->record->id, 'fiscal_year_id' => $this->year->id]);
+    }
+
+    /** @return TestResponse<Response> */
+    private function destroy(): TestResponse
+    {
+        return $this->admin()->delete("/cost-records/{$this->record->id}/years/2026");
+    }
+
+    private function token(): string
+    {
+        return (string) session('undo')['token'];
     }
 
     public function test_yearly_figures_are_saved_with_every_field_and_the_undetermined_share_follows(): void
@@ -168,6 +187,66 @@ class YearlyFiguresTest extends TestCase
         $this->assertSame(0, AllocationLine::count());
         $this->assertSame([$other->id, $other->id], AllocationSet::pluck('fiscal_year_id')->all());
         $this->assertSame(2, AuditEntry::where('action', 'deleted')->where('subject_type', 'allocation_set')->count());
+    }
+
+    public function test_a_deletion_hands_out_an_undo_token_that_puts_the_figures_the_sets_and_the_lines_back(): void
+    {
+        $figure = $this->figure();
+        $set = AllocationSet::factory()->create([
+            'canvas_id' => Canvas::factory()->create(['organisation_id' => $this->organisation->id])->id,
+            'cost_record_id' => $this->record->id,
+            'fiscal_year_id' => $this->year->id,
+        ]);
+        $line = AllocationLine::factory()->create(['allocation_set_id' => $set->id]);
+
+        $this->destroy()->assertSessionHasNoErrors();
+
+        $token = $this->token();
+        $this->assertSame('Jaarwaarden verwijderd', session('undo')['message']);
+        $this->assertSame(0, YearlyFigure::count());
+        $this->assertSame(0, AllocationSet::count());
+        $this->assertSame(0, AllocationLine::count());
+
+        AuditEntry::query()->delete();
+        $this->admin()->post('/undo/'.$token)->assertSessionHasNoErrors();
+
+        $this->assertSame([$figure->id], YearlyFigure::pluck('id')->all());
+        $this->assertSame([$set->id], AllocationSet::pluck('id')->all());
+        $this->assertSame([$line->id], AllocationLine::pluck('id')->all());
+        $this->assertSame(['undone'], AuditEntry::query()->distinct()->pluck('action')->all());
+        $this->assertNull(UndoRecord::find($token));
+    }
+
+    public function test_an_undo_is_refused_when_the_year_became_finalised_and_restores_nothing(): void
+    {
+        $this->figure();
+        $this->destroy()->assertSessionHasNoErrors();
+        $token = $this->token();
+
+        $canvas = Canvas::factory()->create(['organisation_id' => $this->organisation->id, 'name' => 'Canvas een']);
+        FinalisedYear::factory()->create(['canvas_id' => $canvas->id, 'fiscal_year_id' => $this->year->id]);
+
+        $this->admin()->post('/undo/'.$token)->assertSessionHasErrors([
+            'rule' => '2026 is definitief in canvas Canvas een. Heropen het jaar eerst',
+        ]);
+
+        $this->assertSame(0, YearlyFigure::count());
+        $this->assertNotNull(UndoRecord::find($token));
+    }
+
+    public function test_an_undo_is_refused_when_yearly_figures_for_that_year_were_entered_again(): void
+    {
+        $this->figure();
+        $this->destroy()->assertSessionHasNoErrors();
+        $token = $this->token();
+
+        $this->save()->assertSessionHasNoErrors();
+
+        $this->admin()->post('/undo/'.$token)->assertSessionHasErrors([
+            'rule' => 'Er zijn al jaarwaarden voor dit boekjaar',
+        ]);
+
+        $this->assertSame(1_250_000, YearlyFigure::firstOrFail()->budget_cents);
     }
 
     public function test_a_year_outside_the_organisation_is_not_found(): void

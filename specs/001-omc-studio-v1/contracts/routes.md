@@ -56,6 +56,7 @@ Responses: Inertia pages for GET; for writes, a redirect back with flash data, o
 | GET /organisations/{organisation}/cost-records | A | Kostenposten for an Organisation | US18, FR-053 |
 | GET /canvases/{canvas}/cost-records | A | Kostenposten from a Canvas, with status and cards | US18.4 |
 | POST /organisations/{organisation}/cost-records; PATCH /cost-records/{costRecord}; DELETE | A | Cost records | US18 |
+| POST /organisations/{organisation}/cost-records/bulk-delete | A | `ids` of the selection; deletes what every rule allows, reports the skipped rows with their reason, one undo token for the whole action | US4.9, FR-017 |
 | POST /cost-records/{costRecord}/archive, /restore | A | | US18.13 |
 | PUT /cost-records/{costRecord}/years/{year}; DELETE | A | Yearly figures | US18.7 to 12 |
 | POST /organisations/{organisation}/fiscal-years; DELETE /fiscal-years/{fiscalYear} | A | | US18.1, US18.2 |
