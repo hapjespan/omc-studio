@@ -5,6 +5,7 @@ import { announce } from '../../components/feedback/status';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
 import { t } from '../../i18n';
 import CostRecordForm from './CostRecordForm.vue';
+import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
 
 export type Option = { id: number; name: string };
@@ -23,6 +24,7 @@ const columns: ListColumn[] = [
 ];
 
 const shownRows = computed(() => props.rows.map((row) => ({ ...row, budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: t(`cost_records.allocation_${row.allocation}`) })));
+const fresh = (row: ListRow): ListRow => shownRows.value.find((candidate) => candidate.id === row.id) ?? row;
 const options = (items: Option[]) => items.map((item) => ({ value: String(item.id), label: item.name }));
 const filters = computed(() => [
     { name: 'cost_kind', label: t('fields.cost_kind'), options: props.costKinds.map((kind) => ({ value: kind, label: t(`cost_kind.${kind}`) })) },
@@ -49,6 +51,7 @@ function load(query: ListState, year: number | null = props.year): void {
         <ListView :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)">
             <template #form="{ row, close, setDirty }">
                 <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
+                <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty" />
             </template>
         </ListView>
     </div>

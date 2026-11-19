@@ -16,7 +16,7 @@ const props = defineProps<{ row: ListRow | null; organisationId: number; owners:
 const emit = defineEmits<{ close: []; dirty: [value: boolean] }>();
 
 const page = usePage();
-const errors = computed(() => page.props.errors as Record<string, string>);
+const errors = computed(() => Object.fromEntries(Object.entries(page.props.errors as Record<string, unknown>).filter(([key]) => key !== 'figures')) as Record<string, string>);
 const text = (key: string): string => String(props.row?.[key] ?? '');
 const draft = reactive({ code: text('code'), name: text('name'), cost_kind: text('cost_kind'), supplier: text('supplier'), owner_id: text('owner_id'), cost_centre: text('cost_centre'), application_id: text('application_id'), description: text('description') });
 const initial = JSON.stringify(draft);

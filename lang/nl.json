@@ -316,5 +316,12 @@
     "cost_records.new": "Nieuwe kostenpost",
     "cost_records.save": "Opslaan",
     "cost_records.owner_hint": "Afdeling of rol, geen persoonsnaam",
-    "cost_records.archived_readonly": "Deze kostenpost is gearchiveerd en kan niet worden gewijzigd"
+    "cost_records.archived_readonly": "Deze kostenpost is gearchiveerd en kan niet worden gewijzigd",
+    "fields.fte": "FTE",
+    "fields.reference_date": "Peildatum",
+    "yearly_figures.title": "Jaarwaarden :year",
+    "yearly_figures.example": "bijvoorbeeld :example",
+    "yearly_figures.undetermined": "Onbepaald deel: :share",
+    "yearly_figures.save": "Jaarwaarden opslaan",
+    "yearly_figures.delete": "Jaarwaarden verwijderen"
 }
