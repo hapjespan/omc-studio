@@ -9,7 +9,7 @@ test('Enter in "+ Domein" adds a Domain row at the end and moves focus to its ad
     await field.fill('Inkoop');
     await field.press('Enter');
 
-    const rows = page.getByRole('list', { name: 'Structuur van Primaire activiteiten' }).getByRole('button');
+    const rows = page.getByRole('list', { name: 'Structuur van Primaire activiteiten' }).getByTestId('entry-row');
     await expect(rows).toHaveCount(2);
     await expect(rows.nth(1)).toContainText('Inkoop');
     await expect(page.getByLabel(/toevoegen aan Inkoop/)).toBeFocused();

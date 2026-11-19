@@ -6,7 +6,7 @@ test('the tree shows kind, name and Modality letter with Activities before Clust
     await openEntry(page, canvas);
 
     const tree = page.getByRole('list', { name: 'Structuur van Primaire activiteiten' });
-    const rows = tree.getByRole('button');
+    const rows = tree.getByTestId('entry-row');
     await expect(rows).toHaveCount(4);
     await expect(rows.nth(0)).toContainText('Domein');
     await expect(rows.nth(1)).toContainText('Activiteit');
@@ -15,10 +15,10 @@ test('the tree shows kind, name and Modality letter with Activities before Clust
     await expect(rows.nth(2)).toContainText('Cluster');
     await expect(rows.nth(3)).toContainText('Offerte');
 
-    await rows.nth(0).focus();
+    await rows.nth(0).getByRole('button', { name: /Inkoop/ }).first().focus();
     await page.keyboard.press('Tab');
-    await expect(rows.nth(1)).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(rows.nth(2)).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(rows.nth(1).getByRole('button').first()).toBeFocused();
     await expectNoAxeViolations(page);
 });
