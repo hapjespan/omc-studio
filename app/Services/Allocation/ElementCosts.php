@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class ElementCosts
 {
-    /** @return array<string, array{cents: int, records: int, years: list<int>}> */
+    /** @return array<string, array{cents: int, records: int, years: list<int>, own: bool}> */
     public function for(Canvas $canvas, ?int $year): array
     {
         $parents = DB::table('elements')->where('canvas_id', $canvas->id)->pluck('parent_id', 'id');
@@ -23,7 +23,8 @@ class ElementCosts
         foreach ($lines as $line) {
             for ($id = (string) $line->element_id; $id !== ''; $id = (string) ($parents[$id] ?? '')) {
                 $entry = &$costs[$id];
-                $entry ??= ['cents' => 0, 'records' => [], 'years' => []];
+                $entry ??= ['cents' => 0, 'records' => [], 'years' => [], 'own' => false];
+                $entry['own'] = $entry['own'] || $id === (string) $line->element_id;
                 $entry['years'][(int) $line->year] = (int) $line->year;
 
                 if ((int) $line->year === $year) {
@@ -35,6 +36,6 @@ class ElementCosts
             }
         }
 
-        return array_map(fn (array $entry) => ['cents' => $entry['cents'], 'records' => count($entry['records']), 'years' => array_values(collect($entry['years'])->sort()->all())], $costs);
+        return array_map(fn (array $entry) => ['cents' => $entry['cents'], 'records' => count($entry['records']), 'years' => array_values(collect($entry['years'])->sort()->all()), 'own' => $entry['own']], $costs);
     }
 }

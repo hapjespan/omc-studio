@@ -1010,5 +1010,20 @@
     "entry_costs.none_no_year": "Geen kosten toegewezen. Verwijderen kan direct.",
     "entry_costs.allocated": ":amount toegewezen in :year, verdeeld over :records. Herverdelen is nodig voor archiveren of verwijderen.",
     "entry_costs.other_years": "Geen kosten toegewezen in :year, wel in :years. Herverdelen is nodig voor archiveren of verwijderen.",
-    "entry_costs.records": "1 kostenpost|:count kostenposten"
+    "entry_costs.records": "1 kostenpost|:count kostenposten",
+    "redistribute.title": ":name herverdelen",
+    "redistribute.description": "Op dit element en wat eronder hangt staan kosten. Kies per jaar wat ermee gebeurt. Daarna worden het element en wat eronder hangt gearchiveerd.",
+    "redistribute.loading": "Gegevens laden",
+    "redistribute.year": ":year: :records, :percentage",
+    "redistribute.records": "1 kostenpost|:count kostenposten",
+    "redistribute.move": "Overzetten naar ander doel",
+    "redistribute.unknown": "Terug naar onbekende allocatie",
+    "redistribute.chosen_target": "Gekozen doel: :path",
+    "redistribute.no_target": "Nog geen doel gekozen",
+    "redistribute.targets": "Doelen voor :year",
+    "redistribute.choose": "Kiezen",
+    "redistribute.chosen": "Gekozen",
+    "redistribute.target_action": ":action: :target",
+    "redistribute.confirm": "Herverdelen en archiveren",
+    "redistribute.done": ":name is herverdeeld en gearchiveerd"
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ElementKind;
+use App\Http\Resources\AllocationPage;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
@@ -38,6 +39,7 @@ class CanvasEntryController extends Controller
             'areas' => $areas->values(),
             'elements' => $this->elements($canvas),
             'year' => $year,
+            'targets' => app(AllocationPage::class)->targets($canvas, null),
             'costs' => (object) app(ElementCosts::class)->for($canvas, $year),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),

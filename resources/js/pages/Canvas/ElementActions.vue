@@ -6,13 +6,17 @@ import Dialog from '../../components/overlays/Dialog.vue';
 import { announce } from '../../components/feedback/status';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
-import { descendantNames, NAME_LIMIT, type EntryElement } from './entry';
+import type { TargetRow } from '../../allocation/types';
+import { descendantNames, NAME_LIMIT, type ElementCost, type EntryElement } from './entry';
+import RedistributionDialog from './RedistributionDialog.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; cost?: ElementCost; targets: TargetRow[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
 const refusal = ref('');
 const archiving = ref(false);
 const deleting = ref(false);
 const choosing = ref(false);
+const redistributing = ref(false);
+const lines = computed(() => (props.cost?.years.length ?? 0) > 0);
 const names = computed(() => descendantNames(props.element, props.elements));
 const listed = computed(() => (names.value.length > NAME_LIMIT ? t('entry.n_elements', { count: names.value.length }) : names.value.join(', ')));
 const cluster = computed(() => props.element.kind === 'cluster' && names.value.length > 0);
@@ -28,10 +32,17 @@ const outcome = (key: string) => () => {
 
 const archive = (): void => router.post(routes.elementArchive(props.canvasId, props.element.id), {}, { preserveScroll: true, preserveState: true, onSuccess: outcome('archived'), onError: refused });
 const remove = (choice?: 'delete' | 'lift'): void => router.delete(routes.element(props.canvasId, props.element.id), { data: choice ? { cluster_children: choice } : {}, preserveScroll: true, preserveState: true, onSuccess: outcome('deleted'), onError: refused });
-const startDelete = (): void => void (cluster.value ? (choosing.value = true) : (deleting.value = true));
+const startArchive = (): void => void (lines.value ? (redistributing.value = true) : (archiving.value = true));
+const startDelete = (): void => void (lines.value && !(cluster.value && !props.cost?.own) ? (redistributing.value = true) : cluster.value ? (choosing.value = true) : (deleting.value = true));
+const redistributed = (): void => {
+    refusal.value = '';
+    props.gone('archived', props.element.name);
+    void announce(t('redistribute.done', { name: props.element.name }));
+};
 const choose = (choice: 'delete' | 'lift'): void => {
     choosing.value = false;
-    remove(choice);
+    if (choice === 'delete' && lines.value) redistributing.value = true;
+    else remove(choice);
 };
 const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
 </script>
@@ -39,7 +50,7 @@ const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
 <template>
     <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
     <div class="flex flex-wrap gap-2">
-        <button type="button" :class="button" @click="archiving = true">{{ t('entry.archive') }}</button>
+        <button type="button" :class="button" @click="startArchive">{{ t('entry.archive') }}</button>
         <button type="button" :class="[button, 'border-[#C0645A] text-[#A12A1E]']" @click="startDelete">{{ t('entry.delete') }}</button>
     </div>
     <Dialog v-model:open="archiving" :title="t('entry.archive_title', { name: element.name })" :description="names.length ? t('entry.archive_with', { names: listed }) : t('entry.archive_alone')">
@@ -48,6 +59,7 @@ const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
             <button type="button" :class="button" @click="archive(); archiving = false">{{ t('entry.archive') }}</button>
         </div>
     </Dialog>
+    <RedistributionDialog v-model:open="redistributing" :canvas-id="canvasId" :element="element" :targets="targets" :done="redistributed" />
     <ConfirmDelete v-model:open="deleting" :name="element.name" :consequence="names.length ? t('entry.delete_with', { names: listed }) : null" @confirm="remove()" />
     <Dialog v-model:open="choosing" :title="t('entry.cluster_title', { name: element.name })" :description="t('entry.cluster_description', { names: listed })">
         <div class="flex flex-wrap gap-2">

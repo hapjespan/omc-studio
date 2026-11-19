@@ -63,7 +63,7 @@ class AllocationPage
      * @param  array<string|int, array{total: array<string, int>}>|null  $totals
      * @return list<array<string, mixed>>
      */
-    private function targets(Canvas $canvas, ?array $totals): array
+    public function targets(Canvas $canvas, ?array $totals): array
     {
         $elements = Element::query()->with('area')
             ->where('canvas_id', $canvas->getKey())->whereNull('archived_at')->where('is_unknown_allocation', false)

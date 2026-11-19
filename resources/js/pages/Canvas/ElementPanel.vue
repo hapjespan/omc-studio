@@ -6,6 +6,7 @@ import SelectField from '../../components/fields/SelectField.vue';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
+import type { TargetRow } from '../../allocation/types';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { detail } from '../../shell/detail';
@@ -14,7 +15,7 @@ import ElementActions from './ElementActions.vue';
 import ElementCostsLine from './ElementCostsLine.vue';
 import ParentSelect from './ParentSelect.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; year: number | null; cost?: ElementCost; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; year: number | null; cost?: ElementCost; targets: TargetRow[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
 const emit = defineEmits<{ saved: []; changed: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element) });
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -65,6 +66,6 @@ function save(): void {
                 <button type="submit" :disabled="form.processing" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('entry.save') }}</button>
             </div>
         </form>
-        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone" /></div>
+        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :cost="cost" :targets="targets" :gone="gone" /></div>
     </Teleport>
 </template>
