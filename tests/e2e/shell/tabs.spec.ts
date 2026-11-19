@@ -27,7 +27,7 @@ test('no tab of a later delivery appears', async ({ page }) => {
     for (const name of ['Kostenposten', 'Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
 });
 
-test('Beheer lists Gebruikers, Organisaties and Logboek, and a Reader is refused', async ({ page }) => {
+test('Beheer lists Gebruikers, Organisaties and Logboek', async ({ page }) => {
     await signInAs(page, 'administrator');
     await page.goto('/admin');
     await expect(page.getByRole('heading', { level: 1, name: 'Beheer' })).toBeVisible();

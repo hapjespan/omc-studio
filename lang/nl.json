@@ -96,5 +96,15 @@
     "errors.server_title": "Er is iets misgegaan",
     "errors.server_text": "Probeer het later opnieuw.",
     "errors.overview": "Overzicht",
-    "shell.menu": "Menu"
+    "shell.menu": "Menu",
+    "errors.unauthorized_title": "Niet ingelogd",
+    "errors.unauthorized_text": "Log in om deze pagina te bekijken.",
+    "errors.payment_title": "Niet beschikbaar",
+    "errors.payment_text": "Deze pagina is niet beschikbaar.",
+    "errors.expired_title": "Pagina verlopen",
+    "errors.expired_text": "Je sessie is verlopen. Ga terug en probeer het opnieuw.",
+    "errors.throttled_title": "Te veel verzoeken",
+    "errors.throttled_text": "Wacht even en probeer het opnieuw.",
+    "errors.unavailable_title": "Tijdelijk niet beschikbaar",
+    "errors.unavailable_text": "Probeer het later opnieuw."
 }

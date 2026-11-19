@@ -13,7 +13,7 @@ class ErrorScreensTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_reader_requesting_an_administrator_screen_sees_geen_toegang(): void
+    public function test_a_reader_requesting_an_administrator_screen_sees_the_forbidden_screen(): void
     {
         $this->actingAs(User::factory()->create())->get('/admin')
             ->assertForbidden()
@@ -22,7 +22,7 @@ class ErrorScreensTest extends TestCase
             ->assertSee('Overzicht');
     }
 
-    public function test_an_unknown_address_shows_pagina_niet_gevonden_with_a_link_to_overzicht(): void
+    public function test_an_unknown_address_shows_the_not_found_screen_with_a_link_to_the_overview(): void
     {
         $this->actingAs(User::factory()->create())->get('/bestaat-niet')
             ->assertNotFound()
@@ -71,5 +71,12 @@ class ErrorScreensTest extends TestCase
         $this->actingAs(User::factory()->create())->get('/bestaat-niet')->assertNotFound();
 
         $this->assertSame([], array_filter($logged, fn (MessageLogged $e) => $e->message === 'refused_screen'));
+    }
+
+    public function test_an_expired_page_is_shown_in_dutch_with_a_link_to_the_overview(): void
+    {
+        Route::middleware('web')->get('/probe-expired', fn () => abort(419));
+
+        $this->get('/probe-expired')->assertStatus(419)->assertSee('Pagina verlopen')->assertSee('<a href="/">Overzicht</a>', false);
     }
 }

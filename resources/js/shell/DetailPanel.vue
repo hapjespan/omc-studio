@@ -25,7 +25,7 @@ watch(
 </script>
 
 <template>
-    <aside id="detail-panel" :hidden="!detail.open" aria-labelledby="detail-title" class="shell-detail border-l border-[#848B95] bg-white p-4" @keydown.esc="requestCloseDetail">
+    <aside id="detail-panel" :hidden="!detail.open" aria-labelledby="detail-title" class="shell-detail border-l border-[#848B95] bg-white p-4" @keydown.esc="detail.confirming ? (detail.confirming = false) : requestCloseDetail()">
         <div class="flex items-start justify-between gap-2">
             <h2 id="detail-title" ref="heading" tabindex="-1" class="font-[Space_Grotesk] text-base font-semibold">{{ detail.title }}</h2>
             <button type="button" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="requestCloseDetail">{{ t('dialog.close') }}</button>

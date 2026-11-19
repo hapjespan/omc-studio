@@ -11,7 +11,7 @@ class AdminIndexTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_administrator_opens_the_beheer_index(): void
+    public function test_an_administrator_opens_the_admin_index(): void
     {
         $this->actingAs(User::factory()->administrator()->create())->get('/admin')
             ->assertOk()

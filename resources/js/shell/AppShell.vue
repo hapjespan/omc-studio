@@ -3,6 +3,7 @@ import '../../css/shell.css';
 import { ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import StatusRegion from '../components/feedback/StatusRegion.vue';
+import { detail, discardDetail } from './detail';
 import DetailPanel from './DetailPanel.vue';
 import LeftPanel from './LeftPanel.vue';
 import MenuButton from './MenuButton.vue';
@@ -14,7 +15,13 @@ import TopBar, { type ShellCanvas } from './TopBar.vue';
 const page = usePage<{ appName: string; auth: { role: string }; canvas?: ShellCanvas | null }>();
 const menuOpen = ref(false);
 
-watch(() => page.url, () => (menuOpen.value = false));
+watch(
+    () => page.url,
+    () => {
+        menuOpen.value = false;
+        if (detail.open) discardDetail();
+    },
+);
 </script>
 
 <template>
