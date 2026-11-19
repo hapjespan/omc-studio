@@ -6,9 +6,9 @@
 
 **Deliverable type**: `tracer-bullet` (PROFILE). Each delivery runs through data model, server rules, UI and tests; no table, column, tab or stub exists before its delivery; breadth is cut, depth never. Every task is one concern and one atomic commit with the test that fails without it.
 
-## Issues (step 8, deferred)
+## Issues (step 8, done)
 
-Step 8 of phase 5 (`/speckit-taskstoissues`, one GitHub issue per task) is DEFERRED as of 2026-11-18. Reason: the repository has no git remote, and creating a GitHub repository is the product owner's decision, who is unreachable until 2026-11-19. Until he agrees on a remote, the tasks in this file are the source: phase 6 references task ids (T001 to T378), not issue numbers. When the remote exists, run `/speckit-taskstoissues` once; titles are `T###: <description>`, so nothing here changes.
+Step 8 of phase 5 was deferred on 2026-11-18 because the repository had no remote. The product owner created the private repository `hapjespan/omc-studio` on 2026-11-19 and lifted the deferral: every task of this file became one GitHub issue titled `T###: <description>` (done tasks were closed on creation), made with the `gh` CLI because the GitHub MCP server is not available here. Phase 6 references task ids; from now on work goes feature branch, pull request to `release`, CI, as the protocol says. A task added later gets its issue the same way, and `.workflow/model-ledger.json` stays the record of who built it.
 
 ## Cut per delivery
 
