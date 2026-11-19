@@ -148,5 +148,7 @@
     "reauth.renewed": "Je sessie is verlengd",
     "session.warning": "Je sessie verloopt over 2 minuten",
     "session.extend": "Sessie verlengen",
-    "session.extended": "Je sessie is verlengd"
+    "session.extended": "Je sessie is verlengd",
+    "list.invalid_sort": "Sorteren op deze kolom kan niet",
+    "list.invalid_filters": "Dit filter bestaat niet"
 }
