@@ -33,8 +33,8 @@ async function send(url: string): Promise<Response | null> {
 }
 
 async function refused(response: Response): Promise<void> {
-    const data = await response.json();
-    refusal.value = data.errors?.file?.[0] ?? data.errors?.rule?.[0] ?? data.message ?? '';
+    const data = response.status === 422 ? await response.json().catch(() => null) : null;
+    refusal.value = data?.errors?.file?.[0] ?? data?.errors?.rule?.[0] ?? t('fullx.refused_failed');
     report.value = null;
     announce(refusal.value);
     await nextTick();

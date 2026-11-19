@@ -7,10 +7,13 @@ use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Models\SystemNotice;
 use App\Models\User;
+use App\Services\Exchange\FullExport;
 use App\Services\Snapshot\Snapshots;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Testing\AssertableInertia as Assert;
+use Mockery\MockInterface;
+use RuntimeException;
 
 class FullExportTest extends CanvasExchangeTestCase
 {
@@ -65,6 +68,17 @@ class FullExportTest extends CanvasExchangeTestCase
         $this->actingAs(User::factory()->administrator()->create());
 
         $this->get('/admin/export/full')->assertOk();
+    }
+
+    public function test_an_export_that_fails_to_build_is_not_logged(): void
+    {
+        $this->mock(FullExport::class, fn (MockInterface $mock) => $mock->shouldReceive('build')->once()->andThrow(new RuntimeException('stuk')));
+        $log = Log::spy();
+        $this->actingAs(User::factory()->administrator()->create());
+
+        $this->get('/admin/export/full')->assertStatus(500);
+
+        $log->shouldNotHaveReceived('channel');
     }
 
     public function test_the_exchange_page_renders_for_an_administrator(): void
