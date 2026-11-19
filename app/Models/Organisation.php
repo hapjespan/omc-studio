@@ -24,7 +24,7 @@ class Organisation extends Model
         });
     }
 
-    protected $casts = ['archived_at' => 'datetime'];
+    protected $casts = ['is_sample' => 'boolean', 'archived_at' => 'datetime'];
 
     /** @return HasMany<FiscalYear, $this> */
     public function fiscalYears(): HasMany

@@ -13,6 +13,7 @@ const registry: AdminEntry[] = [
     { key: 'applications', label: 'shell.admin.applications', href: () => routes.adminApplications() },
     { key: 'audit_log', label: 'shell.admin.audit_log', href: () => routes.auditLog() },
     { key: 'system_notices', label: 'shell.admin.system_notices', href: () => routes.systemNotices() },
+    { key: 'sample_data', label: 'shell.admin.sample_data', href: () => routes.sampleData() },
 ];
 
 export function registerAdminEntry(entry: AdminEntry, position = registry.length): void {

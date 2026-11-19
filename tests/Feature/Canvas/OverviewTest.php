@@ -44,6 +44,16 @@ class OverviewTest extends TestCase
             ->has('organisations', 2));
     }
 
+    public function test_a_sample_organisation_is_flagged(): void
+    {
+        Organisation::factory()->create(['name' => 'Noord']);
+        Organisation::factory()->create(['name' => 'Zuid', 'is_sample' => true]);
+
+        $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
+            ->where('organisations.0.is_sample', false)
+            ->where('organisations.1.is_sample', true));
+    }
+
     public function test_archived_canvases_appear_with_the_toggle(): void
     {
         $organisation = Organisation::factory()->create();

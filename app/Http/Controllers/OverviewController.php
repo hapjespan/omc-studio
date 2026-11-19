@@ -72,6 +72,7 @@ class OverviewController extends Controller
         return [
             'id' => $organisation->id,
             'name' => $organisation->name,
+            'is_sample' => $organisation->is_sample,
             'canvases' => $organisation->canvases->map(fn (Canvas $canvas) => $this->card($canvas, $elements, $statements, $letters, $canWrite))->values(),
         ];
     }

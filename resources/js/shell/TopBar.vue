@@ -11,7 +11,7 @@ export interface ShellCanvas {
     name: string;
     kind: string;
     archived: boolean;
-    organisation: { id: number; name: string } | null;
+    organisation: { id: number; name: string; is_sample?: boolean } | null;
 }
 
 defineProps<{ appName: string; role: string; canvas?: ShellCanvas | null }>();
@@ -23,7 +23,7 @@ const page = usePage<{ pendingNotices: number | null }>();
         <Link :href="routes.home()" class="font-[Space_Grotesk] font-semibold">{{ appName }}</Link>
         <nav v-if="canvas" :aria-label="t('shell.breadcrumb')" class="text-[13px]">
             <ol class="flex flex-wrap gap-1">
-                <li v-if="canvas.organisation"><Link :href="routes.home()" class="underline">{{ canvas.organisation.name }}</Link><span aria-hidden="true"> /</span></li>
+                <li v-if="canvas.organisation"><Link :href="routes.home()" class="underline">{{ canvas.organisation.name }}</Link><span v-if="canvas.organisation.is_sample" class="ml-1 rounded border border-[#848B95] px-1.5 text-[12px]">{{ t('sample.badge') }}</span><span aria-hidden="true"> /</span></li>
                 <li aria-current="page">{{ canvas.name }}</li>
             </ol>
         </nav>

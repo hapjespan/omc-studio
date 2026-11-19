@@ -24,6 +24,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\SampleDataController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\SnapshotController;
 use App\Http\Controllers\StructureImportController;
@@ -176,4 +177,9 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/canvases/{canvas}/versions', [SnapshotController::class, 'index']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/sample-data')->group(function () {
+    Route::get('/', [SampleDataController::class, 'show']);
+    Route::post('/remove', [SampleDataController::class, 'remove']);
 });

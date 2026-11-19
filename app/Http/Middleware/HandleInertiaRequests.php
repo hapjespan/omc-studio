@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
                 'name' => $canvas->name,
                 'kind' => $canvas->kind->value,
                 'archived' => $canvas->archived_at !== null,
-                'organisation' => $canvas->organisation === null ? null : ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name],
+                'organisation' => $canvas->organisation === null ? null : ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name, 'is_sample' => $canvas->organisation->is_sample],
             ]
             : null;
     }
