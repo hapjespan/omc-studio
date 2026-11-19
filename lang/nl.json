@@ -513,5 +513,11 @@
     "carry_over.target_not_empty": "doeljaar niet leeg",
     "carry_over.no_figures": "geen jaarwaarden in :year",
     "carry_over.archived": "gearchiveerd",
-    "carry_over.summary": "Overgenomen: :copied, overgeslagen: :skipped, handmatig toewijzen: :manual"
+    "carry_over.summary": "Overgenomen: :copied, overgeslagen: :skipped, handmatig toewijzen: :manual",
+    "rule.unknown_allocation_remaining": "Nog :count kostenpost in onbekende allocatie: :names|Nog :count kostenposten in onbekende allocatie: :names",
+    "rule.closing_check_failed": "De cijfers sluiten niet; definitief maken kan niet",
+    "rule.year_already_finalised": ":year is al definitief",
+    "rule.year_not_finalised": ":year is niet definitief",
+    "finalise.done": ":year is definitief gemaakt",
+    "finalise.reopened": ":year is heropend"
 }
