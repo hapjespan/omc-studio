@@ -14,6 +14,7 @@ import FiscalYearsPanel from './FiscalYearsPanel.vue';
 import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
 import { formatAmount, formatShare } from '../../format';
+import { downloadCsv } from '../../canvas/csvDownload';
 
 export type Option = { id: number; name: string };
 
@@ -30,6 +31,12 @@ const bulkResult = computed<BulkSummary | null>(() => {
     const result = (page.props.flash as { bulk?: { done: number; skipped: { name: string; reason: string }[] } | null } | undefined)?.bulk ?? null;
     return result ? { done: result.done, verb: t('cost_records.bulk_verb'), skipped: result.skipped } : null;
 });
+const exportNote = ref('');
+async function exportCsv(): Promise<void> {
+    const omitted = await downloadCsv(routes.costRecordsCsvExport(props.organisation.id), 'cost-records.csv');
+    exportNote.value = omitted === null ? t('csvx.export_failed') : omitted === 0 ? t('csvx.omitted_none') : t('csvx.omitted', { count: omitted });
+    announce(exportNote.value);
+}
 const yearsOpen = ref(false);
 const carryOpen = ref(false);
 const yearFinalised = computed(() => Boolean(props.canvas && props.finalised?.some((entry) => entry.canvas_id === props.canvas?.id && entry.year === props.year)));
@@ -83,6 +90,8 @@ function load(query: ListState, year: number | null = props.year): void {
     <Head :title="t('cost_records.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('cost_records.title') }}: {{ organisation.name }}</h1>
     <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
+    <button type="button" class="ml-2 mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="exportCsv">{{ t('csvx.export_cost_records') }}</button>
+    <p v-if="exportNote" class="mt-1 text-[12.5px]" data-testid="export-note">{{ exportNote }}</p>
     <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :canvases="canvases" :finalised="finalised" :writable="!organisation.archived" />
     <template v-if="canvas && cards && year !== null">
         <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="carryOpen = true">{{ t('carry_over.title') }}</button>
