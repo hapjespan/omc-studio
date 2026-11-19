@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import CanvasDialogs from './Overview/CanvasDialogs.vue';
 import type { DialogKind } from './Overview/CanvasDialogs.vue';
 import CanvasCard from '../canvas/CanvasCard.vue';
@@ -55,6 +55,7 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
     </div>
     <section v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-6">
         <h2 :id="`organisation-${organisation.id}`" class="font-[Space_Grotesk] text-base font-semibold">{{ organisation.name }}</h2>
+        <Link v-if="canWrite" :href="routes.costRecords(organisation.id)" class="mt-1 inline-block text-[13px] underline">{{ t('overview.cost_records') }}</Link>
         <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-[#454C57]">{{ t('overview.empty_organisation') }}</p>
         <ul v-else class="mt-2 flex flex-wrap gap-4">
             <li v-for="canvas in organisation.canvases" :key="canvas.id">
