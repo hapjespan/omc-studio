@@ -26,6 +26,8 @@ class Restore extends Command
             $this->line($item);
         }
 
+        $this->warn(__('console.restore_restart'));
+
         return self::SUCCESS;
     }
 }

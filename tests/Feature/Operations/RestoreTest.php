@@ -50,17 +50,52 @@ class RestoreTest extends TestCase
         File::ensureDirectoryExists($folder);
         File::copy($this->storage.'/app.key', $folder.'/app.key');
 
-        $this->artisan('app:restore', ['folder' => $folder])->assertFailed();
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain(__('console.restore_incomplete'))->assertFailed();
         $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    public function test_it_refuses_a_damaged_database(): void
+    {
+        $folder = $this->backup();
+        file_put_contents($folder.'/database.sqlite', str_repeat('garbage', 500));
+
+        $this->refuses($folder, 'console.restore_damaged');
+    }
+
+    public function test_it_refuses_a_database_of_another_application(): void
+    {
+        $folder = $this->backup();
+        unlink($folder.'/database.sqlite');
+        (new \PDO('sqlite:'.$folder.'/database.sqlite'))->exec('CREATE TABLE other (id INTEGER)');
+
+        $this->refuses($folder, 'console.restore_foreign');
+    }
+
+    public function test_it_refuses_a_key_with_the_wrong_format(): void
+    {
+        $folder = $this->backup();
+        file_put_contents($folder.'/app.key', 'base64:'.base64_encode('short'));
+
+        $this->refuses($folder, 'console.restore_key_invalid');
+    }
+
+    public function test_it_refuses_a_key_that_cannot_decrypt_the_second_factor_secrets(): void
+    {
+        $user = $this->administrator('factor@example.test');
+        $user->forceFill(['two_factor_secret' => (new Google2FA)->generateSecretKey(), 'two_factor_confirmed_at' => now()])->save();
+        $folder = $this->backup();
+        file_put_contents($folder.'/app.key', 'base64:'.base64_encode(Encrypter::generateKey((string) config('app.cipher'))));
+
+        $this->refuses($folder, 'console.restore_key_mismatch');
     }
 
     public function test_it_refuses_a_folder_without_a_key_and_leaves_the_live_data_alone(): void
     {
-        $folder = app(BackupService::class)->run();
+        $folder = $this->backup();
         unlink($folder.'/app.key');
         $this->administrator('after@example.test');
 
-        $this->artisan('app:restore', ['folder' => $folder])->assertFailed();
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain(__('console.restore_incomplete'))->assertFailed();
         $this->assertTrue(User::query()->where('email', 'after@example.test')->exists());
     }
 
@@ -102,6 +137,17 @@ class RestoreTest extends TestCase
         $this->assertFileDoesNotExist($this->storage.'/live.sqlite-shm');
     }
 
+    public function test_a_restore_takes_a_safety_backup_of_the_live_state_first(): void
+    {
+        $folder = $this->backup();
+        $this->administrator('live@example.test');
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain(__('console.restore_restart'))->assertSuccessful();
+
+        $safety = glob($this->storage.'/backups/*');
+        $this->assertCount(2, $safety);
+    }
+
     public function test_a_second_factor_from_before_the_backup_accepts_its_code_after_a_restore(): void
     {
         $google = new Google2FA;
@@ -118,6 +164,23 @@ class RestoreTest extends TestCase
 
         $this->useKey(trim((string) file_get_contents($this->storage.'/app.key')));
         $this->assertTrue(app(TotpVerifier::class)->verify($user->fresh(), $google->getCurrentOtp($secret)));
+        $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    private function backup(): string
+    {
+        return app(BackupService::class)->run();
+    }
+
+    private function refuses(string $folder, string $message): void
+    {
+        $liveKey = file_get_contents($this->storage.'/app.key');
+        $this->administrator('live@example.test');
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain(__($message))->assertFailed();
+
+        $this->assertTrue(User::query()->where('email', 'live@example.test')->exists());
+        $this->assertSame($liveKey, file_get_contents($this->storage.'/app.key'));
         $this->assertFalse($this->app->maintenanceMode()->active());
     }
 
