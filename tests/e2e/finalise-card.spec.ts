@@ -8,7 +8,7 @@ const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 test('the Finalise card is disabled while Cost records sit in Unknown allocation and the selector shows the state', async ({ page }) => {
     const organisation = seedOrganisation(unique(), [2026]);
     seedCostRecord(organisation, 'Licentie', { budgetCents: 100, year: 2026 });
-    const canvas = Number(/ID=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); echo 'ID=' . $c->id;`))?.[1]);
+    const canvas = Number(/ID=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); echo 'ID=' . $c->id;`))?.[1]);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas}/cost-records?year=2026`);
 

@@ -7,7 +7,9 @@ import type { BulkSummary } from '../../components/list/BulkBar.vue';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
 import { useUndoFlash } from '../../components/list/undoFlash';
 import { plural, t } from '../../i18n';
+import CarryOver from './CarryOver.vue';
 import CostRecordForm from './CostRecordForm.vue';
+import FinaliseCard from './FinaliseCard.vue';
 import FiscalYearsPanel from './FiscalYearsPanel.vue';
 import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
@@ -29,6 +31,8 @@ const bulkResult = computed<BulkSummary | null>(() => {
     return result ? { done: result.done, verb: t('cost_records.bulk_verb'), skipped: result.skipped } : null;
 });
 const yearsOpen = ref(false);
+const carryOpen = ref(false);
+const yearFinalised = computed(() => Boolean(props.canvas && props.finalised?.some((entry) => entry.canvas_id === props.canvas?.id && entry.year === props.year)));
 const keep = { preserveScroll: true, preserveState: true };
 
 const columns: ListColumn[] = [
@@ -80,6 +84,11 @@ function load(query: ListState, year: number | null = props.year): void {
     <h1 class="text-[20px] font-semibold">{{ t('cost_records.title') }}: {{ organisation.name }}</h1>
     <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
     <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :canvases="canvases" :finalised="finalised" :writable="!organisation.archived" />
+    <template v-if="canvas && cards && year !== null">
+        <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="carryOpen = true">{{ t('carry_over.title') }}</button>
+        <CarryOver v-model:open="carryOpen" :canvas-id="canvas.id" :years="years" />
+        <FinaliseCard class="mt-3" :canvas-id="canvas.id" :year="year" :remaining="cards.unknown.count" :finalised="yearFinalised" :writable="!organisation.archived" />
+    </template>
     <section v-if="canvas && cards" :aria-label="t('cost_records.cards')" class="mt-3 grid gap-3 sm:grid-cols-3">
         <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('cost_records.card_budget') }}</h2><p>{{ formatAmount(cards.budgetCents) }}</p><p>{{ t('fields.forecast') }}: {{ formatAmount(cards.forecastCents) }}</p></div>
         <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_allocated') }}</h2><p>{{ formatAmount(cards.allocated.budget) }}</p><p>{{ t('cost_records.card_of', { done: cards.allocated.count, total: cards.allocated.count + cards.unknown.count }) }}</p></div>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
-import SelectField from '../../components/fields/SelectField.vue';
 import SidePanel from '../../components/overlays/SidePanel.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
@@ -27,8 +26,8 @@ function run(): void {
     <SidePanel v-model:open="open" :title="t('carry_over.title')">
         <p v-if="refusal" role="alert" class="mb-2 text-[13px] text-[#A12A1E]">{{ refusal }}</p>
         <form novalidate class="flex flex-col gap-3" @submit.prevent="run">
-            <SelectField id="carry-over-source" v-model="source" :label="t('carry_over.source')" :options="options" />
-            <SelectField id="carry-over-target" v-model="target" :label="t('carry_over.target')" :options="options" />
+            <label class="flex flex-col gap-1 text-[13px]">{{ t('carry_over.source') }}<select id="carry-over-source" v-model="source" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select></label>
+            <label class="flex flex-col gap-1 text-[13px]">{{ t('carry_over.target') }}<select id="carry-over-target" v-model="target" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select></label>
             <label class="flex items-center gap-2 text-[13px]"><input v-model="withFigures" type="checkbox" />{{ t('carry_over.with_figures') }}</label>
             <div><button type="submit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('carry_over.run') }}</button></div>
         </form>
