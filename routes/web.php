@@ -21,6 +21,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 
@@ -118,4 +119,9 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
     Route::post('/{element}/archive', [ElementController::class, 'archive']);
     Route::post('/{element}/restore', [ElementController::class, 'restore']);
     Route::delete('/{element}', [ElementController::class, 'destroy']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/system-notices')->group(function () {
+    Route::get('/', [SystemNoticeController::class, 'index']);
+    Route::post('/{notice}/seen', [SystemNoticeController::class, 'seen']);
 });
