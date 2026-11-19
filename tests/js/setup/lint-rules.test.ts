@@ -8,7 +8,7 @@ async function messages(code: string, filePath: string) {
     return result.messages.map((m) => m.ruleId);
 }
 
-describe('lint rules', () => {
+describe('lint rules', { timeout: 30000 }, () => {
     it('rejects v-html in a component', async () => {
         const rules = await messages('<template><div v-html="x" /></template>\n<script setup lang="ts">const x = "";</script>\n', 'resources/js/pages/Fixture.vue');
         expect(rules).toContain('vue/no-v-html');

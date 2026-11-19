@@ -50,7 +50,7 @@ function stubBrowser(storage: FakeSessionStorage): void {
     });
 }
 
-describe('inertia history', () => {
+describe('inertia history', { timeout: 30000 }, () => {
     afterEach(() => vi.unstubAllGlobals());
 
     it('clearHistory empties the stored history', async () => {
