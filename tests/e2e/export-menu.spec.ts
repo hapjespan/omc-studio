@@ -19,6 +19,17 @@ for (const role of ['reader', 'administrator'] as const) {
         await expect(trigger).toBeFocused();
 
         await trigger.click();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Tab');
+        await expect(page.getByRole('menu')).toBeHidden();
+
+        await trigger.click();
+        await page.getByRole('heading', { level: 1 }).click();
+        await expect(page.getByRole('menu')).toBeHidden();
+
+        await trigger.click();
         const download = page.waitForEvent('download');
         await page.getByRole('menuitem', { name: 'Exporteren als JSON' }).click();
         expect((await download).suggestedFilename()).toMatch(/\.json$/);
