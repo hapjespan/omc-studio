@@ -24,7 +24,7 @@ test('a Reader sees only Overzicht without a Canvas', async ({ page }) => {
 
 test('no tab of a later delivery appears', async ({ page }) => {
     await signInAs(page, 'administrator');
-    for (const name of ['Kostenposten', 'Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
+    for (const name of ['Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
 });
 
 test('Beheer lists Gebruikers, Organisaties and Logboek', async ({ page }) => {

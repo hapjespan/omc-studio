@@ -26,6 +26,30 @@ class Organisation extends Model
 
     protected $casts = ['archived_at' => 'datetime'];
 
+    /** @return HasMany<FiscalYear, $this> */
+    public function fiscalYears(): HasMany
+    {
+        return $this->hasMany(FiscalYear::class);
+    }
+
+    /** @return HasMany<Owner, $this> */
+    public function owners(): HasMany
+    {
+        return $this->hasMany(Owner::class);
+    }
+
+    /** @return HasMany<Application, $this> */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    /** @return HasMany<CostRecord, $this> */
+    public function costRecords(): HasMany
+    {
+        return $this->hasMany(CostRecord::class);
+    }
+
     /** @return HasMany<Canvas, $this> */
     public function canvases(): HasMany
     {

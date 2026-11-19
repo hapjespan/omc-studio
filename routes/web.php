@@ -95,6 +95,10 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
     Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });
 
+foreach (glob(__DIR__.'/finance/*.php') ?: [] as $file) {
+    require $file;
+}
+
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/canvases', [CanvasController::class, 'store']);
     Route::patch('/canvases/{canvas}', [CanvasController::class, 'update']);
