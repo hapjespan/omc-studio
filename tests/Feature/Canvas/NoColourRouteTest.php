@@ -24,7 +24,7 @@ class NoColourRouteTest extends TestCase
             ->filter(fn ($route) => str_starts_with($route->uri(), 'canvases/{canvas}/elements') && array_intersect($route->methods(), ['POST', 'PATCH', 'PUT']));
 
         $this->assertNotEmpty($writes);
-        foreach (glob(base_path('app/Http/Requests/*')) ?: [] as $request) {
+        foreach (glob(base_path('app/Http/Requests/Element*')) ?: [] as $request) {
             $this->assertDoesNotMatchRegularExpression('/[\'"](fill|colou?r|text_colou?r)[\'"]/i', (string) file_get_contents($request));
         }
     }

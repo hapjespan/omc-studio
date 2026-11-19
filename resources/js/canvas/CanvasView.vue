@@ -54,12 +54,12 @@ const hover = computed(() => {
     if (id.startsWith(DIRECTION_PREFIX)) {
         const column = props.drawn.direction.find((candidate) => candidate.key === id.slice(DIRECTION_PREFIX.length));
         const frame = props.drawn.blocks.find((block) => block.id === 'direction');
-        return column && frame ? { x: column.x, y: frame.drawnHeight + 4, title: column.label ?? '', lines: directionText(props.statements, column.key) } : null;
+        return column && frame ? { x: column.x * scale.value, y: (frame.drawnHeight + 4) * scale.value, title: column.label ?? '', lines: directionText(props.statements, column.key) } : null;
     }
     const block = props.drawn.blocks.find((candidate) => candidate.id === id);
     const content = detailOf(id, { areas: props.areas, elements: props.elements, statements: props.statements, modalities: props.modalities });
     if (!block || !content || block.kind === 'area') return null;
-    return { x: block.x, y: block.y + block.drawnHeight + 4, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : [])] };
+    return { x: (block.x + block.width + 8) * scale.value, y: block.y * scale.value, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : [])] };
 });
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
@@ -80,7 +80,7 @@ const blocks = computed(() => props.drawn.blocks);
             :selected="selectedId === block.id"
             :modality-colour="block.modality ? (colours.get(block.modality) ?? null) : null"
             @select="emit('select', $event)"
-            :described="peeked === block.id"
+            :described="!!hover && peeked === block.id"
             @peek="peek"
         />
         <div v-if="band" class="pointer-events-none absolute left-0 top-0 z-[2]" :style="{ width: `${ARTBOARD.width}px`, height: `${ARTBOARD.directionHeight}px`, color: band.style.textColour, fontFamily: '\'Inter\'' }">
@@ -104,8 +104,8 @@ const blocks = computed(() => props.drawn.blocks);
                 <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label }">{{ line }}</p>
             </div>
         </div>
-        <HoverContent v-if="hover" id="view-hover" v-bind="hover" @enter="peek(peeked)" @leave="peek(null)" />
         <span class="sr-only">{{ t('view.artboard') }}</span>
     </div>
+    <HoverContent v-if="hover" id="view-hover" v-bind="hover" @enter="peek(peeked)" @leave="peek(null)" />
     </div>
 </template>

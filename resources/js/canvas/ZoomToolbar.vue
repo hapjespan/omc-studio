@@ -15,14 +15,14 @@ import { t } from '../i18n';
 
 const zoom = defineModel<number>('zoom', { required: true });
 const emit = defineEmits<{ fit: [] }>();
-const button = 'rounded-md border border-[#848B95] bg-white px-3 py-1.5 text-[13px] font-semibold disabled:cursor-not-allowed disabled:bg-[#E6E8E6] disabled:text-[#454C57]';
+const button = 'rounded-md border border-[#848B95] bg-white px-3 py-1.5 text-[13px] font-semibold aria-disabled:cursor-not-allowed aria-disabled:bg-[#E6E8E6] aria-disabled:text-[#454C57]';
 </script>
 
 <template>
     <div role="toolbar" :aria-label="t('view.zoom.toolbar')" class="flex flex-wrap items-center gap-2">
-        <button type="button" :class="button" :disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)">{{ t('view.zoom.out') }}</button>
+        <button type="button" :class="button" :aria-disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)">{{ t('view.zoom.out') }}</button>
         <output class="min-w-[4ch] text-center text-[13px]" data-zoom aria-live="polite">{{ zoom }}%</output>
-        <button type="button" :class="button" :disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)">{{ t('view.zoom.in') }}</button>
+        <button type="button" :class="button" :aria-disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)">{{ t('view.zoom.in') }}</button>
         <button type="button" :class="button" @click="emit('fit')">{{ t('view.zoom.fit') }}</button>
     </div>
 </template>
