@@ -5,6 +5,7 @@ test('a list Area has Groups with Items, the Item label and an icon select, and 
     const canvas = seedEntryCanvas('actors', [['domain', 'Klanten'], ['activity', 'Burgers', 'Klanten']]);
     await openEntry(page, canvas, 'Actoren');
 
+    await page.getByRole('button', { name: 'Groep', exact: true }).click();
     await expect(page.getByLabel('+ Groep')).toBeVisible();
     const line = page.getByLabel('Actor toevoegen aan Klanten, Enter om op te slaan');
     await line.fill('Bedrijven');

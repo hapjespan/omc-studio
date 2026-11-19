@@ -13,12 +13,13 @@ import { NO_MODALITY } from '../../components/modality';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { detail } from '../../shell/detail';
-import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type EntryElement } from './entry';
+import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type EntryElement, type EntryWarning } from './entry';
 import ElementActions from './ElementActions.vue';
 import ParentSelect from './ParentSelect.vue';
+import Warnings from './Warnings.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
-const emit = defineEmits<{ saved: []; changed: [] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; list: boolean; icons: string[]; warnings: EntryWarning[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+defineEmits<{ select: [id: string, opener: HTMLElement | null] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element), modality: props.element.modality ?? NO_MODALITY, rationale: props.element.rationale ?? '', confirm_rationale_clear: false });
 const confirming = ref(false);
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -31,10 +32,7 @@ const parentError = computed(() => (moving.value ? errors.value.rule : undefined
 const summary = computed(() => Object.fromEntries(Object.entries(errors.value).filter(([field]) => field !== 'rule' && field !== 'name' && field !== 'description' && field !== 'rationale')));
 const iconOptions = computed(() => props.icons.map((icon) => ({ value: icon, label: t(`structure.icon.${icon}`) })));
 
-watch(() => form.isDirty, (dirty) => {
-    detail.dirty = dirty;
-    if (dirty) emit('changed');
-});
+watch(() => form.isDirty, (dirty) => (detail.dirty = dirty));
 
 const move = (parent: string): { area?: string; parent_id?: string } => {
     if (parent === parentValue(props.element)) return {};
@@ -66,7 +64,6 @@ function save(): void {
             form.confirm_rationale_clear = false;
             form.defaults().reset();
             detail.dirty = false;
-            emit('saved');
         },
         onError: () => nextTick(focusFirstInvalid),
     });
@@ -76,20 +73,16 @@ function save(): void {
 <template>
     <Teleport to="#detail-body" defer>
         <p v-if="element.unknownAllocation" class="text-[13px]">{{ t('entry.unknown_explanation') }}</p>
-        <form v-else :key="element.id" novalidate class="flex flex-col gap-3" @submit.prevent="save">
+        <form v-else id="element-form" :key="element.id" novalidate class="flex flex-col gap-3" @submit.prevent="save">
             <div role="alert"><ErrorSummary :errors="summary" prefix="element-" /></div>
-            <p class="text-[12.5px] text-secondary"><span class="font-semibold">{{ t('entry.path') }}:</span> {{ path }}</p>
             <TextField id="element-name" v-model="form.name" :label="t('fields.name')" :error="nameError" autocomplete="off" />
-            <TextArea id="element-description" v-model="form.description" :label="t('fields.description')" :error="errors.description" />
+            <TextArea id="element-description" v-model="form.description" :label="t('fields.description')" :error="errors.description" :rows="3" />
             <SelectField v-if="list" id="element-icon" v-model="form.icon" :label="t('entry.icon')" :options="iconOptions" :placeholder="t('entry.no_icon')" :error="errors.icon" />
             <template v-if="!list">
                 <ModalityButtons :model-value="form.modality" :error="modalityError" @select="choose" />
-                <TextArea v-if="form.modality !== NO_MODALITY" id="element-rationale" v-model="form.rationale" :label="t('modality_entry.rationale')" :error="errors.rationale" />
+                <TextArea v-if="form.modality !== NO_MODALITY" id="element-rationale" v-model="form.rationale" :label="t('entry_design.rationale')" :error="errors.rationale" :rows="3" />
             </template>
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
-            <div class="flex flex-wrap gap-2">
-                <AppButton type="submit" :disabled="form.processing">{{ t('entry.save') }}</AppButton>
-            </div>
         </form>
         <Dialog v-model:open="confirming" :title="t('modality_entry.confirm_title')" :description="t('modality_entry.confirm_message')">
             <div class="flex gap-2">
@@ -97,6 +90,12 @@ function save(): void {
                 <AppButton variant="danger" type="button" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</AppButton>
             </div>
         </Dialog>
-        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone" /></div>
+        <div v-if="!element.unknownAllocation" class="mt-4">
+            <ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone">
+                <AppButton variant="primary" type="submit" form="element-form" :disabled="form.processing">{{ t('entry.save') }}</AppButton>
+            </ElementActions>
+        </div>
+        <p class="mt-4 border-t border-hairline pt-4 text-[12.5px] text-secondary">{{ t('entry_design.drawing_before') }} <strong class="font-semibold text-ink">{{ t('entry_design.drawing_mode') }}</strong>.</p>
+        <div v-if="warnings.length" class="mt-4 border-t border-hairline pt-1"><Warnings :warnings="warnings" @select="(id, opener) => $emit('select', id, opener)" /></div>
     </Teleport>
 </template>

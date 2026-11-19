@@ -50,7 +50,7 @@ describe('EntryTree', () => {
         expect(html).toContain('aria-label="Selectie omhoog"');
         expect(html.match(/ disabled[ >]/g)).toHaveLength(8);
         expect(html).toMatch(/Activiteit<\/span>.*Selectie.*Modaliteit<\/span>A/);
-        expect(html.match(/<input/g)).toHaveLength(4);
+        expect(html.match(/<input/g)).toHaveLength(6);
         expect(html).toContain('Activiteit of cluster toevoegen aan Inkoop, Enter om op te slaan');
         expect(html.match(/aria-current="true"/g)).toHaveLength(1);
     });

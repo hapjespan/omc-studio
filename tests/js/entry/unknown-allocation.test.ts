@@ -22,12 +22,12 @@ describe('the Unknown allocation Domain in the tree', () => {
         expect(html).toContain('Systeem');
         expect(html.match(/Onbekende allocatie/g)).toHaveLength(1);
         expect(html).not.toContain('Onbekende allocatie omhoog');
-        expect(html.match(/toevoegen aan/g)).toHaveLength(1);
+        expect(html.match(/for="add-line-/g)).toHaveLength(1);
     });
 
     it('explains itself in the panel instead of offering fields', async () => {
         const context: { teleports?: Record<string, string> } = {};
-        await renderToString(createSSRApp({ render: () => h(ElementPanel, { canvasId: 1, element: rows[0], elements: rows, areas: [], path: 'x', list: false, icons: [] }) }), context);
+        await renderToString(createSSRApp({ render: () => h(ElementPanel, { canvasId: 1, element: rows[0], elements: rows, areas: [], warnings: [], list: false, icons: [] }) }), context);
         const html = context.teleports?.['#detail-body'] ?? '';
 
         expect(html).toContain('Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld');

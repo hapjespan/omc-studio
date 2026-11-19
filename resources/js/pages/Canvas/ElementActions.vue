@@ -39,6 +39,7 @@ const choose = (choice: 'delete' | 'lift'): void => {
 <template>
     <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-danger">{{ refusal }}</p>
     <div class="flex flex-wrap gap-2">
+        <slot />
         <AppButton @click="archiving = true">{{ t('entry.archive') }}</AppButton>
         <AppButton variant="danger" @click="startDelete">{{ t('entry.delete') }}</AppButton>
     </div>

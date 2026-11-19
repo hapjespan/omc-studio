@@ -5,6 +5,7 @@ test('Enter in "+ Domein" adds a Domain row at the end and moves focus to its ad
     const canvas = seedEntryCanvas('primary_activities', [['domain', 'Verkoop']]);
     await openEntry(page, canvas);
 
+    await page.getByRole('button', { name: 'Domein', exact: true }).click();
     const field = page.getByLabel('+ Domein');
     await field.fill('Inkoop');
     await field.press('Enter');
@@ -20,6 +21,7 @@ test('a refused name shows its message next to the field', async ({ page }) => {
     const canvas = seedEntryCanvas('primary_activities', [['domain', 'Verkoop']]);
     await openEntry(page, canvas);
 
+    await page.getByRole('button', { name: 'Domein', exact: true }).click();
     const field = page.getByLabel('+ Domein');
     await field.fill('Verkoop');
     await field.press('Enter');

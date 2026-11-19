@@ -8,5 +8,5 @@ const model = defineModel<string>({ required: true });
 </script>
 
 <template>
-    <SelectField id="element-parent" v-model="model" :label="t('entry.parent')" :options="options" :error="error" />
+    <SelectField id="element-parent" v-model="model" :label="t('entry.parent')" :hint="t('entry_design.parent_hint')" :options="options" :error="error" />
 </template>
