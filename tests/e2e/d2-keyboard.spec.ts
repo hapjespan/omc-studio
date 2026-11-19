@@ -106,7 +106,7 @@ test('Toewijzen: choose a record, add Targets, enter percentages and save by key
     }
     await expect(page.getByTestId('remaining')).toHaveText('0,00%');
     await activate(page, page.getByRole('button', { name: 'Opslaan' }));
-    await expect(page.getByText('Verdeling opgeslagen').first()).toBeAttached();
+    await expect(page.getByText('Verdeling opgeslagen').first()).toBeVisible();
 });
 
 test('Carry over: run by keyboard alone and return to the opener with Escape', async ({ page }) => {
@@ -158,6 +158,8 @@ test('Overlays: switch the overlay, filter, and open a card with its figures by 
     await tabTo(page, page.getByLabel('Eigenaar'));
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('ArrowDown');
+    await expect(page).not.toHaveURL(/owner=/);
+    await activate(page, page.getByRole('button', { name: 'Filteren' }));
     await expect(page.locator('[data-active-filters]')).toHaveText('Actieve filters: Eigenaar: Afdeling ICT');
     await activate(page, page.getByRole('button', { name: 'Modaliteit', exact: true }));
     await expect(page.getByRole('button', { name: 'Modaliteit', pressed: true })).toBeVisible();

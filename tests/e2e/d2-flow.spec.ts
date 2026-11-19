@@ -68,7 +68,10 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await addPercentage(page, 'Betalen', '33,34');
     await expect(page.getByTestId('remaining')).toHaveText('0,00%');
     await page.getByRole('button', { name: 'Opslaan' }).click();
-    await expect(page.getByText('Verdeling opgeslagen').first()).toBeAttached();
+    await expect(page.getByText('Verdeling opgeslagen').first()).toBeVisible();
+    for (const [name, amount] of [['Offreren', '€ 76,66'], ['Bestellen', '€ 76,66'], ['Betalen', '€ 76,68']]) {
+        await expect(page.getByRole('treeitem', { name: new RegExp(`^${name}`) })).toContainText(amount);
+    }
 
     await page.goto(`/canvases/${canvas}/view?overlay=financial&year=2026`);
     const card = page.locator('[data-kind="domain"]').filter({ hasText: 'Inkoop' }).first();
@@ -97,17 +100,28 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await expect(years.getByText('Open', { exact: true })).toBeVisible();
 });
 
-const screens: [string, (canvas: number, organisation: number) => string][] = [
-    ['Bekijken with the financial overlay', (canvas) => `/canvases/${canvas}/view?overlay=financial&year=2026`],
-    ['Bekijken with the modality overlay', (canvas) => `/canvases/${canvas}/view?overlay=modality&year=2026`],
-    ['Invoeren', (canvas) => `/canvases/${canvas}/entry`],
-    ['Kostenposten of the Canvas', (canvas) => `/canvases/${canvas}/cost-records?year=2026`],
-    ['Kostenposten of the Organisation', (_canvas, organisation) => `/organisations/${organisation}/cost-records?year=2026`],
-    ['Toewijzen', (canvas) => `/canvases/${canvas}/allocation?year=2026`],
-    ['Systeemmeldingen', () => '/admin/system-notices'],
+const rendered = async (page: Page): Promise<void> => {
+    await page.locator('[data-artboard] [data-block]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve(true))));
+};
+
+const firstRow = (selector: string) => async (page: Page): Promise<void> => {
+    await page.locator(selector).first().waitFor({ state: 'visible', timeout: 10000 });
+};
+
+const screens: [string, (canvas: number, organisation: number) => string, (page: Page) => Promise<void>][] = [
+    ['Bekijken with the financial overlay', (canvas) => `/canvases/${canvas}/view?overlay=financial&year=2026`, rendered],
+    ['Bekijken with the modality overlay', (canvas) => `/canvases/${canvas}/view?overlay=modality&year=2026`, rendered],
+    ['Invoeren', (canvas) => `/canvases/${canvas}/entry`, firstRow('nav[aria-label="Areas"] button')],
+    ['Kostenposten of the Canvas', (canvas) => `/canvases/${canvas}/cost-records?year=2026`, firstRow('tbody tr')],
+    ['Kostenposten of the Organisation', (_canvas, organisation) => `/organisations/${organisation}/cost-records?year=2026`, firstRow('tbody tr')],
+    ['Toewijzen', (canvas) => `/canvases/${canvas}/allocation?year=2026`, firstRow('main section li button')],
+    ['Systeemmeldingen', () => '/admin/system-notices', firstRow('main h1')],
 ];
 
-test.describe('P-1: screens answer within one second on 500 Elements and 1000 Cost records', () => {
+test.describe('P-1: screens answer within one second on 500 Elements and 1000 Cost records', { annotation: { type: 'note', description: 'Timing needs an unloaded server: run this block alone with --workers=1 (npx playwright test tests/e2e/d2-flow.spec.ts -g "P-1" --workers=1).' } }, () => {
+    test.describe.configure({ mode: 'serial' });
+
     let canvas = 0;
     let organisation = 0;
 
@@ -116,14 +130,14 @@ test.describe('P-1: screens answer within one second on 500 Elements and 1000 Co
         organisation = Number(/ID=(\d+)/.exec(tinker(`echo 'ID=' . App\\Models\\Canvas::find(${canvas})->organisation_id;`))?.[1]);
     });
 
-    for (const [label, path] of screens) {
+    for (const [label, path, ready] of screens) {
         test(label, async ({ page }) => {
             await signInAs(page, 'administrator');
             const timings: number[] = [];
             for (let attempt = 0; attempt < 20; attempt += 1) {
                 const started = Date.now();
                 await page.goto(path(canvas, organisation), { waitUntil: 'commit' });
-                await page.getByRole('heading', { level: 1 }).waitFor({ state: 'visible', timeout: 10000 });
+                await ready(page);
                 timings.push(Date.now() - started);
             }
             timings.sort((a, b) => a - b);

@@ -5,10 +5,16 @@ namespace App\Http\Middleware;
 use App\Models\Canvas;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
+
+    public function shouldStoreCurrentUrl(Request $request, Response $response): bool
+    {
+        return ! $response->isRedirect() && parent::shouldStoreCurrentUrl($request, $response);
+    }
 
     /** @return array<string, mixed> */
     public function share(Request $request): array

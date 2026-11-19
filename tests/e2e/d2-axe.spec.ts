@@ -117,6 +117,11 @@ for (const [overlay, label] of [['financial', 'Financieel'], ['modality', 'Modal
         await expect(page.getByRole('button', { name: label, pressed: true })).toBeVisible();
         await expect(page.locator('[data-artboard]')).toBeVisible();
         await expectNoAxeViolations(page);
+        if (overlay === 'financial') {
+            await page.getByRole('button', { name: /^Onderwijs Totaal/ }).click();
+            await expect(page.locator('#detail-panel').getByRole('heading', { name: 'Onderwijs' })).toBeVisible();
+            await expectNoAxeViolations(page);
+        }
     });
 }
 

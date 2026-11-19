@@ -4,6 +4,7 @@ export async function tabTo(page: Page, target: Locator, limit = 500): Promise<v
     await target.waitFor({ state: 'visible' });
     if (await page.evaluate(() => { const first = !(window as unknown as { __skipped?: boolean }).__skipped && (document.activeElement === document.body || document.activeElement === null); (window as unknown as { __skipped?: boolean }).__skipped = true; return first; })) {
         await page.keyboard.press('Tab');
+        await expect(page.getByRole('link', { name: 'Naar hoofdinhoud' }), 'the skip link is the first Tab stop').toBeFocused();
         await page.keyboard.press('Enter');
     }
     for (const key of ['Tab', 'Shift+Tab']) {
