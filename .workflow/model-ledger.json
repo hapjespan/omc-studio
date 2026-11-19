@@ -517,7 +517,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T246": {
-    "built_by": "claude-opus-5"
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T247": {
     "built_by": "claude-sonnet-5-5",
@@ -576,7 +577,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T262": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T263": {
     "built_by": "claude-opus-5",
@@ -647,7 +649,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T372": {
-    "built_by": "claude-opus-5"
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T373": {
     "built_by": "claude-opus-5",
