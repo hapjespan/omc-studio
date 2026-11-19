@@ -180,7 +180,7 @@ Every constraint of `docs/constraints.md` maps to a decision or an accepted risk
 | V16 logging | R-17 (no bindings, no client address in Apache's error log), R-11, System notices |
 | Dependency policy | CI fails on `composer audit` and `npm audit --audit-level=high`; Dependabot alerts only |
 | Secrets | `.env` out of git; first password once in the container log (R-25) |
-| WP1 verification point | Task in WP1: Secure cookie over `http://localhost:8080` per browser; README names the setting where one refuses |
+| WP1 verification point | Task in WP1: Secure cookie over `http://localhost:8080` in Chromium (Firefox and WebKit dropped by the product owner, 2026-11-19); README names the setting where one refuses |
 | Section 7 PII | No new personal data in this plan: sessions lose the IP address and user agent the framework would store (R-28); throttle keys are keyed hashes; undo records hold no user records (User deletion has no undo) and expire within 10 minutes |
 | Section 8 logging and incidents | Security and error logs (R-17); System notices with top-bar warning (US34); notification by the PO through the ISO policy (GATE-U2) |
 | Section 9 closed options | Respected: no database server, no Redis or second service, no TLS in the stack, no automatic backup, no outside service |
