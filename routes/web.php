@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasModeController;
+use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
@@ -90,8 +91,6 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
     Route::post('/{organisation}/archive', [OrganisationController::class, 'archive']);
     Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });
-
-use App\Http\Controllers\ElementController;
 
 Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/elements')->group(function () {
     Route::post('/', [ElementController::class, 'store']);

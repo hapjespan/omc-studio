@@ -28,7 +28,11 @@ class ElementTree
 
             $this->unknown->assertNone($parent);
 
-            $this->names->assertAvailable($canvas->id, $area->id, $parent?->id, (string) ($fields['name'] ?? ''));
+            $fields['name'] = trim((string) ($fields['name'] ?? ''));
+
+            $this->names->assertAvailable($canvas->id, $area->id, $parent?->id, $fields['name']);
+
+            $this->fieldRules->assertValid($area, $fields);
 
             return Element::create([
                 ...array_intersect_key($fields, array_flip(self::FIELDS)),
@@ -51,6 +55,10 @@ class ElementTree
             $element->refresh();
 
             $this->unknown->assertNone($element, $target);
+
+            if ($element->archived_at !== null) {
+                $this->refuse('element_archived');
+            }
 
             $area = $target instanceof Area ? $target : $target->area;
 
@@ -98,7 +106,7 @@ class ElementTree
                 $this->names->assertAvailable($canvas->id, $element->area_id, $element->parent_id, (string) $changes['name'], (string) $element->id);
             }
 
-            $this->fieldRules->assertValid($element, $changes);
+            $this->fieldRules->assertValid($element->area, $changes);
 
             $element->update($changes);
 
@@ -118,6 +126,8 @@ class ElementTree
 
         $this->writes->run([$canvas], function () use ($canvas, $element, $step) {
             $this->assertStructureWritable($canvas);
+
+            $element->refresh();
 
             $this->unknown->assertNone($element);
 
@@ -172,7 +182,7 @@ class ElementTree
             $this->refuse('no_clusters_in_area');
         }
 
-        $parent = $parentId === null ? null : Element::query()->where('canvas_id', $canvas->id)->whereKey($parentId)->first();
+        $parent = $parentId === null ? null : Element::query()->where('canvas_id', $canvas->id)->whereNull('archived_at')->whereKey($parentId)->first();
 
         $fits = $parent !== null && $parent->area_id === $area->id;
 

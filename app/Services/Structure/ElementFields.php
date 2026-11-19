@@ -2,7 +2,7 @@
 
 namespace App\Services\Structure;
 
-use App\Models\Element;
+use App\Models\Area;
 use Illuminate\Support\Facades\File;
 use Illuminate\Validation\ValidationException;
 
@@ -11,20 +11,20 @@ class ElementFields
     private const DESCRIPTION_MAX = 2000;
 
     /** @param array<string, mixed> $changes */
-    public function assertValid(Element $element, array $changes): void
+    public function assertValid(Area $area, array $changes): void
     {
         if (isset($changes['description']) && mb_strlen((string) $changes['description']) > self::DESCRIPTION_MAX) {
             $this->refuse(__('validation.text_max', ['label' => __('fields.description'), 'max' => self::DESCRIPTION_MAX]));
         }
 
         if (isset($changes['icon'])) {
-            $this->assertIcon($element, (string) $changes['icon']);
+            $this->assertIcon($area, (string) $changes['icon']);
         }
     }
 
-    private function assertIcon(Element $element, string $icon): void
+    private function assertIcon(Area $area, string $icon): void
     {
-        if ($element->area->kind !== 'list') {
+        if ($area->kind !== 'list') {
             $this->refuse(__('rule.icon_list_only'));
         }
 

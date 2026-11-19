@@ -72,7 +72,7 @@ class ElementDeletion
     /** @param Collection<int, Element> $children */
     private function lift(Element $cluster, Collection $children): void
     {
-        $taken = $children->filter(fn (Element $child) => $this->names->isTaken($cluster->canvas_id, $cluster->area_id, $cluster->parent_id, $child->name));
+        $taken = $children->whereNull('archived_at')->filter(fn (Element $child) => $this->names->isTaken($cluster->canvas_id, $cluster->area_id, $cluster->parent_id, $child->name, $cluster->id));
 
         if ($taken->isNotEmpty()) {
             throw ValidationException::withMessages(['rule' => __('rule.cluster_lift_taken', ['names' => $taken->pluck('name')->join(', ')])]);

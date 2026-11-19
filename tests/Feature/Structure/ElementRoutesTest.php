@@ -60,7 +60,7 @@ class ElementRoutesTest extends StructureTestCase
         $this->assertSame('Verkoop', $domain->fresh()->name);
     }
 
-    public function test_hangt_onder_moves_an_activity(): void
+    public function test_changing_the_parent_moves_an_activity(): void
     {
         $first = $this->domain('primary_activities', 'Een');
         $second = $this->domain('supporting_activities', 'Twee');

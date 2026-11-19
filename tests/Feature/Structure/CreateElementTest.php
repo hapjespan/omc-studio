@@ -38,13 +38,12 @@ class CreateElementTest extends StructureTestCase
             $this->area('primary_activities'),
             ElementKind::Cluster,
             $this->domain()->id,
-            ['name' => 'Werving', 'description' => 'Alles rond werving', 'rationale' => 'Samenhang', 'icon' => 'users', 'canvas_id' => 'ignored'],
+            ['name' => 'Werving', 'description' => 'Alles rond werving', 'rationale' => 'Samenhang', 'canvas_id' => 'ignored'],
         );
 
         $this->assertSame(ElementKind::Cluster, $cluster->kind);
         $this->assertSame('Alles rond werving', $cluster->description);
         $this->assertSame('Samenhang', $cluster->rationale);
-        $this->assertSame('users', $cluster->icon);
         $this->assertSame($this->canvas->id, $cluster->canvas_id);
     }
 

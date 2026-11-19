@@ -16,7 +16,7 @@ class MoveElementTest extends StructureTestCase
             $this->area('primary_activities'),
             ElementKind::Activity,
             $this->domain()->id,
-            ['name' => 'Offreren', 'description' => 'Offertes maken', 'icon' => 'file'],
+            ['name' => 'Offreren', 'description' => 'Offertes maken', 'rationale' => 'Reden'],
         );
         $target = $this->domain('supporting_activities', 'Beheer');
         $this->activity($target, 'Bestellen');
@@ -28,7 +28,7 @@ class MoveElementTest extends StructureTestCase
         $this->assertSame($this->area('supporting_activities')->id, $moved->area_id);
         $this->assertSame('Offreren', $moved->name);
         $this->assertSame('Offertes maken', $moved->description);
-        $this->assertSame('file', $moved->icon);
+        $this->assertSame('Reden', $moved->rationale);
         $this->assertSame(1, $moved->position);
     }
 

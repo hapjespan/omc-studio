@@ -322,5 +322,6 @@
     "structure.icon.star": "Ster",
     "structure.icon.heart": "Hart",
     "structure.icon.package": "Pakket",
-    "structure.icon.laptop": "Laptop"
+    "structure.icon.laptop": "Laptop",
+    "rule.element_archived": "Een gearchiveerd element kan niet worden verplaatst"
 }

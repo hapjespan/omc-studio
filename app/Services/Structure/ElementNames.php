@@ -7,9 +7,12 @@ use Illuminate\Validation\ValidationException;
 
 class ElementNames
 {
+    private const MAX = 150;
+
     public function assertAvailable(int $canvasId, int $areaId, ?string $parentId, string $name, ?string $ignoring = null): void
     {
         $this->refuseWhen(trim($name) === '', __('rule.name_required'));
+        $this->refuseWhen(mb_strlen(trim($name)) > self::MAX, __('validation.text_max', ['label' => __('fields.name'), 'max' => self::MAX]));
         $this->refuseWhen(str_contains($name, '>'), __('validation.name_forbidden_sign', ['label' => __('fields.name')]));
 
         $taken = $this->isTaken($canvasId, $areaId, $parentId, $name, $ignoring);
