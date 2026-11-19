@@ -148,5 +148,9 @@
     "reauth.renewed": "Je sessie is verlengd",
     "session.warning": "Je sessie verloopt over 2 minuten",
     "session.extend": "Sessie verlengen",
-    "session.extended": "Je sessie is verlengd"
+    "session.extended": "Je sessie is verlengd",
+    "users.name_required": "Naam: vul een naam in",
+    "users.email_invalid": "E-mailadres: vul een geldig e-mailadres in",
+    "users.email_taken": "E-mailadres: dit adres is al in gebruik",
+    "users.role_invalid": "Rol: kies Administrator of Lezer"
 }
