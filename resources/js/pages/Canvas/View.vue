@@ -6,6 +6,9 @@ import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
+import { descendantCounts } from '../../canvas/overlay/counts';
+import type { CanvasFigures, ElementFigures } from '../../canvas/overlay/figures';
+import FinancialCard, { cardLines } from '../../canvas/overlay/FinancialCard.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
@@ -13,7 +16,7 @@ import { ARTBOARD } from '../../layout';
 import { detail, openDetail } from '../../shell/detail';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import { computeCanvasLayout } from '../../layout';
-import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
+import type { CanvasLayoutInput, DrawnBlock, TextMeasurer } from '../../layout';
 
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
@@ -23,7 +26,21 @@ const props = defineProps<{
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
     overlay: string;
+    year: number | null;
+    figures: CanvasFigures | null;
+    figuresMessage: string | null;
 }>();
+
+const costAreas = computed(() => new Set(props.layout.areas.filter((area) => area.kind === 'activities').map((area) => area.key)));
+const domainCounts = computed(() => descendantCounts(props.elements));
+const cardFigures = (block: DrawnBlock): ElementFigures | null => (props.figures && block.kind === 'domain' && costAreas.value.has(block.areaKey) ? (props.figures.elements[block.id] ?? null) : null);
+const figureLines = (id: string): string[] => {
+    const block = drawn.value?.blocks.find((candidate) => candidate.id === id);
+    const figures = block ? cardFigures(block) : null;
+    if (!figures) return [];
+    const lines = cardLines(figures, domainCounts.value.get(id) ?? { activities: 0, clusters: 0 }, props.year);
+    return lines.empty ? [lines.empty] : [lines.total, lines.share, lines.forecast, lines.counts];
+};
 
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
@@ -47,12 +64,17 @@ const fit = (): void => {
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
+    <p v-if="figuresMessage" role="alert" class="mt-3 rounded-md border border-[#B3261E] px-3 py-2 text-[13px] text-[#8C1D18]" data-figures-message>{{ figuresMessage }}</p>
     <div class="mt-3 flex flex-wrap items-center gap-4">
         <ZoomToolbar v-if="drawn" v-model:zoom="zoom" @fit="fit" />
         <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
     </div>
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
-        <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" @select="select" />
+        <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" :figure-lines="figureLines" @select="select">
+            <template #card="{ block }">
+                <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" />
+            </template>
+        </CanvasView>
     </div>
     <ViewDetail v-if="content && detail.open" :content="content" />
 </template>

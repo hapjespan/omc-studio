@@ -55,3 +55,12 @@ export function formatTime(instant: string): string {
     const { hour, minute } = local(instant);
     return `${hour}:${minute}`;
 }
+
+export function formatBasisPoints(basisPoints: number): string {
+    const tenths = Math.floor((Math.abs(basisPoints) + 5) / 10);
+    return signed(basisPoints, `${Math.floor(tenths / 10)},${tenths % 10}%`);
+}
+
+export function basisPointsOf(part: number, whole: number): number | null {
+    return whole === 0 ? null : Math.floor((Math.abs(part) * 20000 + Math.abs(whole)) / (2 * Math.abs(whole))) * Math.sign(part);
+}

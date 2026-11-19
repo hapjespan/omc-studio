@@ -908,5 +908,11 @@
     "overlay.label": "Overlay",
     "overlay.none": "Geen",
     "overlay.modality": "Modaliteit",
-    "overlay.financial": "Financieel"
+    "overlay.financial": "Financieel",
+    "overlay.empty": "Geen kosten toegewezen in :year",
+    "overlay.total": "Totaal :amount",
+    "overlay.share": ":percentage van totaal",
+    "overlay.forecast": "Prognose :amount",
+    "overlay.forecast_line": "Prognose :amount · :percentage van budget",
+    "overlay.counts": "Activiteiten :activities · Clusters :clusters"
 }
