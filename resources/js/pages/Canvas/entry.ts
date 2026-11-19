@@ -34,3 +34,6 @@ export function buildRows(elements: EntryElement[], area: AreaKey): EntryRowData
 }
 
 export const kindLabelKey = (kind: ElementKind, area: AreaKey): string => (kind === 'cluster' ? 'entry.kind.cluster' : `areas.${area}.level_${kind === 'domain' ? 1 : 2}`);
+
+export const createdElement = (elements: EntryElement[], area: AreaKey, kind: ElementKind, name: string, parent: string | null): EntryElement | undefined =>
+    elements.find((candidate) => !candidate.archived && candidate.area === area && candidate.kind === kind && candidate.name === name && candidate.parent === parent);

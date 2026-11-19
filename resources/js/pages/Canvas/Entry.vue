@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { t } from '../../i18n';
 import EntryTree from './EntryTree.vue';
-import type { AreaKey } from '../../layout/types';
-import { buildRows, type EntryElement } from './entry';
+import type { AreaKey, ElementKind } from '../../layout/types';
+import AddDomain from './AddDomain.vue';
+import { buildRows, createdElement, type EntryElement } from './entry';
 
 interface EntryArea {
     key: string;
@@ -19,6 +20,12 @@ const area = computed(() => props.areas.find(({ key }) => key === current.value)
 const selectedId = ref<string | null>(null);
 const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
 const rows = computed(() => buildRows(props.elements.filter((element) => !element.archived), area.value.key as AreaKey));
+
+async function added(kind: ElementKind, name: string, parent: string | null): Promise<void> {
+    await nextTick();
+    const created = createdElement(props.elements, area.value.key as AreaKey, kind, name, parent);
+    if (created) document.getElementById(`add-line-${created.id}`)?.focus();
+}
 </script>
 
 <template>
@@ -39,6 +46,7 @@ const rows = computed(() => buildRows(props.elements.filter((element) => !elemen
         </nav>
         <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
             <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+            <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" @select="selectedId = $event" />
         </section>
     </div>

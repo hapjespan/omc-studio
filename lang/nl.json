@@ -373,5 +373,6 @@
     "entry.areas": "Areas",
     "entry.kind.cluster": "Cluster",
     "entry.modality": "Modaliteit",
-    "entry.tree": "Structuur van :area"
+    "entry.tree": "Structuur van :area",
+    "entry.add_kind": "+ :kind"
 }
