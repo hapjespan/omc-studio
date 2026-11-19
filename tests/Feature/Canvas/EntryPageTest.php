@@ -66,6 +66,13 @@ class EntryPageTest extends TestCase
         });
     }
 
+    public function test_the_undo_token_of_a_deletion_is_shared_with_the_next_page(): void
+    {
+        $canvas = Canvas::factory()->create();
+
+        $this->actingAs(User::factory()->administrator()->create())->withSession(['undo_token' => 'token-1'])->get("/canvases/{$canvas->id}/entry")->assertInertia(fn (Assert $page) => $page->where('flash.undoToken', 'token-1'));
+    }
+
     public function test_a_reader_and_an_archived_canvas_are_redirected_to_view(): void
     {
         $canvas = Canvas::factory()->create();

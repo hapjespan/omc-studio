@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { announce } from '../../components/feedback/status';
+import UndoMessage from '../../components/list/UndoMessage.vue';
+import { routes } from '../../routes';
 import { t } from '../../i18n';
 import EntryTree from './EntryTree.vue';
 import type { AreaKey, ElementKind } from '../../layout/types';
-import { detail, openDetail } from '../../shell/detail';
+import { detail, discardDetail, openDetail } from '../../shell/detail';
 import AddDomain from './AddDomain.vue';
 import ElementPanel from './ElementPanel.vue';
 import { buildRows, createdElement, elementPath, type EntryAreaInfo, type EntryElement } from './entry';
@@ -22,6 +25,7 @@ const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
 const selectedId = ref<string | null>(null);
 const saved = ref(false);
+const undo = ref<{ token: string; name: string; refusal: string | null } | null>(null);
 const areaInfo = computed(() => props.areas as unknown as EntryAreaInfo[]);
 const labelOf = (key: string): string => props.areas.find((item) => item.key === key)?.label ?? key;
 const selectedElement = computed(() => props.elements.find(({ id }) => id === selectedId.value));
@@ -32,6 +36,28 @@ function select(id: string, opener: HTMLElement | null): void {
     selectedId.value = id;
     saved.value = false;
     openDetail(props.elements.find((element) => element.id === id)?.name ?? '', opener);
+}
+
+function gone(kind: 'archived' | 'deleted', name: string): void {
+    discardDetail();
+    const token = (usePage().props.flash as { undoToken?: string | null } | undefined)?.undoToken;
+    if (kind === 'deleted' && token) undo.value = { token, name, refusal: null };
+}
+
+function undoDeletion(): void {
+    const current = undo.value;
+    if (!current) return;
+    router.post(routes.undo(current.token), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: async () => {
+            undo.value = null;
+            void announce(t('entry.undone', { name: current.name }));
+            await nextTick();
+            document.getElementById('add-domain')?.focus();
+        },
+        onError: (errors) => (current.refusal = errors.rule ?? ''),
+    });
 }
 
 watch(() => detail.open, (open) => {
@@ -64,9 +90,10 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         </nav>
         <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
             <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+            <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntryTree :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" />
-            <ElementPanel v-if="selectedElement" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" />
+            <ElementPanel v-if="selectedElement" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" @gone="gone" />
         </section>
     </div>
 </template>

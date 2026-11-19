@@ -82,3 +82,8 @@ export function parentOptions(element: EntryElement, elements: EntryElement[], a
             .map(({ element: candidate }) => ({ value: candidate.id, label: elementPath(candidate, elements, area.label) })),
     );
 }
+
+export const descendantNames = (element: EntryElement, elements: EntryElement[]): string[] =>
+    elements.filter(({ parent }) => parent === element.id).flatMap((child) => [child.name, ...descendantNames(child, elements)]);
+
+export const NAME_LIMIT = 5;
