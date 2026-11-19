@@ -18,6 +18,7 @@ use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
@@ -118,4 +119,8 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
     Route::post('/{element}/archive', [ElementController::class, 'archive']);
     Route::post('/{element}/restore', [ElementController::class, 'restore']);
     Route::delete('/{element}', [ElementController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/organisations/{organisation}/export/cost-records.csv', [ExportController::class, 'costRecords']);
 });
