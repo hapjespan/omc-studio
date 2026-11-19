@@ -6,6 +6,7 @@ use App\Enums\CanvasKind;
 use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
@@ -35,7 +36,10 @@ class FullImportTest extends CanvasExchangeTestCase
         DB::statement('PRAGMA foreign_keys = ON');
     }
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param  array<string, mixed>  $data
+     * @return TestResponse<JsonResponse>
+     */
     private function send(string $url, array $data): TestResponse
     {
         return $this->post($url, ['file' => UploadedFile::fake()->createWithContent('full.json', json_encode($data))], ['Accept' => 'application/json']);

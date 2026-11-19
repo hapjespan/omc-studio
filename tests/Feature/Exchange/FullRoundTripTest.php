@@ -32,7 +32,7 @@ class FullRoundTripTest extends CanvasExchangeTestCase
         return [$elements, $figures->areas, $figures->canvasTotal, $figures->breakdowns, $figures->sidePanel];
     }
 
-    /** @return list<mixed> */
+    /** @return array<string, array<int, array<string, list<mixed>>>> */
     private function everything(): array
     {
         $all = [];

@@ -128,7 +128,7 @@ class FullImport
 
             if ($entry['canvases'] !== [] && isset($names[$name])) {
                 $count++;
-                $errors[] = ['location' => $at.'.canvases['.$position.'].name', 'message' => __('jsonx.canvas_name_taken', ['location' => 'canvas_name'])];
+                $errors[] = ['location' => $at.'.canvases['.$position.'].name', 'message' => (string) __('jsonx.canvas_name_taken', ['location' => 'canvas_name'])];
             }
 
             $names[$name] = true;
