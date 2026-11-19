@@ -107,4 +107,21 @@ class ArchiveCanvasTest extends TestCase
             }
         }
     }
+
+    public function test_a_canvas_in_an_archived_organisation_cannot_be_archived_restored_or_deleted(): void
+    {
+        $canvas = Canvas::factory()->create(['name' => 'Model']);
+        $canvas->organisation->update(['archived_at' => now()]);
+
+        foreach ([fn () => $this->lifecycle->archive($canvas), fn () => $this->lifecycle->restore($canvas), fn () => $this->lifecycle->delete($canvas, 'Model')] as $call) {
+            try {
+                $call();
+                $this->fail('expected refusal');
+            } catch (ValidationException $e) {
+                $this->assertSame('Deze organisatie is gearchiveerd', $e->errors()['rule'][0]);
+            }
+        }
+
+        $this->assertNotNull($canvas->fresh());
+    }
 }

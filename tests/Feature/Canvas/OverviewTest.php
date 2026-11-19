@@ -26,12 +26,12 @@ class OverviewTest extends TestCase
 
     public function test_each_active_organisation_is_a_section_with_its_active_canvases_in_name_order(): void
     {
-        $noord = Organisation::factory()->create(['name' => 'Noord']);
-        $zuid = Organisation::factory()->create(['name' => 'Zuid']);
+        $first = Organisation::factory()->create(['name' => 'Noord']);
+        $second = Organisation::factory()->create(['name' => 'Zuid']);
         Organisation::factory()->create(['name' => 'Oost', 'archived_at' => now()]);
-        Canvas::factory()->create(['organisation_id' => $noord->id, 'name' => 'B model']);
-        Canvas::factory()->create(['organisation_id' => $noord->id, 'name' => 'A model']);
-        Canvas::factory()->create(['organisation_id' => $noord->id, 'name' => 'Oud', 'archived_at' => now()]);
+        Canvas::factory()->create(['organisation_id' => $first->id, 'name' => 'B model']);
+        Canvas::factory()->create(['organisation_id' => $first->id, 'name' => 'A model']);
+        Canvas::factory()->create(['organisation_id' => $first->id, 'name' => 'Oud', 'archived_at' => now()]);
 
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
             ->component('Overview')

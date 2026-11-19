@@ -22,6 +22,7 @@ import Dialog from '../../components/overlays/Dialog.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
+const emit = defineEmits<{ done: [] }>();
 const props = defineProps<{ organisations: { id: number; name: string }[]; templates: { id: number; name: string }[] }>();
 
 const open = ref(false);
@@ -63,7 +64,10 @@ function show(next: DialogKind, target: DialogCanvas | null = null): void {
 
 function submit(): void {
     const id = canvas.value?.id ?? 0;
-    const options = { preserveScroll: true, onSuccess: () => (open.value = false), onError: () => nextTick(focusFirstInvalid) };
+    const options = { preserveScroll: true, onSuccess: () => {
+            open.value = false;
+            emit('done');
+        }, onError: () => nextTick(focusFirstInvalid) };
     if (kind.value === 'create') form.transform((data) => ({ source: 'template', name: data.name, organisation_id: data.organisation_id, template_id: data.template_id })).post(routes.canvases(), options);
     else if (kind.value === 'copy') form.transform((data) => ({ source: 'copy', name: data.name, organisation_id: data.organisation_id, canvas_id: id })).post(routes.canvases(), options);
     else if (kind.value === 'rename') form.transform((data) => ({ name: data.name })).patch(routes.canvas(id), options);
