@@ -8,12 +8,16 @@ import DetailPanel from './DetailPanel.vue';
 import LeftPanel from './LeftPanel.vue';
 import MenuButton from './MenuButton.vue';
 import ModeSwitch from './ModeSwitch.vue';
+import ReauthDialog from './ReauthDialog.vue';
+import { reauth, scheduleReauth } from './session';
 import SkipLink from './SkipLink.vue';
 import Tabs from './Tabs.vue';
 import TopBar, { type ShellCanvas } from './TopBar.vue';
 
-const page = usePage<{ appName: string; auth: { role: string }; canvas?: ShellCanvas | null }>();
+const page = usePage<{ appName: string; auth: { role: string; secondFactor: boolean; sessionEndsAt: number | null }; canvas?: ShellCanvas | null }>();
 const menuOpen = ref(false);
+
+watch(() => page.props.auth.sessionEndsAt, scheduleReauth, { immediate: true });
 
 watch(
     () => page.url,
@@ -43,5 +47,6 @@ watch(
             <StatusRegion />
         </main>
         <DetailPanel />
+        <ReauthDialog v-if="reauth" />
     </div>
 </template>

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SessionLifetime
 {
-    private const LIMIT = 12 * 3600;
+    public const LIMIT = 12 * 3600;
 
     public function handle(Request $request, Closure $next): Response
     {
