@@ -6,9 +6,9 @@ use Closure;
 
 class ElementName extends TrimmedText
 {
-    public function __construct(string $label = 'Naam')
+    public function __construct(?string $label = null)
     {
-        parent::__construct($label, 150);
+        parent::__construct($label ?? __('fields.name'), 150);
     }
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
