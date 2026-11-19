@@ -3,10 +3,21 @@
 namespace App\Services\Accounts;
 
 use App\Models\User;
+use App\Services\Audit\SecurityLog;
 
 class UserAdministration
 {
-    public function __construct(private readonly OneTimePassword $passwords) {}
+    public function __construct(private readonly OneTimePassword $passwords, private readonly SessionTerminator $sessions) {}
+
+    public function resetPassword(User $user): string
+    {
+        $password = $this->passwords->issueTo($user);
+        $ended = $this->sessions->endAll($user);
+
+        SecurityLog::record('user_password_reset', ['subject_id' => $user->getKey(), 'sessions_ended' => $ended]);
+
+        return $password;
+    }
 
     /**
      * @param  array{name: string, email: string, role: string}  $data
