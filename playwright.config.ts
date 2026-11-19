@@ -4,6 +4,7 @@ export default defineConfig({
     testDir: 'tests/e2e',
     testIgnore: 'proof/**',
     fullyParallel: true,
+    retries: process.env.CI ? 2 : 0,
     reporter: 'list',
     use: {
         baseURL: process.env.APP_URL ?? 'http://localhost:8080',

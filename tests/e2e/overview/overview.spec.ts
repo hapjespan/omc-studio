@@ -20,6 +20,13 @@ test('each Organisation is a section with its active Canvas cards and archived o
     await expect(page.getByRole('link', { name: archived, exact: true })).toHaveCount(0);
     await expect(page.getByText(/Laatst gewijzigd \d{2}-\d{2}-\d{4}|Laatst gewijzigd/).first()).toBeVisible();
     await expectNoAxeViolations(page, 'svg[aria-hidden="true"]');
+});
+
+test('Toon gearchiveerd adds the archived cards', async ({ page }) => {
+    const archived = unique('Oud');
+    seedOrganisation(unique('Noord'), [unique('Model')], { archivedCanvases: [archived] });
+    await signInAs(page, 'administrator');
+    await page.goto('/overview');
 
     await page.getByLabel('Toon gearchiveerd').check();
     await expect(page.getByRole('link', { name: archived, exact: true })).toBeVisible();
