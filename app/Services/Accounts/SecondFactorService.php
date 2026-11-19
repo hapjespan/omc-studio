@@ -16,6 +16,8 @@ use PragmaRX\Google2FA\Google2FA;
 
 class SecondFactorService
 {
+    public const ENROLLING = 'second_factor_enrolling';
+
     private const NAMESPACE = 'second-factor-password';
 
     private const QR_SIZE = 200;
@@ -38,6 +40,16 @@ class SecondFactorService
         }
 
         $user->fill(['two_factor_secret' => $this->google->generateSecretKey()])->save();
+
+        return $this->pair($user);
+    }
+
+    /** @return array{secret: string, qr: string}|null */
+    public function enrolment(User $user): ?array
+    {
+        if ($user->two_factor_secret === null || $user->two_factor_confirmed_at !== null) {
+            return null;
+        }
 
         return $this->pair($user);
     }

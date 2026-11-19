@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Rules\Password;
+use App\Services\Accounts\RecoveryCodes;
+use App\Services\Accounts\SecondFactorService;
 use App\Services\Accounts\SessionTerminator;
 use App\Services\Accounts\Throttle;
 use App\Services\Audit\SecurityLog;
@@ -18,9 +20,25 @@ class AccountController extends Controller
 {
     private const NAMESPACE = 'password-change';
 
-    public function show(): Response
+    public function show(Request $request, RecoveryCodes $codes, SecondFactorService $factor): Response
     {
-        return Inertia::render('Account/Show');
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        $enrolment = $request->session()->get(SecondFactorService::ENROLLING) === true ? $factor->enrolment($user) : null;
+
+        if ($enrolment !== null) {
+            Inertia::clearHistory();
+        }
+
+        return Inertia::render('Account/Show', ['secondFactor' => [
+            'active' => $user->two_factor_confirmed_at !== null,
+            'remainingLabel' => trans_choice('second_factor.remaining_codes', $codes->remaining($user)),
+            'enrolment' => $enrolment,
+        ]]);
     }
 
     public function update(Request $request, SessionTerminator $terminator): RedirectResponse

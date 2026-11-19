@@ -61,4 +61,17 @@ describe('ErrorSummary', () => {
     it('renders nothing without errors', async () => {
         expect(await render(ErrorSummary, { errors: {} })).not.toContain('<section');
     });
+
+    it('puts the prefix of a second form on every link', async () => {
+        const html = await render(ErrorSummary, { errors: { code: 'Code: deze code klopt niet' }, prefix: 'second_factor_' });
+
+        expect(html).toContain('href="#second_factor_code"');
+    });
+
+    it('shows a refused rule as text, because no field holds it', async () => {
+        const html = await render(ErrorSummary, { errors: { rule: 'Tweede factor staat al aan' } });
+
+        expect(html).not.toContain('href=');
+        expect(html).toContain('Tweede factor staat al aan');
+    });
 });

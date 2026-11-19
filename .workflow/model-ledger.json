@@ -212,5 +212,9 @@
   "T068": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
+  },
+  "T069": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }

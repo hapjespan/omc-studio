@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
+use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,4 +31,11 @@ Route::middleware('can:administer')->scopeBindings()->group(function () {
 Route::middleware('guest')->group(function () {
     Route::get('/sign-in/second-factor', [SecondFactorChallengeController::class, 'create']);
     Route::post('/sign-in/second-factor', [SecondFactorChallengeController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/account/second-factor', [SecondFactorController::class, 'store']);
+    Route::post('/account/second-factor/confirm', [SecondFactorController::class, 'confirm']);
+    Route::post('/account/second-factor/recovery-codes', [SecondFactorController::class, 'recoveryCodes']);
+    Route::delete('/account/second-factor', [SecondFactorController::class, 'destroy']);
 });
