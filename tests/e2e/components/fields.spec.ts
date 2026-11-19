@@ -1,7 +1,7 @@
 import { expect, test } from '../support/guards';
 import { expectNoAxeViolations } from '../support/guards';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: process.env.E2E_HARNESS_URL ?? 'http://127.0.0.1:4187' });
 
 test('a refused save shows the messages next to the fields and moves focus', async ({ page }) => {
     await page.goto('/?demo=Fields');

@@ -104,7 +104,7 @@ Knowledge base consulted (`bin/find.py` on laravel, inertia, vue, sqlite, playwr
 
 - **Decision**: logos are checked with `getimagesizefromstring` (type and dimensions from content), re-encoded with GD to PNG or JPEG (which drops metadata), stored as `storage/app/private/logos/<random>.<ext>` and served by a controller with a fixed content type. CSV and JSON are checked on content (UTF-8 text with the exact header; `json_decode` with depth and size limits) before any row is read.
 - **Between dry run and commit** the file is not stored: the browser keeps the chosen file and sends it again with "Importeren", and the server runs the same checks again (FR-085).
-- **PHP limits** in the image: `upload_max_filesize` 50M, `post_max_size` 55M; the import routes raise `memory_limit` to 1G for their request only.
+- **PHP limits** in the image: `upload_max_filesize` 51M, `post_max_size` 56M (just above the 50 MB content limit, so the content check gives the refusal message); the import routes raise `memory_limit` to 1G for their request only.
 - **Rationale**: FR-024, FR-086, V5; GD ships with the PHP image.
 - **Alternatives**: Intervention Image (rejected: a dependency for two calls).
 

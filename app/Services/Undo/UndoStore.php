@@ -28,6 +28,8 @@ class UndoStore
 
     public const YEARLY_FIGURES_DELETION = 'yearly_figures_deletion';
 
+    public const ALLOCATION_SET_CLEARED = 'allocation_set_cleared';
+
     private const LIFETIME_MINUTES = 10;
 
     private const TOKEN_LENGTH = 40;
@@ -36,6 +38,7 @@ class UndoStore
         private readonly SerialisedWrite $writes,
         private readonly AuditContext $context,
         private readonly CostRecordUndo $costRecords,
+        private readonly AllocationSetUndo $allocationSets,
     ) {}
 
     /** @param array<string, mixed> $payload */
@@ -73,6 +76,7 @@ class UndoStore
             self::OWNER_DELETION => $this->restoreListEntry($record, Owner::class),
             self::APPLICATION_DELETION => $this->restoreListEntry($record, Application::class),
             self::COST_RECORD_DELETION, self::YEARLY_FIGURES_DELETION => $this->costRecords->restore($record),
+            self::ALLOCATION_SET_CLEARED => $this->allocationSets->restore($record),
             default => $this->refuse('undo_unavailable'),
         };
     }

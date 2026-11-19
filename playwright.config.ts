@@ -11,7 +11,7 @@ export default defineConfig({
     },
     webServer: {
         command: 'npx vite build -c tests/e2e/support/harness/vite.config.ts && npx vite preview -c tests/e2e/support/harness/vite.config.ts',
-        url: 'http://127.0.0.1:4187/',
+        url: `http://127.0.0.1:${process.env.E2E_HARNESS_PORT ?? 4187}/`,
         reuseExistingServer: false,
         timeout: 120000,
     },

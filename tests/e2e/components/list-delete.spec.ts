@@ -1,6 +1,6 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: process.env.E2E_HARNESS_URL ?? 'http://127.0.0.1:4187' });
 
 test('the confirmation names the consequence in numbers', async ({ page }) => {
     await page.goto('/?demo=List');

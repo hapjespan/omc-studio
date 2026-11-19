@@ -31,7 +31,7 @@ class AuditTrail
     }
 
     /** @param list<array{string, string, array<string, array{mixed, mixed}>}> $entries */
-    public function recordMany(string $subjectType, string $action, ?int $organisationId, array $entries): void
+    public function recordMany(string $subjectType, string $action, ?int $organisationId, array $entries, ?int $canvasId = null): void
     {
         $now = now();
 
@@ -44,7 +44,7 @@ class AuditTrail
             'subject_id' => $entry[0],
             'subject_label' => Str::limit($entry[1], 150, ''),
             'organisation_id' => $organisationId,
-            'canvas_id' => null,
+            'canvas_id' => $canvasId,
             'changes' => json_encode($entry[2]),
         ], $entries));
     }

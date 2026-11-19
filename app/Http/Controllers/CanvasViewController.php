@@ -18,7 +18,6 @@ class CanvasViewController extends Controller
         $letters = $modalities->pluck('letter', 'id');
 
         return Inertia::render('Canvas/View', [
-            'canvas' => ['id' => $canvas->id, 'name' => $canvas->name, 'archived' => $canvas->archived_at !== null],
             'canWrite' => false,
             'layout' => [
                 'areas' => Area::orderBy('position')->get()->map(fn (Area $area) => [

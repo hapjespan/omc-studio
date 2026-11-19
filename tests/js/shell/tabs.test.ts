@@ -5,7 +5,7 @@ const keys = (role: string, canvas: boolean) => visibleTabs(role, canvas).map((t
 
 describe('tabs', () => {
     it('shows Canvas and, for an Administrator, Beheer when a Canvas is open', () => {
-        expect(keys('administrator', true)).toEqual(['canvas', 'costs', 'admin']);
+        expect(keys('administrator', true)).toEqual(['canvas', 'costs', 'allocation', 'admin']);
     });
 
     it('shows Overzicht and, for an Administrator, Beheer without a Canvas', () => {
@@ -17,10 +17,9 @@ describe('tabs', () => {
         expect(keys('reader', true)).toEqual(['canvas']);
     });
 
-    it('registers no tab of a later delivery in D1', () => {
+    it('registers no tab of delivery 3', () => {
         const all = [...keys('administrator', true), ...keys('administrator', false)];
 
-        expect(all).not.toContain('allocate');
         expect(all).not.toContain('versions');
     });
 
@@ -36,7 +35,7 @@ describe('tabs', () => {
     it('lets a later delivery register a tab', () => {
         registerTab({ key: 'probe', label: 'shell.tab.overview', context: 'canvas', roles: ['administrator'], href: () => '/probe', matches: ['/probe'] }, 1);
 
-        expect(keys('administrator', true)).toEqual(['canvas', 'probe', 'costs', 'admin']);
+        expect(keys('administrator', true)).toEqual(['canvas', 'probe', 'costs', 'allocation', 'admin']);
         expect(keys('reader', true)).toEqual(['canvas']);
     });
 });

@@ -27,11 +27,11 @@ test('no tab of a later delivery appears', async ({ page }) => {
     for (const name of ['Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
 });
 
-test('Beheer lists Gebruikers, Organisaties and Logboek', async ({ page }) => {
+test('Beheer lists every admin entry', async ({ page }) => {
     await signInAs(page, 'administrator');
     await page.goto('/admin');
     await expect(page.getByRole('heading', { level: 1, name: 'Beheer' })).toBeVisible();
-    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Logboek']);
+    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Eigenaren', 'Applicaties', 'Logboek', 'Systeemmeldingen']);
     await expectNoAxeViolations(page);
 });
 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { t } from '../i18n';
 import { routes } from '../routes';
+import NoticeWarning from './NoticeWarning.vue';
 import UserMenu from './UserMenu.vue';
 import YearSelector from './YearSelector.vue';
 
@@ -14,6 +15,7 @@ export interface ShellCanvas {
 }
 
 defineProps<{ appName: string; role: string; canvas?: ShellCanvas | null }>();
+const page = usePage<{ pendingNotices: number | null }>();
 </script>
 
 <template>
@@ -25,6 +27,6 @@ defineProps<{ appName: string; role: string; canvas?: ShellCanvas | null }>();
                 <li aria-current="page">{{ canvas.name }}</li>
             </ol>
         </nav>
-        <div class="ml-auto flex items-center gap-4"><YearSelector /><UserMenu :role="role" /></div>
+        <div class="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2"><NoticeWarning v-if="role === 'administrator'" :count="page.props.pendingNotices" /><YearSelector /><UserMenu :role="role" /></div>
     </div>
 </template>

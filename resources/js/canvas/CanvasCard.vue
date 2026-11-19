@@ -15,7 +15,7 @@ export interface CardCanvas {
     name: string;
     updated_at: string | null;
     archived: boolean;
-    counts: { elements: number; statements: number } | null;
+    counts: Record<string, number> | null;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
 }

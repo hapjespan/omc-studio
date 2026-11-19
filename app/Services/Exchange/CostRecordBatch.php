@@ -24,13 +24,18 @@ class CostRecordBatch
         return isset($this->records[$key]);
     }
 
-    /** @param array<string, mixed> $attributes */
-    public function record(string $key, string $code, array $attributes): void
+    public function idOf(string $key): string
     {
-        $this->records[$key] = ['id' => (string) Str::uuid(), 'organisation_id' => $this->organisationId, 'code' => $code, ...$attributes, 'code_normalised' => $key];
+        return (string) $this->records[$key]['id'];
     }
 
-    /** @param array<string, ?int> $figures */
+    /** @param array<string, mixed> $attributes */
+    public function record(string $key, ?string $code, array $attributes): void
+    {
+        $this->records[$key] = ['id' => (string) Str::uuid(), 'organisation_id' => $this->organisationId, 'code' => $code, ...$attributes, 'code_normalised' => $code === null ? null : mb_strtolower($code)];
+    }
+
+    /** @param array<string, mixed> $figures */
     public function figure(string $key, int $yearId, array $figures): void
     {
         $this->figures[] = ['cost_record_id' => $this->records[$key]['id'], 'fiscal_year_id' => $yearId, ...$figures];

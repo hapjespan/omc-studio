@@ -56,7 +56,7 @@ class DeleteCanvasTest extends TestCase
 
         $counts = $this->lifecycle->deletionCounts($canvas);
 
-        $this->assertSame(['elements' => 4, 'statements' => 2], $counts);
+        $this->assertSame(['elements' => 4, 'statements' => 2, 'allocation_sets' => 0, 'finalised_years' => 0], $counts);
 
         $this->lifecycle->delete($canvas, 'Operating model 2027');
 
@@ -125,6 +125,8 @@ class DeleteCanvasTest extends TestCase
             'name' => ['Operating model 2027', null],
             'elements' => [4, null],
             'statements' => [2, null],
+            'allocation_sets' => [0, null],
+            'finalised_years' => [0, null],
             'audit_entries' => [$entriesBefore, null],
         ], $entry->changes);
     }

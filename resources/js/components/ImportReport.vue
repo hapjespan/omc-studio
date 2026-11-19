@@ -13,7 +13,7 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
 </script>
 
 <template>
-    <section aria-labelledby="import-summary" class="mt-4">
+    <section role="region" aria-labelledby="import-summary" class="mt-4">
         <h2 id="import-summary" class="text-[16px] font-semibold">{{ t('import.summary') }}</h2>
         <table class="mt-2 text-[13px]">
             <caption class="sr-only">{{ t('import.summary') }}</caption>
@@ -24,12 +24,12 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
         </table>
     </section>
     <template v-for="(names, kind) in report.creates ?? {}" :key="kind">
-        <section v-if="names.length" :aria-labelledby="`import-creates-${kind}`" class="mt-4">
+        <section role="region" v-if="names.length" :aria-labelledby="`import-creates-${kind}`" class="mt-4">
             <h2 :id="`import-creates-${kind}`" class="text-[16px] font-semibold">{{ t('import.creates') }}: {{ t(`import.${kind}`) }}</h2>
             <ul class="mt-2 list-disc pl-5 text-[13px]"><li v-for="name in names" :key="name">{{ name }}</li></ul>
         </section>
     </template>
-    <section aria-labelledby="import-lines" class="mt-4">
+    <section role="region" aria-labelledby="import-lines" class="mt-4">
         <h2 id="import-lines" class="text-[16px] font-semibold">{{ t('import.lines') }}</h2>
         <table class="mt-2 w-full text-[13px]">
             <caption class="sr-only">{{ t('import.lines') }}</caption>
