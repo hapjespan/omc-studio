@@ -133,10 +133,28 @@
   "T042": {
     "built_by": "claude-opus-5"
   },
+  "T043": {
+    "built_by": "claude-opus-5"
+  },
   "T044": {
     "built_by": "claude-sonnet-5-5"
   },
   "T045": {
     "built_by": "claude-opus-5"
+  },
+  "T046": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T047": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T048": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T049": {
+    "built_by": "claude-sonnet-5-5"
+  },
+  "T050": {
+    "built_by": "claude-sonnet-5-5"
   }
 }

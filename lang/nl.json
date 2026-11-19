@@ -36,6 +36,10 @@
     "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan",
     "elements.unknown_allocation": "Onbekende allocatie",
     "templates.blank_name": "Leeg canvas",
+    "dialog.close": "Sluiten",
+    "dialog.discard_title": "Wijzigingen weggooien?",
+    "dialog.discard": "Weggooien",
+    "dialog.keep_editing": "Verder bewerken",
     "form.error_summary": "Controleer deze velden",
     "form.optional": "optioneel"
 }

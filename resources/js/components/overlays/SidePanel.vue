@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import Dialog from './Dialog.vue';
+
+defineProps<{ title: string; description?: string; dirty?: boolean }>();
+const open = defineModel<boolean>('open', { default: false });
+</script>
+
+<template>
+    <Dialog v-model:open="open" :title="title" :description="description" :dirty="dirty" variant="panel"><slot /></Dialog>
+</template>
