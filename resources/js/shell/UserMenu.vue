@@ -8,7 +8,7 @@ defineProps<{ role: string }>();
 </script>
 
 <template>
-    <DropdownMenuRoot>
+    <DropdownMenuRoot :modal="false">
         <DropdownMenuTrigger class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]">{{ t(`shell.role.${role}`) }}</DropdownMenuTrigger>
         <DropdownMenuPortal>
             <DropdownMenuContent align="end" class="z-40 min-w-40 rounded-md border border-[#848B95] bg-white p-1 text-[13px] shadow-lg">

@@ -35,15 +35,19 @@ test.describe('at 320 CSS pixels', () => {
         expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
     });
 
+    test.describe('on the harness', () => {
+    test.use({ baseURL: 'http://127.0.0.1:4187' });
+
     test('the detail panel covers the main content instead of sitting next to it', async ({ page }) => {
-        await page.goto('http://127.0.0.1:4187/?demo=Shell');
+        await page.goto('/?demo=Shell');
         await page.getByRole('button', { name: 'Eerste rij' }).click();
 
         const panel = await page.locator('#detail-panel').boundingBox();
-        const main = await page.getByRole('main').boundingBox();
-        expect(panel?.x).toBeLessThanOrEqual(main?.x ?? 0);
-        expect(panel?.width).toBeGreaterThanOrEqual(main?.width ?? 0);
+        expect(panel?.x).toBeLessThanOrEqual(1);
+        expect(panel?.width).toBeGreaterThanOrEqual(318);
+        await expect(page.locator('#main')).toBeHidden();
         await expect(page.getByRole('button', { name: 'Eerste rij' })).toBeHidden();
+    });
     });
 });
 

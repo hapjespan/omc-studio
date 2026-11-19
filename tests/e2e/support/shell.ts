@@ -19,6 +19,7 @@ export async function signInAs(page: Page, role: 'administrator' | 'reader'): Pr
     await page.getByLabel('E-mailadres').fill(account.email);
     await page.getByLabel('Wachtwoord').fill(account.password);
     await page.getByRole('button', { name: 'Inloggen' }).click();
+    await page.waitForURL((url) => url.pathname !== '/sign-in');
     await page.getByRole('heading', { level: 1 }).waitFor();
 }
 
