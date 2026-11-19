@@ -150,5 +150,11 @@
     "session.extend": "Sessie verlengen",
     "session.extended": "Je sessie is verlengd",
     "list.invalid_sort": "Sorteren op deze kolom kan niet",
-    "list.invalid_filters": "Dit filter bestaat niet"
+    "list.invalid_filters": "Dit filter bestaat niet",
+    "list.search": "Zoeken",
+    "list.count": ":count resultaten",
+    "list.count_one": "1 resultaat",
+    "list.empty": "Geen resultaten",
+    "list.sort_ascending": "oplopend gesorteerd",
+    "list.sort_descending": "aflopend gesorteerd"
 }

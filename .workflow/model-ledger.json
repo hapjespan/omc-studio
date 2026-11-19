@@ -260,6 +260,9 @@
   "T079": {
     "built_by": "claude-sonnet-5-5"
   },
+  "T080": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T101": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
