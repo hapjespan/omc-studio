@@ -5,6 +5,8 @@ import CanvasView from '../../canvas/CanvasView.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
+import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
+import { visitOverlay } from '../../canvas/overlay/query';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
@@ -20,6 +22,7 @@ const props = defineProps<{
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
+    overlay: string;
 }>();
 
 const measurer = shallowRef<TextMeasurer | null>(null);
@@ -44,7 +47,10 @@ const fit = (): void => {
     <Head :title="canvas.name" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
-    <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
+    <div class="mt-3 flex flex-wrap items-center gap-4">
+        <ZoomToolbar v-if="drawn" v-model:zoom="zoom" @fit="fit" />
+        <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
+    </div>
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
         <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" @select="select" />
     </div>

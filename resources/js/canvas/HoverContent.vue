@@ -19,5 +19,6 @@ const emit = defineEmits<{ enter: []; leave: [] }>();
     <div :id="id" role="tooltip" class="absolute z-[60] max-w-[420px] rounded-md border border-[#848B95] bg-white px-3 py-2 text-[13px] leading-[18px] text-[#171B21] shadow" :style="{ left: `${x}px`, top: `${y}px` }" data-hover-content @pointerenter="emit('enter')" @pointerleave="emit('leave')">
         <p class="font-semibold">{{ title }}</p>
         <p v-for="(line, index) in lines" :key="index" class="whitespace-pre-line">{{ line }}</p>
+        <slot />
     </div>
 </template>

@@ -3,7 +3,7 @@ import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
 
-const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null }>();
+const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null; colour?: { background: string; text: string } | null; summary?: string | null }>();
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, source: PeekSource] }>();
 
 const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
@@ -16,10 +16,10 @@ const box = (): Record<string, string> => {
         width: `${block.width}px`,
         height: `${block.drawnHeight}px`,
         zIndex: String(block.z + 1),
-        background: block.style.fill ?? 'transparent',
+        background: props.colour?.background ?? block.style.fill ?? 'transparent',
         border: block.style.border ? `1px solid ${block.style.border}` : '0',
         borderRadius: `${block.style.radius}px`,
-        color: block.style.textColour,
+        color: props.colour?.text ?? block.style.textColour,
         padding: `${y}px ${x}px`,
         fontFamily: `"${block.style.font.family}"`,
         fontSize: `${block.style.font.size}px`,
@@ -57,5 +57,6 @@ const box = (): Record<string, string> => {
             aria-hidden="true"
         >{{ block.modality }}</span>
         <span v-if="modalityName" class="sr-only">{{ modalityName }}</span>
+        <span v-if="summary" class="sr-only">{{ summary }}</span>
     </button>
 </template>

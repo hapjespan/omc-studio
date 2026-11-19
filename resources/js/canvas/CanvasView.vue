@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useSlots } from 'vue';
 import { t } from '../i18n';
 import { ARTBOARD } from '../layout';
 import type { DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
@@ -25,7 +25,10 @@ const props = defineProps<{
     modalities: ModalityMark[];
     selectedId?: string | null;
     zoom?: number;
+    cardColours?: Record<string, { background: string; text: string }>;
+    figureLines?: (id: string) => string[];
 }>();
+const slots = useSlots();
 const scale = computed(() => (props.zoom ?? 100) / 100);
 const height = computed(() => contentHeight(props.drawn));
 const artboard = ref<HTMLElement>();
@@ -59,7 +62,7 @@ const hover = computed(() => {
     const block = props.drawn.blocks.find((candidate) => candidate.id === id);
     const content = detailOf(id, { areas: props.areas, elements: props.elements, statements: props.statements, modalities: props.modalities });
     if (!block || !content || block.kind === 'area') return null;
-    return { x: (block.x + block.width + 8) * scale.value, y: block.y * scale.value, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : [])] };
+    return { x: (block.x + block.width + 8) * scale.value, y: block.y * scale.value, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : []), ...(props.figureLines?.(id) ?? [])] };
 });
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
@@ -81,10 +84,24 @@ const blocks = computed(() => props.drawn.blocks);
             :selected="selectedId === block.id"
             :modality-colour="block.modality ? (colours.get(block.modality) ?? null) : null"
             :modality-name="block.modality ? (modalityNames.get(block.modality) ?? null) : null"
+            :colour="cardColours?.[block.id] ?? null"
+            :summary="figureLines ? figureLines(block.id).join('. ') : null"
             @select="emit('select', $event)"
             :described="!!hover && peeked === block.id"
             @peek="peek"
         />
+        <template v-if="slots.card">
+            <div
+                v-for="block in blocks"
+                :key="block.id"
+                class="pointer-events-none absolute overflow-hidden"
+                :style="{ left: `${block.x}px`, top: `${block.y}px`, width: `${block.width}px`, height: `${block.drawnHeight}px`, zIndex: 40 }"
+                :data-overlay-card="block.id"
+                aria-hidden="true"
+            >
+                <slot name="card" :block="block" />
+            </div>
+        </template>
         <div v-if="band" class="pointer-events-none absolute left-0 top-0 z-[2]" :style="{ width: `${ARTBOARD.width}px`, height: `${ARTBOARD.directionHeight}px`, color: band.style.textColour, fontFamily: '\'Inter\'' }">
             <div
                 v-for="column in drawn.direction"
@@ -108,6 +125,8 @@ const blocks = computed(() => props.drawn.blocks);
         </div>
         <span class="sr-only">{{ t('view.artboard') }}</span>
     </div>
-    <HoverContent v-if="hover" id="view-hover" v-bind="hover" @enter="peek(peeked)" @leave="peek(null)" />
+    <HoverContent v-if="hover" id="view-hover" v-bind="hover" @enter="peek(peeked)" @leave="peek(null)">
+        <slot name="hover" :id="peeked" />
+    </HoverContent>
     </div>
 </template>
