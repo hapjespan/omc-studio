@@ -283,5 +283,8 @@
     "lists.owners.in_use": "Deze eigenaar staat op :count kostenposten. Kies een andere eigenaar om ze naartoe te verplaatsen",
     "lists.applications.title": "Applicaties",
     "lists.applications.new": "Nieuwe applicatie",
-    "lists.applications.in_use": "Deze applicatie staat op :count kostenposten. Kies een andere applicatie of Geen applicatie"
+    "lists.applications.in_use": "Deze applicatie staat op :count kostenposten. Kies een andere applicatie of Geen applicatie",
+    "shell.admin.owners": "Eigenaren",
+    "shell.admin.applications": "Applicaties",
+    "lists.choose_organisation": "Organisatie"
 }

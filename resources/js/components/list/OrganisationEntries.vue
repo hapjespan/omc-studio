@@ -2,12 +2,12 @@
 import type { ListRow, ListState } from './ListView.vue';
 
 export type EntryRow = ListRow & { cost_records_count: number; supplier?: string | null };
-export type EntriesProps = { rows: EntryRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived_at: string | null }; others: { id: number; name: string }[] };
+export type EntriesProps = { rows: EntryRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived_at: string | null }; organisations: { id: number; name: string; archived_at: string | null }[]; others: { id: number; name: string }[] };
 </script>
 
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../fields/ErrorSummary.vue';
 import SelectField from '../fields/SelectField.vue';
 import TextField from '../fields/TextField.vue';
@@ -103,7 +103,11 @@ function submit(row: Row | null, close: () => void): void {
 <template>
     <Head :title="title" />
     <h1 class="text-[20px] font-semibold">{{ title }}</h1>
-    <p class="mt-1 text-[13px]">{{ organisation.name }}<span v-if="readonly"> ({{ t('list.archived') }})</span></p>
+    <nav :aria-label="t('lists.choose_organisation')" class="mt-2">
+        <ul class="flex flex-wrap gap-2 text-[13px]">
+            <li v-for="option in organisations" :key="option.id"><Link :href="routes.organisationEntries(option.id, kind)" :aria-current="option.id === organisation.id ? 'page' : undefined" class="rounded-md border border-[#848B95] px-2 py-1" :class="{ 'font-semibold underline': option.id === organisation.id }">{{ option.name }}<template v-if="option.archived_at"> ({{ t('list.archived') }})</template></Link></li>
+        </ul>
+    </nav>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
         <ListView :title="title" :columns="columns" :rows="rows" :count="count" :query="query" :can-create="!readonly" :can-delete="!readonly" :undo="undo" :consequence="consequence" :create-title="t(`lists.${kind}.new`)" @change="load" @delete="remove" @undo="restore" @dismiss-undo="undo = null">

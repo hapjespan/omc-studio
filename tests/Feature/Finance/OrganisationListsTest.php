@@ -126,4 +126,15 @@ class OrganisationListsTest extends TestCase
 
         $this->admin()->patch("/admin/organisations/{$organisation->id}/{$path}/{$entry->id}", ['name' => 'X'])->assertNotFound();
     }
+
+    #[DataProvider('lists')]
+    public function test_the_beheer_entry_lands_on_the_first_organisation_and_a_reader_gets_403(string $path, string $model): void
+    {
+        $this->admin()->get("/admin/{$path}")->assertRedirect('/admin/organisations');
+        $first = Organisation::factory()->create(['name' => 'Aaa']);
+        Organisation::factory()->create(['name' => 'Zzz']);
+
+        $this->admin()->get("/admin/{$path}")->assertRedirect("/admin/organisations/{$first->id}/{$path}");
+        $this->actingAs(User::factory()->create())->get("/admin/{$path}")->assertForbidden();
+    }
 }

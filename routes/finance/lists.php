@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ListLandingController;
 use App\Http\Controllers\OwnerController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,9 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations/{orga
     Route::post('/applications', [ApplicationController::class, 'store']);
     Route::patch('/applications/{application}', [ApplicationController::class, 'update']);
     Route::delete('/applications/{application}', [ApplicationController::class, 'destroy']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::get('/admin/owners', ListLandingController::class)->defaults('kind', 'owners');
+    Route::get('/admin/applications', ListLandingController::class)->defaults('kind', 'applications');
 });

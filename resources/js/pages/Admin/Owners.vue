@@ -5,5 +5,5 @@ defineProps<EntriesProps>();
 </script>
 
 <template>
-    <OrganisationEntries kind="owners" :rows="rows" :count="count" :query="query" :organisation="organisation" :others="others" />
+    <OrganisationEntries kind="owners" :rows="rows" :count="count" :query="query" :organisation="organisation" :organisations="organisations" :others="others" />
 </template>
