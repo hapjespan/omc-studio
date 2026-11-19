@@ -135,8 +135,9 @@ class ReplaceSetTest extends TestCase
         $this->assertSame($this->record->id, $set->cost_record_id);
         $this->assertSame($this->year->id, $set->fiscal_year_id);
 
-        $entries = AuditEntry::query()->where('action', 'allocation_changed')->get();
+        $entries = AuditEntry::query()->where('subject_type', 'allocation_set')->get();
         $this->assertCount(1, $entries);
+        $this->assertSame('allocation_changed', $entries[0]->action);
         $this->assertSame('allocation_set', $entries[0]->subject_type);
         $this->assertSame([
             [],

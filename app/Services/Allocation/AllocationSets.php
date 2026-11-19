@@ -36,11 +36,12 @@ class AllocationSets
 
             $values = $this->values($canvas, $lines);
 
-            $set = AllocationSet::firstOrCreate([
+            $keys = [
                 'canvas_id' => $canvas->getKey(),
                 'cost_record_id' => $record->getKey(),
                 'fiscal_year_id' => $year->getKey(),
-            ]);
+            ];
+            $set = AllocationSet::where($keys)->first() ?? AllocationSet::withoutEvents(fn () => AllocationSet::create($keys));
 
             $before = $this->describe($set);
 
