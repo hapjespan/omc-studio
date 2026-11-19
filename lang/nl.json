@@ -506,5 +506,11 @@
     "shell.year.open": "open",
     "shell.year.final": "definitief",
     "yearly_figures.year_taken": "Er zijn al jaarwaarden voor dit boekjaar",
-    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd"
+    "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd",
+    "allocation.saved": "Verdeling opgeslagen",
+    "allocation.sum_invalid": "De verdeling moet precies 100,00% zijn; nu :total",
+    "allocation.line_invalid": "Regel :target: kies een percentage van 0,01% tot 100,00%",
+    "allocation.target_repeated": "Doel :name staat twee keer in de verdeling",
+    "allocation.target_invalid": "Doel :name kan geen kosten dragen",
+    "allocation.no_figures": "Geen jaarwaarden in :year voor deze kostenpost"
 }
