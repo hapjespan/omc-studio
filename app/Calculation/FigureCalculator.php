@@ -13,7 +13,7 @@ final class FigureCalculator
         $unknownId = null;
         $elements = [];
         foreach ($input->elements as $element) {
-            $elements[$element['id']] = ['direct' => Measures::zero(), 'total' => Measures::zero(), 'shareBp' => null];
+            $elements[$element['id']] = ['direct' => Measures::zero(), 'total' => Measures::zero(), 'shareBp' => null, 'fteNumerator' => 0, 'contributions' => []];
             if ($element['isUnknownAllocation']) {
                 $unknownId = $element['id'];
             }
@@ -58,7 +58,66 @@ final class FigureCalculator
         }
         unset($figures);
 
-        return new Figures($elements, $lines, $areas, $canvasTotal);
+        $parents = array_column($input->elements, 'parentId', 'id');
+        foreach ($input->costRecords as $record) {
+            foreach ($lines[$record['id']] as $line) {
+                for ($id = $line['elementId']; $id !== null && isset($elements[$id]); $id = $parents[$id]) {
+                    $elements[$id]['fteNumerator'] += ($record['fteHundredths'] ?? 0) * $line['basisPoints'];
+                    $previous = $elements[$id]['contributions'][$record['id']] ?? ['amountCents' => 0, 'basisPoints' => 0];
+                    $elements[$id]['contributions'][$record['id']] = [
+                        'amountCents' => $previous['amountCents'] + $line['amounts']['budget'],
+                        'basisPoints' => $previous['basisPoints'] + $line['basisPoints'],
+                    ];
+                }
+            }
+        }
+
+        return new Figures($elements, $lines, $areas, $canvasTotal, $this->breakdowns($input, $lines, $elements), $this->sidePanel($input, $elements, $unknownId));
+    }
+
+    /**
+     * @param  array<string|int, list<LineRow>>  $lines
+     * @param  array<string|int, array{direct: Money}>  $elements
+     * @return array{costKind: array<string, Money>, modality: array<string, Money>, split: array{run: int, change: int, undetermined: int}}
+     */
+    private function breakdowns(CalculationInput $input, array $lines, array $elements): array
+    {
+        $costKind = [];
+        $split = ['run' => 0, 'change' => 0, 'undetermined' => 0];
+        foreach ($input->costRecords as $record) {
+            $costKind[$record['costKind']] ??= Measures::zero();
+            foreach ($lines[$record['id']] as $line) {
+                $costKind[$record['costKind']] = Measures::add($costKind[$record['costKind']], $line['amounts']);
+                foreach ($split as $name => $cents) {
+                    $split[$name] = $cents + $line['amounts'][$name];
+                }
+            }
+        }
+
+        $modality = ['none' => Measures::zero(), 'unknown_allocation' => Measures::zero()];
+        foreach ($input->elements as $element) {
+            $key = $element['isUnknownAllocation'] ? 'unknown_allocation' : (string) ($element['modalityKey'] ?? 'none');
+            $modality[$key] = Measures::add($modality[$key] ?? Measures::zero(), $elements[$element['id']]['direct']);
+        }
+
+        return ['costKind' => $costKind, 'modality' => $modality, 'split' => $split];
+    }
+
+    /**
+     * @param  array<string|int, array{direct: Money}>  $elements
+     * @return array{allocated: array{budget: int, forecast: int, count: int}, unknown: array{budget: int, forecast: int, count: int}}
+     */
+    private function sidePanel(CalculationInput $input, array $elements, string|int|null $unknownId): array
+    {
+        $unknown = $unknownId === null ? Measures::zero() : $elements[$unknownId]['direct'];
+        $unknownCount = count(array_filter($input->costRecords, fn (array $record) => ($input->sets[$record['id']] ?? []) === []));
+        $budget = array_sum(array_column($input->costRecords, 'budgetCents'));
+        $forecast = array_sum(array_map(fn (array $record) => $record['forecastCents'] ?? $record['budgetCents'], $input->costRecords));
+
+        return [
+            'allocated' => ['budget' => $budget - $unknown['budget'], 'forecast' => $forecast - $unknown['forecast'], 'count' => count($input->costRecords) - $unknownCount],
+            'unknown' => ['budget' => $unknown['budget'], 'forecast' => $unknown['forecast'], 'count' => $unknownCount],
+        ];
     }
 
     /**
