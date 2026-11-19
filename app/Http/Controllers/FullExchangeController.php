@@ -22,9 +22,12 @@ class FullExchangeController extends Controller
     public function export(FullExport $export): JsonResponse
     {
         ini_set('memory_limit', '1G');
+
+        $data = $export->build();
+
         SecurityLog::record('full_exported');
 
-        return response()->json($export->build(), 200, ['Content-Disposition' => 'attachment; filename='.$export->fileName()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return response()->json($data, 200, ['Content-Disposition' => 'attachment; filename='.$export->fileName()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function preview(Request $request, FullImport $import): JsonResponse
