@@ -79,3 +79,7 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
     Route::post('/{organisation}/archive', [OrganisationController::class, 'archive']);
     Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });
+
+foreach (glob(__DIR__.'/finance/*.php') ?: [] as $file) {
+    require $file;
+}
