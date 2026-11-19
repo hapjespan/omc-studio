@@ -21,6 +21,7 @@ use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\QuickEntryController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\StatementController;
 use App\Http\Controllers\TemplateController;
@@ -134,4 +135,9 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}')->grou
     Route::patch('/goals/{goal}', [StatementController::class, 'update']);
     Route::post('/goals/{goal}/reorder', [StatementController::class, 'reorder']);
     Route::delete('/goals/{goal}', [StatementController::class, 'destroy']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/quick-entry')->group(function () {
+    Route::post('/preview', [QuickEntryController::class, 'preview']);
+    Route::post('/', [QuickEntryController::class, 'store']);
 });
