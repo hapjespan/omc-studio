@@ -151,5 +151,6 @@
     "session.extended": "Je sessie is verlengd",
     "organisations.name_taken": "Naam: er bestaat al een organisatie met deze naam",
     "organisations.name_required": "Naam: vul een naam in",
-    "organisations.logo_invalid": "Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels"
+    "organisations.logo_invalid": "Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels",
+    "organisations.delete_blocked": "Deze organisatie heeft nog canvassen of kostenposten. Archiveer haar, of verwijder die eerst"
 }
