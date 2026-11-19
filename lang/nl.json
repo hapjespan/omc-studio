@@ -35,5 +35,7 @@
     "validation.text_max": ":label: gebruik hoogstens :max tekens",
     "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan",
     "elements.unknown_allocation": "Onbekende allocatie",
-    "templates.blank_name": "Leeg canvas"
+    "templates.blank_name": "Leeg canvas",
+    "form.error_summary": "Controleer deze velden",
+    "form.optional": "optioneel"
 }

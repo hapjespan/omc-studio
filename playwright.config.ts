@@ -8,6 +8,12 @@ export default defineConfig({
     use: {
         baseURL: process.env.APP_URL ?? 'http://localhost:8080',
     },
+    webServer: {
+        command: 'npx vite build -c tests/e2e/support/harness/vite.config.ts && npx vite preview -c tests/e2e/support/harness/vite.config.ts',
+        url: 'http://127.0.0.1:4187/',
+        reuseExistingServer: false,
+        timeout: 120000,
+    },
     projects: [
         { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
         { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
