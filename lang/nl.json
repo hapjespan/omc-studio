@@ -74,5 +74,9 @@
     "console.no_administrator": "Geen Administrator met dit e-mailadres",
     "shell.skip_link": "Naar hoofdinhoud",
     "shell.overview": "Overzicht",
-    "shell.left_panel": "Linkerpaneel"
+    "shell.left_panel": "Linkerpaneel",
+    "shell.breadcrumb": "Kruimelpad",
+    "shell.role.administrator": "Administrator",
+    "shell.role.reader": "Lezer",
+    "shell.account": "Mijn account"
 }

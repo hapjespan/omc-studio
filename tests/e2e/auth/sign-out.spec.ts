@@ -9,7 +9,8 @@ test('Back after signing out shows the sign-in screen, not the previous page', a
     await page.getByRole('button', { name: 'Inloggen' }).click();
     await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Uitloggen' }).click();
+    await page.getByRole('button', { name: 'Lezer' }).click();
+    await page.getByRole('menuitem', { name: 'Uitloggen' }).click();
     await expect(page.getByRole('heading', { name: 'Inloggen' })).toBeVisible();
 
     await page.goBack();

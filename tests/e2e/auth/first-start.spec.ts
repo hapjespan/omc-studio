@@ -28,7 +28,8 @@ test('clean start: sign in with the logged password, choose a new one, sign out,
     await page.getByRole('button', { name: 'Wachtwoord opslaan' }).click();
     await expect(page.getByRole('heading', { name: 'Overzicht' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Uitloggen' }).click();
+    await page.getByRole('button', { name: 'Administrator' }).click();
+    await page.getByRole('menuitem', { name: 'Uitloggen' }).click();
     await expect(page.getByRole('heading', { name: 'Inloggen' })).toBeVisible();
 
     await page.getByLabel('E-mailadres').fill(administrator.email);
