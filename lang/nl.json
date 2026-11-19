@@ -954,6 +954,7 @@
     "overlay.filter.application": "Applicatie",
     "overlay.filter.all": "Alle",
     "overlay.filter.active": "Actieve filters",
+    "overlay.filter.apply": "Filteren",
     "overlay.modality_none": "geen",
     "overlay.no_fiscal_years": "Deze organisatie heeft geen boekjaren; er zijn geen cijfers om te tonen",
     "jsonx.import_open": "Importeren uit JSON",

@@ -19,6 +19,8 @@ describe('OverlayFilters', () => {
         for (const label of ['Soort kosten', 'Eigenaar', 'Applicatie']) expect(html).toContain(label);
         expect(html.match(/>Alle</g)).toHaveLength(3);
         expect(html).toMatch(/<option value="3" selected/);
+        expect(html).toContain('Filteren</button>');
+        expect(html).not.toContain('onchange');
         expect(html).toContain('Actieve filters: Eigenaar: Afdeling ICT');
     });
 });

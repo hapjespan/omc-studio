@@ -8,15 +8,16 @@ export interface Guards {
     assertNoCspViolation(): Promise<void>;
 }
 
-export function installGuards(page: Page, origin: string): Guards {
+export async function installGuards(page: Page, origin: string): Promise<Guards> {
     const outside: string[] = [];
+    const violations: string[] = [];
     page.on('request', (request) => {
         const url = request.url();
         if (!url.startsWith('data:') && !url.startsWith('blob:') && new URL(url).origin !== origin) outside.push(url);
     });
+    await page.exposeFunction('__cspViolation', (entry: string) => violations.push(entry));
     page.addInitScript(() => {
-        const store = ((window as unknown as { __csp: string[] }).__csp = []);
-        document.addEventListener('securitypolicyviolation', (event) => store.push(`${event.violatedDirective} ${event.blockedURI}`));
+        document.addEventListener('securitypolicyviolation', (event) => (window as unknown as { __cspViolation: (entry: string) => void }).__cspViolation(`${event.violatedDirective} ${event.blockedURI}`));
     });
 
     return {
@@ -24,7 +25,7 @@ export function installGuards(page: Page, origin: string): Guards {
             expect(outside, 'requests outside the own origin').toEqual([]);
         },
         async assertNoCspViolation() {
-            const violations = await page.evaluate(() => (window as unknown as { __csp?: string[] }).__csp ?? []);
+            await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 100))).catch(() => undefined);
             expect(violations, 'securitypolicyviolation events').toEqual([]);
         },
     };
@@ -39,7 +40,7 @@ export async function expectNoAxeViolations(page: Page, exclude?: string): Promi
 export const test = base.extend<{ guards: Guards }>({
     guards: [
         async ({ page, baseURL }, use) => {
-            const guards = installGuards(page, new URL(baseURL as string).origin);
+            const guards = await installGuards(page, new URL(baseURL as string).origin);
             await use(guards);
             guards.assertNoOutsideRequest();
             await guards.assertNoCspViolation();
