@@ -72,6 +72,7 @@ Built as written; both are the orchestrator's advice recorded while the product 
 No new question for the product owner came out of the decomposition. Two things are for the product owner's attention: the WP-E0 go or no-go (the task that records it cannot be closed by anyone else) and the K-8 note of the plan.
 
 ---
+| `[ASSUMPTION D2.1-1]` | A Canvas copy within an Organisation copies Allocation sets only when the source and the target Organisation are the same, so a Template (no Organisation) never carries sets; the third criterion of T246 (Template save, US9 sc 1) holds by construction and T122 brings its own assertion. An Allocation line on an archived Element is a state US11 sc 9 forbids; no fallback exists. Advice: keep it forbidden through the redistribution guard of D2.7 | T246 | low: one skip rule in `cloneAllocationSets` |
 
 ## Phase WP1.1: Project setup, tooling and delivered stack (WP1, D1)
 
