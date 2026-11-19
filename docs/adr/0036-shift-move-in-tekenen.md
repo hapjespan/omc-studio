@@ -1,7 +1,7 @@
 # 0036: Let Tekenen move one Cluster, Activity or Item to another parent with Shift, confirmed, as its own structure request
 
 Date: 2026-11-18
-Status: accepted (product owner, source point 53 and answers QS-1 to QS-7, 2026-11-18); QS-8 and QS-9 recorded as assumptions, to be confirmed by the product owner (`specs/001-omc-studio-v1/plan.md`). Amends H12, addendum K13, 6.2 and 6.3, kickoff v1.2 6.5.7, SD-29 for this move, ADR 0014 and ADR 0021.
+Status: accepted (product owner, source point 53 and answers QS-1 to QS-7, 2026-11-18); QS-8 and QS-9 confirmed as written by the product owner, 2026-11-19. Amends H12, addendum K13, 6.2 and 6.3, kickoff v1.2 6.5.7, SD-29 for this move, ADR 0014 and ADR 0021.
 
 ## Decision
 

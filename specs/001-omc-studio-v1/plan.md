@@ -272,8 +272,8 @@ Two collisions came out of applying QS-1 to QS-7. The product owner was unreacha
 
 | Id | Collision | Assumption (to be confirmed by the PO) | Cost of a reversal |
 |---|---|---|---|
-| QS-8 | QS-4 keeps the block's size, while QS-1 and QS-2 let it go into a narrower target (an Activity at Domain level is always wider than a Cluster in that Domain) | `[ASSUMPTION QS-8]` A block wider than its target is made exactly as wide as the target; height, style and place otherwise kept; Manual children pushed left, then narrowed; automatic children re-flow; shown while dragging ("wordt smaller") and announced after the move | Low: one branch in the adapter's drop handling and its tests; refusing instead means replacing the narrowing by the "Kan hier niet" label |
-| QS-9 | QS-7 names releasing and the keyboard route; undo and redo are neither | `[ASSUMPTION QS-9]` Undo and redo of a move ask "Verplaatsen naar <doel>?" too; "Annuleren" leaves the undo history unchanged | Low: the page skips the dialog for undo and redo |
+| QS-8 | QS-4 keeps the block's size, while QS-1 and QS-2 let it go into a narrower target (an Activity at Domain level is always wider than a Cluster in that Domain) | Decided by the product owner 2026-11-19: a block wider than its target is made exactly as wide as the target; height, style and place otherwise kept; Manual children pushed left, then narrowed; automatic children re-flow; shown while dragging ("wordt smaller") and announced after the move | Low: one branch in the adapter's drop handling and its tests; refusing instead means replacing the narrowing by the "Kan hier niet" label |
+| QS-9 | QS-7 names releasing and the keyboard route; undo and redo are neither | Decided by the product owner 2026-11-19: undo and redo of a move ask "Verplaatsen naar <doel>?" too; "Annuleren" leaves the undo history unchanged | Low: the page skips the dialog for undo and redo |
 
 ## Open questions for the product owner
 
