@@ -19,6 +19,10 @@ class BackupTest extends TestCase
     {
         parent::setUp();
 
+        if (config('database.default') !== 'sqlite') {
+            $this->markTestSkipped('Backup and restore copy the SQLite database file, the engine the application is delivered with (ADR 0022).');
+        }
+
         $this->storage = base_path('.scratch/ops-'.Str::random(8));
         mkdir($this->storage.'/app/private/logos', 0755, true);
         mkdir($this->storage.'/framework', 0755, true);
@@ -35,7 +39,7 @@ class BackupTest extends TestCase
     protected function tearDown(): void
     {
         DB::disconnect();
-        File::deleteDirectory($this->storage);
+        isset($this->storage) && File::deleteDirectory($this->storage);
 
         parent::tearDown();
     }
