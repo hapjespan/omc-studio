@@ -512,5 +512,9 @@
     "allocation.line_invalid": "Regel :target: kies een percentage van 0,01% tot 100,00%",
     "allocation.target_repeated": "Doel :name staat twee keer in de verdeling",
     "allocation.target_invalid": "Doel :name kan geen kosten dragen",
-    "allocation.no_figures": "Geen jaarwaarden in :year voor deze kostenpost"
+    "allocation.no_figures": "Geen jaarwaarden in :year voor deze kostenpost",
+    "allocation.cleared": "Verdeling gewist",
+    "allocation.no_set": "Deze kostenpost heeft geen verdeling in :year",
+    "allocation.undo_set_exists": "Er is inmiddels een nieuwe verdeling voor deze kostenpost en dit jaar",
+    "rule.redistribution_required": "Op dit element staan nog kosten. Herverdeel ze eerst"
 }

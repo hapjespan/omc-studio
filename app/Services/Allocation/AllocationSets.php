@@ -8,11 +8,13 @@ use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\Element;
 use App\Models\FiscalYear;
+use App\Models\User;
 use App\Models\YearlyFigure;
 use App\Rules\BasisPoints;
 use App\Services\Audit\AuditTrail;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use App\Services\Undo\UndoStore;
 use Illuminate\Validation\ValidationException;
 
 class AllocationSets
@@ -23,6 +25,7 @@ class AllocationSets
         private readonly SerialisedWrite $writes,
         private readonly FinalisedYears $finalisedYears,
         private readonly AuditTrail $trail,
+        private readonly UndoStore $undo,
     ) {}
 
     /** @param list<array<string, mixed>> $lines */
@@ -55,6 +58,37 @@ class AllocationSets
         });
     }
 
+    public function clear(Canvas $canvas, CostRecord $record, FiscalYear $year, User $user): string
+    {
+        return $this->writes->run([$canvas], function () use ($canvas, $record, $year, $user) {
+            $canvas->loadMissing('organisation');
+            $this->assertWritable($canvas);
+            $this->finalisedYears->assertOpenInCanvas($canvas, $year);
+
+            $set = AllocationSet::where('canvas_id', $canvas->getKey())
+                ->where('cost_record_id', $record->getKey())
+                ->where('fiscal_year_id', $year->getKey())
+                ->first();
+
+            if ($set === null) {
+                $this->reject('no_set', ['year' => $year->year]);
+            }
+
+            $lines = $set->lines()->get();
+
+            $token = $this->undo->remember(UndoStore::ALLOCATION_SET_CLEARED, [
+                'canvas_id' => $canvas->getKey(),
+                'allocation_sets' => [$set->getAttributes()],
+                'allocation_lines' => $lines->map(fn (AllocationLine $line) => $line->getAttributes())->all(),
+            ], $user);
+
+            $set->lines()->delete();
+            $set->delete();
+
+            return $token;
+        });
+    }
+
     protected function assertAllocatable(Canvas $canvas, CostRecord $record, FiscalYear $year): void
     {
         $canvas->loadMissing('organisation');
@@ -83,7 +117,7 @@ class AllocationSets
             $id = $this->identifier($line);
             $element = $targets[$id] ?? null;
 
-            if ($element === null || ! $this->carriesCosts($canvas, $element)) {
+            if ($element === null || ! $element->carriesCosts($canvas)) {
                 $this->reject('target_invalid', ['name' => (string) ($element->name ?? $id)]);
             }
 
@@ -117,14 +151,6 @@ class AllocationSets
         $ids = array_filter(array_map(fn (array $line) => $this->identifier($line), $lines), fn (string $id) => $id !== '');
 
         return Element::query()->with('area')->whereIn('id', array_values($ids))->get()->keyBy('id')->all();
-    }
-
-    private function carriesCosts(Canvas $canvas, Element $element): bool
-    {
-        return $element->canvas_id === $canvas->getKey()
-            && $element->archived_at === null
-            && ! $element->is_unknown_allocation
-            && $element->area?->carries_costs === true;
     }
 
     /** @param array<string, mixed> $line */
