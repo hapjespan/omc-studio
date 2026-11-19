@@ -6,6 +6,7 @@ use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class OrganisationControllerTest extends TestCase
@@ -64,5 +65,21 @@ class OrganisationControllerTest extends TestCase
     public function test_a_guest_is_sent_to_sign_in(): void
     {
         $this->post('/admin/organisations', ['name' => 'X'])->assertRedirect('/sign-in');
+    }
+
+    public function test_the_list_hides_archived_searches_by_name_and_reports_the_logo_flag(): void
+    {
+        Organisation::factory()->create(['name' => 'Noord']);
+        Organisation::factory()->create(['name' => 'Zuid', 'archived_at' => now()]);
+        Organisation::factory()->create(['name' => 'Oost', 'logo_path' => 'logos/x.png']);
+
+        $this->admin()->get('/admin/organisations')->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Organisations')
+            ->where('count', 2)
+            ->where('rows.0.name', 'Noord')
+            ->where('rows.1.has_logo', 1));
+
+        $this->admin()->get('/admin/organisations?archived=1')->assertInertia(fn (Assert $page) => $page->where('count', 3));
+        $this->admin()->get('/admin/organisations?search=ost')->assertInertia(fn (Assert $page) => $page->where('count', 1)->where('rows.0.name', 'Oost'));
     }
 }

@@ -7,7 +7,9 @@ use App\Http\Requests\OrganisationRequest;
 use App\Models\Organisation;
 use App\Services\Canvas\LogoStore;
 use App\Services\Canvas\OrganisationService;
+use App\Services\Lists\ListQuery;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,17 +18,14 @@ class OrganisationController extends Controller
 {
     public function __construct(private readonly OrganisationService $organisations, private readonly LogoStore $logos) {}
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return Inertia::render('Admin/Organisations', [
-            'organisations' => Organisation::query()->orderBy('name_normalised')->get()->map(fn (Organisation $organisation) => [
-                'id' => $organisation->id,
-                'name' => $organisation->name,
-                'slug' => $organisation->slug,
-                'has_logo' => $organisation->logo_path !== null,
-                'archived' => $organisation->archived_at !== null,
-            ])->all(),
-        ]);
+        $list = (new ListQuery(['name'], ['name'], [], 'archived_at'))->run(
+            Organisation::query()->select(['id', 'name', 'slug', 'archived_at'])->selectRaw('logo_path IS NOT NULL as has_logo')->orderBy('name_normalised'),
+            $request->query(),
+        );
+
+        return Inertia::render('Admin/Organisations', $list);
     }
 
     public function store(OrganisationRequest $request): RedirectResponse
