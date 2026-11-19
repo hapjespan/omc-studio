@@ -2,6 +2,7 @@
 
 namespace App\Services\Accounts;
 
+use App\Services\Notices\LockoutCounter;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -11,6 +12,8 @@ class Throttle
     public const LIMIT = 5;
 
     public const SECONDS = 60;
+
+    private const COUNTED = ['sign-in', 'second-factor'];
 
     private readonly Repository $cache;
 
@@ -42,6 +45,10 @@ class Throttle
 
         $this->cache->forget($attempts);
         $this->cache->put($this->key($identifier, 'until'), Carbon::now()->getTimestamp() + self::SECONDS, self::SECONDS);
+
+        if (in_array($this->namespace, self::COUNTED, true)) {
+            app(LockoutCounter::class)->record();
+        }
     }
 
     public function clear(string $identifier): void
