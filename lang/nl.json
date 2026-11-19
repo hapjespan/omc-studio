@@ -365,5 +365,10 @@
     "structure.icon.heart": "Hart",
     "structure.icon.package": "Pakket",
     "structure.icon.laptop": "Laptop",
-    "rule.element_archived": "Een gearchiveerd element kan niet worden verplaatst"
+    "rule.element_archived": "Een gearchiveerd element kan niet worden verplaatst",
+    "entry.domains": "1 domein|:count domeinen",
+    "entry.activities": "1 activiteit|:count activiteiten",
+    "entry.groups": "1 groep|:count groepen",
+    "entry.texts": "1 tekst|:count teksten",
+    "entry.areas": "Areas"
 }

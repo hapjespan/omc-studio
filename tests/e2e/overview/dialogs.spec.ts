@@ -1,5 +1,5 @@
 import { expect, test } from '../support/guards';
-import { seedOrganisation, stubEntry, tinker, unique } from '../support/overview';
+import { seedOrganisation, tinker, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
 
 const open = async (page: import('@playwright/test').Page, canvas: string, item: string): Promise<void> => {
@@ -13,7 +13,6 @@ test('Nieuw canvas starts from Leeg canvas, refuses a name in use and opens Invo
     tinker("app(App\\Services\\Operations\\InstallSteps::class)->run();");
     seedOrganisation(organisation, [existing]);
     await signInAs(page, 'administrator');
-    const entry = stubEntry(page);
     await page.goto('/overview');
 
     await page.getByRole('button', { name: 'Nieuw canvas' }).click();
@@ -29,7 +28,7 @@ test('Nieuw canvas starts from Leeg canvas, refuses a name in use and opens Invo
     const fresh = unique('Operating model');
     await dialog.getByLabel('Naam').fill(fresh);
     await dialog.getByRole('button', { name: 'Aanmaken' }).click();
-    await entry.next();
+    await page.waitForURL(/\/canvases\/\d+\/entry/);
 });
 
 test('rename changes the card name', async ({ page }) => {
@@ -37,7 +36,6 @@ test('rename changes the card name', async ({ page }) => {
     const renamed = unique('Nieuw');
     seedOrganisation(unique('Noord'), [canvas]);
     await signInAs(page, 'administrator');
-    const entry = stubEntry(page);
     await page.goto('/overview');
 
     await open(page, canvas, 'Naam wijzigen');
@@ -52,14 +50,13 @@ test('copy within the Organisation needs a free name and archive hides the card'
     const copy = unique('Kopie');
     seedOrganisation(unique('Noord'), [canvas]);
     await signInAs(page, 'administrator');
-    const entry = stubEntry(page);
     await page.goto('/overview');
 
     await open(page, canvas, 'Kopiëren');
     const dialog = page.getByRole('dialog', { name: 'Canvas kopiëren' });
     await dialog.getByLabel('Naam').fill(copy);
     await dialog.getByRole('button', { name: 'Kopiëren' }).click();
-    await entry.next();
+    await page.waitForURL(/\/canvases\/\d+\/entry/);
     await page.goto('/overview');
     await expect(page.getByRole('link', { name: copy, exact: true })).toBeVisible();
 
@@ -72,7 +69,6 @@ test('Verwijderen shows the counts and enables the button only after the exact n
     const canvas = unique('Model');
     seedOrganisation(unique('Noord'), [canvas]);
     await signInAs(page, 'administrator');
-    const entry = stubEntry(page);
     await page.goto('/overview');
 
     await open(page, canvas, 'Verwijderen');

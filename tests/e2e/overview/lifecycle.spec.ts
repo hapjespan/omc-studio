@@ -1,5 +1,5 @@
 import { expect, test } from '../support/guards';
-import { seedOrganisation, stubEntry, tinker, unique } from '../support/overview';
+import { seedOrganisation, tinker, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
 
 test('create from Leeg canvas, copy within and across Organisations, archive, restore and delete', async ({ page }) => {
@@ -12,7 +12,6 @@ test('create from Leeg canvas, copy within and across Organisations, archive, re
     seedOrganisation(source);
     seedOrganisation(target);
     await signInAs(page, 'administrator');
-    const entry = stubEntry(page);
     await page.goto('/overview');
 
     await page.getByRole('button', { name: 'Nieuw canvas' }).click();
@@ -21,7 +20,7 @@ test('create from Leeg canvas, copy within and across Organisations, archive, re
     await dialog.getByRole('combobox', { name: 'Organisatie' }).click();
     await page.getByRole('option', { name: source }).click();
     await dialog.getByRole('button', { name: 'Aanmaken' }).click();
-    await entry.next();
+    await page.waitForURL(/\/canvases\/\d+\/entry/);
 
     await page.goto('/overview');
     const menu = async (name: string, item: string): Promise<void> => {
@@ -33,7 +32,7 @@ test('create from Leeg canvas, copy within and across Organisations, archive, re
     dialog = page.getByRole('dialog', { name: 'Canvas kopiëren' });
     await dialog.getByLabel('Naam').fill(within);
     await dialog.getByRole('button', { name: 'Kopiëren' }).click();
-    await entry.next();
+    await page.waitForURL(/\/canvases\/\d+\/entry/);
     await page.goto('/overview');
 
     await menu(canvas, 'Kopiëren');
@@ -42,7 +41,7 @@ test('create from Leeg canvas, copy within and across Organisations, archive, re
     await dialog.getByRole('combobox', { name: 'Organisatie' }).click();
     await page.getByRole('option', { name: target }).click();
     await dialog.getByRole('button', { name: 'Kopiëren' }).click();
-    await entry.next();
+    await page.waitForURL(/\/canvases\/\d+\/entry/);
     await page.goto('/overview');
     await expect(page.getByRole('link', { name: within, exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: across, exact: true })).toBeVisible();

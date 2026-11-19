@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasController;
+use App\Http\Controllers\CanvasEntryController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\ElementController;
@@ -114,4 +115,8 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/element
     Route::post('/{element}/archive', [ElementController::class, 'archive']);
     Route::post('/{element}/restore', [ElementController::class, 'restore']);
     Route::delete('/{element}', [ElementController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/entry', CanvasEntryController::class);
 });
