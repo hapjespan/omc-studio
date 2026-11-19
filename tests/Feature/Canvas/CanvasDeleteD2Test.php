@@ -65,7 +65,7 @@ class CanvasDeleteD2Test extends TestCase
         $canvas = $this->allocated('Model 2027');
 
         $this->assertSame(
-            ['elements' => 2, 'statements' => 0, 'allocation_sets' => 1, 'finalised_years' => 1],
+            ['elements' => 2, 'statements' => 0, 'allocation_sets' => 1, 'finalised_years' => 1, 'snapshots' => 0],
             $this->lifecycle->deletionCounts($canvas),
         );
     }

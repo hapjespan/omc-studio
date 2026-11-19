@@ -9,6 +9,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\FinalisedYear;
 use App\Models\Organisation;
+use App\Models\Snapshot;
 use App\Models\Statement;
 use App\Models\SystemNotice;
 use App\Services\Audit\AuditContext;
@@ -81,7 +82,7 @@ class CanvasLifecycle
 
             $counts = $this->deletionCounts($canvas);
 
-            $this->removeAllocationData($canvas);
+            $this->removeCanvasData($canvas);
             $canvas->deleteQuietly();
             $this->removal->purge($canvas, $counts);
         });
@@ -95,10 +96,11 @@ class CanvasLifecycle
             'statements' => Statement::where('canvas_id', $canvas->getKey())->count(),
             'allocation_sets' => AllocationSet::where('canvas_id', $canvas->getKey())->count(),
             'finalised_years' => FinalisedYear::where('canvas_id', $canvas->getKey())->count(),
+            'snapshots' => Snapshot::where('canvas_id', $canvas->getKey())->count(),
         ];
     }
 
-    private function removeAllocationData(Canvas $canvas): void
+    private function removeCanvasData(Canvas $canvas): void
     {
         $sets = AllocationSet::with('lines')->where('canvas_id', $canvas->getKey())->get();
 
@@ -120,6 +122,12 @@ class CanvasLifecycle
 
         foreach ($notices as $notice) {
             $notice->delete();
+        }
+
+        $snapshots = Snapshot::where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($snapshots as $snapshot) {
+            $snapshot->delete();
         }
     }
 
