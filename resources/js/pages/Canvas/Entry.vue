@@ -114,8 +114,8 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
                 </li>
             </ul>
         </nav>
-        <section :aria-labelledby="`area-${area.key}`" class="min-w-0 flex-1">
-            <h2 :id="`area-${area.key}`" class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
+        <section :aria-label="area.label" class="min-w-0 flex-1">
+            <h2 class="font-[Space_Grotesk] text-base font-semibold">{{ area.label }}</h2>
             <UndoMessage v-if="undo" :message="t('entry.deleted', { name: undo.name })" :refusal="undo.refusal" @undo="undoDeletion" @close="undo = null" />
             <AddDomain :canvas-id="canvas.id" :area="area.key" :kind-label="t(`areas.${area.key}.level_1`)" @added="added('domain', $event, null)" />
             <EntrySearch v-model="search" />
@@ -124,7 +124,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
             <Warnings :warnings="warnings" @select="select" />
             <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" @restore="restore" />
             <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
-            <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" @gone="gone" />
+            <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :path="elementPath(selectedElement, elements, labelOf(selectedElement.area))" :list="area.kind === 'list'" :icons="icons" @saved="saved = true" @changed="saved = false" :gone="gone" />
         </section>
     </div>
 </template>

@@ -16,8 +16,8 @@ import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type Entry
 import ElementActions from './ElementActions.vue';
 import ParentSelect from './ParentSelect.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[] }>();
-const emit = defineEmits<{ saved: []; changed: []; gone: [kind: 'archived' | 'deleted', name: string] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; path: string; list: boolean; icons: string[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const emit = defineEmits<{ saved: []; changed: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element), modality: props.element.modality ?? NO_MODALITY, rationale: props.element.rationale ?? '', confirm_rationale_clear: false });
 const confirming = ref(false);
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -96,6 +96,6 @@ function save(): void {
                 <button type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="confirmClear">{{ t('modality_entry.confirm_yes') }}</button>
             </div>
         </Dialog>
-        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" @gone="(kind, name) => $emit('gone', kind, name)" /></div>
+        <div v-if="!element.unknownAllocation" class="mt-3"><ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone" /></div>
     </Teleport>
 </template>
