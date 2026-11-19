@@ -148,5 +148,7 @@
     "reauth.renewed": "Je sessie is verlengd",
     "session.warning": "Je sessie verloopt over 2 minuten",
     "session.extend": "Sessie verlengen",
-    "session.extended": "Je sessie is verlengd"
+    "session.extended": "Je sessie is verlengd",
+    "organisations.name_taken": "Naam: er bestaat al een organisatie met deze naam",
+    "organisations.name_required": "Naam: vul een naam in"
 }
