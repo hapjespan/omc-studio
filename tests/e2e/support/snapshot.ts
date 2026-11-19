@@ -13,7 +13,7 @@ export function seedSnapshot(name: string): SnapshotSeed {
 }
 
 export function changeLiveCanvas(canvas: number): void {
-    tinker(`$d = App\\Models\\Element::where('canvas_id', ${canvas})->where('name', 'Onderwijs')->first(); $d->update(['name' => 'Hernoemd']); App\\Models\\Element::where('canvas_id', ${canvas})->where('name', 'Toetsen')->update(['archived_at' => now()]); foreach (App\\Models\\AllocationLine::all() as $l) { $l->delete(); }`);
+    tinker(`$d = App\\Models\\Element::where('canvas_id', ${canvas})->where('name', 'Onderwijs')->first(); $d->update(['name' => 'Hernoemd']); App\\Models\\Element::where('canvas_id', ${canvas})->where('name', 'Toetsen')->update(['archived_at' => now()]); App\\Models\\AllocationLine::whereIn('allocation_set_id', App\\Models\\AllocationSet::where('canvas_id', ${canvas})->pluck('id'))->delete();`);
 }
 
 export function damageSnapshot(snapshot: number): void {

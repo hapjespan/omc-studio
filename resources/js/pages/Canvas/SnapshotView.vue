@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
@@ -14,12 +14,12 @@ import { visitOverlay } from '../../canvas/overlay/query';
 import { useOverlay } from '../../canvas/overlay/useOverlay';
 import Breakdown from '../../canvas/overlay/Breakdown.vue';
 import SnapshotBanner from '../../canvas/SnapshotBanner.vue';
+import VersionSelect from '../../canvas/VersionSelect.vue';
+import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
 import { detail, openDetail } from '../../shell/detail';
-import { t } from '../../i18n';
-import { routes } from '../../routes';
 import ElementFiguresPanel from './ElementFigures.vue';
 import FigureSidePanel from './FigureSidePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
@@ -27,8 +27,8 @@ import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, DrawnBlock, TextMeasurer } from '../../layout';
 
 const props = defineProps<{
-    snapshot: { id: number; name: string; date: string; archived: boolean };
-    versions: { id: number; name: string }[];
+    snapshot: { id: number; name: string; date: string; year: number };
+    versions: VersionOption[];
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
@@ -65,23 +65,13 @@ const scroller = ref<HTMLElement>();
 const fit = (): void => {
     if (scroller.value && drawn.value) zoom.value = fitZoom({ width: scroller.value.clientWidth, height: scroller.value.clientHeight }, { width: ARTBOARD.width, height: contentHeight(drawn.value) });
 };
-const openVersion = (event: Event): void => {
-    const value = (event.target as HTMLSelectElement).value;
-    router.get(value === '' ? routes.view(canvas.value.id) : routes.snapshotView(value));
-};
 </script>
 
 <template>
     <Head :title="`${canvas.name} - ${snapshot.name}`" />
     <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
-    <SnapshotBanner :name="snapshot.name" :date="snapshot.date">
-        <label class="mt-1 flex items-center gap-2">
-            <span>{{ t('snap.version') }}</span>
-            <select class="rounded-md border border-[#848B95] bg-white px-2 py-1" @change="openVersion">
-                <option value="">{{ t('snap.version_live') }}</option>
-                <option v-for="version in versions" :key="version.id" :value="version.id" :selected="version.id === snapshot.id">{{ version.name }}</option>
-            </select>
-        </label>
+    <SnapshotBanner :name="snapshot.name" :date="snapshot.date" :year="snapshot.year">
+        <VersionSelect :canvas-id="canvas.id" :versions="versions" :current="snapshot.id" />
     </SnapshotBanner>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <p v-if="figuresMessage" role="alert" class="mt-3 rounded-md border border-[#B3261E] px-3 py-2 text-[13px] text-[#8C1D18]" data-figures-message>{{ figuresMessage }}</p>

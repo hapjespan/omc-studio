@@ -26,6 +26,14 @@ test('the Versie selector leads to the live view', async ({ page }) => {
     const seed = seedSnapshot(unique());
     await signInAs(page, 'reader');
     await page.goto(`/snapshots/${seed.snapshot}/view`);
+    await expect(page.getByRole('region', { name: 'Momentopname' })).toContainText('Boekjaar 2026');
     await page.getByLabel('Versie').selectOption({ label: 'Actueel' });
+    await expect(page).toHaveURL(new RegExp(`/snapshots/${seed.snapshot}/view`));
+    await page.getByRole('button', { name: 'Openen' }).click();
     await expect(page).toHaveURL(new RegExp(`/canvases/${seed.canvas}/view`));
+    await expect(page.getByRole('option', { name: /Stand voor de stuurgroep \(2026, \d{2}-\d{2}-\d{4}\)/ })).toBeAttached();
+    await page.getByLabel('Versie').selectOption({ index: 1 });
+    await page.getByRole('button', { name: 'Openen' }).click();
+    await expect(page).toHaveURL(new RegExp(`/snapshots/${seed.snapshot}/view`));
+    await expect(page.getByRole('link', { name: 'Versies' })).toHaveAttribute('aria-current', 'page');
 });

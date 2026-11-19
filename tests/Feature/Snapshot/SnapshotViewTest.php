@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Snapshot;
 
+use App\Enums\CanvasKind;
 use App\Models\Element;
 use App\Models\Snapshot;
 use App\Models\SystemNotice;
@@ -75,6 +76,53 @@ class SnapshotViewTest extends AllocationTestCase
                 ->where('statements', []));
 
         $this->assertSame('snapshot_damaged', SystemNotice::sole()->kind);
+    }
+
+    public function test_a_figures_block_that_cannot_be_read_records_the_damaged_notice(): void
+    {
+        $content = json_decode($this->snapshot->content, true);
+        $content['figures'] = ['unknown' => 1];
+        $encoded = json_encode($content);
+        DB::table('snapshots')->where('id', $this->snapshot->getKey())->update(['content' => $encoded, 'checksum' => hash('sha256', $encoded)]);
+
+        $this->get("/snapshots/{$this->snapshot->getKey()}/view?overlay=financial")
+            ->assertInertia(fn (Assert $page) => $page->where('damaged', true)->where('figures', null)->where('elements', []));
+
+        $this->assertSame('snapshot_damaged', SystemNotice::sole()->kind);
+    }
+
+    public function test_the_banner_date_is_in_amsterdam_time_and_the_year_is_sent(): void
+    {
+        DB::table('snapshots')->where('id', $this->snapshot->getKey())->update(['created_at' => '2026-11-18 23:30:00']);
+
+        $this->get("/snapshots/{$this->snapshot->getKey()}/view")->assertInertia(fn (Assert $page) => $page->where('snapshot.date', '19-11-2026')->where('snapshot.year', 2026));
+    }
+
+    public function test_the_current_archived_snapshot_stays_in_the_version_list_marked_archived(): void
+    {
+        $other = app(Snapshots::class)->take($this->canvas, $this->fiscalYear(2026), 'Tweede');
+        app(Snapshots::class)->archive($this->snapshot);
+
+        $this->get("/snapshots/{$this->snapshot->getKey()}/view")->assertInertia(fn (Assert $page) => $page->has('versions', 2)->where('versions', fn ($versions) => $versions->pluck('archived', 'id')->all() === [$other->getKey() => false, $this->snapshot->getKey() => true]));
+        app(Snapshots::class)->archive($other);
+        $this->get("/canvases/{$this->canvas->id}/view")->assertInertia(fn (Assert $page) => $page->has('versions', 0));
+    }
+
+    public function test_the_live_view_lists_the_live_snapshots(): void
+    {
+        $this->get("/canvases/{$this->canvas->id}/view")->assertInertia(fn (Assert $page) => $page->has('versions', 1)->where('versions.0.name', 'Voor de stuurgroep')->where('versions.0.year', 2026));
+    }
+
+    public function test_an_unknown_snapshot_is_not_found(): void
+    {
+        $this->get('/snapshots/999999/view')->assertNotFound();
+    }
+
+    public function test_a_snapshot_of_a_template_is_not_found(): void
+    {
+        $this->canvas->update(['kind' => CanvasKind::Template]);
+
+        $this->get("/snapshots/{$this->snapshot->getKey()}/view")->assertNotFound();
     }
 
     public function test_a_guest_is_sent_to_sign_in(): void

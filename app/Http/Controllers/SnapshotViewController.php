@@ -6,11 +6,12 @@ use App\Calculation\Figures;
 use App\Enums\CanvasKind;
 use App\Enums\CostKind;
 use App\Http\Resources\CanvasFigures;
+use App\Http\Resources\SnapshotVersions;
 use App\Models\Area;
 use App\Models\Modality;
 use App\Models\Snapshot;
 use App\Services\Snapshot\Snapshots;
-use Carbon\Carbon;
+use App\Support\Format;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +29,7 @@ class SnapshotViewController extends Controller
         abort_if($canvas->kind === CanvasKind::Template, 404);
 
         $content = $this->snapshots->read($snapshot);
-        $figures = $content === null ? null : $this->figures($content);
+        $figures = $content === null ? null : $this->figures($snapshot, $content);
         $damaged = $content === null || $figures === null;
         $content = $damaged ? ['elements' => [], 'statements' => [], 'cost_records' => []] : $content;
         $overlay = in_array($request->query('overlay'), self::OVERLAYS, true) ? $request->query('overlay') : 'none';
@@ -40,10 +41,10 @@ class SnapshotViewController extends Controller
             'snapshot' => [
                 'id' => $snapshot->getKey(),
                 'name' => $snapshot->name,
-                'date' => Carbon::parse($snapshot->created_at)->format('d-m-Y'),
-                'archived' => $snapshot->archived_at !== null,
+                'date' => Format::formatDate($snapshot->created_at->toIso8601String()),
+                'year' => $snapshot->fiscal_year,
             ],
-            'versions' => Snapshot::where('canvas_id', $canvas->getKey())->whereNull('archived_at')->orderByDesc('created_at')->orderByDesc('id')->get(['id', 'name'])->map(fn (Snapshot $version) => ['id' => $version->getKey(), 'name' => $version->name])->all(),
+            'versions' => SnapshotVersions::for($canvas, $snapshot),
             'overlay' => $overlay,
             'year' => $snapshot->fiscal_year,
             'costKinds' => array_map(fn (CostKind $kind) => $kind->value, CostKind::cases()),
@@ -78,11 +79,13 @@ class SnapshotViewController extends Controller
     }
 
     /** @param array<string, mixed> $content */
-    private function figures(array $content): ?Figures
+    private function figures(Snapshot $snapshot, array $content): ?Figures
     {
         try {
             return new Figures(...$content['figures']);
         } catch (Throwable) {
+            $this->snapshots->damaged($snapshot);
+
             return null;
         }
     }

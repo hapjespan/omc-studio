@@ -1001,6 +1001,8 @@
     "snap.banner_label": "Momentopname",
     "snap.version": "Versie",
     "snap.version_live": "Actueel",
-    "snap.view": "Bekijken",
-    "snap.read_only": "Alleen lezen"
+    "snap.banner_year": "Boekjaar :year",
+    "snap.option": ":name (:year, :date)",
+    "snap.option_archived": ":name (:year, :date, gearchiveerd)",
+    "snap.open": "Openen"
 }

@@ -14,7 +14,7 @@ class ResolveFiscalYear
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $canvas = $request->route('canvas') ?? $request->route('snapshot')?->canvas;
+        $canvas = $request->route('canvas');
         $organisation = $request->route('organisation');
         $organisation = $canvas instanceof Canvas ? $canvas->organisation : $organisation;
 
