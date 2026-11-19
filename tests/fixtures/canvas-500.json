@@ -1,0 +1,4586 @@
+{
+ "areas": [
+  {
+   "key": "direction",
+   "kind": "text",
+   "label": "Koers",
+   "position": 1
+  },
+  {
+   "key": "steering",
+   "kind": "activities",
+   "label": "Richten",
+   "position": 2
+  },
+  {
+   "key": "governing",
+   "kind": "activities",
+   "label": "Beheersen",
+   "position": 3
+  },
+  {
+   "key": "actors",
+   "kind": "list",
+   "label": "Actoren",
+   "position": 4
+  },
+  {
+   "key": "channels",
+   "kind": "list",
+   "label": "Kanalen",
+   "position": 5
+  },
+  {
+   "key": "value_propositions",
+   "kind": "list",
+   "label": "Waardeproposities",
+   "position": 6
+  },
+  {
+   "key": "primary_activities",
+   "kind": "activities",
+   "label": "Primaire activiteiten",
+   "position": 7
+  },
+  {
+   "key": "supporting_activities",
+   "kind": "activities",
+   "label": "Ondersteunende activiteiten",
+   "position": 8
+  }
+ ],
+ "elements": [
+  {
+   "id": "e0001",
+   "area": "steering",
+   "kind": "domain",
+   "name": "Onderwijs Data Innovatie",
+   "parent": null,
+   "position": 1,
+   "modality": "C"
+  },
+  {
+   "id": "e0002",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Data Beheer Beheer Planning",
+   "parent": "e0001",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0003",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Control Control Innovatie Beleid Zorg",
+   "parent": "e0001",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0004",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0001",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0005",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Beheer Advies Strategie Beleid",
+   "parent": "e0001",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0006",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Facilitair Control Beheer Beleid",
+   "parent": "e0001",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0007",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Control Beleid Strategie Strategie Beheer",
+   "parent": "e0001",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0008",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies Strategie Beleid Onderwijs Control",
+   "parent": "e0007",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0009",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Zorg Onderwijs Advies Onderwijs",
+   "parent": "e0007",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0010",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Data Control Facilitair Veiligheid Zorg",
+   "parent": "e0007",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0011",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Advies Veiligheid",
+   "parent": "e0001",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0012",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie Veiligheid",
+   "parent": "e0011",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0013",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Inkoop",
+   "parent": "e0011",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0014",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid",
+   "parent": "e0011",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0015",
+   "area": "steering",
+   "kind": "domain",
+   "name": "Facilitair Onderwijs Facilitair",
+   "parent": null,
+   "position": 2,
+   "modality": "A"
+  },
+  {
+   "id": "e0016",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie",
+   "parent": "e0015",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0017",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning Advies",
+   "parent": "e0015",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0018",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Innovatie Inkoop Facilitair",
+   "parent": "e0015",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0019",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Communicatie",
+   "parent": "e0015",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0020",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Control Veiligheid",
+   "parent": "e0015",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0021",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Inkoop",
+   "parent": "e0015",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0022",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie Facilitair Zorg Data",
+   "parent": "e0021",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0023",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Onderwijs Advies",
+   "parent": "e0021",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0024",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Beleid",
+   "parent": "e0021",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0025",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Communicatie Facilitair Control Advies Onderwijs",
+   "parent": "e0015",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0026",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Facilitair Strategie",
+   "parent": "e0025",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0027",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Beleid Zorg",
+   "parent": "e0025",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0028",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Innovatie",
+   "parent": "e0025",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0029",
+   "area": "steering",
+   "kind": "domain",
+   "name": "Veiligheid Veiligheid",
+   "parent": null,
+   "position": 3,
+   "modality": "S"
+  },
+  {
+   "id": "e0030",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie Innovatie Inkoop Inkoop Facilitair",
+   "parent": "e0029",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0031",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies Data",
+   "parent": "e0029",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0032",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie Data Beheer Zorg Veiligheid",
+   "parent": "e0029",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0033",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Facilitair Onderwijs Strategie Beheer Beheer",
+   "parent": "e0029",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0034",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Inkoop",
+   "parent": "e0029",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0035",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Beleid Planning",
+   "parent": "e0029",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0036",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies Inkoop Data Inkoop",
+   "parent": "e0035",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0037",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid",
+   "parent": "e0035",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0038",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Beheer Beheer Inkoop Communicatie",
+   "parent": "e0035",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0039",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Advies",
+   "parent": "e0029",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0040",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Onderwijs Communicatie",
+   "parent": "e0039",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0041",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0039",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0042",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Inkoop Veiligheid",
+   "parent": "e0039",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0043",
+   "area": "steering",
+   "kind": "domain",
+   "name": "Data Innovatie Facilitair",
+   "parent": null,
+   "position": 4,
+   "modality": "D"
+  },
+  {
+   "id": "e0044",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning Veiligheid Communicatie Control Veiligheid",
+   "parent": "e0043",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0045",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Beleid Beheer Facilitair",
+   "parent": "e0043",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0046",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies Strategie Control",
+   "parent": "e0043",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0047",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Onderwijs Planning Inkoop Beleid Strategie",
+   "parent": "e0043",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0048",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Beleid Zorg Advies",
+   "parent": "e0043",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0049",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Control Inkoop Control",
+   "parent": "e0043",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0050",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Onderwijs Communicatie",
+   "parent": "e0049",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0051",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0049",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0052",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Innovatie",
+   "parent": "e0049",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0053",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Inkoop",
+   "parent": "e0043",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0054",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Communicatie",
+   "parent": "e0053",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0055",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Communicatie Beleid Beleid",
+   "parent": "e0053",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0056",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0053",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0057",
+   "area": "steering",
+   "kind": "domain",
+   "name": "Beleid Innovatie Onderwijs",
+   "parent": null,
+   "position": 5,
+   "modality": "C"
+  },
+  {
+   "id": "e0058",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0057",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0059",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Facilitair Data",
+   "parent": "e0057",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0060",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Communicatie Veiligheid Control Inkoop Advies",
+   "parent": "e0057",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0061",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Facilitair Planning Strategie Strategie",
+   "parent": "e0057",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0062",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0057",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0063",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Inkoop Inkoop",
+   "parent": "e0057",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0064",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Data Advies Data Beheer",
+   "parent": "e0063",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0065",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning Communicatie Data",
+   "parent": "e0063",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0066",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie Innovatie Veiligheid",
+   "parent": "e0063",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0067",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Beheer Onderwijs Beheer Facilitair",
+   "parent": "e0057",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0068",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Innovatie Innovatie Beheer Data Beleid",
+   "parent": "e0067",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0069",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning Veiligheid Beleid Innovatie",
+   "parent": "e0067",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0070",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0067",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0071",
+   "area": "steering",
+   "kind": "domain",
+   "name": "Beleid Facilitair Planning Data Beleid",
+   "parent": null,
+   "position": 6,
+   "modality": "A"
+  },
+  {
+   "id": "e0072",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Control Zorg",
+   "parent": "e0071",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0073",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Strategie Beheer Zorg Advies",
+   "parent": "e0071",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0074",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Data Planning Veiligheid",
+   "parent": "e0071",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0075",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning Inkoop Beleid",
+   "parent": "e0071",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0076",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Onderwijs",
+   "parent": "e0071",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0077",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Data Innovatie",
+   "parent": "e0071",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0078",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Veiligheid Beheer Innovatie",
+   "parent": "e0077",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0079",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Data Strategie Planning Control Facilitair",
+   "parent": "e0077",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0080",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Communicatie Beleid Control Strategie Strategie",
+   "parent": "e0077",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0081",
+   "area": "steering",
+   "kind": "cluster",
+   "name": "Advies Zorg Beleid Inkoop",
+   "parent": "e0071",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0082",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Communicatie Facilitair Veiligheid Inkoop",
+   "parent": "e0081",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0083",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Beleid Beheer",
+   "parent": "e0081",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0084",
+   "area": "steering",
+   "kind": "activity",
+   "name": "Planning Zorg Onderwijs Strategie Beheer",
+   "parent": "e0081",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0085",
+   "area": "governing",
+   "kind": "domain",
+   "name": "Control",
+   "parent": null,
+   "position": 1,
+   "modality": "C"
+  },
+  {
+   "id": "e0086",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie",
+   "parent": "e0085",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0087",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Data Innovatie",
+   "parent": "e0085",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0088",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Innovatie",
+   "parent": "e0085",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0089",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Communicatie Veiligheid Advies Veiligheid",
+   "parent": "e0085",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0090",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Advies Data Planning",
+   "parent": "e0085",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0091",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Innovatie Beheer",
+   "parent": "e0085",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0092",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Control Communicatie Inkoop Innovatie",
+   "parent": "e0091",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0093",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Control Innovatie Data Control",
+   "parent": "e0091",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0094",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Beleid Zorg Communicatie",
+   "parent": "e0091",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0095",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Planning Veiligheid Veiligheid Data Control",
+   "parent": "e0085",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0096",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg Control Communicatie",
+   "parent": "e0095",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0097",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Planning Planning",
+   "parent": "e0095",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0098",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Data Advies Beheer Innovatie Control",
+   "parent": "e0095",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0099",
+   "area": "governing",
+   "kind": "domain",
+   "name": "Control Facilitair Onderwijs Veiligheid Planning",
+   "parent": null,
+   "position": 2,
+   "modality": "A"
+  },
+  {
+   "id": "e0100",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0099",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0101",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Innovatie",
+   "parent": "e0099",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0102",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Beleid Veiligheid Facilitair",
+   "parent": "e0099",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0103",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0099",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0104",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Veiligheid Advies Communicatie",
+   "parent": "e0099",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0105",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Planning Inkoop Planning",
+   "parent": "e0099",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0106",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid",
+   "parent": "e0105",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0107",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0105",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0108",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0105",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0109",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Beheer",
+   "parent": "e0099",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0110",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Onderwijs",
+   "parent": "e0109",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0111",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Innovatie",
+   "parent": "e0109",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0112",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Facilitair Advies Control",
+   "parent": "e0109",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0113",
+   "area": "governing",
+   "kind": "domain",
+   "name": "Beheer",
+   "parent": null,
+   "position": 3,
+   "modality": "S"
+  },
+  {
+   "id": "e0114",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair Strategie Veiligheid Advies Communicatie",
+   "parent": "e0113",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0115",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg Advies Control Zorg",
+   "parent": "e0113",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0116",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Innovatie Onderwijs Control Onderwijs Data",
+   "parent": "e0113",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0117",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg Communicatie Beheer Veiligheid",
+   "parent": "e0113",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0118",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Facilitair Planning Beheer Zorg",
+   "parent": "e0113",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0119",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Planning Inkoop",
+   "parent": "e0113",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0120",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beheer Veiligheid Communicatie Strategie",
+   "parent": "e0119",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0121",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beheer Data",
+   "parent": "e0119",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0122",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Inkoop Data",
+   "parent": "e0119",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0123",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Communicatie Innovatie",
+   "parent": "e0113",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0124",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Zorg",
+   "parent": "e0123",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0125",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Onderwijs",
+   "parent": "e0123",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0126",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0123",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0127",
+   "area": "governing",
+   "kind": "domain",
+   "name": "Control Control Veiligheid Control",
+   "parent": null,
+   "position": 4,
+   "modality": "D"
+  },
+  {
+   "id": "e0128",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Innovatie Beheer Strategie Zorg",
+   "parent": "e0127",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0129",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Communicatie Communicatie Strategie",
+   "parent": "e0127",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0130",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid",
+   "parent": "e0127",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0131",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg",
+   "parent": "e0127",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0132",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Innovatie Onderwijs",
+   "parent": "e0127",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0133",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Beheer Zorg Communicatie Control Onderwijs",
+   "parent": "e0127",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0134",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Strategie Data Veiligheid Data Zorg",
+   "parent": "e0133",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0135",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Onderwijs Innovatie",
+   "parent": "e0133",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0136",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg",
+   "parent": "e0133",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0137",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Beleid Beheer Strategie Strategie",
+   "parent": "e0127",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0138",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Planning Veiligheid Facilitair",
+   "parent": "e0137",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0139",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0137",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0140",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Inkoop",
+   "parent": "e0137",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0141",
+   "area": "governing",
+   "kind": "domain",
+   "name": "Beheer Onderwijs Control Inkoop Beleid",
+   "parent": null,
+   "position": 5,
+   "modality": "C"
+  },
+  {
+   "id": "e0142",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Veiligheid Communicatie Onderwijs Data",
+   "parent": "e0141",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0143",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0141",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0144",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Onderwijs Beleid Strategie",
+   "parent": "e0141",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0145",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Control Zorg Facilitair",
+   "parent": "e0141",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0146",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Control Onderwijs",
+   "parent": "e0141",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0147",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Strategie Beheer",
+   "parent": "e0141",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0148",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair Onderwijs Innovatie Planning",
+   "parent": "e0147",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0149",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Strategie",
+   "parent": "e0147",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0150",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Communicatie Beleid Inkoop",
+   "parent": "e0147",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0151",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Onderwijs Strategie Veiligheid Advies",
+   "parent": "e0141",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0152",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Data Onderwijs",
+   "parent": "e0151",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0153",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Advies Communicatie Innovatie Zorg Veiligheid",
+   "parent": "e0151",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0154",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Control Beleid",
+   "parent": "e0151",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0155",
+   "area": "governing",
+   "kind": "domain",
+   "name": "Strategie Communicatie Onderwijs",
+   "parent": null,
+   "position": 6,
+   "modality": "A"
+  },
+  {
+   "id": "e0156",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Strategie Advies Inkoop Zorg Veiligheid",
+   "parent": "e0155",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0157",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Beleid Strategie Zorg Inkoop",
+   "parent": "e0155",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0158",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Onderwijs Planning Beleid",
+   "parent": "e0155",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0159",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg Zorg",
+   "parent": "e0155",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0160",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0155",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0161",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Planning Onderwijs Zorg",
+   "parent": "e0155",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0162",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Zorg Communicatie",
+   "parent": "e0161",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0163",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Inkoop Strategie Innovatie",
+   "parent": "e0161",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0164",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Control Data Zorg Advies",
+   "parent": "e0161",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0165",
+   "area": "governing",
+   "kind": "cluster",
+   "name": "Advies Beleid Control Beleid",
+   "parent": "e0155",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0166",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0165",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0167",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Advies Strategie Zorg Data",
+   "parent": "e0165",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0168",
+   "area": "governing",
+   "kind": "activity",
+   "name": "Veiligheid Beleid Control",
+   "parent": "e0165",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0169",
+   "area": "actors",
+   "kind": "domain",
+   "name": "Control",
+   "parent": null,
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0170",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Facilitair Advies Communicatie Data",
+   "parent": "e0169",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0171",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Beleid Strategie",
+   "parent": "e0169",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0172",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Onderwijs Control",
+   "parent": "e0169",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0173",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Zorg Communicatie Zorg",
+   "parent": "e0169",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0174",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Beleid Beleid Facilitair",
+   "parent": "e0169",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0175",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0169",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0176",
+   "area": "actors",
+   "kind": "domain",
+   "name": "Zorg Communicatie Veiligheid",
+   "parent": null,
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0177",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Advies Data",
+   "parent": "e0176",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0178",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Veiligheid",
+   "parent": "e0176",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0179",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Data Beheer",
+   "parent": "e0176",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0180",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Zorg Veiligheid Veiligheid",
+   "parent": "e0176",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0181",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Data Veiligheid Planning",
+   "parent": "e0176",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0182",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Beleid Beheer Beheer Zorg Strategie",
+   "parent": "e0176",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0183",
+   "area": "actors",
+   "kind": "domain",
+   "name": "Facilitair Zorg Beleid Planning Facilitair",
+   "parent": null,
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0184",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Veiligheid Beheer Beheer Beheer Veiligheid",
+   "parent": "e0183",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0185",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Control Innovatie Planning Advies Advies",
+   "parent": "e0183",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0186",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Advies Strategie Control",
+   "parent": "e0183",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0187",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Advies Communicatie",
+   "parent": "e0183",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0188",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Innovatie Veiligheid",
+   "parent": "e0183",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0189",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0183",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0190",
+   "area": "actors",
+   "kind": "domain",
+   "name": "Facilitair Control Advies Onderwijs",
+   "parent": null,
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0191",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0190",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0192",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Planning Onderwijs Onderwijs Beheer",
+   "parent": "e0190",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0193",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Onderwijs Planning",
+   "parent": "e0190",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0194",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0190",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0195",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Strategie Zorg Veiligheid Beheer",
+   "parent": "e0190",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0196",
+   "area": "actors",
+   "kind": "activity",
+   "name": "Advies Control Beleid",
+   "parent": "e0190",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0197",
+   "area": "channels",
+   "kind": "domain",
+   "name": "Onderwijs",
+   "parent": null,
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0198",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Innovatie",
+   "parent": "e0197",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0199",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Control Inkoop Onderwijs Advies Beheer",
+   "parent": "e0197",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0200",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Planning Zorg Strategie Data",
+   "parent": "e0197",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0201",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Control Innovatie",
+   "parent": "e0197",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0202",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Beheer Advies Beheer Control Onderwijs",
+   "parent": "e0197",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0203",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Zorg Beleid Advies Strategie",
+   "parent": "e0197",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0204",
+   "area": "channels",
+   "kind": "domain",
+   "name": "Data Strategie Communicatie Advies",
+   "parent": null,
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0205",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Inkoop Planning Control Strategie",
+   "parent": "e0204",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0206",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Zorg Planning Beheer Facilitair Control",
+   "parent": "e0204",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0207",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Data Communicatie Onderwijs Zorg",
+   "parent": "e0204",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0208",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Control Beleid Strategie",
+   "parent": "e0204",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0209",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Planning Onderwijs Beleid Zorg",
+   "parent": "e0204",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0210",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Beleid",
+   "parent": "e0204",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0211",
+   "area": "channels",
+   "kind": "domain",
+   "name": "Inkoop Innovatie Control Strategie",
+   "parent": null,
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0212",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Facilitair Advies",
+   "parent": "e0211",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0213",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Onderwijs Zorg Strategie",
+   "parent": "e0211",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0214",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Planning Innovatie Planning Innovatie Veiligheid",
+   "parent": "e0211",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0215",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Strategie Facilitair Veiligheid Advies",
+   "parent": "e0211",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0216",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Veiligheid",
+   "parent": "e0211",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0217",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Strategie",
+   "parent": "e0211",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0218",
+   "area": "channels",
+   "kind": "domain",
+   "name": "Strategie Zorg Inkoop",
+   "parent": null,
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0219",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0218",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0220",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Zorg Planning Advies Strategie",
+   "parent": "e0218",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0221",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Innovatie Beheer Advies",
+   "parent": "e0218",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0222",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Facilitair Inkoop Data",
+   "parent": "e0218",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0223",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Strategie Data",
+   "parent": "e0218",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0224",
+   "area": "channels",
+   "kind": "activity",
+   "name": "Beheer Data",
+   "parent": "e0218",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0225",
+   "area": "value_propositions",
+   "kind": "domain",
+   "name": "Zorg Facilitair Strategie",
+   "parent": null,
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0226",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Inkoop Strategie Inkoop Veiligheid Communicatie",
+   "parent": "e0225",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0227",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Facilitair Zorg Control Facilitair Innovatie",
+   "parent": "e0225",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0228",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Inkoop Advies",
+   "parent": "e0225",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0229",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Control Onderwijs Facilitair Veiligheid",
+   "parent": "e0225",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0230",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Planning Innovatie Facilitair Zorg Zorg",
+   "parent": "e0225",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0231",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Onderwijs Beheer",
+   "parent": "e0225",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0232",
+   "area": "value_propositions",
+   "kind": "domain",
+   "name": "Veiligheid Beleid Facilitair",
+   "parent": null,
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0233",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Beheer Communicatie Facilitair Planning",
+   "parent": "e0232",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0234",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Strategie Beheer Planning",
+   "parent": "e0232",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0235",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Planning Zorg Onderwijs Beheer",
+   "parent": "e0232",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0236",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Veiligheid Strategie Control",
+   "parent": "e0232",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0237",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0232",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0238",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Onderwijs Inkoop Onderwijs Communicatie Veiligheid",
+   "parent": "e0232",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0239",
+   "area": "value_propositions",
+   "kind": "domain",
+   "name": "Facilitair Planning Planning Control",
+   "parent": null,
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0240",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Zorg",
+   "parent": "e0239",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0241",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Beleid Beleid Beleid",
+   "parent": "e0239",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0242",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Beheer",
+   "parent": "e0239",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0243",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Beheer",
+   "parent": "e0239",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0244",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Zorg",
+   "parent": "e0239",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0245",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0239",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0246",
+   "area": "value_propositions",
+   "kind": "domain",
+   "name": "Strategie Innovatie",
+   "parent": null,
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0247",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Control Communicatie Data",
+   "parent": "e0246",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0248",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Innovatie Onderwijs Facilitair Communicatie",
+   "parent": "e0246",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0249",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Advies Control Communicatie Strategie Advies",
+   "parent": "e0246",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0250",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Strategie Zorg Beheer Communicatie",
+   "parent": "e0246",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0251",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Beheer Data Advies Planning",
+   "parent": "e0246",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0252",
+   "area": "value_propositions",
+   "kind": "activity",
+   "name": "Planning Data Innovatie",
+   "parent": "e0246",
+   "position": 6,
+   "modality": null
+  },
+  {
+   "id": "e0253",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Beheer Communicatie Onderwijs Data",
+   "parent": null,
+   "position": 1,
+   "modality": "C"
+  },
+  {
+   "id": "e0254",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Veiligheid",
+   "parent": "e0253",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0255",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Inkoop Advies",
+   "parent": "e0253",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0256",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Facilitair",
+   "parent": "e0253",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0257",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Beleid Innovatie Inkoop",
+   "parent": "e0253",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0258",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Beleid Beheer Inkoop Beleid",
+   "parent": "e0253",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0259",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Innovatie Zorg Advies",
+   "parent": "e0253",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0260",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Control Beheer",
+   "parent": "e0259",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0261",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning Beleid",
+   "parent": "e0259",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0262",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Data Beleid Facilitair",
+   "parent": "e0259",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0263",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Control Facilitair Data",
+   "parent": "e0253",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0264",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0263",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0265",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Innovatie Planning Onderwijs",
+   "parent": "e0263",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0266",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0263",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0267",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Data Onderwijs Beleid Zorg Innovatie",
+   "parent": null,
+   "position": 2,
+   "modality": "A"
+  },
+  {
+   "id": "e0268",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Beleid Veiligheid Data Control",
+   "parent": "e0267",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0269",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Communicatie",
+   "parent": "e0267",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0270",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0267",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0271",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Strategie Strategie",
+   "parent": "e0267",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0272",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Strategie",
+   "parent": "e0267",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0273",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Zorg Data Control",
+   "parent": "e0267",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0274",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Beheer Planning Inkoop Facilitair",
+   "parent": "e0273",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0275",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0273",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0276",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Onderwijs Beleid Control Facilitair",
+   "parent": "e0273",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0277",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Onderwijs Zorg Inkoop Beheer",
+   "parent": "e0267",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0278",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Beleid Strategie",
+   "parent": "e0277",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0279",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Inkoop",
+   "parent": "e0277",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0280",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Innovatie Zorg Onderwijs Communicatie Advies",
+   "parent": "e0277",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0281",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Planning Inkoop Data",
+   "parent": null,
+   "position": 3,
+   "modality": "S"
+  },
+  {
+   "id": "e0282",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Control Advies Onderwijs",
+   "parent": "e0281",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0283",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie",
+   "parent": "e0281",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0284",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Zorg Control",
+   "parent": "e0281",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0285",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Onderwijs Zorg Onderwijs",
+   "parent": "e0281",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0286",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Innovatie Facilitair",
+   "parent": "e0281",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0287",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Data Facilitair Strategie",
+   "parent": "e0281",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0288",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Planning Beleid Planning Data",
+   "parent": "e0287",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0289",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Onderwijs",
+   "parent": "e0287",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0290",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0287",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0291",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Strategie Inkoop Inkoop Planning",
+   "parent": "e0281",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0292",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Facilitair Zorg",
+   "parent": "e0291",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0293",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Data",
+   "parent": "e0291",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0294",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Inkoop",
+   "parent": "e0291",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0295",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Communicatie Zorg Strategie",
+   "parent": null,
+   "position": 4,
+   "modality": "D"
+  },
+  {
+   "id": "e0296",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beleid Strategie Advies Onderwijs",
+   "parent": "e0295",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0297",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Planning",
+   "parent": "e0295",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0298",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Strategie Control Innovatie Facilitair",
+   "parent": "e0295",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0299",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Strategie Beheer",
+   "parent": "e0295",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0300",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0295",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0301",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Planning Onderwijs Beleid Data Strategie",
+   "parent": "e0295",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0302",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Facilitair Facilitair Facilitair Innovatie",
+   "parent": "e0301",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0303",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0301",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0304",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Innovatie Inkoop Strategie Facilitair",
+   "parent": "e0301",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0305",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Zorg Advies Beleid Communicatie",
+   "parent": "e0295",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0306",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie",
+   "parent": "e0305",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0307",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Beheer Innovatie Innovatie",
+   "parent": "e0305",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0308",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Control Inkoop Strategie Strategie",
+   "parent": "e0305",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0309",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Inkoop Strategie Veiligheid",
+   "parent": null,
+   "position": 5,
+   "modality": "C"
+  },
+  {
+   "id": "e0310",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Beleid Communicatie Veiligheid",
+   "parent": "e0309",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0311",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beleid Strategie",
+   "parent": "e0309",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0312",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Data Inkoop Innovatie Innovatie",
+   "parent": "e0309",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0313",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Veiligheid",
+   "parent": "e0309",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0314",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Onderwijs Onderwijs Onderwijs Innovatie",
+   "parent": "e0309",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0315",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Innovatie Zorg Inkoop Beleid Facilitair",
+   "parent": "e0309",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0316",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Data Innovatie Communicatie Inkoop",
+   "parent": "e0315",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0317",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Communicatie",
+   "parent": "e0315",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0318",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Inkoop Control",
+   "parent": "e0315",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0319",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Beleid Strategie Beleid Zorg",
+   "parent": "e0309",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0320",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Communicatie",
+   "parent": "e0319",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0321",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Zorg Planning Control Beheer",
+   "parent": "e0319",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0322",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Beleid Innovatie Onderwijs",
+   "parent": "e0319",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0323",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Strategie Communicatie Innovatie Veiligheid Strategie",
+   "parent": null,
+   "position": 6,
+   "modality": "A"
+  },
+  {
+   "id": "e0324",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Onderwijs Strategie Inkoop",
+   "parent": "e0323",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0325",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Veiligheid",
+   "parent": "e0323",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0326",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Strategie Planning Onderwijs Planning",
+   "parent": "e0323",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0327",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Onderwijs Communicatie",
+   "parent": "e0323",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0328",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Beleid Onderwijs Data",
+   "parent": "e0323",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0329",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Onderwijs",
+   "parent": "e0323",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0330",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Beleid Onderwijs Veiligheid Communicatie",
+   "parent": "e0329",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0331",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Advies",
+   "parent": "e0329",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0332",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Innovatie",
+   "parent": "e0329",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0333",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Data Zorg Planning Communicatie Strategie",
+   "parent": "e0323",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0334",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Control Beleid Innovatie",
+   "parent": "e0333",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0335",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Strategie Communicatie Beheer",
+   "parent": "e0333",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0336",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Advies Advies Beheer Beheer",
+   "parent": "e0333",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0337",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Strategie Onderwijs Strategie Onderwijs",
+   "parent": null,
+   "position": 7,
+   "modality": "S"
+  },
+  {
+   "id": "e0338",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Facilitair Onderwijs Beleid Innovatie",
+   "parent": "e0337",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0339",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Onderwijs Advies",
+   "parent": "e0337",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0340",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beleid",
+   "parent": "e0337",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0341",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie",
+   "parent": "e0337",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0342",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Advies",
+   "parent": "e0337",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0343",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Communicatie Onderwijs Onderwijs Veiligheid",
+   "parent": "e0337",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0344",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Advies",
+   "parent": "e0343",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0345",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Strategie Planning Strategie Communicatie",
+   "parent": "e0343",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0346",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Zorg Planning",
+   "parent": "e0343",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0347",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Innovatie Planning Veiligheid Beleid Facilitair",
+   "parent": "e0337",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0348",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Onderwijs Beleid Control Advies",
+   "parent": "e0347",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0349",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Innovatie Facilitair Beheer Veiligheid",
+   "parent": "e0347",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0350",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Strategie",
+   "parent": "e0347",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0351",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Strategie Beleid Facilitair",
+   "parent": null,
+   "position": 8,
+   "modality": "D"
+  },
+  {
+   "id": "e0352",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Zorg",
+   "parent": "e0351",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0353",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Strategie Data Planning",
+   "parent": "e0351",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0354",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg",
+   "parent": "e0351",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0355",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Innovatie Inkoop Innovatie",
+   "parent": "e0351",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0356",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Onderwijs Facilitair",
+   "parent": "e0351",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0357",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Beleid Planning Facilitair",
+   "parent": "e0351",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0358",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning Innovatie Inkoop Communicatie",
+   "parent": "e0357",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0359",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Inkoop Advies Veiligheid",
+   "parent": "e0357",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0360",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0357",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0361",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Communicatie Onderwijs Data",
+   "parent": "e0351",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0362",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Control Facilitair Communicatie",
+   "parent": "e0361",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0363",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Data Onderwijs",
+   "parent": "e0361",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0364",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Facilitair Control",
+   "parent": "e0361",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0365",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Control Innovatie Communicatie Beheer Control",
+   "parent": null,
+   "position": 9,
+   "modality": "C"
+  },
+  {
+   "id": "e0366",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Beheer",
+   "parent": "e0365",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0367",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Beleid Communicatie Communicatie Veiligheid",
+   "parent": "e0365",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0368",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Communicatie Veiligheid Veiligheid",
+   "parent": "e0365",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0369",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Planning Inkoop",
+   "parent": "e0365",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0370",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Inkoop Inkoop Onderwijs Communicatie",
+   "parent": "e0365",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0371",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Planning Control Beheer Advies",
+   "parent": "e0365",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0372",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Innovatie",
+   "parent": "e0371",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0373",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Onderwijs Advies Planning Inkoop",
+   "parent": "e0371",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0374",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beleid Zorg Control",
+   "parent": "e0371",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0375",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Facilitair Communicatie Innovatie Advies Innovatie",
+   "parent": "e0365",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0376",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Beleid Beleid Veiligheid",
+   "parent": "e0375",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0377",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0375",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0378",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Strategie Zorg",
+   "parent": "e0375",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0379",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Onderwijs",
+   "parent": null,
+   "position": 10,
+   "modality": "A"
+  },
+  {
+   "id": "e0380",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Strategie Communicatie Data",
+   "parent": "e0379",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0381",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning Innovatie Innovatie",
+   "parent": "e0379",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0382",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning Zorg Planning",
+   "parent": "e0379",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0383",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0379",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0384",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0379",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0385",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Beheer Innovatie",
+   "parent": "e0379",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0386",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Strategie Facilitair",
+   "parent": "e0385",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0387",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data Data Strategie Innovatie",
+   "parent": "e0385",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0388",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop",
+   "parent": "e0385",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0389",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Veiligheid Beheer Onderwijs Veiligheid Onderwijs",
+   "parent": "e0379",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0390",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Control Advies Beheer Advies",
+   "parent": "e0389",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0391",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beheer Planning Control Veiligheid Data",
+   "parent": "e0389",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0392",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Facilitair Control Control",
+   "parent": "e0389",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0393",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Advies",
+   "parent": null,
+   "position": 11,
+   "modality": "S"
+  },
+  {
+   "id": "e0394",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Beleid Beleid Beheer Strategie",
+   "parent": "e0393",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0395",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Communicatie Communicatie",
+   "parent": "e0393",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0396",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Advies Beheer",
+   "parent": "e0393",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0397",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Facilitair Strategie",
+   "parent": "e0393",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0398",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Veiligheid",
+   "parent": "e0393",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0399",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Inkoop Beleid Zorg Control Zorg",
+   "parent": "e0393",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0400",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0399",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0401",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Zorg Advies Beleid Beheer",
+   "parent": "e0399",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0402",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning Strategie Beleid Innovatie Planning",
+   "parent": "e0399",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0403",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Planning Veiligheid",
+   "parent": "e0393",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0404",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Beleid Planning Control Inkoop",
+   "parent": "e0403",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0405",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Planning Control Planning",
+   "parent": "e0403",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0406",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Planning",
+   "parent": "e0403",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0407",
+   "area": "primary_activities",
+   "kind": "domain",
+   "name": "Strategie Zorg Inkoop",
+   "parent": null,
+   "position": 12,
+   "modality": "D"
+  },
+  {
+   "id": "e0408",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Communicatie Facilitair Zorg Strategie",
+   "parent": "e0407",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0409",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Inkoop Beleid Veiligheid",
+   "parent": "e0407",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0410",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Beheer",
+   "parent": "e0407",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0411",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Inkoop Veiligheid Inkoop",
+   "parent": "e0407",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0412",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Strategie Beheer Control Beheer",
+   "parent": "e0407",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0413",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Planning Data Onderwijs Planning Inkoop",
+   "parent": "e0407",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0414",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Communicatie Zorg Data Facilitair",
+   "parent": "e0413",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0415",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Veiligheid Zorg",
+   "parent": "e0413",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0416",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0413",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0417",
+   "area": "primary_activities",
+   "kind": "cluster",
+   "name": "Facilitair Advies",
+   "parent": "e0407",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0418",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Facilitair Advies Beleid Innovatie Control",
+   "parent": "e0417",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0419",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Advies Inkoop Facilitair Advies Strategie",
+   "parent": "e0417",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0420",
+   "area": "primary_activities",
+   "kind": "activity",
+   "name": "Zorg Veiligheid",
+   "parent": "e0417",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0421",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Data Data",
+   "parent": null,
+   "position": 1,
+   "modality": "C"
+  },
+  {
+   "id": "e0422",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beheer Veiligheid Data Inkoop Onderwijs",
+   "parent": "e0421",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0423",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data Communicatie",
+   "parent": "e0421",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0424",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control Beheer",
+   "parent": "e0421",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0425",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control Advies Advies",
+   "parent": "e0421",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0426",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control Inkoop Veiligheid Strategie Communicatie",
+   "parent": "e0421",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0427",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Veiligheid",
+   "parent": "e0421",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0428",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Facilitair Zorg",
+   "parent": "e0427",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0429",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Innovatie Veiligheid Innovatie Onderwijs Data",
+   "parent": "e0427",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0430",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Advies",
+   "parent": "e0427",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0431",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Onderwijs Control Strategie Planning",
+   "parent": "e0421",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0432",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beheer Communicatie Inkoop Beleid Facilitair",
+   "parent": "e0431",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0433",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Facilitair",
+   "parent": "e0431",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0434",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Advies Data Facilitair Inkoop Innovatie",
+   "parent": "e0431",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0435",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Beleid Zorg Zorg",
+   "parent": null,
+   "position": 2,
+   "modality": "A"
+  },
+  {
+   "id": "e0436",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Inkoop Beleid Planning Zorg Strategie",
+   "parent": "e0435",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0437",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beleid Zorg Beleid Control",
+   "parent": "e0435",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0438",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Zorg Data Inkoop",
+   "parent": "e0435",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0439",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beheer Planning Zorg Strategie",
+   "parent": "e0435",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0440",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data Planning Beleid",
+   "parent": "e0435",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0441",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Onderwijs",
+   "parent": "e0435",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0442",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Onderwijs Advies Beheer Strategie",
+   "parent": "e0441",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0443",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Communicatie Beheer Planning Beleid Strategie",
+   "parent": "e0441",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0444",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Facilitair Inkoop Advies Planning Advies",
+   "parent": "e0441",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0445",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Zorg",
+   "parent": "e0435",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0446",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Veiligheid Facilitair",
+   "parent": "e0445",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0447",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Advies Strategie",
+   "parent": "e0445",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0448",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Veiligheid Inkoop Onderwijs Planning",
+   "parent": "e0445",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0449",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Onderwijs Data Communicatie Zorg Innovatie",
+   "parent": null,
+   "position": 3,
+   "modality": "S"
+  },
+  {
+   "id": "e0450",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Innovatie Beheer Facilitair Communicatie",
+   "parent": "e0449",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0451",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Strategie Strategie Veiligheid",
+   "parent": "e0449",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0452",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Innovatie Strategie Facilitair",
+   "parent": "e0449",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0453",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data Zorg Strategie Strategie",
+   "parent": "e0449",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0454",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control Veiligheid Data Strategie",
+   "parent": "e0449",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0455",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Planning Data Facilitair",
+   "parent": "e0449",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0456",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Advies Data Communicatie",
+   "parent": "e0455",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0457",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Inkoop",
+   "parent": "e0455",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0458",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Advies Advies Advies",
+   "parent": "e0455",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0459",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Control",
+   "parent": "e0449",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0460",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0459",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0461",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beleid Control",
+   "parent": "e0459",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0462",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Planning Strategie Zorg",
+   "parent": "e0459",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0463",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Control Veiligheid Strategie Planning",
+   "parent": null,
+   "position": 4,
+   "modality": "D"
+  },
+  {
+   "id": "e0464",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Strategie Communicatie Advies Control",
+   "parent": "e0463",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0465",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Facilitair Veiligheid Control Veiligheid",
+   "parent": "e0463",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0466",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Communicatie Beheer",
+   "parent": "e0463",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0467",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Strategie",
+   "parent": "e0463",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0468",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Facilitair Strategie Advies Advies",
+   "parent": "e0463",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0469",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Advies Control",
+   "parent": "e0463",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0470",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0469",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0471",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Strategie",
+   "parent": "e0469",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0472",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beheer Advies Veiligheid Data",
+   "parent": "e0469",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0473",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Strategie Zorg Data Veiligheid Strategie",
+   "parent": "e0463",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0474",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Zorg",
+   "parent": "e0473",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0475",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Onderwijs",
+   "parent": "e0473",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0476",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Advies Strategie Beheer Control",
+   "parent": "e0473",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0477",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Planning Strategie Control",
+   "parent": null,
+   "position": 5,
+   "modality": "C"
+  },
+  {
+   "id": "e0478",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Inkoop Communicatie Innovatie Beheer",
+   "parent": "e0477",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0479",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data",
+   "parent": "e0477",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0480",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Veiligheid Veiligheid",
+   "parent": "e0477",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0481",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0477",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0482",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Veiligheid Beheer Zorg Planning",
+   "parent": "e0477",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0483",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Advies Communicatie",
+   "parent": "e0477",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0484",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control",
+   "parent": "e0483",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0485",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Zorg Innovatie Control",
+   "parent": "e0483",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0486",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beheer",
+   "parent": "e0483",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0487",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Communicatie Onderwijs Advies Data Planning",
+   "parent": "e0477",
+   "position": 11,
+   "modality": null
+  },
+  {
+   "id": "e0488",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beheer",
+   "parent": "e0487",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0489",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Planning",
+   "parent": "e0487",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0490",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Onderwijs",
+   "parent": "e0487",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0491",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Control Planning",
+   "parent": null,
+   "position": 6,
+   "modality": "A"
+  },
+  {
+   "id": "e0492",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Communicatie Veiligheid Strategie",
+   "parent": "e0491",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0493",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Control Communicatie Communicatie",
+   "parent": "e0491",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0494",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Strategie Veiligheid Onderwijs Inkoop",
+   "parent": "e0491",
+   "position": 3,
+   "modality": null
+  },
+  {
+   "id": "e0495",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Zorg Communicatie Advies Communicatie Facilitair",
+   "parent": "e0491",
+   "position": 4,
+   "modality": null
+  },
+  {
+   "id": "e0496",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data Inkoop Strategie",
+   "parent": "e0491",
+   "position": 5,
+   "modality": null
+  },
+  {
+   "id": "e0497",
+   "area": "supporting_activities",
+   "kind": "cluster",
+   "name": "Inkoop Control Planning",
+   "parent": "e0491",
+   "position": 10,
+   "modality": null
+  },
+  {
+   "id": "e0498",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Data Advies Facilitair Communicatie Beheer",
+   "parent": "e0497",
+   "position": 1,
+   "modality": null
+  },
+  {
+   "id": "e0499",
+   "area": "supporting_activities",
+   "kind": "activity",
+   "name": "Beleid Onderwijs Zorg Communicatie Inkoop",
+   "parent": "e0497",
+   "position": 2,
+   "modality": null
+  },
+  {
+   "id": "e0500",
+   "area": "supporting_activities",
+   "kind": "domain",
+   "name": "Onbekende allocatie",
+   "parent": null,
+   "position": 99,
+   "modality": null,
+   "unknownAllocation": true
+  }
+ ],
+ "statements": [
+  {
+   "kind": "mission",
+   "title": null,
+   "body": "Wij maken ons werk inzichtelijk en betaalbaar voor iedereen.",
+   "position": 1
+  },
+  {
+   "kind": "vision",
+   "title": null,
+   "body": "Een organisatie waarin elke euro zichtbaar bijdraagt.",
+   "position": 1
+  },
+  {
+   "kind": "goal",
+   "title": "Doel een",
+   "body": "Kosten inzichtelijk maken",
+   "position": 1
+  },
+  {
+   "kind": "goal",
+   "title": "Doel twee",
+   "body": "Samenhang tussen activiteiten tonen",
+   "position": 2
+  }
+ ],
+ "directionLabels": {
+  "mission": "Missie",
+  "vision": "Visie",
+  "goals": "Strategische doelen"
+ }
+}

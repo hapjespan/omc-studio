@@ -222,5 +222,8 @@
   },
   "T110": {
     "built_by": "claude-sonnet-5-5"
+  },
+  "T111": {
+    "built_by": "claude-sonnet-5-5"
   }
 }
