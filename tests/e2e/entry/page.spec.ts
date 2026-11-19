@@ -30,6 +30,7 @@ test('a Reader and an archived Canvas are sent to Bekijken', async ({ page }) =>
     await page.goto(`/canvases/${canvasId(live)}/entry`);
     await expect(page).toHaveURL(/\/canvases\/\d+\/view/);
 
+    await page.context().clearCookies();
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvasId(archived)}/entry`);
     await expect(page).toHaveURL(/\/canvases\/\d+\/view/);
