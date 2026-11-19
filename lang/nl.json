@@ -106,5 +106,7 @@
     "errors.throttled_title": "Te veel verzoeken",
     "errors.throttled_text": "Wacht even en probeer het opnieuw.",
     "errors.unavailable_title": "Tijdelijk niet beschikbaar",
-    "errors.unavailable_text": "Probeer het later opnieuw."
+    "errors.unavailable_text": "Probeer het later opnieuw.",
+    "errors.client_title": "Er is iets misgegaan",
+    "errors.client_text": "Dit verzoek kon niet worden uitgevoerd."
 }

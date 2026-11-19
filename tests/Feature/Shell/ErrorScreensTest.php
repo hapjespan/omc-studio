@@ -79,4 +79,14 @@ class ErrorScreensTest extends TestCase
 
         $this->get('/probe-expired')->assertStatus(419)->assertSee('Pagina verlopen')->assertSee('<a href="/">Overzicht</a>', false);
     }
+
+    public function test_a_method_not_allowed_screen_is_dutch_with_a_link_to_the_overview_and_no_trace(): void
+    {
+        config(['app.debug' => false]);
+
+        $response = $this->actingAs(User::factory()->create())->get('/sign-out');
+
+        $response->assertStatus(405)->assertSee('Er is iets misgegaan')->assertSee('<a href="/">Overzicht</a>', false);
+        $response->assertDontSee('MethodNotAllowed', false)->assertDontSee('.php', false)->assertDontSee('sign-out', false);
+    }
 }
