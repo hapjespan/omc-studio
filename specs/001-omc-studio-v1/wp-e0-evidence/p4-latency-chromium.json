@@ -9,7 +9,7 @@
     },
     {
       "kind": "drag",
-      "ms": 0.2,
+      "ms": 0.3,
       "ids": [
         "dom-1"
       ]
@@ -30,7 +30,7 @@
     },
     {
       "kind": "drag",
-      "ms": 0.3,
+      "ms": 0.2,
       "ids": [
         "dom-1"
       ]
@@ -38,13 +38,6 @@
     {
       "kind": "drag",
       "ms": 0.3,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 0.4,
       "ids": [
         "dom-1"
       ]
@@ -52,20 +45,27 @@
     {
       "kind": "drag",
       "ms": 0.2,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0.9,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "nudge-debounced",
-      "ms": 303.3,
+      "ms": 303.4,
       "ids": [
         "act-1"
       ]
     },
     {
       "kind": "nudge-flushed",
-      "ms": 1.2,
+      "ms": 0.9,
       "ids": [
         "act-1"
       ]

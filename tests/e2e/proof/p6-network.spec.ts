@@ -17,6 +17,10 @@ async function watch(page: Page) {
     page.on('request', (request) => {
         if (request.url().startsWith(OWN)) own.push(new URL(request.url()).pathname);
     });
+    await page.addInitScript(() => {
+        (window as any).cspViolations = [];
+        document.addEventListener('securitypolicyviolation', (event) => (window as any).cspViolations.push(`${event.violatedDirective} ${event.blockedURI}`));
+    });
     page.on('websocket', (socket) => outside.push(`websocket ${socket.url()}`));
     page.on('console', (message) => {
         if (/Content Security Policy|Refused to/.test(message.text())) violations.push(message.text().slice(0, 200));
@@ -42,6 +46,7 @@ test('P6: loading and using the drawing sends nothing outside the own server, un
     await page.evaluate(() => (window as any).proof.editor.zoomToFit());
     await page.waitForTimeout(3000);
 
+    seen.violations.push(...(await page.evaluate(() => (window as any).cspViolations ?? [])));
     const policy = await page.evaluate(async () => (await fetch('/')).headers.get('content-security-policy'));
     mkdirSync('../../specs/001-omc-studio-v1/wp-e0-evidence', { recursive: true });
     writeFileSync(`../../specs/001-omc-studio-v1/wp-e0-evidence/p6-network-${info.project.name}.json`, JSON.stringify({ policy, ownRequests: [...new Set(seen.own)].sort(), outside: seen.outside, violations: seen.violations }, null, 2));
@@ -57,6 +62,7 @@ test('P6 observation: with the font switches left at their defaults, an unbundle
     await page.goto('/?control-remote-font');
     await page.waitForFunction(() => document.documentElement.dataset.ready === 'true' || document.documentElement.dataset.error, null, { timeout: 30000 });
     await page.waitForTimeout(3000);
+    seen.violations.push(...(await page.evaluate(() => (window as any).cspViolations ?? [])));
     writeFileSync(`../../specs/001-omc-studio-v1/wp-e0-evidence/p6-observation-${info.project.name}.json`, JSON.stringify({ attempted: seen.outside, blockedByPolicy: seen.violations }, null, 2));
     expect(seen.outside).toEqual([]);
     expect(seen.violations).toEqual([]);

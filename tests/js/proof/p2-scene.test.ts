@@ -17,7 +17,8 @@ function build() {
 describe('P2 scene from data', () => {
     it('holds 3 Domains, 1 Cluster and 10 Activities under the artboard', () => {
         const { graph } = build();
-        const kinds = (kind: string) => fixture.blocks.filter((block) => block.kind === kind).length;
+        const { blocks } = build();
+        const kinds = (kind: string) => blocks.filter((block) => block.kind === kind && graph.getNode(block.id)?.type === 'FRAME').length;
         expect([kinds('domain'), kinds('cluster'), kinds('activity')]).toEqual([3, 1, 10]);
         expect(graph.getNode('artboard')?.childIds.length).toBe(5);
     });

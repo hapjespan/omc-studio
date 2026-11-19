@@ -9,14 +9,7 @@
     },
     {
       "kind": "drag",
-      "ms": 0,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 0,
+      "ms": 1,
       "ids": [
         "dom-1"
       ]
@@ -38,6 +31,13 @@
     {
       "kind": "drag",
       "ms": 1,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
       "ids": [
         "dom-1"
       ]

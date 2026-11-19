@@ -2,6 +2,41 @@
   "pairs": [
     {
       "kind": "drag",
+      "ms": 2,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 2,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 1,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
       "ms": 1,
       "ids": [
         "dom-1"
@@ -17,55 +52,20 @@
     {
       "kind": "drag",
       "ms": 0,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 0,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 0,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 1,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 1,
-      "ids": [
-        "dom-1"
-      ]
-    },
-    {
-      "kind": "drag",
-      "ms": 1,
       "ids": [
         "dom-1"
       ]
     },
     {
       "kind": "nudge-debounced",
-      "ms": 308,
+      "ms": 305,
       "ids": [
         "act-1"
       ]
     },
     {
       "kind": "nudge-flushed",
-      "ms": 2,
+      "ms": 1,
       "ids": [
         "act-1"
       ]

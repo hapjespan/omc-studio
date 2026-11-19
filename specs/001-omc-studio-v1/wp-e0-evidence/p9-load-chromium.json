@@ -11,130 +11,130 @@
   "scene": {
     "samples": [
       {
-        "wall": 419,
-        "readyAt": 337,
+        "wall": 375,
+        "readyAt": 308,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
         "actionMs": 0.5
       },
       {
-        "wall": 394,
-        "readyAt": 312,
+        "wall": 386,
+        "readyAt": 311,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 0.3
+        "actionMs": 0.6
       },
       {
-        "wall": 401,
-        "readyAt": 313,
+        "wall": 386,
+        "readyAt": 314,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 0.4
+        "actionMs": 0.5
       },
       {
-        "wall": 411,
-        "readyAt": 326,
+        "wall": 436,
+        "readyAt": 355,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 0.4
+        "actionMs": 0.5
       },
       {
-        "wall": 401,
-        "readyAt": 320,
+        "wall": 381,
+        "readyAt": 303,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 0.4
+        "actionMs": 0.5
       }
     ],
-    "medianReadyMs": 320,
-    "maxReadyMs": 337,
-    "maxWallMs": 419,
-    "maxActionMs": 0.5
+    "medianReadyMs": 311,
+    "maxReadyMs": 355,
+    "maxWallMs": 436,
+    "maxActionMs": 0.6
   },
   "scene-cpu-x4": {
     "samples": [
       {
-        "wall": 1056,
-        "readyAt": 977,
+        "wall": 977,
+        "readyAt": 900,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 1.8
+        "actionMs": 1.4
       },
       {
-        "wall": 1007,
-        "readyAt": 931,
-        "totalBytes": 12324014,
-        "heapMegabytes": 16.3,
-        "actionMs": 1.9
-      },
-      {
-        "wall": 1021,
+        "wall": 1025,
         "readyAt": 947,
+        "totalBytes": 12324014,
+        "heapMegabytes": 16.3,
+        "actionMs": 2.6
+      },
+      {
+        "wall": 995,
+        "readyAt": 904,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
         "actionMs": 2
       },
       {
-        "wall": 1075,
-        "readyAt": 994,
+        "wall": 975,
+        "readyAt": 898,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 1.6
+        "actionMs": 2
       },
       {
-        "wall": 990,
-        "readyAt": 909,
+        "wall": 1004,
+        "readyAt": 923,
         "totalBytes": 12324014,
         "heapMegabytes": 16.3,
-        "actionMs": 1.3
+        "actionMs": 1.9
       }
     ],
-    "medianReadyMs": 947,
-    "maxReadyMs": 994,
-    "maxWallMs": 1075,
-    "maxActionMs": 2
+    "medianReadyMs": 904,
+    "maxReadyMs": 947,
+    "maxWallMs": 1025,
+    "maxActionMs": 2.6
   },
   "bulk-500": {
     "samples": [
       {
-        "wall": 555,
-        "readyAt": 464,
+        "wall": 531,
+        "readyAt": 453,
         "totalBytes": 12324014,
         "heapMegabytes": 31.6,
-        "actionMs": 0.6
+        "actionMs": 0.5
       },
       {
-        "wall": 549,
-        "readyAt": 465,
+        "wall": 529,
+        "readyAt": 447,
         "totalBytes": 12324014,
         "heapMegabytes": 31.6,
-        "actionMs": 1.8
+        "actionMs": 0.5
       },
       {
-        "wall": 546,
-        "readyAt": 460,
-        "totalBytes": 12324014,
-        "heapMegabytes": 31.6,
-        "actionMs": 0.6
-      },
-      {
-        "wall": 525,
-        "readyAt": 450,
+        "wall": 530,
+        "readyAt": 452,
         "totalBytes": 12324014,
         "heapMegabytes": 35.6,
-        "actionMs": 0.6
+        "actionMs": 0.5
       },
       {
-        "wall": 549,
-        "readyAt": 469,
+        "wall": 543,
+        "readyAt": 470,
         "totalBytes": 12324014,
         "heapMegabytes": 31.6,
-        "actionMs": 0.9
+        "actionMs": 0.5
+      },
+      {
+        "wall": 579,
+        "readyAt": 489,
+        "totalBytes": 12324014,
+        "heapMegabytes": 31.6,
+        "actionMs": 0.6
       }
     ],
-    "medianReadyMs": 464,
-    "maxReadyMs": 469,
-    "maxWallMs": 555,
-    "maxActionMs": 1.8
+    "medianReadyMs": 453,
+    "maxReadyMs": 489,
+    "maxWallMs": 579,
+    "maxActionMs": 0.6
   }
 }

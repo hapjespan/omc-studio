@@ -35,8 +35,9 @@ export function report(root) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const result = report(fileURLToPath(new URL('./dist-page/', import.meta.url)));
-    mkdirSync('../../specs/001-omc-studio-v1/wp-e0-evidence', { recursive: true });
-    writeFileSync('../../specs/001-omc-studio-v1/wp-e0-evidence/p6-assets.json', JSON.stringify(result, null, 2));
+    const evidence = fileURLToPath(new URL('../../specs/001-omc-studio-v1/wp-e0-evidence/', import.meta.url));
+    mkdirSync(evidence, { recursive: true });
+    writeFileSync(evidence + 'p6-assets.json', JSON.stringify(result, null, 2));
     console.log(result.total, Object.fromEntries(Object.entries(result.grouped).map(([k, v]) => [k, v.length])));
     process.exit(result.total === 0 ? 0 : 1);
 }

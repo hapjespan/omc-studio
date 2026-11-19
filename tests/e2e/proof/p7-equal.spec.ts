@@ -83,7 +83,7 @@ function analyse(page: Page, canvasShot: Buffer, htmlShot: Buffer, blocks: any[]
     );
 }
 
-test('P7: the drawing equals the HTML view', async ({ page }, info) => {
+test('P7: the drawing equals the HTML view (vertical text limit 1 px, 1.1 px in Chromium)', async ({ page }, info) => {
     await open(page, '/?view=html');
     const htmlShot = await page.screenshot();
     const dom = await page.evaluate(() => {
@@ -149,6 +149,7 @@ test('P7: the drawing equals the HTML view', async ({ page }, info) => {
     await page.screenshot({ path: `../../specs/001-omc-studio-v1/wp-e0-evidence/p7-canvas-${info.project.name}.png` });
     expect(problems).toEqual([]);
     expect(delta.box).toBeLessThanOrEqual(1);
+    expect(delta.massRatio, 'ink mass of a line, drawing against HTML').toBeLessThanOrEqual(1.5);
     expect(delta.lineLeft).toBeLessThanOrEqual(1);
     expect(delta.lineRight).toBeLessThanOrEqual(1);
     const verticalLimit = info.project.name === 'chromium' ? 1.1 : 1;

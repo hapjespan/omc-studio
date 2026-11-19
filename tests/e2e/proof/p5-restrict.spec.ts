@@ -60,5 +60,5 @@ test('P5: the library cannot create, delete or reparent, and keeps the locked pa
     );
     expect(end.tool === 'SELECT' || end.tool === 'HAND').toBe(true);
     const refusals = await page.evaluate(() => (window as any).proof.restrictions.refusals.map((r: any) => r.action));
-    console.log('refusals', JSON.stringify(refusals.reduce((acc: any, a: string) => ({ ...acc, [a]: (acc[a] ?? 0) + 1 }), {})));
+    expect(refusals.filter((action: string) => action === 'reparent').length).toBeGreaterThanOrEqual(1);
 });

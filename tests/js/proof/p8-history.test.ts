@@ -81,6 +81,7 @@ describe('P8 undo and redo', () => {
         const ctx = load();
         const before = ctx.state();
         dragBlocks(ctx.editor, ctx.graph, ['act-5', 'act-6'], 10, 10);
+        expect(ctx.state()).not.toBe(before);
         ctx.editor.undoAction();
         expect(ctx.state()).toBe(before);
     });

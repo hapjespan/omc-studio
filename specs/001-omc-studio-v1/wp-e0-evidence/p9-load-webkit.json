@@ -11,87 +11,87 @@
   "scene": {
     "samples": [
       {
-        "wall": 429,
-        "readyAt": 389,
-        "totalBytes": 12324236,
-        "heapMegabytes": null,
-        "actionMs": 0
-      },
-      {
-        "wall": 395,
-        "readyAt": 362,
-        "totalBytes": 12324236,
-        "heapMegabytes": null,
-        "actionMs": 1
-      },
-      {
-        "wall": 380,
+        "wall": 375,
         "readyAt": 345,
         "totalBytes": 12324236,
         "heapMegabytes": null,
         "actionMs": 1
       },
       {
-        "wall": 353,
+        "wall": 370,
+        "readyAt": 328,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      },
+      {
+        "wall": 348,
         "readyAt": 316,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      },
+      {
+        "wall": 348,
+        "readyAt": 325,
         "totalBytes": 12324236,
         "heapMegabytes": null,
         "actionMs": 1
       },
       {
-        "wall": 366,
-        "readyAt": 339,
+        "wall": 363,
+        "readyAt": 327,
         "totalBytes": 12324236,
         "heapMegabytes": null,
         "actionMs": 1
       }
     ],
-    "medianReadyMs": 345,
-    "maxReadyMs": 389,
-    "maxWallMs": 429,
+    "medianReadyMs": 327,
+    "maxReadyMs": 345,
+    "maxWallMs": 375,
     "maxActionMs": 1
   },
   "bulk-500": {
     "samples": [
       {
+        "wall": 523,
+        "readyAt": 480,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
+        "wall": 442,
+        "readyAt": 404,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 0
+      },
+      {
+        "wall": 448,
+        "readyAt": 412,
+        "totalBytes": 12324236,
+        "heapMegabytes": null,
+        "actionMs": 1
+      },
+      {
         "wall": 462,
-        "readyAt": 425,
+        "readyAt": 412,
         "totalBytes": 12324236,
         "heapMegabytes": null,
         "actionMs": 1
       },
       {
-        "wall": 492,
-        "readyAt": 454,
-        "totalBytes": 12324236,
-        "heapMegabytes": null,
-        "actionMs": 1
-      },
-      {
-        "wall": 528,
-        "readyAt": 481,
-        "totalBytes": 12324236,
-        "heapMegabytes": null,
-        "actionMs": 1
-      },
-      {
-        "wall": 528,
-        "readyAt": 475,
-        "totalBytes": 12324236,
-        "heapMegabytes": null,
-        "actionMs": 1
-      },
-      {
-        "wall": 492,
-        "readyAt": 446,
+        "wall": 545,
+        "readyAt": 496,
         "totalBytes": 12324236,
         "heapMegabytes": null,
         "actionMs": 0
       }
     ],
-    "medianReadyMs": 454,
-    "maxReadyMs": 481,
-    "maxWallMs": 528,
+    "medianReadyMs": 412,
+    "maxReadyMs": 496,
+    "maxWallMs": 545,
     "maxActionMs": 1
   }
 }

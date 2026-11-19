@@ -19,15 +19,15 @@ Answer the open points of addendum A1 chapter 8 with evidence from working code,
 | P1 | Install and build with npm inside Docker, pinned exactly, telemetry, AI, collaboration and cloud off | partly met |
 | P2 | Build a scene from JSON: 3 Domains, 1 Cluster, 10 Activities with text, colour and font | met |
 | P3 | Read back position, size and style per node, keeping the Element identifier | met |
-| P4 | Notice changes from the host within 100 ms | met in the adapter |
-| P5 | Restrict the library: no create, delete or reparent, Areas locked, shortcuts inert | met in the adapter |
+| P4 | Notice changes from the host within 100 ms | met in the adapter for pointer and command; the keyboard flush is shown by a call, no key handler is built |
+| P5 | Restrict the library: no create, delete or reparent, Areas locked, shortcuts inert | met in the adapter; the key test cannot fail by itself, see P5 |
 | P6 | No outgoing traffic while loading and using, under the policy of FR-090, and the asset check of FR-098 | partly met: traffic met, asset check not met |
-| P7 | Equal to the HTML view within 1 pixel, same wrapped lines | met, one deviation of 0.03 px in Chromium |
+| P7 | Equal to the HTML view within 1 pixel, same wrapped lines | partly met: boxes and lines met in three engines, vertical text offset 1.03 px in Chromium (limit 1) |
 | P8 | Undo and redo per finished action | met |
-| P9 | Load time of the Tekenen bundle within 3 seconds | met |
-| P10 | Shift move recognised, target found, library kept from reparenting | met in the adapter |
+| P9 | Load time of the Tekenen bundle within 3 seconds | met on this machine; not shown on an ordinary laptop |
+| P10 | Shift move recognised, target found, library kept from reparenting | partly met in the adapter: gesture, target, label, no reparent met; several rules of ADR 0036 not built |
 
-**Recommendation (details in the last section): by the rule as written this is a no-go, because the asset check half of P6 fails. I recommend the product owner decides one question about FR-098; if the answer is yes, every other point is met or solvable in the adapter and the recommendation is go.**
+**Recommendation (details in the last section): by the rule as written this is a no-go, for two reasons: the asset check half of P6 fails, and P7 misses its limit by 0.03 px in Chromium. I recommend the product owner decides the question about FR-098; the P7 miss and the unbuilt P10 rules are adapter work with a known fix. If the answer on FR-098 is that the strings are tolerated, the recommendation is go.**
 
 ## Environment of every measurement
 
@@ -141,12 +141,14 @@ Measured in the browser (`tests/e2e/proof/p4-changes.spec.ts`, evidence `wp-e0-e
 
 | Action | Chromium | Firefox | WebKit | Limit |
 | --- | --- | --- | --- | --- |
-| Mouse drag, mouse released (8 runs) | at most 1.6 ms | at most 1 ms | at most 1 ms | 100 ms |
+| Mouse drag, mouse released (8 runs) | at most 1.3 ms | at most 2 ms | at most 1 ms | 100 ms |
 | Command (`updateNodeWithUndo`) | 0.7 ms | 1 ms | 1 ms | 100 ms |
-| Keyboard nudge followed by `flushNudge()` | 0.9 ms | 0 ms | 1 ms | 100 ms |
-| Keyboard nudge left to the library | **306 ms** | **302 ms** | **302 ms** | over the limit |
+| `nudgeSelected` followed by `flushNudge()`, both called from the test | 0.9 ms | 1 ms | 1 ms | 100 ms |
+| `nudgeSelected` left to the library | **303 ms** | **305 ms** | **303 ms** | over the limit |
 
-The library batches nudges and commits after about 300 ms. The adapter must call `flushNudge()` when the key is released (a finished action). Without it P-7 is missed for the keyboard.
+The figures are those of the last full run; they vary by a few tenths of a millisecond between runs (the committed JSON is the source). The proof builds no key handler: the library binds no nudge keys and the proof page has no `keyup` handler that calls `flushNudge()`. The keyboard rows therefore prove that the call works and what happens without it, not a finished keyboard path.
+
+The library batches nudges and commits after about 300 ms. The adapter must call `flushNudge()` when the key is released (a finished action). Without it P-7 is missed for the keyboard. Only the pointer and the command route are proven end to end.
 
 Finding: the library's pointer handling is driven by `mousemove` and `mouseup`, not by pointer events.
 
@@ -160,7 +162,7 @@ Control: `tests/js/proof/p5-control.test.ts` shows that without restrictions the
 
 Evidence:
 - `tests/js/proof/p5-restrict.test.ts` (10 tests): create by every route, delete, reparent, locked parts, clamping, tools, shortcut list.
-- `tests/e2e/proof/p5-restrict.spec.ts` in three engines: every inert key is pressed with a selection, a plain drag onto another Domain and a drag of the locked Direction band run with the mouse, and a double click on text and on a block; the node set, the parents, the Direction band and the active tool stay as they were. The library's own drop attempt is refused once (`refusals {"reparent":1}`).
+- `tests/e2e/proof/p5-restrict.spec.ts` in three engines: every inert key is pressed with a selection, a plain drag onto another Domain and a drag of the locked Direction band run with the mouse, and a double click on text and on a block; the node set, the parents, the Direction band and the active tool stay as they were. The test asserts that the library's own drop attempt was refused at least once (`reparent`). The key loop alone cannot fail: the SDK binds none of those keys, so it would pass without `restrict.ts`. The proof of the restriction is the unit test (with its control test) and the refused drop, not the key presses.
 
 Library shortcuts recorded (the keys the library's own application maps, from `TOOL_SHORTCUTS`):
 
@@ -203,6 +205,8 @@ Not checked: whether a double click on text opens the library's text edit state 
 | Firefox | 0 | 0 | 0 | 11 |
 | WebKit | 0 | 0 | 0 | 11 |
 
+Violations are collected from a `securitypolicyviolation` listener as well as from the console, because the policy blocks a request before the route sees it and the console wording differs per engine.
+
 The own requests are the page, one script chunk set, the stylesheet, the CanvasKit WebAssembly and five font files. Evidence: `wp-e0-evidence/p6-network-<engine>.json` (it also records the policy header in force). The policy is the application's with `'wasm-unsafe-eval'` added to `script-src`; the proof page runs with it, so the relaxation T024 names is needed and sufficient. No `unsafe-inline` is needed for styles: the page sets no inline style attribute (the first build did, and the policy refused it, which is how it was found).
 
 ### Asset check
@@ -220,7 +224,7 @@ FR-098 says an outside URL inside the drawing library is a WP-E0 finding for the
 
 ## P7: equal to the HTML view
 
-**Verdict: met, with one deviation of 0.03 px in Chromium.** The criterion needed a text rendering setting that is not the browser default.
+**Verdict: partly met.** Boxes, wrapped lines and horizontal text extent meet the limit in three engines. The vertical text offset in Chromium is 1.03 px against a limit of 1 px, so the criterion as written is missed there by 0.03 px. The criterion also needed a text rendering setting that is not the browser default.
 
 `html-view.ts` renders the same blocks as absolutely positioned HTML boxes with one line element per line, using the same line breaker as the drawing. `tests/e2e/proof/p7-equal.spec.ts` renders both, takes screenshots at 100% zoom (device scale 1) and compares per block and per text line, from pixels, not from the data. Evidence: `wp-e0-evidence/p7-<engine>.json` and `p7-canvas-<engine>.png`.
 
@@ -230,11 +234,13 @@ FR-098 says an outside URL inside the drawing library is a WP-E0 finding for the
 | Wrapped lines: same text, same count, no extra line | equal | equal | equal | equal |
 | Left edge of a line's ink | 0 px | 0 px | 0 px | 1 px |
 | Right edge of a line's ink | 1 px | 1 px | 1 px | 1 px |
+| Top of a line's ink (anti-aliasing at the edge, tested at most 2 px) | **2 px** | 1 px | 1 px | 1 px |
+| Bottom of a line's ink (tested at most 2 px) | 1 px | 0 px | 0 px | 1 px |
 | Vertical ink centre of a line | **1.03 px** | 0.02 px | 0.02 px | 1 px |
 
 Findings:
 - **Without `text-rendering: geometricPrecision` the drawing and the browser's text differ by up to 9 px on a 318 px line (2.8%)** in Chromium on Linux: the browser rounds glyph advances to whole pixels, the drawing library does not. With the property set on both the HTML lines and the canvas measuring context (`measure.ts`) the widths agree within 1 px in all three engines. This is a requirement for D1's layout engine and for the HTML view that D3 uses for the PNG: the contract `layout-engine.md` says "canvas 2D `measureText`"; it must also say that the context uses `textRendering = 'geometricPrecision'` and the HTML uses the same CSS property. Recorded here; not yet written into the contract.
-- In Chromium, Space Grotesk text sits 1.03 px lower in the drawing than in the HTML (limit 1 px; Inter sits within 0.2 px). It is above the limit by 0.03 px. The cause is the browser's rounding of ascent and descent; a per-font vertical offset of the text node in the adapter would remove it. The test accepts 1.1 px for Chromium only and says so in its name; Firefox and WebKit are held to 1 px.
+- In Chromium, Space Grotesk text sits 1.03 px lower in the drawing than in the HTML (limit 1 px; Inter sits within 0.2 px). It is above the limit by 0.03 px. The cause is the browser's rounding of ascent and descent; a per-font vertical offset of the text node in the adapter would remove it. The test accepts 1.1 px for Chromium only and says so in its name; Firefox and WebKit are held to 1 px. The top and bottom of the ink are tested at 2 px because the ink edge depends on anti-aliasing; Chromium's top edge reaches 2 px. The test also bounds the ink mass ratio of a line at 1.5 (measured 1.24 to 1.26: the drawing's anti-aliasing is lighter than the browser's), which would catch a wrong weight or font. The line text equality compares the shared breaker with itself; only the ink bands show that the drawing really wraps the same way.
 - Firefox and WebKit give the same differences to many digits. Both draw the canvas through the same Skia code and both lay out the HTML text with unrounded advances, so identical results are plausible, but they were not independently cross-checked.
 - Edge not tested: a line whose browser width is within 1 px of the box width could be wrapped once more by the library (its text node has a fixed width). The adapter should give the text node a small width margin, or turn automatic wrapping off.
 
@@ -250,25 +256,26 @@ Evidence:
 
 ## P9: load time and memory
 
-**Verdict: met**, on a machine that is not an ordinary laptop (see the environment).
+**Verdict: met on this machine; not shown on an ordinary laptop.** The criterion says an ordinary laptop. The machine is a container in a virtual machine and the page is loaded over loopback as a standalone page, not as a bundle loaded on demand from the application shell. The product owner may want a measurement on real hardware.
 
 `tests/e2e/proof/p9-load.spec.ts`: five cold loads in fresh browser contexts per case, from navigation to "usable" (the scene drawn, two animation frames later, one action committed). Evidence: `wp-e0-evidence/p9-load-<engine>.json`, which also holds the machine description.
 
 | Case | Chromium | Firefox | WebKit | Limit |
 | --- | --- | --- | --- | --- |
-| Scene of the fixture, median ready | 313 ms | 337 ms | 330 ms | 3000 ms |
-| Scene of the fixture, worst wall time | 547 ms | 527 ms | 406 ms | 3000 ms |
-| Same with the CPU slowed 4 times (Chromium only) | worst 1020 ms | not available | not available | 3000 ms |
-| 500 blocks, median ready | 440 ms | 482 ms | 407 ms | 3000 ms |
-| 500 blocks, worst time of a committed action | 1 ms | 0 ms | 1 ms | 1000 ms |
-| Page weight | 12.3 MB | 12.3 MB | 12.3 MB | n/a |
+| Scene of the fixture, median ready | 311 ms | 289 ms | 327 ms | 3000 ms |
+| Scene of the fixture, worst wall time | 436 ms | 347 ms | 375 ms | 3000 ms |
+| Same with the CPU slowed 4 times (Chromium only) | worst 1025 ms | not available | not available | 3000 ms |
+| 500 blocks, median ready | 453 ms | 580 ms | 412 ms | 3000 ms |
+| 500 blocks, worst wall time | 579 ms | 705 ms | 545 ms | 3000 ms |
+| 500 blocks, worst time of a committed command | 1 ms | 1 ms | 1 ms | 1000 ms |
+| Page weight (own requests) | 12.3 MB | 12.3 MB | 12.3 MB | n/a |
 | JavaScript heap after load | 16.3 MB (500 blocks: 31.6 MB) | not exposed | not exposed | n/a |
 
-Honest limits: the server is on the loopback address, so there is no network time; a 12 MB page over a real connection needs its own estimate (the CanvasKit file is 7.2 MB, 2.9 MB compressed). The 500 block action time is a command on the scene graph, not a measured drag and render of 500 blocks. The software renderer is probably slower than a laptop GPU, and the 4 times CPU slowdown covers the processor only. The proof page loads Vue and the SDK together; in the application the Vue runtime is already loaded by the shell, so the page is an upper bound for the on-demand bundle.
+The figures are those of the last full run; they move by tens of milliseconds between runs. Honest limits: the server is on the loopback address, so there is no network time; a 12 MB page over a real connection needs its own estimate (the CanvasKit file is 7.2 MB, 2.9 MB compressed). The 500 block action time is a command on the scene graph, not a measured drag and render of 500 blocks. The software renderer is probably slower than a laptop GPU, and the 4 times CPU slowdown covers the processor only. The proof page loads Vue and the SDK together; in the application the Vue runtime is already loaded by the shell, so the page is an upper bound for the on-demand bundle.
 
 ## P10: Shift move
 
-**Verdict: met in the adapter.** The library has no notion of this move; its own Shift behaviour is an axis lock.
+**Verdict: partly met in the adapter.** Recognising the gesture, finding the target, the label, the push inside the target and keeping the library from reparenting are met. Several rules of ADR 0036 and the scenarios are not built (listed below). The library has no notion of this move; its own Shift behaviour is an axis lock.
 
 `shift-move.ts`:
 - `judge` finds the innermost Domain or Cluster under the pointer for a single selected Activity or Cluster (a Cluster under the pointer counts as its Domain for a Cluster), refuses another kind of Area, a Cluster not under a Domain and an existing name, and treats the current parent, empty space and a Domain as a plain drag. Label `Naar <doel>` (with ` (wordt smaller)` when the block is wider than the target) or `Kan hier niet: <reden>`.
@@ -280,7 +287,8 @@ Evidence:
 - `tests/e2e/proof/p10-shift.spec.ts`, nine runs (three tests in three engines). Control: without the adapter the library locks a Shift-drag to one axis (x stays, y moves). With the adapter a Shift-drag moves on both axes, shows "Naar Supporting activities" over a valid Domain and "Kan hier niet: ander soort gebied" over the Financial Domain, emits exactly one intent on release over the valid Domain (inside the target's width), does not emit one over the invalid Domain, without Shift or with two blocks selected, leaves the library's reparent attempts at zero for the Shift release, restores the scene byte for byte through `revertMove` with nothing left to undo, and keeps a Shift-click without movement as add to selection. Screenshots: `wp-e0-evidence/p10-label-valid-<engine>.png` and `p10-label-invalid-<engine>.png`.
 
 Findings:
-- Shift pressed before the mouse button goes down starts a selection in the library, not a drag. The proof decides at release (as FR for the Shift move says), so Shift held at release is what counts.
+- Shift pressed before the mouse button goes down starts a selection in the library, not a drag. The tests therefore press Shift during the drag; the proof decides at release (ADR 0036), so Shift held at release is what counts. A drag that starts with Shift already down is not a move in this proof.
+- Not built, against ADR 0036, the adapter contract and the scenarios: the refusal of the Unknown allocation as a target; the exact messages of Invoeren (the proof's labels "ander soort gebied" and "de naam bestaat daar al" are its own wording, and the area rule compares the fixture's area kind field, not the kinds of a real model); growing the target in height when the block is released below its content (the proof pushes the block up inside the target, which is what `landing` and its test do); pushing and narrowing the Manual children of a block wider than its target; Items and Groups. A Shift-drag with two blocks selected is a plain drag in the proof, as the contract says, which differs from the scenario line that says the selection becomes that block.
 - `commitMove` (record the move on the undo stack after the server accepted) is not exercised by the proof: it is adapter work in DT and depends on the server request that does not exist yet.
 
 ## Findings for the product owner and for the spec
@@ -292,25 +300,28 @@ Findings:
 5. **A packaging defect of the library** (P1): two worker URLs name a file that is not in the package; DT needs the build repair or a later release.
 6. **Fonts are not in the repository** (P2): FR-112 and ADR 0017 need the Inter and Space Grotesk files in the delivered source; the proof took Inter from the library's assets and Space Grotesk from an npm package.
 7. **Keyboard operation** (P5): the SDK binds no keys; kickoff 18.4 is the adapter's work.
-8. **Three engines in CI** (environment): Firefox needs a virtual display or a software GL setup for WebGL; the container needed system libraries for WebKit and Firefox.
+8. **Unbuilt P10 rules** (P10): Unknown allocation, the Invoeren messages, target growth, Manual children and Items and Groups are DT work, not yet proven.
+9. **Three engines in CI** (environment): Firefox needs a virtual display or a software GL setup for WebGL; the container needed system libraries for WebKit and Firefox.
 
 ## Recommendation
 
 Under the rule of the task list (go when P1 to P10 are met, where P4, P5, P10 and alignment may be met in the adapter; no-go when P2, P3, P6 or P7 fail; other misses go to the product owner):
 
-- P2, P3 and P7 are met (P7 within 0.03 px of its limit in one engine).
-- P4, P5, P8, P9 and P10 are met, P4, P5 and P10 in the adapter.
-- P1 falls under "other misses": it is partly met and goes to the product owner (audit, pins of transitive packages, the repair, the `vue` package).
+- P2 and P3 are met.
+- P4, P5, P8 and P9 are met (P4 and P5 in the adapter; P9 on this machine only).
+- P1 falls under "other misses": partly met, for the product owner (audit, transitive pins, the build repair, the `vue` package).
+- P10 is partly met in the adapter: the gesture, target, label and the block on the library's reparenting are met; several ADR 0036 rules are not built yet. These are adapter work in DT, not library limits.
 - **P6 fails its second half**: the asset check of FR-098 reports outside URL strings in the bundle. By the rule, a P6 failure is a no-go.
+- **P7 misses its limit in Chromium by 0.03 px** (vertical text offset 1.03 px against 1 px; the top edge of the ink differs by 2 px, a tested tolerance). By the rule, a P7 failure is a no-go; taken literally the miss is real, taken by size it is a calibration in the adapter.
 
-**My recommendation: ask the product owner one question. Does FR-098 apply to URL strings in the vendored code that are never requested, given that the proof shows zero outside requests in three engines and the application's policy (`connect-src 'self'`) would refuse one? If yes, the answer is no-go and Tekenen stops (FR-115). If no, because the policy and a runtime network test guard the real risk, then FR-098 is amended to say so, and my recommendation is go, with the findings above carried into DT as tasks.** I lean to go on that amendment: the runtime evidence is strong and the alternative (rewriting vendor code at build time) adds maintenance risk at every upgrade for no change in behaviour. That is advice; the decision is the product owner's.
+**My recommendation: do not read the rule mechanically on either point, and let the product owner decide. (a) Does FR-098 apply to URL strings in the vendored code that are never requested, given zero outside requests in three engines and a policy (`connect-src 'self'`) that would refuse one? If yes, the answer is no-go and Tekenen stops (FR-115). If no, FR-098 is amended to say so. (b) Is a 0.03 px vertical text offset in one engine, removable by a per-font offset in the adapter, within the spirit of P7? If the product owner answers no on (a), or yes on neither, the result is no-go. If the answer is "tolerated" on (a) and "calibrate in the adapter" on (b), my recommendation is go, with the findings above carried into DT as tasks.** I lean to go on those two amendments: the runtime evidence is strong, the visible difference is under one pixel, and the alternative (rewriting vendor code at build time) adds maintenance risk at every upgrade for no change in behaviour. That is advice; the decision is the product owner's.
 
 ## Request for the product owner's decision
 
 Please decide, and record the decision through T030 (`docs/adr/0040-wp-e0-decision.md`):
 
 1. **Go or no-go for Tekenen (DT).** A no-go stops DT only; D1, D2 and D3 do not wait for it (FR-115).
-2. **If go: the reading of FR-098** (never-requested URL strings in vendored code: amended or enforced by a build step).
+2. **If go: the reading of FR-098** (never-requested URL strings in vendored code: amended or enforced by a build step) and **of P7** (the 0.03 px vertical offset in Chromium: calibrated in the adapter).
 3. **If go: whether the four audit findings in the library's dependency chain are accepted.**
 
 ## Evidence index

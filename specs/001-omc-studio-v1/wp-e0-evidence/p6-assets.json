@@ -4,8 +4,8 @@
     "XML namespace identifiers": [
       "https://www.w3.org/TR/WGSL/#finite-math-assumption (ssets/core-DgrSIzwu.js)",
       "https://www.w3.org/TR/WGSL/#address-space-layout-constraints (ssets/core-DgrSIzwu.js)",
-      "http://www.w3.org/XML/1998/namespace (ssets/page-CASM6TtK.js)",
-      "http://www.w3.org/2000/xmlns/ (ssets/page-CASM6TtK.js)"
+      "http://www.w3.org/XML/1998/namespace (ssets/page-BLaSwh19.js)",
+      "http://www.w3.org/2000/xmlns/ (ssets/page-BLaSwh19.js)"
     ],
     "documentation and example links": [
       "https://github.com/software-mansion/TypeGPU/issues (ssets/core-DgrSIzwu.js)",
@@ -18,8 +18,8 @@
       "https://github.com/csstree/csstree/issues (ssets/layout-VfCsTgeH.js)",
       "https://github.com/opentypejs/opentype.js/issues/183#issuecomment-1147228025 (ssets/layout-VfCsTgeH.js)",
       "https://github.com/opentypejs/opentype.js/issues/675 (ssets/layout-VfCsTgeH.js)",
-      "https://vuejs.org/error-reference/#runtime- (ssets/page-CASM6TtK.js)",
-      "https://www.speedscope.app/file-format-schema.json (ssets/page-CASM6TtK.js)",
+      "https://vuejs.org/error-reference/#runtime- (ssets/page-BLaSwh19.js)",
+      "https://www.speedscope.app/file-format-schema.json (ssets/page-BLaSwh19.js)",
       "https://api.example.com/v1。 (ssets/zh-cn-Ddr-7qnV.js)",
       "http://localhost:11434/v1） (ssets/zh-cn-Ddr-7qnV.js)"
     ],
@@ -36,7 +36,7 @@
       "https://fonts.googleapis.com (ssets/layout-VfCsTgeH.js)",
       "https://fonts.google.com/metadata/icons?key=material_symbols&incomplete=true (ssets/layout-VfCsTgeH.js)",
       "https://cdn.jsdelivr.net/npm (ssets/layout-VfCsTgeH.js)",
-      "https://api.iconify.design (ssets/page-CASM6TtK.js)"
+      "https://api.iconify.design (ssets/page-BLaSwh19.js)"
     ],
     "AI provider key pages": [
       "https://openrouter.ai/keys (ssets/layout-VfCsTgeH.js)",
