@@ -24,5 +24,7 @@
     "areas.supporting_activities.level_1": "Domein",
     "areas.supporting_activities.level_2": "Activiteit",
     "audit.action.password_changed": "Wachtwoord gewijzigd",
-    "audit.action.second_factor_changed": "Tweede factor gewijzigd"
+    "audit.action.second_factor_changed": "Tweede factor gewijzigd",
+    "validation.text_max": ":label: gebruik hoogstens :max tekens",
+    "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan"
 }
