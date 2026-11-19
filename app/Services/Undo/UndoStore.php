@@ -97,7 +97,7 @@ class UndoStore
                 continue;
             }
 
-            if ($row['parent_id'] !== null && Element::query()->whereKey($row['parent_id'])->doesntExist()) {
+            if ($row['parent_id'] !== null && Element::query()->whereKey($row['parent_id'])->whereNull('archived_at')->doesntExist()) {
                 $this->refuse('undo_parent_gone');
             }
 

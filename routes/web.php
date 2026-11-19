@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
+use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
@@ -104,4 +105,13 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/canvases/{canvas}/view', CanvasViewController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/elements')->group(function () {
+    Route::post('/', [ElementController::class, 'store']);
+    Route::patch('/{element}', [ElementController::class, 'update']);
+    Route::post('/{element}/reorder', [ElementController::class, 'reorder']);
+    Route::post('/{element}/archive', [ElementController::class, 'archive']);
+    Route::post('/{element}/restore', [ElementController::class, 'restore']);
+    Route::delete('/{element}', [ElementController::class, 'destroy']);
 });
