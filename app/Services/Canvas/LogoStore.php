@@ -26,23 +26,28 @@ class LogoStore
 
     public function store(Organisation $organisation, UploadedFile $file): Organisation
     {
-        [$bytes, $type] = $this->verified($file);
+        $this->assertWritable($organisation);
 
-        return $this->writes->run([$organisation], function () use ($organisation, $bytes, $type) {
+        [$bytes, $type] = $this->verified($file);
+        $image = $this->reencoded($bytes, $type);
+        $path = self::DIRECTORY.'/'.Str::random(40).'.'.self::extension($type);
+
+        $previous = $this->writes->run([$organisation], function () use ($organisation, $image, $path) {
             $this->assertWritable($organisation);
 
-            $previous = $organisation->logo_path;
-            $path = self::DIRECTORY.'/'.Str::random(40).'.'.self::extension($type);
+            $replaced = $organisation->logo_path;
 
-            Storage::disk(self::DISK)->put($path, $this->reencoded($bytes, $type));
-            $organisation->update(['logo_path' => $path]);
+            Storage::disk(self::DISK)->put($path, $image);
+            $organisation->forceFill(['logo_path' => $path])->save();
 
-            if (is_string($previous) && $previous !== '') {
-                Storage::disk(self::DISK)->delete($previous);
-            }
-
-            return $organisation;
+            return $replaced;
         });
+
+        if (is_string($previous) && $previous !== '' && $previous !== $path) {
+            Storage::disk(self::DISK)->delete($previous);
+        }
+
+        return $organisation;
     }
 
     public static function contentType(string $path): string

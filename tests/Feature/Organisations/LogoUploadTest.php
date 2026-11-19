@@ -18,6 +18,10 @@ class LogoUploadTest extends TestCase
 
     private const MESSAGE = 'Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels';
 
+    private const MARKER = 'camera-metadata-marker';
+
+    private const MAXIMUM_BYTES = 1048576;
+
     private LogoStore $store;
 
     protected function setUp(): void
@@ -102,7 +106,8 @@ class LogoUploadTest extends TestCase
 
         $stored = (string) Storage::disk('local')->get($one);
         $this->assertSame([12, 8, IMAGETYPE_PNG], array_slice((array) getimagesizefromstring($stored), 0, 3));
-        $this->assertStringNotContainsString('omc-studio-secret', $stored);
+        $this->assertStringContainsString(self::MARKER, (string) file_get_contents($this->upload(12, 8)->getRealPath()));
+        $this->assertStringNotContainsString(self::MARKER, $stored);
 
         $this->assertSame(1, AuditEntry::where('subject_type', 'organisation')->where('subject_id', $first->id)->where('action', 'changed')->count());
     }
@@ -122,17 +127,34 @@ class LogoUploadTest extends TestCase
         $this->assertMatchesRegularExpression('#^logos/[A-Za-z0-9]{40}\.jpg$#', $current);
         Storage::disk('local')->assertMissing($previous);
         Storage::disk('local')->assertExists($current);
+        $this->assertStringNotContainsString(self::MARKER, (string) Storage::disk('local')->get($current));
+    }
+
+    public function test_a_file_of_exactly_one_megabyte_is_accepted(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = Organisation::factory()->create();
+        $file = $this->upload(12, 8, IMAGETYPE_PNG, self::MAXIMUM_BYTES);
+
+        $this->assertSame(self::MAXIMUM_BYTES, $file->getSize());
+
+        $this->store->store($organisation, $file);
+
+        $this->assertNotNull($organisation->fresh()?->logo_path);
     }
 
     public function test_the_logo_route_serves_the_stored_image_with_a_fixed_content_type(): void
     {
         $organisation = $this->organisationWithStoredLogo('png');
 
-        $this->actingAs(User::factory()->create())
+        $response = $this->actingAs(User::factory()->create())
             ->get('/organisations/'.$organisation->id.'/logo')
             ->assertOk()
             ->assertHeader('Content-Type', 'image/png')
             ->assertHeader('X-Content-Type-Options', 'nosniff');
+
+        $this->assertSame(Storage::disk('local')->get((string) $organisation->logo_path), $response->getContent());
 
         $jpeg = $this->organisationWithStoredLogo('jpg');
 
@@ -183,7 +205,7 @@ class LogoUploadTest extends TestCase
         return Organisation::factory()->create(['logo_path' => $path]);
     }
 
-    private function upload(int $width, int $height, int $type = IMAGETYPE_PNG): UploadedFile
+    private function upload(int $width, int $height, int $type = IMAGETYPE_PNG, ?int $size = null): UploadedFile
     {
         $image = imagecreatetruecolor($width, $height);
         imagefill($image, 0, 0, imagecolorallocate($image, 10, 20, 30));
@@ -192,7 +214,28 @@ class LogoUploadTest extends TestCase
         $type === IMAGETYPE_PNG ? imagepng($image) : imagejpeg($image);
         $bytes = (string) ob_get_clean();
 
-        return UploadedFile::fake()->createWithContent('logo.'.($type === IMAGETYPE_PNG ? 'png' : 'jpg'), $bytes);
+        $text = self::MARKER;
+
+        if ($size !== null) {
+            $text = str_pad(self::MARKER, $size - strlen($this->commented($bytes, $type, '')), 'p');
+        }
+
+        return UploadedFile::fake()->createWithContent(
+            'logo.'.($type === IMAGETYPE_PNG ? 'png' : 'jpg'),
+            $this->commented($bytes, $type, $text)
+        );
+    }
+
+    private function commented(string $bytes, int $type, string $text): string
+    {
+        if ($type === IMAGETYPE_JPEG) {
+            return substr($bytes, 0, 2)."\xFF\xFE".pack('n', strlen($text) + 2).$text.substr($bytes, 2);
+        }
+
+        $data = 'Comment'."\0".$text;
+        $chunk = pack('N', strlen($data)).'tEXt'.$data.pack('N', crc32('tEXt'.$data));
+
+        return substr($bytes, 0, 33).$chunk.substr($bytes, 33);
     }
 
     private function png(int $width, int $height): string
