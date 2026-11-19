@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\MustChangePassword;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
@@ -17,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
-        $middleware->web(append: [HandleInertiaRequests::class, EncryptHistoryMiddleware::class]);
+        $middleware->web(append: [HandleInertiaRequests::class, EncryptHistoryMiddleware::class, MustChangePassword::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->context(fn () => app()->bound('request') ? ['route' => request()->route()?->getName()] : []);

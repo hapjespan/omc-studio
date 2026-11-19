@@ -52,6 +52,14 @@
     "auth.password_required": "Wachtwoord: vul je wachtwoord in",
     "auth.sign_in_title": "Inloggen",
     "auth.sign_in_submit": "Inloggen",
+    "auth.new_password_title": "Nieuw wachtwoord kiezen",
+    "auth.new_password_intro": "Kies een nieuw wachtwoord van minstens 12 tekens voordat je verder gaat",
+    "auth.new_password_submit": "Wachtwoord opslaan",
+    "auth.password_changed": "Je nieuwe wachtwoord is opgeslagen",
+    "auth.password_reused": "Wachtwoord: kies een ander wachtwoord dan het eenmalige wachtwoord",
+    "auth.one_time_password_expired": "Je eenmalige wachtwoord is verlopen. Vraag een nieuw wachtwoord aan",
+    "validation.password_confirmed": "Herhaal wachtwoord: de twee wachtwoorden zijn niet gelijk",
     "fields.email": "E-mailadres",
-    "fields.password": "Wachtwoord"
+    "fields.password": "Wachtwoord",
+    "fields.password_confirmation": "Herhaal wachtwoord"
 }
