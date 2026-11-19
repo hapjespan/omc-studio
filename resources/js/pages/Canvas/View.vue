@@ -12,10 +12,12 @@ import FinancialCard, { areaLine, cardLines } from '../../canvas/overlay/Financi
 import OverlayLegend from '../../canvas/overlay/OverlayLegend.vue';
 import { visitOverlay } from '../../canvas/overlay/query';
 import { shareColour } from '../../canvas/overlay/ShareColour';
+import Breakdown from '../../canvas/overlay/Breakdown.vue';
 import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
 import { detail, openDetail } from '../../shell/detail';
+import ElementFiguresPanel from './ElementFigures.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, DrawnBlock, TextMeasurer } from '../../layout';
@@ -36,6 +38,11 @@ const props = defineProps<{
 const costAreas = computed(() => new Set(props.layout.areas.filter((area) => area.kind === 'activities').map((area) => area.key)));
 const domainCounts = computed(() => descendantCounts(props.elements));
 const cardFigures = (block: DrawnBlock): ElementFigures | null => (props.figures && block.kind === 'domain' && costAreas.value.has(block.areaKey) ? (props.figures.elements[block.id] ?? null) : null);
+const selectedFigures = computed(() => {
+    const element = props.elements.find((candidate) => candidate.id === selectedId.value);
+    return props.figures && element && costAreas.value.has(element.area) ? (props.figures.elements[element.id] ?? null) : null;
+});
+const hoverBlock = (id: string | null): DrawnBlock | null => drawn.value?.blocks.find((candidate) => candidate.id === id) ?? null;
 const cardColours = computed(() => Object.fromEntries((drawn.value?.blocks ?? []).flatMap((block) => {
     const figures = cardFigures(block);
     return figures ? [[block.id, shareColour(figures.shareBp, block.style.fill)]] : [];
@@ -85,7 +92,11 @@ const fit = (): void => {
                 <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
                 <p v-else-if="areaTotal(block)" class="absolute right-3 top-1 text-[12px] font-semibold" :style="{ color: block.style.textColour }" data-area-total>{{ areaTotal(block) }}</p>
             </template>
+            <template #hover="{ id }">
+                <Breakdown v-if="id && hoverBlock(id) && cardFigures(hoverBlock(id)!)" :key="id" :element-id="id" />
+            </template>
         </CanvasView>
     </div>
     <ViewDetail v-if="content && detail.open" :content="content" />
+    <ElementFiguresPanel v-if="selectedFigures && selectedId && detail.open" :element-id="selectedId" :figures="selectedFigures" />
 </template>

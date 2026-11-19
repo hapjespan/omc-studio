@@ -920,5 +920,14 @@
     "overlay.legend.scale": "Hoe donkerder de kaart, hoe groter het aandeel van het totaal; het cijfer staat er altijd bij",
     "overlay.legend.bar": "Balk: het gevulde deel is de prognose, de streep is het budget",
     "overlay.legend.lists": "Lijst-areas (Actoren, Kanalen, Waardeproposities) hebben geen kosten en tonen geen bedragen",
-    "overlay.legend.modality": "Modaliteit"
+    "overlay.legend.modality": "Modaliteit",
+    "overlay.breakdown": "Uitsplitsing per kostenpost",
+    "overlay.detail.direct": "Direct bedrag",
+    "overlay.detail.total": "Totaal bedrag",
+    "overlay.detail.share": "Aandeel van totaal",
+    "overlay.detail.forecast": "Prognose",
+    "overlay.detail.run": "Run",
+    "overlay.detail.change": "Change",
+    "overlay.detail.undetermined": "Onbepaald",
+    "overlay.detail.fte": "FTE"
 }
