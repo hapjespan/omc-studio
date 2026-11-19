@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CanvasKind;
 use App\Enums\CostKind;
 use App\Http\Requests\CostRecordRequest;
 use App\Models\CostRecord;
+use App\Models\FinalisedYear;
 use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Finance\CostRecordList;
@@ -26,11 +28,22 @@ class CostRecordController extends Controller
         return Inertia::render('Finance/CostRecords', $this->list->run($organisation, $year, $request->query()) + [
             'organisation' => ['id' => $organisation->id, 'name' => $organisation->name, 'archived' => $organisation->archived_at !== null],
             'year' => $year?->year,
+            'canvases' => $organisation->canvases()->where('kind', CanvasKind::Canvas)->whereNull('archived_at')->orderBy('name')->get(['id', 'name'])->all(),
+            'finalised' => $this->finalised($organisation),
             'years' => $years->map(fn ($fiscalYear) => ['id' => $fiscalYear->id, 'year' => $fiscalYear->year])->all(),
             'owners' => $organisation->owners()->orderBy('name_normalised')->get(['id', 'name'])->all(),
             'applications' => $organisation->applications()->orderBy('name_normalised')->get(['id', 'name'])->all(),
             'costKinds' => array_map(fn (CostKind $kind) => $kind->value, CostKind::cases()),
         ]);
+    }
+
+    /** @return list<array{canvas_id: int, year: int, at: string, by: string|null}> */
+    private function finalised(Organisation $organisation): array
+    {
+        return FinalisedYear::with(['fiscalYear', 'finaliser'])
+            ->whereIn('canvas_id', $organisation->canvases()->select('id'))
+            ->orderBy('id')->get()
+            ->map(fn (FinalisedYear $row) => ['canvas_id' => $row->canvas_id, 'year' => $row->fiscalYear->year, 'at' => $row->finalised_at->format('d-m-Y'), 'by' => $row->finaliser?->name])->all();
     }
 
     public function store(CostRecordRequest $request, Organisation $organisation): RedirectResponse

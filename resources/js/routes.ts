@@ -60,5 +60,8 @@ export const routes = {
     costRecordYear: (costRecord: Id, year: number) => `/cost-records/${costRecord}/years/${year}`,
     fiscalYears: (organisation: Id) => `/organisations/${organisation}/fiscal-years`,
     fiscalYear: (fiscalYear: Id) => `/fiscal-years/${fiscalYear}`,
+    reopenYear: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/reopen`,
+    finaliseYear: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/finalise`,
+    carryOver: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/carry-over`,
     undo: (token: string) => `/undo/${token}`,
 };

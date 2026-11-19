@@ -5,11 +5,12 @@ import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import TextField from '../../components/fields/TextField.vue';
 import ConfirmDelete from '../../components/list/ConfirmDelete.vue';
+import Dialog from '../../components/overlays/Dialog.vue';
 import SidePanel from '../../components/overlays/SidePanel.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
-const props = defineProps<{ organisationId: number; years: { id: number; year: number }[]; writable: boolean }>();
+const props = defineProps<{ organisationId: number; years: { id: number; year: number }[]; writable: boolean; canvases?: { id: number; name: string }[]; finalised?: { canvas_id: number; year: number; at: string; by: string | null }[] }>();
 const open = defineModel<boolean>('open', { default: false });
 
 const page = usePage();
@@ -17,6 +18,12 @@ const errors = computed(() => ((page.props.errors as Record<string, unknown>).fi
 const year = ref('');
 const removing = ref<{ id: number; year: number } | null>(null);
 const confirmOpen = computed({ get: () => removing.value !== null, set: (value) => { if (!value) removing.value = null; } });
+const reopening = ref<{ canvas: { id: number; name: string }; year: number } | null>(null);
+const reopenOpen = computed({ get: () => reopening.value !== null, set: (value) => { if (!value) reopening.value = null; } });
+const stateOf = (canvasId: number, year: number) => props.finalised?.find((row) => row.canvas_id === canvasId && row.year === year);
+function reopen(): void {
+    if (reopening.value) router.post(routes.reopenYear(reopening.value.canvas.id, reopening.value.year), { confirm: true }, { ...options, onFinish: () => (reopening.value = null) });
+}
 const options = { errorBag: 'fiscalYears', preserveScroll: true, preserveState: true };
 
 function add(): void {
@@ -38,8 +45,24 @@ const remove = (): void => {
             <li v-for="item in years" :key="item.id" class="flex items-center gap-3 text-[13px]">
                 <span>{{ item.year }}</span>
                 <button v-if="writable" type="button" :aria-label="`${t('list.delete')} ${item.year}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="removing = item">{{ t('list.delete') }}</button>
+                <ul v-if="canvases?.length" :aria-label="`${t('fiscal_years.canvases')} ${item.year}`" class="flex flex-col gap-1">
+                    <li v-for="canvas in canvases" :key="canvas.id" class="flex items-center gap-2">
+                        <span>{{ canvas.name }}:</span>
+                        <template v-if="stateOf(canvas.id, item.year)">
+                            <span>{{ t('fiscal_years.canvas_final', { date: stateOf(canvas.id, item.year)?.at ?? '', name: stateOf(canvas.id, item.year)?.by ?? '' }) }}</span>
+                            <button v-if="writable" type="button" :aria-label="`${t('fiscal_years.reopen')} ${item.year} ${canvas.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="reopening = { canvas, year: item.year }">{{ t('fiscal_years.reopen') }}</button>
+                        </template>
+                        <span v-else>{{ t('fiscal_years.canvas_open') }}</span>
+                    </li>
+                </ul>
             </li>
         </ul>
         <ConfirmDelete v-if="removing" v-model:open="confirmOpen" :name="String(removing.year)" :consequence="null" @confirm="remove" />
+        <Dialog v-if="reopening" v-model:open="reopenOpen" :title="t('fiscal_years.reopen_title', { year: reopening.year, canvas: reopening.canvas.name })" :description="t('fiscal_years.reopen_description')">
+            <div class="mt-3 flex gap-2">
+                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="reopenOpen = false">{{ t('list.cancel') }}</button>
+                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="reopen">{{ t('fiscal_years.reopen_confirm') }}</button>
+            </div>
+        </Dialog>
     </SidePanel>
 </template>

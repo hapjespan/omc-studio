@@ -14,7 +14,7 @@ import { routes } from '../../routes';
 
 export type Option = { id: number; name: string };
 
-const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
+const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; year: number | null; years: { id: number; year: number }[]; canvases?: { id: number; name: string }[]; finalised?: { canvas_id: number; year: number; at: string; by: string | null }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
 
 const page = usePage();
 watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | undefined)?.status && announce((flash as { status: string }).status));
@@ -78,7 +78,7 @@ function load(query: ListState, year: number | null = props.year): void {
     <Head :title="t('cost_records.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('cost_records.title') }}: {{ organisation.name }}</h1>
     <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
-    <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :writable="!organisation.archived" />
+    <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :canvases="canvases" :finalised="finalised" :writable="!organisation.archived" />
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
         <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
