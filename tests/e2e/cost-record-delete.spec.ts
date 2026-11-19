@@ -34,8 +34,9 @@ test('archive hides the row, Toon gearchiveerd marks it as text and Terugzetten 
     await page.getByLabel('Toon gearchiveerd').check();
     await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('Gearchiveerd');
     await page.getByRole('button', { name: 'Terugzetten Licentie' }).click();
-    await page.getByLabel('Toon gearchiveerd').uncheck();
     await expect(page.getByRole('row', { name: /Licentie/ })).not.toContainText('Gearchiveerd');
+    await page.getByLabel('Toon gearchiveerd').uncheck();
+    await expect(page.getByRole('row', { name: /Licentie/ })).toBeVisible();
 });
 
 test('a bulk deletion reports deleted and skipped rows', async ({ page }) => {
