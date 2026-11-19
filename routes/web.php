@@ -90,3 +90,14 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
     Route::post('/{organisation}/archive', [OrganisationController::class, 'archive']);
     Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });
+
+use App\Http\Controllers\ElementController;
+
+Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/elements')->group(function () {
+    Route::post('/', [ElementController::class, 'store']);
+    Route::patch('/{element}', [ElementController::class, 'update']);
+    Route::post('/{element}/reorder', [ElementController::class, 'reorder']);
+    Route::post('/{element}/archive', [ElementController::class, 'archive']);
+    Route::post('/{element}/restore', [ElementController::class, 'restore']);
+    Route::delete('/{element}', [ElementController::class, 'destroy']);
+});
