@@ -7,6 +7,8 @@ import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
+defineProps<{ flash?: { status?: string | null } }>();
+
 const form = useForm({ email: '', password: '' });
 
 function submit(): void {
@@ -20,6 +22,7 @@ function submit(): void {
 <template>
     <main class="mx-auto flex max-w-sm flex-col gap-4 p-6">
         <h1 class="text-[20px] font-semibold text-[#171B21]">{{ t('auth.sign_in_title') }}</h1>
+        <p v-if="flash?.status" role="status" class="rounded-md bg-[#EEF2F7] px-3 py-2 text-[13px] text-[#171B21]">{{ flash.status }}</p>
         <ErrorSummary :errors="form.errors" />
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <TextField id="email" v-model="form.email" :label="t('fields.email')" type="email" autocomplete="username" :error="form.errors.email" />

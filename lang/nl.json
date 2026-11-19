@@ -58,6 +58,7 @@
     "auth.password_changed": "Je nieuwe wachtwoord is opgeslagen",
     "auth.password_reused": "Wachtwoord: kies een ander wachtwoord dan het eenmalige wachtwoord",
     "auth.one_time_password_expired": "Je eenmalige wachtwoord is verlopen. Vraag een nieuw wachtwoord aan",
+    "auth.session_ended_absolute": "Je sessie is na 12 uur beëindigd. Log opnieuw in",
     "validation.password_confirmed": "Herhaal wachtwoord: de twee wachtwoorden zijn niet gelijk",
     "fields.email": "E-mailadres",
     "fields.password": "Wachtwoord",
