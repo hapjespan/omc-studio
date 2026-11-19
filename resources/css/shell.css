@@ -68,6 +68,7 @@
 
     .shell-menu-button {
         display: inline-block;
+        margin-left: auto;
     }
 
     .shell-tabs:not([data-open]) {

@@ -21,6 +21,9 @@ test.describe('at 320 CSS pixels', () => {
         await expect(menu).toHaveAttribute('aria-expanded', 'true');
         await expect(tabs.getByRole('link')).toHaveText(['Overzicht', 'Beheer']);
         expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
+
+        await page.keyboard.press('Tab');
+        await expect(tabs.getByRole('link', { name: 'Overzicht' })).toBeFocused();
         await expectNoAxeViolations(page);
     });
 
