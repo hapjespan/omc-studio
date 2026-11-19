@@ -25,6 +25,14 @@ class ViewAccessTest extends TestCase
         }
     }
 
+    public function test_the_shell_gets_the_organisation_of_the_canvas(): void
+    {
+        $canvas = Canvas::factory()->create();
+
+        $this->actingAs(User::factory()->administrator()->create())->get("/canvases/{$canvas->id}/view")
+            ->assertInertia(fn (Assert $page) => $page->where('canvas.organisation.id', $canvas->organisation_id));
+    }
+
     public function test_an_archived_canvas_and_a_template_open_read_only(): void
     {
         $archived = Canvas::factory()->create(['archived_at' => now()]);

@@ -50,7 +50,7 @@ test('a bulk deletion reports deleted and skipped rows', async ({ page }) => {
     await page.getByLabel('Alle rijen selecteren').check();
     await page.getByRole('button', { name: 'Verwijderen', exact: true }).first().click();
 
-    await expect(page.getByText('2 verwijderd, 1 overgeslagen')).toBeVisible();
+    await expect(page.getByText('2 verwijderd, 1 overgeslagen').first()).toBeVisible();
     await expect(page.getByText('Drie: 2026 is definitief in canvas Strategie')).toBeVisible();
     await expect(page.getByRole('row', { name: /Een/ })).toHaveCount(0);
 

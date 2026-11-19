@@ -27,7 +27,7 @@ test('Yearly figures are saved and the Undetermined share shows', async ({ page 
     await expect(panel.getByText('Onbepaald deel: 10,00%')).toBeVisible();
     await panel.getByRole('button', { name: 'Jaarwaarden opslaan' }).click();
 
-    await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('€ 12.500,00');
+    await expect(page.locator('tr', { hasText: 'Licentie' })).toContainText('€ 12.500,00');
 });
 
 test('refusals show next to the field and values are kept', async ({ page }) => {
@@ -57,11 +57,11 @@ test('Ongedaan maken restores deleted Yearly figures with their Allocation sets'
 
     await panel.getByRole('button', { name: 'Jaarwaarden verwijderen' }).click();
     await page.getByRole('dialog', { name: '2026 verwijderen?' }).getByRole('button', { name: 'Verwijderen' }).click();
-    await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('geen jaarwaarden');
+    await expect(page.locator('tr', { hasText: 'Licentie' })).toContainText('geen jaarwaarden');
 
     await expect(panel.getByText('Jaarwaarden verwijderd')).toBeVisible();
     await panel.getByRole('button', { name: 'Ongedaan maken' }).click();
-    await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('€ 1,00');
+    await expect(page.locator('tr', { hasText: 'Licentie' })).toContainText('€ 1,00');
 });
 
 test('a Finalised year refuses with the Canvas name and deletion is counted', async ({ page }) => {
@@ -72,7 +72,7 @@ test('a Finalised year refuses with the Canvas name and deletion is counted', as
     await panel.getByRole('button', { name: 'Jaarwaarden verwijderen' }).click();
     await expect(page.getByRole('dialog', { name: '2026 verwijderen?' })).toContainText('Verwijdert ook 2 toewijzingssets');
     await page.getByRole('dialog', { name: '2026 verwijderen?' }).getByRole('button', { name: 'Verwijderen' }).click();
-    await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('geen jaarwaarden');
+    await expect(page.locator('tr', { hasText: 'Licentie' })).toContainText('geen jaarwaarden');
 
     tinker(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->first(); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Strategie']); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
     await page.reload();

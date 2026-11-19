@@ -11,7 +11,6 @@ class CanvasViewController extends Controller
     public function __invoke(Canvas $canvas): Response
     {
         return Inertia::render('Canvas/View', [
-            'canvas' => ['id' => $canvas->id, 'name' => $canvas->name, 'archived' => $canvas->archived_at !== null],
             'canWrite' => false,
         ]);
     }

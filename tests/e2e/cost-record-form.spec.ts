@@ -37,7 +37,7 @@ test('the form shows every field, saves a Cost record and keeps values on refusa
     await panel.getByLabel('Applicatie').selectOption({ label: 'Planningssysteem' });
     await panel.getByRole('button', { name: 'Opslaan' }).click();
     await expect(panel).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Licentie planning' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Licentie planning', exact: true })).toBeVisible();
 });
 
 test('a duplicate code is refused next to the field', async ({ page }) => {
