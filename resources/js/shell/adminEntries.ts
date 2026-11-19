@@ -9,6 +9,8 @@ export interface AdminEntry {
 const registry: AdminEntry[] = [
     { key: 'users', label: 'shell.admin.users', href: () => routes.users() },
     { key: 'organisations', label: 'shell.admin.organisations', href: () => routes.organisations() },
+    { key: 'owners', label: 'shell.admin.owners', href: () => routes.adminOwners() },
+    { key: 'applications', label: 'shell.admin.applications', href: () => routes.adminApplications() },
     { key: 'audit_log', label: 'shell.admin.audit_log', href: () => routes.auditLog() },
 ];
 
