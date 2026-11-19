@@ -707,5 +707,8 @@
     "jsonx.organisation_name_taken": "Organisatienaam: deze organisatie bestaat al",
     "jsonx.archived_parent": ":location: een actief element hangt onder een gearchiveerd element",
     "jsonx.set_without_figures": ":location: deze kostenpost heeft geen jaarwaarden in dit jaar, dus er kan geen verdeling zijn",
-    "jsonx.finalised_incomplete": ":location: :year kan niet definitief zijn: er is geen verdeling in dit canvas voor :records"
+    "jsonx.finalised_incomplete": ":location: :year kan niet definitief zijn: er is geen verdeling in dit canvas voor :records",
+    "fullx.refused_file": "Bestand: kies een volledige export van deze applicatie van maximaal 50 MB",
+    "fullx.not_empty": "Volledige import kan alleen in een lege applicatie. Verwijder eerst alle organisaties",
+    "fullx.imported_suffix": " (geïmporteerd)"
 }

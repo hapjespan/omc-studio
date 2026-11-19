@@ -101,23 +101,11 @@ class CanvasImport
     private function build(Organisation $organisation, array $data, string $canvasName, array $reused): array
     {
         $organisationId = (int) $organisation->getKey();
-        $years = $this->fiscalYears($organisationId, $data['organisation']['fiscal_years']);
-        $owners = Owner::where('organisation_id', $organisationId)->pluck('id', 'name_normalised')->all();
-        $applications = Application::where('organisation_id', $organisationId)->pluck('id', 'name_normalised')->all();
-
-        foreach ($data['organisation']['owners'] as $name) {
-            $this->entry(Owner::class, $organisationId, $owners, $name);
-        }
-
-        foreach ($data['organisation']['applications'] as $application) {
-            $this->entry(Application::class, $organisationId, $applications, $application['name'], ['supplier' => $application['supplier'] ?? null]);
-        }
+        [$years, $owners, $applications] = $this->prepare($organisationId, $data);
 
         $canvas = Canvas::create(['organisation_id' => $organisationId, 'kind' => CanvasKind::Canvas, 'name' => trim($canvasName)]);
 
-        foreach ($data['canvas']['statements'] as $statement) {
-            Statement::create(['canvas_id' => $canvas->getKey(), ...array_intersect_key($statement, array_flip(['kind', 'title', 'body', 'position']))]);
-        }
+        $this->statements($canvas, $data['canvas']['statements']);
 
         $elements = $this->elements($canvas, $data['canvas']['elements']);
         $records = $this->costRecords($organisationId, $data['cost_records'], $reused, $years, $owners, $applications);
@@ -134,6 +122,55 @@ class CanvasImport
         }
 
         return ['canvas_id' => (int) $canvas->getKey(), 'organisation_id' => $organisationId, 'totals' => $this->totals($data, $reused)];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{array<int, int>, array<string, int>, array<string, int>}
+     */
+    private function prepare(int $organisationId, array $data): array
+    {
+        $years = $this->fiscalYears($organisationId, $data['organisation']['fiscal_years']);
+        $owners = Owner::where('organisation_id', $organisationId)->pluck('id', 'name_normalised')->all();
+        $applications = Application::where('organisation_id', $organisationId)->pluck('id', 'name_normalised')->all();
+
+        foreach ($data['organisation']['owners'] as $name) {
+            $this->entry(Owner::class, $organisationId, $owners, $name);
+        }
+
+        foreach ($data['organisation']['applications'] as $application) {
+            $this->entry(Application::class, $organisationId, $applications, $application['name'], ['supplier' => $application['supplier'] ?? null]);
+        }
+
+        return [$years, $owners, $applications];
+    }
+
+    /** @param list<array<string, mixed>> $statements */
+    private function statements(Canvas $canvas, array $statements): void
+    {
+        foreach ($statements as $statement) {
+            Statement::create(['canvas_id' => $canvas->getKey(), ...array_intersect_key($statement, array_flip(['kind', 'title', 'body', 'position']))]);
+        }
+    }
+
+    /** @param array<string, mixed> $data */
+    public function foundation(string $name, array $data): Organisation
+    {
+        $organisation = $this->organisations->create($name);
+        [$years, $owners, $applications] = $this->prepare((int) $organisation->getKey(), $data);
+        $this->costRecords((int) $organisation->getKey(), $data['cost_records'], [], $years, $owners, $applications, true);
+
+        return $organisation;
+    }
+
+    /** @param array{name: string, statements: list<array<string, mixed>>, elements: list<array<string, mixed>>} $data */
+    public function template(array $data, string $name): Canvas
+    {
+        $template = Canvas::create(['organisation_id' => null, 'kind' => CanvasKind::Template, 'name' => $name]);
+        $this->statements($template, $data['statements']);
+        $this->elements($template, $data['elements']);
+
+        return $template;
     }
 
     /**
@@ -242,9 +279,9 @@ class CanvasImport
      * @param  array<string, int>  $applications
      * @return array<string, string>
      */
-    private function costRecords(int $organisationId, array $rows, array $reused, array $years, array &$owners, array &$applications): array
+    private function costRecords(int $organisationId, array $rows, array $reused, array $years, array &$owners, array &$applications, bool $keepIds = false): array
     {
-        $batch = new CostRecordBatch($this->context, $this->trail, $organisationId);
+        $batch = new CostRecordBatch($this->context, $this->trail, $organisationId, $keepIds);
         $keep = array_flip($reused);
         $map = [];
 

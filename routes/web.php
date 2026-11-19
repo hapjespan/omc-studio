@@ -158,4 +158,6 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
 Route::middleware(['auth', 'can:administer'])->prefix('admin')->group(function () {
     Route::get('/exchange', [FullExchangeController::class, 'page']);
     Route::get('/export/full', [FullExchangeController::class, 'export']);
+    Route::post('/import/full/preview', [FullExchangeController::class, 'preview']);
+    Route::post('/import/full', [FullExchangeController::class, 'commit']);
 });
