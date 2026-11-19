@@ -47,7 +47,7 @@ class CsvUploadRefusalTest extends ExchangeTestCase
     }
 
     #[DataProvider('importers')]
-    public function test_a_binary_file_renamed_csv_is_refused(string $path, string $header): void
+    public function test_a_binary_file_renamed_csv_is_refused(string $path, string $header, string $line): void
     {
         $this->refuse($path, UploadedFile::fake()->createWithContent('import.csv', $header."\n\x00\x01\xff\xfe binary"));
     }
