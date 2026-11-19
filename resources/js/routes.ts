@@ -62,5 +62,8 @@ export const routes = {
     fiscalYear: (fiscalYear: Id) => `/fiscal-years/${fiscalYear}`,
     allocation: (canvas: Id, year?: number, costRecord?: Id) => `/canvases/${canvas}/allocation${year === undefined ? '' : `?year=${year}${costRecord === undefined ? '' : `&cost_record=${costRecord}`}`}`,
     allocationSet: (canvas: Id, year: number, costRecord: Id) => `/canvases/${canvas}/years/${year}/cost-records/${costRecord}/allocation`,
+    reopenYear: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/reopen`,
+    finaliseYear: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/finalise`,
+    carryOver: (canvas: Id, year: number) => `/canvases/${canvas}/years/${year}/carry-over`,
     undo: (token: string) => `/undo/${token}`,
 };
