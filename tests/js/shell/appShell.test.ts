@@ -24,6 +24,13 @@ describe('AppShell', () => {
         expect(html).toContain('href="#main"');
     });
 
+    it('offers a collapsed Menu button that controls the tabs', async () => {
+        const html = await render();
+
+        expect(html).toMatch(/<button[^>]*aria-controls="primary-tabs"[^>]*aria-expanded="false"[^>]*>Menu<\/button>/);
+        expect(html).toContain('id="primary-tabs"');
+    });
+
     it('renders the four landmarks with one main holding the page', async () => {
         const html = await render();
 

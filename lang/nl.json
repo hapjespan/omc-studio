@@ -95,5 +95,6 @@
     "errors.not_found_text": "Deze pagina bestaat niet of is verplaatst.",
     "errors.server_title": "Er is iets misgegaan",
     "errors.server_text": "Probeer het later opnieuw.",
-    "errors.overview": "Overzicht"
+    "errors.overview": "Overzicht",
+    "shell.menu": "Menu"
 }
