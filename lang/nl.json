@@ -420,5 +420,22 @@
     "entry.system": "Systeem",
     "entry.unknown_explanation": "Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld",
     "entry.restore_named": ":name terugzetten",
-    "entry.restored": ":name is teruggezet"
+    "entry.restored": ":name is teruggezet",
+    "view.system": "Systeem",
+    "view.artboard": "Tekenvlak van het canvas",
+    "view.zoom.toolbar": "Zoomen",
+    "view.zoom.in": "Inzoomen",
+    "view.zoom.out": "Uitzoomen",
+    "view.zoom.fit": "Passend maken",
+    "view.empty": "Niet ingevuld",
+    "view.kind.area": "Area",
+    "view.kind.cluster": "Cluster",
+    "view.field.rationale": "Onderbouwing",
+    "view.field.modality": "Modaliteit",
+    "view.modality.common": "Common",
+    "view.modality.adaptive": "Adaptive",
+    "view.modality.specialized": "Specialized",
+    "view.modality.distinct": "Distinct",
+    "view.edge": "Rand A3",
+    "view.overflow": "Niet alles past op het A3-tekenvlak: :count blokken vallen erbuiten"
 }
