@@ -45,7 +45,12 @@ abstract class StructureTestCase extends TestCase
 
     protected function cluster(Element $parent, string $name = 'Werving'): Element
     {
-        return $this->tree()->create($this->canvas, $this->area('primary_activities'), ElementKind::Cluster, $parent->id, ['name' => $name]);
+        return $this->tree()->create($this->canvas, $parent->area, ElementKind::Cluster, $parent->id, ['name' => $name]);
+    }
+
+    protected function activity(Element $parent, string $name = 'Offreren'): Element
+    {
+        return $this->tree()->create($this->canvas, $parent->area, ElementKind::Activity, $parent->id, ['name' => $name]);
     }
 
     protected function refusal(Closure $write): ?string

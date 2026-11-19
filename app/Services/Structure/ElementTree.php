@@ -38,6 +38,52 @@ class ElementTree
         });
     }
 
+    public function move(Element $element, Area|Element $target): Element
+    {
+        $canvas = $element->canvas;
+
+        return $this->writes->run([$canvas], function () use ($canvas, $element, $target) {
+            $this->assertStructureWritable($canvas);
+
+            $element->refresh();
+
+            $area = $target instanceof Area ? $target : $target->area;
+
+            if ($area->kind === 'text') {
+                $this->refuse('direction_no_elements');
+            }
+
+            if ($area->kind !== $element->area->kind) {
+                $this->refuse('move_other_kind');
+            }
+
+            $parent = $this->parent($canvas, $area, $element->kind, $target instanceof Element ? (string) $target->id : null);
+
+            $this->names->assertAvailable($canvas->id, $area->id, $parent?->id, (string) $element->name, (string) $element->id);
+
+            $element->update([
+                'area_id' => $area->id,
+                'parent_id' => $parent?->id,
+                'position' => $this->position($canvas, $area, $element->kind, $parent),
+            ]);
+
+            $this->carry($element);
+
+            return $element;
+        });
+    }
+
+    private function carry(Element $element): void
+    {
+        $children = $element->children()->get();
+
+        foreach ($children as $child) {
+            $child->update(['area_id' => $element->area_id]);
+
+            $this->carry($child);
+        }
+    }
+
     private function parent(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId): ?Element
     {
         if ($area->kind === 'text') {
