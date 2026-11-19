@@ -25,6 +25,10 @@
     "areas.supporting_activities.level_2": "Activiteit",
     "audit.action.password_changed": "Wachtwoord gewijzigd",
     "audit.action.second_factor_changed": "Tweede factor gewijzigd",
+    "rule.canvas_archived": "Dit canvas is gearchiveerd",
+    "rule.organisation_archived": "Deze organisatie is gearchiveerd",
+    "rule.template_write": "Een sjabloon bevat alleen structuur en Koers",
+    "rule.blank_template_write": "Leeg canvas kan niet worden gewijzigd",
     "validation.text_max": ":label: gebruik hoogstens :max tekens",
     "validation.name_forbidden_sign": ":label: het teken > is niet toegestaan"
 }
