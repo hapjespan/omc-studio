@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { t } from '../i18n';
 import { ARTBOARD } from '../layout';
 import type { DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
 import Block from './Block.vue';
 import { contentHeight } from './extent';
+import { isNavigationKey, navigate } from './treeNavigation';
 
 export interface ModalityMark {
     key: string;
@@ -23,6 +24,14 @@ const props = defineProps<{
 }>();
 const scale = computed(() => (props.zoom ?? 100) / 100);
 const height = computed(() => contentHeight(props.drawn));
+const artboard = ref<HTMLElement>();
+const move = (event: KeyboardEvent): void => {
+    const current = (event.target as HTMLElement).closest<HTMLElement>('[data-block]')?.dataset.block;
+    if (!current || !isNavigationKey(event.key)) return;
+    event.preventDefault();
+    const next = navigate(props.drawn.blocks, current, event.key);
+    if (next) artboard.value?.querySelector<HTMLElement>(`[data-block="${CSS.escape(next)}"]`)?.focus();
+};
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null] }>();
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
@@ -33,7 +42,7 @@ const blocks = computed(() => props.drawn.blocks);
 
 <template>
     <div class="relative" :style="{ width: `${ARTBOARD.width * scale}px`, height: `${height * scale}px` }">
-    <div class="absolute left-0 top-0 origin-top-left" :style="{ width: `${ARTBOARD.width}px`, height: `${height}px`, transform: `scale(${scale})` }" data-artboard>
+    <div class="absolute left-0 top-0 origin-top-left" :style="{ width: `${ARTBOARD.width}px`, height: `${height}px`, transform: `scale(${scale})` }" ref="artboard" data-artboard @keydown="move">
         <Block
             v-for="block in blocks"
             :key="block.id"
