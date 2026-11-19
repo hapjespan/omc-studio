@@ -30,8 +30,14 @@
     .shell:has([data-artboard]) .shell-top,
     .shell:has([data-artboard]) .shell-left,
     .shell:has([data-artboard]) #detail-panel,
-    .shell:has([data-artboard]) .shell-main > :not([data-scroller]) {
+    .shell:has([data-artboard]) .shell-main > :not([data-scroller]):not(:has([data-scroller])),
+    .shell:has([data-artboard]) [data-scroller] ~ * {
         display: none !important;
+    }
+
+    .shell:has([data-artboard]) .shell-main > :has([data-scroller]) {
+        display: block !important;
+        margin: 0 !important;
     }
 
     .shell:has([data-artboard]) .shell-main {

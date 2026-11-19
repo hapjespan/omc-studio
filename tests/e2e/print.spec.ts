@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { expect, test } from './support/guards';
+import { seedOverlay } from './support/overlay';
 import { signInAs } from './support/shell';
 import { seedBulkCanvas, seedViewCanvas } from './support/view';
 
@@ -64,4 +66,37 @@ test('without overflow the print dialog opens straight away', async ({ page }) =
     await page.getByRole('button', { name: 'Exporteren' }).click();
     await page.getByRole('menuitem', { name: 'Afdrukken' }).click();
     expect(await page.evaluate(() => (window as unknown as { printed: number }).printed)).toBe(1);
+});
+
+test('Met overlay prints the chosen overlay only when on and keeps text at 6 pt or more', async ({ page }) => {
+    const seed = seedOverlay(`Print ${randomUUID().slice(0, 8)}`);
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
+    await page.evaluate(() => {
+        const state = window as unknown as { layers: number[] };
+        state.layers = [];
+        window.print = () => {
+            state.layers.push(document.querySelectorAll('[data-overlay-card]').length);
+        };
+    });
+    const print = async (): Promise<void> => {
+        await page.getByRole('button', { name: 'Exporteren' }).click();
+        await page.getByRole('menuitem', { name: 'Afdrukken' }).click();
+    };
+    await print();
+    await page.getByRole('switch', { name: 'Met overlay' }).check();
+    await print();
+    const layers = await page.evaluate(() => (window as unknown as { layers: number[] }).layers);
+    expect(layers[0]).toBe(0);
+    expect(layers[1]).toBeGreaterThan(0);
+    await expect(page.locator('[data-overlay-card]').first()).toBeAttached();
+
+    await page.emulateMedia({ media: 'print' });
+    const smallest = await page.evaluate(() => {
+        const sizes = [...document.querySelectorAll('[data-artboard] *')]
+            .filter((node) => node.childNodes.length && [...node.childNodes].some((child) => child.nodeType === 3 && child.textContent?.trim()))
+            .map((node) => parseFloat(getComputedStyle(node).fontSize) * 0.9448);
+        return Math.min(...sizes);
+    });
+    expect(smallest).toBeGreaterThanOrEqual(8);
 });
