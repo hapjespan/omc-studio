@@ -48,3 +48,24 @@ test('changing the Area closes a clean panel', async ({ page }) => {
     await expect(page.getByRole('complementary')).toBeHidden();
     await expect(page.getByRole('status').filter({ hasText: 'Alles opgeslagen' })).toHaveCount(0);
 });
+
+test('a selected row has the ink border of two pixels', async ({ page }) => {
+    await openEntry(page, seed());
+
+    await rowButton(page, 'Spelen').click();
+    const box = rowButton(page, 'Spelen').locator('..');
+    await expect(box).toHaveCSS('border-top-color', 'rgb(23, 27, 33)');
+    await expect(box).toHaveCSS('box-shadow', /rgb\(23, 27, 33\) 0px 0px 0px 1px inset/);
+});
+
+test('changing the Area with unsaved edits keeps the panel and its edits until the question is answered', async ({ page }) => {
+    await openEntry(page, seed());
+
+    await rowButton(page, 'Spelen').click();
+    const panel = page.getByRole('complementary');
+    await panel.getByLabel('Naam').fill('Spelen anders');
+    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Koers/ }).click();
+    await expect(panel.getByRole('alertdialog')).toBeVisible();
+    await panel.getByRole('button', { name: 'Verder bewerken' }).click();
+    await expect(panel.getByLabel('Naam')).toHaveValue('Spelen anders');
+});

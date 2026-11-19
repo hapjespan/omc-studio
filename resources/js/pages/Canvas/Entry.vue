@@ -58,6 +58,8 @@ const showArchived = ref(false);
 const restoreError = ref('');
 const rows = computed(() => buildRows(filterByName(props.elements.filter((element) => showArchived.value || !element.archived), search.value), area.value.key as AreaKey));
 
+const listOf = (key: string): boolean => props.areas.find((item) => item.key === key)?.kind === 'list';
+
 const kickerOf = (element?: EntryElement): string => (element ? `${t(kindLabelKey(element.kind, element.area))} · ${elementPath(element, props.elements, labelOf(element.area)).split(' > ').slice(0, -1).join(' › ')}` : '');
 
 watch(() => kickerOf(selectedElement.value), (kicker) => {
@@ -177,8 +179,8 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
                 <ListAreaEntry v-if="area.kind === 'list'" :rows="rows" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" @select="select" @restore="restore" />
                 <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
                 <p class="mt-4 text-[12.5px] text-secondary">{{ t('entry_design.order_help') }}</p>
-                <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :list="area.kind === 'list'" :icons="icons" :warnings="warnings" :gone="gone" @select="select" @saved="saved = true" />
             </template>
+                <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :list="listOf(selectedElement.area)" :icons="icons" :warnings="warnings" :gone="gone" @select="select" @saved="saved = true" />
         </section>
     </div>
 </template>

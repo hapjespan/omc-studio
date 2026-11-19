@@ -27,7 +27,7 @@ function submit(): void {
 
 <template>
     <form novalidate @submit.prevent="submit">
-        <div class="rounded-control border border-dashed border-(--color-dashed) bg-white p-2">
+        <div class="rounded-control border border-dashed bg-white p-2">
             <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2">
                 <label :for="inputId" class="col-start-1 row-start-1 text-[12.5px] text-secondary">{{ label }}</label>
                 <input :id="inputId" v-model="form.name" type="text" autocomplete="off" :aria-describedby="error ? `${inputId}-error` : undefined" :aria-invalid="error ? true : undefined" class="col-span-2 row-start-2 mt-1.5 h-dense w-full rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink" />
