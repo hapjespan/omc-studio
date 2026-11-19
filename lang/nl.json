@@ -729,5 +729,6 @@
     "snap.imported": "Geïmporteerd",
     "snap.field.year": "Boekjaar",
     "snap.save": "Opslaan",
-    "snap.archive": "Archiveren"
+    "snap.archive": "Archiveren",
+    "snap.delete_consequence": "Dit verwijdert de momentopname :name met alle vastgelegde cijfers. Ongedaan maken kan niet"
 }

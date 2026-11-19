@@ -26,6 +26,7 @@ const columns: ListColumn[] = [
 
 const shownRows = computed(() => props.rows.map((row) => ({ ...row, remark: row.remark ?? '', maker: row.maker ?? '' })));
 
+const consequence = (row: ListRow): string => t('snap.delete_consequence', { name: row.name });
 const focusList = async (): Promise<void> => {
     await nextTick();
     list.value?.focusSearch();
@@ -43,7 +44,7 @@ function load(query: ListState): void {
     <Head :title="t('snap.title')" />
     <h1 class="text-[20px] font-semibold">{{ t('snap.title') }}</h1>
     <div class="mt-3">
-        <ListView ref="list" :title="t('snap.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" archivable :can-delete="canWrite" :can-create="canWrite" :create-label="t('snap.create')" :create-title="t('snap.create')" :undoable="false" @change="load" @delete="remove" @restore="restore">
+        <ListView ref="list" :title="t('snap.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" archivable :can-delete="canWrite" :can-create="canWrite" :create-label="t('snap.create')" :create-title="t('snap.create')" :undoable="false" :consequence="consequence" @change="load" @delete="remove" @restore="restore">
             <template #cell="{ row, column }">
                 <template v-if="column.key === 'name'">{{ row.name }}<span v-if="row.imported" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('snap.imported') }}</span></template>
                 <template v-else>{{ row[column.key] }}</template>
