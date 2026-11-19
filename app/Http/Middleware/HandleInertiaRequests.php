@@ -27,8 +27,14 @@ class HandleInertiaRequests extends Middleware
     {
         $canvas = $request->route('canvas');
 
-        return $canvas instanceof Canvas && $canvas->organisation !== null
-            ? ['id' => $canvas->id, 'name' => $canvas->name, 'organisation' => ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name]]
+        return $canvas instanceof Canvas
+            ? [
+                'id' => $canvas->id,
+                'name' => $canvas->name,
+                'kind' => $canvas->kind->value,
+                'archived' => $canvas->archived_at !== null,
+                'organisation' => $canvas->organisation === null ? null : ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name],
+            ]
             : null;
     }
 }

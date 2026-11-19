@@ -50,7 +50,7 @@ describe('AppShell', () => {
     });
 
     it('shows the breadcrumb with the organisation linking to the overview when a canvas is open', async () => {
-        page.props.canvas = { id: 7, name: 'Strategie', organisation: { id: 3, name: 'Acme' } };
+        page.props.canvas = { id: 7, name: 'Strategie', kind: 'canvas', archived: false, organisation: { id: 3, name: 'Acme' } };
         const html = await render();
         delete page.props.canvas;
 
@@ -62,7 +62,7 @@ describe('AppShell', () => {
 
 describe('AppShell with a Canvas', () => {
     it('shows the mode group Modus with one link per allowed mode', async () => {
-        page.props.canvas = { id: 7, name: 'Strategie', organisation: { id: 3, name: 'Acme' } };
+        page.props.canvas = { id: 7, name: 'Strategie', kind: 'canvas', archived: false, organisation: { id: 3, name: 'Acme' } };
         page.props.auth = { role: 'reader' };
         const html = (await renderToString(createSSRApp({ render: () => h(AppShell) }))).replace(/<!--.*?-->/g, '');
         delete page.props.canvas;

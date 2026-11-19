@@ -7,7 +7,9 @@ import UserMenu from './UserMenu.vue';
 export interface ShellCanvas {
     id: number;
     name: string;
-    organisation: { id: number; name: string };
+    kind: string;
+    archived: boolean;
+    organisation: { id: number; name: string } | null;
 }
 
 defineProps<{ appName: string; role: string; canvas?: ShellCanvas | null }>();
@@ -18,7 +20,7 @@ defineProps<{ appName: string; role: string; canvas?: ShellCanvas | null }>();
         <Link :href="routes.home()" class="font-[Space_Grotesk] font-semibold">{{ appName }}</Link>
         <nav v-if="canvas" :aria-label="t('shell.breadcrumb')" class="text-[13px]">
             <ol class="flex flex-wrap gap-1">
-                <li><Link :href="routes.home()" class="underline">{{ canvas.organisation.name }}</Link><span aria-hidden="true"> /</span></li>
+                <li v-if="canvas.organisation"><Link :href="routes.home()" class="underline">{{ canvas.organisation.name }}</Link><span aria-hidden="true"> /</span></li>
                 <li aria-current="page">{{ canvas.name }}</li>
             </ol>
         </nav>
