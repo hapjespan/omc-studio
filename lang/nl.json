@@ -323,5 +323,7 @@
     "yearly_figures.example": "bijvoorbeeld :example",
     "yearly_figures.undetermined": "Onbepaald deel: :share",
     "yearly_figures.save": "Jaarwaarden opslaan",
-    "yearly_figures.delete": "Jaarwaarden verwijderen"
+    "yearly_figures.delete": "Jaarwaarden verwijderen",
+    "cost_records.archive": "Archiveren",
+    "cost_records.bulk_verb": "verwijderd"
 }
