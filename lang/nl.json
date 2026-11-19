@@ -71,5 +71,8 @@
     "account.current_password_required": "Huidig wachtwoord: vul je huidige wachtwoord in",
     "account.current_password_wrong": "Huidig wachtwoord: dit wachtwoord is onjuist",
     "account.password_reused": "Wachtwoord: kies een ander wachtwoord dan je huidige wachtwoord",
-    "console.no_administrator": "Geen Administrator met dit e-mailadres"
+    "console.no_administrator": "Geen Administrator met dit e-mailadres",
+    "second_factor.already_active": "Tweede factor staat al aan",
+    "second_factor.not_started": "Tweede factor is nog niet gestart",
+    "second_factor.code_invalid": "Code: deze code klopt niet"
 }
