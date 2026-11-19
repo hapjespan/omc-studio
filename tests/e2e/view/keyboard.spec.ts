@@ -35,6 +35,9 @@ test('the toolbar and the Areas are separate Tab stops', async ({ page }) => {
     await page.goto(`/canvases/${canvas.id}/view`);
     await page.getByRole('button', { name: 'Passend maken' }).focus();
     await page.keyboard.press('Tab');
+    await expect(page.getByRole('group', { name: 'Overlay' }).getByRole('button').first()).toBeFocused();
+    await page.getByRole('group', { name: 'Overlay' }).getByRole('button').last().focus();
+    await page.keyboard.press('Tab');
     await expect(page.locator('[data-block][data-kind="area"]').first()).toBeFocused();
     await expect(page.locator('[data-block][tabindex="-1"]').first()).not.toBeFocused();
 });
