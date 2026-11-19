@@ -158,5 +158,8 @@
     "users.deleted_user": "verwijderde gebruiker",
     "users.own_row_action": "Gebruik Mijn account voor je eigen tweede factor en sessies",
     "users.second_factor_reset": "De tweede factor is gereset en de sessies zijn beëindigd",
-    "users.sessions_ended": "De sessies van deze gebruiker zijn beëindigd"
+    "users.sessions_ended": "De sessies van deze gebruiker zijn beëindigd",
+    "users.created": "De gebruiker is aangemaakt",
+    "users.updated": "De gebruiker is opgeslagen",
+    "users.deleted": "De gebruiker is verwijderd"
 }

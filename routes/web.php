@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\Admin\UserSecondFactorController;
 use App\Http\Controllers\Admin\UserSessionsController;
@@ -67,4 +68,8 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/admin/users/{user}/password-reset', UserPasswordResetController::class);
     Route::delete('/admin/users/{user}/second-factor', UserSecondFactorController::class);
     Route::delete('/admin/users/{user}/sessions', UserSessionsController::class);
+    Route::get('/admin/users', [UserController::class, 'index']);
+    Route::post('/admin/users', [UserController::class, 'store']);
+    Route::patch('/admin/users/{user}', [UserController::class, 'update']);
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy']);
 });
