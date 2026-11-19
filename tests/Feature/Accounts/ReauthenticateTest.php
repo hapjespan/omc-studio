@@ -50,6 +50,17 @@ class ReauthenticateTest extends TestCase
         $this->assertSame(Carbon::now()->getTimestamp(), session('signed_in_at'));
     }
 
+    public function test_the_empty_code_field_of_a_user_without_a_factor_is_ignored(): void
+    {
+        $this->signedIn(self::ALMOST);
+
+        $this->from('/account')->post('/session/reauthenticate', ['password' => self::PASSWORD, 'code' => ''])
+            ->assertRedirect('/account')
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(Carbon::now()->getTimestamp(), session('signed_in_at'));
+    }
+
     public function test_the_new_period_carries_the_next_request_past_the_old_limit(): void
     {
         $user = $this->signedIn(self::ALMOST);

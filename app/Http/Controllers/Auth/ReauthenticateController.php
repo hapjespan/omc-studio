@@ -29,7 +29,7 @@ class ReauthenticateController extends Controller
 
         $validated = $request->validate([
             'password' => ['required', 'string'],
-            'code' => [Rule::requiredIf($user->two_factor_confirmed_at !== null), 'string'],
+            'code' => [Rule::requiredIf($user->two_factor_confirmed_at !== null), 'nullable', 'string'],
         ], [
             'password.required' => __('auth.password_required'),
             'code.required' => __('sign_in.second_factor.code_required'),
