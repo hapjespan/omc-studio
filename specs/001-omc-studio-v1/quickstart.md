@@ -59,7 +59,7 @@ Acceptance run: perform each step, write the result (pass or fail, date, initial
 | 7 | SC-014: leave Cost records without a set | they appear in the Unknown allocation Domain of Supporting activities, as its own line in the side panel, and count in the Area and Canvas totals | |
 | 8 | SC-015: Finalise a year with one Cost record in Unknown allocation | refused (GATE-U1) | |
 | 9 | SC-016: delete an allocated Activity | Redistribution opens; afterwards every affected Cost record is at 0% or 100% | |
-| 10 | SC-020: `php artisan app:dev-dataset --elements=500 --cost-records=1000`, then `npm run e2e -- d2-flow` | the timing assertions report p95 under 1000 ms per screen (P-1) | |
+| 10 | SC-020: `php artisan app:dev-dataset --elements=500 --cost-records=1000`, then `npx playwright test d2-flow` | the timing assertions report p95 under 1000 ms per screen (P-1) | |
 | 11 | SC-023: `php artisan test --filter=Property` (FR-095), 1000 cases | passes on every run; no open defect of the kind "figures do not close" or "rule can be bypassed" | |
 | 12 | SC-024: acceptance session, steps below | done within 30 minutes without help | |
 
@@ -78,7 +78,7 @@ Done by the product owner alone; the observer only keeps time and does not answe
 CI runners are not the reference machine (K-6), so the product owner repeats the timing on the reference machine of constraint O-10 (4 cores, 8 GB memory).
 
 1. Start the delivered stack with `docker compose up -d`, then create the dataset of step 10.
-2. Run `npm run e2e -- d2-flow` once with nothing else running.
+2. Run `npx playwright test d2-flow` once with nothing else running.
 3. Copy the reported machine description and the p95 per screen into the Result column of step 10; every screen must stay under 1000 ms.
 
 ## Delivery 3
