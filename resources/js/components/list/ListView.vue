@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { t } from '../../i18n';
+import ArchiveToggle from './ArchiveToggle.vue';
 import BulkBar, { type BulkAction, type BulkSummary } from './BulkBar.vue';
 import ConfirmDelete from './ConfirmDelete.vue';
 import FilterBar, { type FilterDef } from './FilterBar.vue';
@@ -13,8 +14,8 @@ export type ListColumn = { key: string; label: string; sortable?: boolean };
 export type UndoState = { id: number | string; message: string; refusal?: string | null };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null }>(), { canCreate: true });
-const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; undo: []; dismissUndo: []; bulk: [key: string, rows: ListRow[]] }>();
+const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean }>(), { canCreate: true });
+const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; undo: []; dismissUndo: []; bulk: [key: string, rows: ListRow[]]; restore: [row: ListRow] }>();
 
 const editing = ref<ListRow | 'new' | null>(null);
 const formOpen = computed({ get: () => editing.value !== null, set: (open) => { if (!open) editing.value = null; } });
@@ -75,6 +76,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                 <input id="list-search" ref="searchField" v-model="search" type="search" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]" @input="onSearch" />
             </div>
             <button v-if="$slots.form && canCreate" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="editing = 'new'">{{ t('list.new') }}</button>
+            <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
             <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-[#454C57]">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
         </div>
         <UndoMessage v-if="undo" :key="undo.id" :message="undo.message" :refusal="undo.refusal" @undo="emit('undo')" @close="emit('dismissUndo')" />
@@ -89,6 +91,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                         <SortHeader v-if="column.sortable" :label="column.label" :direction="directionOf(column.key)" @sort="sortBy(column.key)" />
                         <th v-else scope="col" class="px-2 py-1.5 text-left text-[12.5px] font-semibold">{{ column.label }}</th>
                     </template>
+                    <th v-if="archivable" scope="col" class="sr-only">{{ t('list.restore') }}</th>
                     <th v-if="canDelete" scope="col" class="sr-only">{{ t('list.actions') }}</th>
                 </tr>
             </thead>
@@ -98,12 +101,16 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                     <td v-for="(column, index) in columns" :key="column.key" class="px-2 py-1.5">
                         <button v-if="index === 0 && $slots.form" type="button" class="rounded-md px-1 py-0.5 text-left underline" @click="editing = row">{{ row[column.key] }}</button>
                         <template v-else>{{ row[column.key] }}</template>
+                        <span v-if="index === 0 && row.archived_at" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('list.archived') }}</span>
+                    </td>
+                    <td v-if="archivable" class="px-2 py-1.5">
+                        <button v-if="row.archived_at" type="button" :aria-label="`${t('list.restore')} ${row.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="emit('restore', row)">{{ t('list.restore') }}</button>
                     </td>
                     <td v-if="canDelete" class="px-2 py-1.5">
                         <button type="button" :aria-label="`${t('list.delete')} ${row.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="deleting = row">{{ t('list.delete') }}</button>
                     </td>
                 </tr>
-                <tr v-if="rows.length === 0"><td :colspan="columns.length + 2" class="px-2 py-3 text-[#454C57]">{{ t('list.empty') }}</td></tr>
+                <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-2 py-3 text-[#454C57]">{{ t('list.empty') }}</td></tr>
             </tbody>
         </table>
         <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="emit('delete', deleting)" />

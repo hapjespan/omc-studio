@@ -4,7 +4,7 @@ import ListDemoForm from './ListDemoForm.vue';
 import ListView, { type ListRow, type ListState, type UndoState }
 import type { BulkSummary } from '../../../../resources/js/components/list/BulkBar.vue' from '../../../../resources/js/components/list/ListView.vue';
 
-const all = ref<ListRow[]>(Array.from({ length: 12 }, (_, index) => ({ id: index + 1, name: index === 0 ? 'Anna Zorg' : `Persoon ${String.fromCharCode(66 + index)}`, email: `p${index + 1}@example.test`, group: index % 3 === 0 ? 'a' : 'b' })));
+const all = ref<ListRow[]>(Array.from({ length: 13 }, (_, index) => ({ id: index + 1, name: index === 0 ? 'Anna Zorg' : `Persoon ${String.fromCharCode(66 + index)}`, email: `p${index + 1}@example.test`, group: index % 3 === 0 ? 'a' : 'b', archived_at: index === 12 ? '2026-01-01T00:00:00Z' : null })));
 const columns = [{ key: 'name', label: 'Naam', sortable: true }, { key: 'email', label: 'E-mailadres', sortable: true }];
 const filterDefs = [{ name: 'group', label: 'Groep', options: [{ value: 'a', label: 'Groep A' }, { value: 'b', label: 'Groep B' }] }];
 const typedName = new URLSearchParams(location.search).get('typed') === '1';
@@ -42,6 +42,10 @@ function bulk(_key: string, rows: ListRow[]): void {
     }
 }
 
+function unarchive(row: ListRow): void {
+    row.archived_at = null;
+}
+
 function restore(): void {
     if (conflict && undo.value) {
         undo.value = { ...undo.value, refusal: 'Ongedaan maken kan niet meer' };
@@ -56,7 +60,7 @@ function restore(): void {
 
 const visible = computed(() => {
     const needle = query.value.search.toLowerCase();
-    const rows = all.value.filter((row) => (!query.value.filters.group || row.group === query.value.filters.group) && (!needle || [row.name, row.email].some((value) => String(value).toLowerCase().includes(needle))));
+    const rows = all.value.filter((row) => (query.value.archived || !row.archived_at) && (!query.value.filters.group || row.group === query.value.filters.group) && (!needle || [row.name, row.email].some((value) => String(value).toLowerCase().includes(needle))));
     const key = query.value.sort;
     if (!key) return rows;
     const factor = query.value.direction === 'asc' ? 1 : -1;
@@ -67,7 +71,7 @@ const visible = computed(() => {
 <template>
     <main class="p-4">
         <h1>Lijst</h1>
-        <ListView title="Personen" :columns="columns" :rows="visible" :count="visible.length" :query="query" :filters="filterDefs" can-delete :consequence="consequence" :require-name="typedName" @delete="remove" :undo="undo" @undo="restore" :bulk-actions="bulkActions" :bulk-result="bulkResult" @bulk="bulk" @dismiss-undo="undo = null" @change="query = $event">
+        <ListView title="Personen" :columns="columns" :rows="visible" :count="visible.length" :query="query" :filters="filterDefs" can-delete :consequence="consequence" :require-name="typedName" @delete="remove" :undo="undo" @undo="restore" :bulk-actions="bulkActions" :bulk-result="bulkResult" @bulk="bulk" archivable @restore="unarchive" @dismiss-undo="undo = null" @change="query = $event">
             <template #form="{ row, close, setDirty }">
                 <ListDemoForm :initial="row?.name ?? ''" @dirty="setDirty" @save="(name) => { save(row, name); close(); }" />
             </template>

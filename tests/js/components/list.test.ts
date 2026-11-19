@@ -167,3 +167,26 @@ describe('ListView bulk actions', () => {
         expect(html).not.toContain('overgeslagen');
     });
 });
+
+describe('ListView archive handling', () => {
+    const archivedRows = [...rows, { id: 3, name: 'Cor', email: 'c@example.test', archived_at: '2026-01-01T00:00:00Z' }];
+
+    it('offers the toggle only for archivable lists', async () => {
+        expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, archivable: true })).toContain('Toon gearchiveerd');
+        expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle })).not.toContain('Toon gearchiveerd');
+    });
+
+    it('reflects the shown state in the toggle', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows: archivedRows, count: 3, query: { ...idle, archived: true }, archivable: true });
+
+        expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*checked[^>]*id="list-archived"|<input[^>]*id="list-archived"[^>]*checked/);
+    });
+
+    it('marks an archived row with text and offers Terugzetten for that row only', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows: archivedRows, count: 3, query: { ...idle, archived: true }, archivable: true });
+
+        expect(html.match(/Gearchiveerd<\/span>/g)).toHaveLength(1);
+        expect(html).toContain('aria-label="Terugzetten Cor"');
+        expect(html).not.toContain('aria-label="Terugzetten Anna"');
+    });
+});
