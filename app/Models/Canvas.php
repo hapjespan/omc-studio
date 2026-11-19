@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['organisation_id', 'kind', 'is_blank_template', 'name', 'archived_at'])]
 class Canvas extends Model
@@ -36,5 +37,11 @@ class Canvas extends Model
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
+    }
+
+    /** @return HasMany<AllocationSet, $this> */
+    public function allocationSets(): HasMany
+    {
+        return $this->hasMany(AllocationSet::class);
     }
 }
