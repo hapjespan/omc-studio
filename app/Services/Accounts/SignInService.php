@@ -21,7 +21,7 @@ class SignInService
 
     public function __construct(private readonly OneTimePassword $passwords)
     {
-        $this->throttle = new Throttle(self::NAMESPACE);
+        $this->throttle = new Throttle(self::NAMESPACE, true);
     }
 
     public function attempt(string $email, string $password): User

@@ -3,6 +3,7 @@
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\LogRefusedAccess;
 use App\Http\Middleware\MustChangePassword;
+use App\Http\Middleware\ResolveFiscalYear;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SessionLifetime;
 use Illuminate\Database\QueryException;
@@ -20,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
-        $middleware->web(append: [LogRefusedAccess::class, HandleInertiaRequests::class, EncryptHistoryMiddleware::class, SessionLifetime::class, MustChangePassword::class]);
+        $middleware->web(append: [LogRefusedAccess::class, HandleInertiaRequests::class, ResolveFiscalYear::class, EncryptHistoryMiddleware::class, SessionLifetime::class, MustChangePassword::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->context(fn () => app()->bound('request') ? ['route' => request()->route()?->getName()] : []);
