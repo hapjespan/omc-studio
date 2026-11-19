@@ -10,6 +10,7 @@ use App\Services\Exchange\CanvasImport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 
 class CanvasImportController extends Controller
 {
@@ -37,12 +38,19 @@ class CanvasImportController extends Controller
     {
         ini_set('memory_limit', '1G');
 
-        $data = $request->validate([
-            'file' => ['required', 'file'],
-            'organisation_id' => ['nullable', 'integer', 'exists:organisations,id'],
-            'organisation_name' => ['required_without:organisation_id', 'nullable', 'string', new TrimmedText(__('fields.name'), 150)],
-            'canvas_name' => ['required', 'string', new ElementName],
-        ]);
+        try {
+            $data = $request->validate([
+                'file' => ['required', 'file'],
+                'organisation_id' => ['nullable', 'integer', 'exists:organisations,id'],
+                'organisation_name' => ['required_without:organisation_id', 'nullable', 'string', new TrimmedText(__('fields.name'), 150)],
+                'canvas_name' => ['required', 'string', new ElementName],
+            ]);
+        } catch (ValidationException $exception) {
+            $errors = $exception->errors();
+            isset($errors['file']) && $errors['file'] = [__('jsonx.refused_file')];
+
+            throw ValidationException::withMessages($errors);
+        }
 
         /** @var UploadedFile $file */
         $file = $request->file('file');
