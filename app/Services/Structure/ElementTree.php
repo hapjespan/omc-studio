@@ -16,7 +16,7 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules, private readonly ModalityRules $modalities) {}
 
     /** @param array<string, mixed> $fields */
     public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = []): Element
@@ -108,7 +108,7 @@ class ElementTree
 
             $this->fieldRules->assertValid($element->area, $changes);
 
-            $element->update($changes);
+            $element->update([...$changes, ...$this->modalities->changes($element, $fields)]);
 
             return $element;
         });
