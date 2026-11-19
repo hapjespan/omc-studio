@@ -43,7 +43,7 @@ class CanvasLifecycle
 
     public function rename(Canvas $canvas, string $name): Canvas
     {
-        return $this->writes->run([$canvas], function () use ($canvas, $name) {
+        return $this->writes->run(array_filter([$canvas->organisation, $canvas]), function () use ($canvas, $name) {
             $this->assertWritable($canvas);
             $this->assertNameFree($canvas->organisation, $name, $canvas);
             $canvas->update(['name' => trim($name)]);
@@ -68,6 +68,8 @@ class CanvasLifecycle
             if ($canvas->kind === CanvasKind::Template) {
                 $this->refuse('template_write');
             }
+
+            $this->assertOrganisationActive($canvas->organisation);
 
             if ($typedName !== $canvas->name) {
                 throw ValidationException::withMessages(['confirmation' => __('rule.canvas_confirmation_mismatch')]);
@@ -95,6 +97,8 @@ class CanvasLifecycle
             if ($canvas->kind === CanvasKind::Template) {
                 $this->refuse('template_write');
             }
+
+            $this->assertOrganisationActive($canvas->organisation);
 
             if ($applies()) {
                 $this->context->during($action, fn () => $canvas->update(['archived_at' => $value]));

@@ -8,6 +8,7 @@ use Database\Factories\OrganisationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 #[Fillable(['name', 'slug', 'archived_at'])]
@@ -24,4 +25,10 @@ class Organisation extends Model
     }
 
     protected $casts = ['archived_at' => 'datetime'];
+
+    /** @return HasMany<Canvas, $this> */
+    public function canvases(): HasMany
+    {
+        return $this->hasMany(Canvas::class);
+    }
 }
