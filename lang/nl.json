@@ -712,5 +712,10 @@
     "snap.closing_check_failed": "De cijfers sluiten niet; een momentopname kan niet",
     "snap.name_required": "Naam: vul een naam in van 1 tot 150 tekens",
     "snap.fiscal_year_invalid": "Boekjaar: kies een boekjaar van deze organisatie",
-    "snap.damaged": "Deze momentopname is beschadigd en wordt niet getoond"
+    "snap.damaged": "Deze momentopname is beschadigd en wordt niet getoond",
+    "snap.updated": "Momentopname bijgewerkt",
+    "snap.archived": "Momentopname :name gearchiveerd",
+    "snap.restored": "Momentopname :name teruggezet",
+    "snap.deleted": "Momentopname :name verwijderd",
+    "snap.field_not_editable": "Alleen de naam en de opmerking van een momentopname zijn te wijzigen"
 }

@@ -6,6 +6,7 @@ use App\Models\Canvas;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
 use App\Models\Snapshot;
+use App\Services\Audit\AuditContext;
 use App\Services\Notices\SystemNotices;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
@@ -22,6 +23,7 @@ class Snapshots
         private readonly SerialisedWrite $writes,
         private readonly SnapshotContent $content,
         private readonly SystemNotices $notices,
+        private readonly AuditContext $context,
     ) {}
 
     public function take(Canvas $canvas, FiscalYear $year, string $name, ?string $remark = null): Snapshot
@@ -80,5 +82,53 @@ class Snapshots
         }
 
         return json_decode($encoded, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /** @param array{name?: string, remark?: string|null} $changes */
+    public function update(Snapshot $snapshot, array $changes): Snapshot
+    {
+        return $this->locked($snapshot, function () use ($snapshot, $changes) {
+            $snapshot->update(array_intersect_key($changes, array_flip(['name', 'remark'])));
+
+            return $snapshot;
+        });
+    }
+
+    public function archive(Snapshot $snapshot): Snapshot
+    {
+        return $this->locked($snapshot, function () use ($snapshot) {
+            if ($snapshot->archived_at === null) {
+                $this->context->during('archived', fn () => $snapshot->update(['archived_at' => now()]));
+            }
+
+            return $snapshot;
+        });
+    }
+
+    public function restore(Snapshot $snapshot): Snapshot
+    {
+        return $this->locked($snapshot, function () use ($snapshot) {
+            if ($snapshot->archived_at !== null) {
+                $this->context->during('restored', fn () => $snapshot->update(['archived_at' => null]));
+            }
+
+            return $snapshot;
+        });
+    }
+
+    public function delete(Snapshot $snapshot): void
+    {
+        $this->locked($snapshot, fn () => $snapshot->delete());
+    }
+
+    private function locked(Snapshot $snapshot, callable $work): mixed
+    {
+        $canvas = Canvas::findOrFail($snapshot->canvas_id);
+
+        return $this->writes->run([Organisation::findOrFail($canvas->organisation_id), $canvas], function () use ($snapshot, $work) {
+            $snapshot->refresh();
+
+            return $work();
+        });
     }
 }

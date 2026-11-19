@@ -157,4 +157,8 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
 
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/canvases/{canvas}/versions', [SnapshotController::class, 'store']);
+    Route::patch('/snapshots/{snapshot}', [SnapshotController::class, 'update']);
+    Route::post('/snapshots/{snapshot}/archive', [SnapshotController::class, 'archive']);
+    Route::post('/snapshots/{snapshot}/restore', [SnapshotController::class, 'restore']);
+    Route::delete('/snapshots/{snapshot}', [SnapshotController::class, 'destroy']);
 });
