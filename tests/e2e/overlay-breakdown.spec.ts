@@ -40,6 +40,7 @@ test('the breakdown follows a changed Soort kosten filter and keeps no stale row
     await page.mouse.move(0, 0);
 
     await page.getByLabel('Soort kosten').selectOption({ label: 'Leverancierscontract' });
+    await page.getByRole('button', { name: 'Filteren' }).click();
     await expect(page).toHaveURL(/cost_kind=supplier_contract/);
     await domain.hover();
     await expect(content).toBeVisible();

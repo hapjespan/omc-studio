@@ -3,25 +3,12 @@
 namespace App\Http\Middleware;
 
 use App\Models\Canvas;
-use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
-
-    public function handle(Request $request, Closure $next): Response
-    {
-        $response = parent::handle($request, $next);
-
-        if ($request->isMethod('GET') && $request->header('X-Inertia') && $response->isSuccessful()) {
-            $request->session()->setPreviousUrl($request->fullUrl());
-        }
-
-        return $response;
-    }
 
     /** @return array<string, mixed> */
     public function share(Request $request): array

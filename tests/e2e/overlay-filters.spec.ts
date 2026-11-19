@@ -15,6 +15,8 @@ test('a filter on Owner recalculates every number and shows above the canvas', a
     await expect(page.getByLabel('Eigenaar')).toHaveValue('');
 
     await page.getByLabel('Eigenaar').selectOption({ label: 'Afdeling ICT' });
+    await expect(page).not.toHaveURL(/owner=/);
+    await page.getByRole('button', { name: 'Filteren' }).click();
     await expect(page).toHaveURL(/owner=\d+/);
     await expect(page.locator('[data-active-filters]')).toHaveText('Actieve filters: Eigenaar: Afdeling ICT');
     await expect(panel).toContainText('€ 1.000');
@@ -24,6 +26,7 @@ test('a filter on Owner recalculates every number and shows above the canvas', a
     await expectNoAxeViolations(page);
 
     await page.getByLabel('Eigenaar').selectOption({ label: 'Alle' });
+    await page.getByRole('button', { name: 'Filteren' }).click();
     await expect(page.locator('[data-active-filters]')).toHaveCount(0);
     await expect(panel).toContainText('€ 4.000');
 });
