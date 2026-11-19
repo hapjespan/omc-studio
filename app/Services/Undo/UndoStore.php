@@ -24,11 +24,17 @@ class UndoStore
 
     public const APPLICATION_DELETION = 'application_deletion';
 
+    public const COST_RECORD_DELETION = 'cost_record_deletion';
+
     private const LIFETIME_MINUTES = 10;
 
     private const TOKEN_LENGTH = 40;
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly AuditContext $context) {}
+    public function __construct(
+        private readonly SerialisedWrite $writes,
+        private readonly AuditContext $context,
+        private readonly CostRecordUndo $costRecords,
+    ) {}
 
     /** @param array<string, mixed> $payload */
     public function remember(string $kind, array $payload, User $user): string
@@ -64,6 +70,7 @@ class UndoStore
             self::ELEMENT_DELETION => $this->restoreElements($record),
             self::OWNER_DELETION => $this->restoreListEntry($record, Owner::class),
             self::APPLICATION_DELETION => $this->restoreListEntry($record, Application::class),
+            self::COST_RECORD_DELETION => $this->costRecords->restore($record),
             default => $this->refuse('undo_unavailable'),
         };
     }
