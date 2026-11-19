@@ -62,7 +62,7 @@ function archive(row: ListRow, close: () => void): void {
         <ListView ref="list" :title="t('organisations.title')" :columns="columns" :rows="rows" :count="count" :query="query" can-delete archivable require-name :undoable="false" :consequence="consequence" :create-title="t('organisations.new')" @change="load" @delete="remove" @restore="restore">
             <template #form="{ row, close, setDirty }">
                 <form :key="row?.id ?? 'new'" novalidate class="flex flex-col gap-3" enctype="multipart/form-data" @vue:mounted="open(row, setDirty)" @submit.prevent="submit(row, close)">
-                    <ErrorSummary :errors="errors" />
+                    <div role="alert"><ErrorSummary :errors="errors" /></div>
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="setDirty(draft.name !== initial)" />
                     <Field id="logo" :label="`${t('organisations.logo')} (${t('form.optional')})`" :hint="t('organisations.logo_hint')" :error="errors.logo" v-slot="{ describedby, invalid }">
                         <img v-if="row?.has_logo" :src="routes.organisationLogo(row.id)" :alt="row.name" class="h-16 w-16 object-contain" />

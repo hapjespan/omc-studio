@@ -70,6 +70,22 @@ class LogoUploadTest extends TestCase
         $this->assertNotNull($organisation->fresh()?->logo_path);
     }
 
+    public function test_storing_the_largest_logo_stays_inside_the_delivered_memory_budget(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = Organisation::factory()->create();
+        $file = $this->upload(4000, 4000);
+
+        gc_collect_cycles();
+        $before = memory_get_usage();
+        memory_reset_peak_usage();
+
+        $this->store->store($organisation, $file);
+
+        $this->assertLessThan(80 * 1048576, memory_get_peak_usage() - $before);
+    }
+
     public function test_an_archived_organisation_refuses_a_logo(): void
     {
         $organisation = Organisation::factory()->create(['archived_at' => now()]);
@@ -106,7 +122,8 @@ class LogoUploadTest extends TestCase
 
         $stored = (string) Storage::disk('local')->get($one);
         $this->assertSame([12, 8, IMAGETYPE_PNG], array_slice((array) getimagesizefromstring($stored), 0, 3));
-        $this->assertStringContainsString(self::MARKER, (string) file_get_contents($this->upload(12, 8)->getRealPath()));
+        $sample = $this->upload(12, 8);
+        $this->assertStringContainsString(self::MARKER, (string) file_get_contents($sample->getRealPath()));
         $this->assertStringNotContainsString(self::MARKER, $stored);
 
         $this->assertSame(1, AuditEntry::where('subject_type', 'organisation')->where('subject_id', $first->id)->where('action', 'changed')->count());
@@ -208,7 +225,7 @@ class LogoUploadTest extends TestCase
     private function upload(int $width, int $height, int $type = IMAGETYPE_PNG, ?int $size = null): UploadedFile
     {
         $image = imagecreatetruecolor($width, $height);
-        imagefill($image, 0, 0, imagecolorallocate($image, 10, 20, 30));
+        imagefilledrectangle($image, 0, 0, $width - 1, $height - 1, imagecolorallocate($image, 10, 20, 30));
 
         ob_start();
         $type === IMAGETYPE_PNG ? imagepng($image) : imagejpeg($image);

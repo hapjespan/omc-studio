@@ -57,7 +57,7 @@ class OrganisationDeletionTest extends TestCase
         $other = $this->service->create('Zuid');
         $organisation = $this->service->create('Noord');
         $this->service->rename($organisation, 'Noord 2027');
-        $elsewhere = AuditEntry::query()->count() - AuditEntry::where('organisation_id', $organisation->id)->count();
+        $elsewhere = AuditEntry::where('organisation_id', $other->id)->count();
 
         $this->service->delete($organisation);
 

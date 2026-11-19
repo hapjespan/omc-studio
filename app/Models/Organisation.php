@@ -49,4 +49,10 @@ class Organisation extends Model
     {
         return $this->hasMany(CostRecord::class);
     }
+
+    /** @return HasMany<Canvas, $this> */
+    public function canvases(): HasMany
+    {
+        return $this->hasMany(Canvas::class);
+    }
 }

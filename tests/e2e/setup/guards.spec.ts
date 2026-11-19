@@ -4,11 +4,11 @@ import { expectNoAxeViolations, installGuards, test as guarded } from '../suppor
 const origin = 'http://app.test';
 const csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'";
 
-async function serve(page: import('@playwright/test').Page, body: string) {
+async function serve(page: import('@playwright/test').Page, body: string, policy = csp) {
     await page.route('**/*', (route) => {
         const url = route.request().url();
         if (url.startsWith(origin)) {
-            return route.fulfill({ contentType: 'text/html', headers: { 'content-security-policy': csp }, body: `<!doctype html><html lang="nl"><head><title>Test</title></head><body><main>${body}</main></body></html>` });
+            return route.fulfill({ contentType: 'text/html', headers: { 'content-security-policy': policy }, body: `<!doctype html><html lang="nl"><head><title>Test</title></head><body><main>${body}</main></body></html>` });
         }
         return route.fulfill({ status: 200, contentType: 'text/plain', body: '' });
     });
@@ -16,9 +16,10 @@ async function serve(page: import('@playwright/test').Page, body: string) {
 
 test('a request outside the own origin fails the guard', async ({ page }) => {
     const guards = installGuards(page, origin);
-    await serve(page, '<img src="https://cdn.example.org/x.png" alt="">');
+    await serve(page, '<img src="https://cdn.example.org/x.png" alt="">', csp.replace("img-src 'self'", "img-src 'self' https://cdn.example.org"));
+    const seen = page.waitForRequest('https://cdn.example.org/x.png');
     await page.goto(`${origin}/`);
-    await page.waitForLoadState('networkidle');
+    await seen;
     expect(() => guards.assertNoOutsideRequest()).toThrow();
 });
 
@@ -53,6 +54,7 @@ guarded('the automatic fixture fails a test that reaches outside', async ({ page
         }
         return route.fulfill({ status: 200, contentType: 'text/plain', body: '' });
     });
+    const seen = page.waitForRequest('https://cdn.example.org/x.png');
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await seen;
 });

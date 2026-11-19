@@ -44,4 +44,16 @@ class Canvas extends Model
     {
         return $this->hasMany(AllocationSet::class);
     }
+
+    /** @return HasMany<Element, $this> */
+    public function elements(): HasMany
+    {
+        return $this->hasMany(Element::class);
+    }
+
+    /** @return HasMany<Statement, $this> */
+    public function statements(): HasMany
+    {
+        return $this->hasMany(Statement::class);
+    }
 }

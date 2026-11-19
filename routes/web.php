@@ -4,18 +4,25 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\IndexController as AdminIndexController;
 use App\Http\Controllers\Admin\OrganisationController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserPasswordResetController;
+use App\Http\Controllers\Admin\UserSecondFactorController;
+use App\Http\Controllers\Admin\UserSessionsController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ReauthenticateController;
 use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
+use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasModeController;
+use App\Http\Controllers\CanvasViewController;
+use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
+use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
     Route::get('/sign-in', [SignInController::class, 'create'])->name('login');
@@ -23,7 +30,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', fn () => Inertia::render('Home'));
+    Route::get('/', OverviewController::class);
+    Route::get('/overview', OverviewController::class);
     Route::post('/sign-out', SignOutController::class);
     Route::get('/password/new', [NewPasswordController::class, 'create']);
     Route::put('/password/new', [NewPasswordController::class, 'update']);
@@ -64,6 +72,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/admin/users/{user}/password-reset', UserPasswordResetController::class);
+    Route::delete('/admin/users/{user}/second-factor', UserSecondFactorController::class);
+    Route::delete('/admin/users/{user}/sessions', UserSessionsController::class);
+    Route::get('/admin/users', [UserController::class, 'index']);
+    Route::post('/admin/users', [UserController::class, 'store']);
+    Route::patch('/admin/users/{user}', [UserController::class, 'update']);
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy']);
     Route::get('/admin/audit-log', AuditLogController::class);
 });
 
@@ -83,3 +98,24 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
 foreach (glob(__DIR__.'/finance/*.php') ?: [] as $file) {
     require $file;
 }
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases', [CanvasController::class, 'store']);
+    Route::patch('/canvases/{canvas}', [CanvasController::class, 'update']);
+    Route::post('/canvases/{canvas}/archive', [CanvasController::class, 'archive']);
+    Route::post('/canvases/{canvas}/restore', [CanvasController::class, 'restore']);
+    Route::delete('/canvases/{canvas}', [CanvasController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/view', CanvasViewController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/elements')->group(function () {
+    Route::post('/', [ElementController::class, 'store']);
+    Route::patch('/{element}', [ElementController::class, 'update']);
+    Route::post('/{element}/reorder', [ElementController::class, 'reorder']);
+    Route::post('/{element}/archive', [ElementController::class, 'archive']);
+    Route::post('/{element}/restore', [ElementController::class, 'restore']);
+    Route::delete('/{element}', [ElementController::class, 'destroy']);
+});

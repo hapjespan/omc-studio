@@ -110,13 +110,15 @@ class InstallCommandTest extends TestCase
         mkdir($root.'/bootstrap/cache', 0755, true);
         copy(base_path('docker/entrypoint.sh'), $root.'/entrypoint.sh');
         file_put_contents($root.'/bin/php', "#!/bin/sh\nprintf 'base64:stub-key' > storage/app.key\n");
-        file_put_contents($root.'/bin/apache2-foreground', "#!/bin/sh\necho \"key=\$APP_KEY owner=\$(stat -c %U storage/app.key)\"\n");
+        file_put_contents($root.'/bin/chown', "#!/bin/sh\necho \"\$*\" >> chown.log\n");
+        file_put_contents($root.'/bin/apache2-foreground', "#!/bin/sh\necho \"key=\$APP_KEY chown=\$(cat chown.log)\"\n");
         chmod($root.'/bin/php', 0755);
+        chmod($root.'/bin/chown', 0755);
         chmod($root.'/bin/apache2-foreground', 0755);
 
         $result = Process::path($root)->env(['PATH' => $root.'/bin:'.getenv('PATH')])->run('sh entrypoint.sh');
 
         $this->assertTrue($result->successful(), $result->errorOutput());
-        $this->assertStringContainsString('key=base64:stub-key owner=www-data', $result->output());
+        $this->assertStringContainsString('key=base64:stub-key chown=-R www-data:www-data storage bootstrap/cache', $result->output());
     }
 }

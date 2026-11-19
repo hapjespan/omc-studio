@@ -180,7 +180,7 @@ Every constraint of `docs/constraints.md` maps to a decision or an accepted risk
 | V16 logging | R-17 (no bindings, no client address in Apache's error log), R-11, System notices |
 | Dependency policy | CI fails on `composer audit` and `npm audit --audit-level=high`; Dependabot alerts only |
 | Secrets | `.env` out of git; first password once in the container log (R-25) |
-| WP1 verification point | Task in WP1: Secure cookie over `http://localhost:8080` per browser; README names the setting where one refuses |
+| WP1 verification point | Task in WP1: Secure cookie over `http://localhost:8080` in Chromium (Firefox and WebKit dropped by the product owner, 2026-11-19); README names the setting where one refuses |
 | Section 7 PII | No new personal data in this plan: sessions lose the IP address and user agent the framework would store (R-28); throttle keys are keyed hashes; undo records hold no user records (User deletion has no undo) and expire within 10 minutes |
 | Section 8 logging and incidents | Security and error logs (R-17); System notices with top-bar warning (US34); notification by the PO through the ISO policy (GATE-U2) |
 | Section 9 closed options | Respected: no database server, no Redis or second service, no TLS in the stack, no automatic backup, no outside service |
@@ -272,8 +272,8 @@ Two collisions came out of applying QS-1 to QS-7. The product owner was unreacha
 
 | Id | Collision | Assumption (to be confirmed by the PO) | Cost of a reversal |
 |---|---|---|---|
-| QS-8 | QS-4 keeps the block's size, while QS-1 and QS-2 let it go into a narrower target (an Activity at Domain level is always wider than a Cluster in that Domain) | `[ASSUMPTION QS-8]` A block wider than its target is made exactly as wide as the target; height, style and place otherwise kept; Manual children pushed left, then narrowed; automatic children re-flow; shown while dragging ("wordt smaller") and announced after the move | Low: one branch in the adapter's drop handling and its tests; refusing instead means replacing the narrowing by the "Kan hier niet" label |
-| QS-9 | QS-7 names releasing and the keyboard route; undo and redo are neither | `[ASSUMPTION QS-9]` Undo and redo of a move ask "Verplaatsen naar <doel>?" too; "Annuleren" leaves the undo history unchanged | Low: the page skips the dialog for undo and redo |
+| QS-8 | QS-4 keeps the block's size, while QS-1 and QS-2 let it go into a narrower target (an Activity at Domain level is always wider than a Cluster in that Domain) | Decided by the product owner 2026-11-19: a block wider than its target is made exactly as wide as the target; height, style and place otherwise kept; Manual children pushed left, then narrowed; automatic children re-flow; shown while dragging ("wordt smaller") and announced after the move | Low: one branch in the adapter's drop handling and its tests; refusing instead means replacing the narrowing by the "Kan hier niet" label |
+| QS-9 | QS-7 names releasing and the keyboard route; undo and redo are neither | Decided by the product owner 2026-11-19: undo and redo of a move ask "Verplaatsen naar <doel>?" too; "Annuleren" leaves the undo history unchanged | Low: the page skips the dialog for undo and redo |
 
 ## Open questions for the product owner
 
