@@ -30,8 +30,8 @@ const yearsOpen = ref(false);
 const keep = { preserveScroll: true, preserveState: true };
 
 const columns: ListColumn[] = [
-    { key: 'code', label: t('fields.code'), sortable: true },
     { key: 'name', label: t('fields.name'), sortable: true },
+    { key: 'code', label: t('fields.code'), sortable: true },
     { key: 'budgetText', label: t('fields.budget') },
     { key: 'forecastText', label: t('fields.forecast') },
     { key: 'allocationText', label: t('cost_records.allocation') },
@@ -97,7 +97,7 @@ function load(query: ListState, year: number | null = props.year): void {
     <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :writable="!organisation.archived" />
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
-        <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable can-delete :consequence="consequence" :undo="undo" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undoDelete" @dismiss-undo="dismissUndo" @bulk="bulk">
+        <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undoDelete" @dismiss-undo="dismissUndo" @bulk="bulk">
             <template #form="{ row, close, setDirty }">
                 <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
                 <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty" />

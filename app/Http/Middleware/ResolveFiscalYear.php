@@ -34,7 +34,7 @@ class ResolveFiscalYear
         $final = $canvas === null ? collect() : FinalisedYear::where('canvas_id', $canvas->getKey())->pluck('fiscal_year_id');
         $requested = $request->query('year');
         $numbers = $years->pluck('year');
-        $selected = is_scalar($requested) && $numbers->contains((int) $requested) ? (int) $requested : ($numbers->contains((int) now()->year) ? (int) now()->year : $numbers->last());
+        $selected = is_string($requested) && ctype_digit($requested) && $numbers->contains((int) $requested) ? (int) $requested : ($numbers->contains((int) now()->year) ? (int) now()->year : $numbers->last());
 
         return [
             'selected' => $selected,
