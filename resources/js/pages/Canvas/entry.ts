@@ -12,7 +12,7 @@ export interface EntryElement extends LayoutElement {
 }
 
 export interface ElementCost {
-    cents: number;
+    cents: number | null;
     records: number;
     years: number[];
     own: boolean;

@@ -45,7 +45,7 @@ test('Archiveren opens the same dialog and the Target tree and radios work with 
     await page.keyboard.press('Space');
     await first.getByRole('button', { name: 'Kiezen: Betalen' }).focus();
     await page.keyboard.press('Enter');
-    await expect(first.getByRole('button', { name: 'Gekozen: Betalen' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(first.getByRole('button', { name: 'Kiezen: Betalen' })).toHaveAttribute('aria-pressed', 'true');
     const second = dialog.getByRole('group', { name: /2026/ });
     await second.getByRole('radio', { name: 'Terug naar onbekende allocatie' }).focus();
     await page.keyboard.press('Space');
@@ -65,4 +65,29 @@ test('a Finalised year refuses Herverdelen inside the dialog', async ({ page }) 
     await expect(dialog.getByRole('alert')).toContainText(/2026 is definitief.*Heropen het jaar eerst/);
     await expect(dialog.getByRole('button', { name: 'Herverdelen en archiveren' })).toBeDisabled();
     await expectNoAxeViolations(page);
+});
+
+test('stale props show an explained message with Opnieuw laden', async ({ page }) => {
+    const target = seedEntryCanvas('primary_activities', structure, allocationCode({ year: 2026, records: [['Verlopen', 10_000, { Betalen: 10_000 }]] }));
+    await openEntry(page, target);
+    await page.getByRole('button', { name: /Betalen/ }).first().click();
+    await expect(page.getByTestId('element-costs')).toContainText('toegewezen in 2026');
+    tinker(`$ids = App\\Models\\AllocationSet::where('canvas_id', ${target})->pluck('id'); App\\Models\\AllocationLine::whereIn('allocation_set_id', $ids)->delete(); App\\Models\\AllocationSet::whereIn('id', $ids)->delete();`);
+
+    await page.getByRole('complementary').getByRole('button', { name: 'Archiveren' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toContainText('Er staan geen kosten meer op dit element');
+    await dialog.getByRole('button', { name: 'Opnieuw laden' }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByTestId('element-costs')).toContainText('Geen kosten toegewezen');
+});
+
+test('closing the dialog with choices made asks to discard them', async ({ page }) => {
+    await openEntry(page, seed());
+    await page.getByRole('button', { name: /Offreren/ }).first().click();
+    await page.getByRole('complementary').getByRole('button', { name: 'Archiveren' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('group', { name: /2025/ }).getByRole('radio', { name: 'Terug naar onbekende allocatie' }).check();
+    await page.keyboard.press('Escape');
+    await expect(dialog.getByRole('alertdialog')).toBeVisible();
 });

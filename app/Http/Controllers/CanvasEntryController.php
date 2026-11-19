@@ -10,6 +10,7 @@ use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
 use App\Services\Allocation\ElementCosts;
+use App\Services\Finance\FigureService;
 use App\Services\Structure\ElementFields;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,11 +41,25 @@ class CanvasEntryController extends Controller
             'elements' => $this->elements($canvas),
             'year' => $year,
             'targets' => app(AllocationPage::class)->targets($canvas, null),
-            'costs' => (object) app(ElementCosts::class)->for($canvas, $year),
+            'costs' => (object) $this->costs($canvas, $year),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],
         ]);
+    }
+
+    /** @return array<string, array{years: list<int>, own: bool, cents?: int|null, records?: int}> */
+    private function costs(Canvas $canvas, ?int $year): array
+    {
+        $lines = app(ElementCosts::class)->for($canvas);
+        $figures = $lines === [] || $year === null ? null : app(FigureService::class)->figures($canvas, $year);
+
+        foreach ($lines as $id => &$line) {
+            $line['cents'] = $figures === null ? null : (int) ($figures->elements[$id]['total']['budget'] ?? 0);
+            $line['records'] = $figures === null ? 0 : count($figures->elements[$id]['contributions'] ?? []);
+        }
+
+        return $lines;
     }
 
     /** @return list<array<string, mixed>> */

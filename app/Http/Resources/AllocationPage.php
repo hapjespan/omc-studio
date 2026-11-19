@@ -8,7 +8,6 @@ use App\Models\Element;
 use App\Models\FiscalYear;
 use App\Services\Allocation\FinalisedYears;
 use App\Services\Finance\FigureService;
-use Illuminate\Support\Collection;
 
 class AllocationPage
 {
@@ -72,17 +71,22 @@ class AllocationPage
             ->filter(fn (Element $element) => $element->area?->carries_costs === true)
             ->values();
 
-        return $this->branch($elements->groupBy(fn (Element $element) => (string) $element->parent_id), $totals, '');
+        $byParent = [];
+        foreach ($elements as $element) {
+            $byParent[(string) $element->parent_id][] = $element;
+        }
+
+        return $this->branch($byParent, $totals, '');
     }
 
     /**
-     * @param  Collection<string, Collection<int, Element>>  $elements
+     * @param  array<string, list<Element>>  $elements
      * @param  array<string|int, array{total: array<string, int>}>|null  $totals
      * @return list<array<string, mixed>>
      */
-    private function branch(Collection $elements, ?array $totals, string $parent): array
+    private function branch(array $elements, ?array $totals, string $parent): array
     {
-        return ($elements[$parent] ?? collect())->map(fn (Element $element) => [
+        return collect($elements[$parent] ?? [])->map(fn (Element $element) => [
             'id' => $element->id,
             'name' => $element->name,
             'kind' => $element->kind->value,

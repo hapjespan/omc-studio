@@ -3,7 +3,7 @@ import { allocationCode, openEntry, seedEntryCanvas } from './support/entry';
 
 const structure = [['domain', 'Inkoop'], ['activity', 'Offreren', 'Inkoop'], ['activity', 'Bestellen', 'Inkoop']] as Parameters<typeof seedEntryCanvas>[1];
 
-test('an Element without lines says deletion is direct, an allocated Domain names amount and count and that Herverdelen is needed', async ({ page }) => {
+test('an allocated Activity and Domain name the amount, the count and that Herverdelen is needed', async ({ page }) => {
     const canvas = seedEntryCanvas('primary_activities', structure, allocationCode({ year: 2026, records: [['Licentie', 100_000, { Offreren: 3000, Bestellen: 7000 }], ['Hosting', 20_000, { Offreren: 10_000 }]] }));
     await openEntry(page, canvas);
 

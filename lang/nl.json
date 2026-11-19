@@ -1023,7 +1023,11 @@
     "redistribute.targets": "Doelen voor :year",
     "redistribute.choose": "Kiezen",
     "redistribute.chosen": "Gekozen",
-    "redistribute.target_action": ":action: :target",
+    "redistribute.target_action": "Kiezen: :target",
     "redistribute.confirm": "Herverdelen en archiveren",
-    "redistribute.done": ":name is herverdeeld en gearchiveerd"
+    "redistribute.done": ":name is herverdeeld en gearchiveerd",
+    "entry_costs.no_amount": "Op dit element staan verdelingen in :years. Herverdelen is nodig voor archiveren of verwijderen.",
+    "redistribute.empty": "Er staan geen kosten meer op dit element. De pagina was verouderd.",
+    "redistribute.reload": "Opnieuw laden",
+    "redistribute.failed": "De gegevens konden niet worden geladen. Probeer het opnieuw"
 }

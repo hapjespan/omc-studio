@@ -21,8 +21,9 @@ const drag = (event: DragEvent, row: TargetRow): void => event.dataTransfer?.set
                         <span v-if="row.totalCents !== null && !hideTotals" class="ml-1">{{ formatAmount(row.totalCents) }}</span>
                     </span>
                     <span v-if="inSet.has(String(row.id))" class="rounded bg-[#EEF1F5] px-1.5 text-[12px]">{{ t('allocation_page.in_set') }}</span>
+                    <span v-if="chosen !== undefined && chosen === String(row.id)" class="rounded bg-[#EEF1F5] px-1.5 text-[12px]">{{ t('redistribute.chosen') }}</span>
                     <button v-if="chosen === undefined" type="button" :disabled="disabled" :aria-label="t('allocation_page.add', { target: row.name })" class="rounded-md border border-[#848B95] px-2 py-1 disabled:opacity-60" @click="emit('add', String(row.id))">{{ t('allocation_page.add_label') }}</button>
-                    <button v-else type="button" :aria-pressed="chosen === String(row.id)" :aria-label="t('redistribute.target_action', { action: chosen === String(row.id) ? t('redistribute.chosen') : t('redistribute.choose'), target: row.name })" class="rounded-md border border-[#848B95] px-2 py-1 aria-pressed:border-2 aria-pressed:border-[#1B1F27] aria-pressed:font-semibold" @click="emit('add', String(row.id))">{{ chosen === String(row.id) ? t('redistribute.chosen') : t('redistribute.choose') }}</button>
+                    <button v-else type="button" :aria-pressed="chosen === String(row.id)" :aria-label="t('redistribute.target_action', { target: row.name })" class="rounded-md border border-[#848B95] px-2 py-1 aria-pressed:border-2 aria-pressed:border-[#1B1F27] aria-pressed:font-semibold" @click="emit('add', String(row.id))">{{ t('redistribute.choose') }}</button>
                 </div>
                 <div v-if="row.children.length" class="ml-4 mt-1">
                     <TargetNode :rows="row.children" :in-set="inSet" :needle="needle" :disabled="disabled" :hide-totals="hideTotals" :chosen="chosen" @add="emit('add', $event)" />

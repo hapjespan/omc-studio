@@ -8,9 +8,11 @@ const props = defineProps<{ year: number | null; cost?: ElementCost }>();
 const text = computed(() => {
     const { year, cost } = props;
     if (!cost) return year === null ? t('entry_costs.none_no_year') : t('entry_costs.none', { year });
-    if (year === null || cost.records === 0) return t('entry_costs.other_years', { year: year ?? '', years: cost.years.join(', ') });
+    const others = cost.years.filter((other) => other !== year).join(', ');
+    if (cost.cents === null) return t('entry_costs.no_amount', { years: cost.years.join(', ') });
+    if (cost.records === 0) return others ? t('entry_costs.other_years', { year: year ?? '', years: others }) : t('entry_costs.no_amount', { years: cost.years.join(', ') });
 
-    return t('entry_costs.allocated', { amount: formatAmount(cost.cents), year, records: plural('entry_costs.records', cost.records) });
+    return t('entry_costs.allocated', { amount: formatAmount(cost.cents), year: year ?? '', records: plural('entry_costs.records', cost.records) });
 });
 </script>
 

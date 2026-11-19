@@ -28,16 +28,20 @@ watch(open, async (opened) => {
     choices.value = {};
     refusal.value = '';
     loaded.value = false;
-    const response = await fetch(routes.elementRedistribution(props.canvasId, props.element.id), { credentials: 'same-origin', headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-    if (!response.ok) {
-        refusal.value = await refusalOf(response);
-        void announce(refusal.value);
-        return;
+    try {
+        const response = await fetch(routes.elementRedistribution(props.canvasId, props.element.id), { credentials: 'same-origin', headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+        if (!response.ok) refusal.value = await refusalOf(response).catch(() => '') || t('redistribute.failed');
+        else if (!response.headers.get('content-type')?.includes('json')) refusal.value = t('redistribute.failed');
+        else years.value = (await response.json()).years;
+    } catch {
+        refusal.value = t('redistribute.failed');
     }
-    years.value = (await response.json()).years;
-    loaded.value = true;
+    if (refusal.value) void announce(refusal.value);
+    loaded.value = refusal.value === '';
 });
 
+const stale = computed(() => loaded.value && years.value.length === 0);
+const reload = (): void => router.reload({ onSuccess: () => void (open.value = false) });
 const mode = (year: number, next: 'move' | 'unknown'): void => void (choices.value = { ...choices.value, [year]: { mode: next, target: next === 'move' ? (choices.value[year]?.target ?? null) : null } });
 const pick = (year: number, id: string): void => void (choices.value = { ...choices.value, [year]: { mode: 'move', target: id } });
 
@@ -60,9 +64,13 @@ const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
 </script>
 
 <template>
-    <Dialog v-model:open="open" :title="t('redistribute.title', { name: element.name })" :description="t('redistribute.description')">
+    <Dialog v-model:open="open" :dirty="Object.keys(choices).length > 0" :title="t('redistribute.title', { name: element.name })" :description="t('redistribute.description')">
         <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
         <p v-if="!loaded && !refusal" role="status" class="text-[13px]">{{ t('redistribute.loading') }}</p>
+        <div v-if="stale" role="status" class="text-[13px]">
+            <p>{{ t('redistribute.empty') }}</p>
+            <button type="button" :class="[button, 'mt-2']" @click="reload">{{ t('redistribute.reload') }}</button>
+        </div>
         <form class="flex flex-col gap-4" novalidate @submit.prevent="confirm">
             <fieldset v-for="item in years" :key="item.year" class="rounded-md border border-[#848B95] p-3">
                 <legend class="px-1 text-[13px] font-semibold">{{ t('redistribute.year', { year: item.year, records: plural('redistribute.records', item.records), percentage: formatPercentage(item.basis_points) }) }}</legend>
