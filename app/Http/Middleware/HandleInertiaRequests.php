@@ -22,7 +22,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'appName' => config('app.name'),
             'canvas' => $this->canvas($request),
-            'flash' => ['status' => $request->session()->get('status')],
+            'flash' => ['status' => $request->session()->get('status'), 'undoToken' => $request->session()->get('undo_token')],
         ];
     }
 

@@ -48,6 +48,33 @@ class EntryPageTest extends TestCase
             ->where('selected', 'steering'));
     }
 
+    public function test_the_page_carries_every_element_of_the_canvas_with_its_area_key_and_the_four_modalities(): void
+    {
+        $canvas = Canvas::factory()->create();
+        $domain = Element::factory()->create(['canvas_id' => $canvas->id, 'area_id' => Area::where('key', 'steering')->firstOrFail()->id, 'kind' => ElementKind::Domain, 'name' => 'Inkoop']);
+        Element::factory()->create(['canvas_id' => $canvas->id, 'area_id' => $domain->area_id, 'kind' => ElementKind::Activity, 'parent_id' => $domain->id, 'name' => 'Werving', 'archived_at' => now()]);
+        Element::factory()->create(['area_id' => $domain->area_id, 'kind' => ElementKind::Domain, 'name' => 'Andere']);
+
+        $this->actingAs(User::factory()->administrator()->create())->get("/canvases/{$canvas->id}/entry")->assertInertia(function (Assert $page) use ($domain) {
+            /** @var array<int, array<string, mixed>> $list */
+            $list = $page->toArray()['props']['elements'];
+            $elements = array_column($list, null, 'name');
+
+            $this->assertCount(2, $elements);
+            $this->assertSame(['id' => $domain->id, 'area' => 'steering', 'parent' => null, 'kind' => 'domain', 'archived' => false], array_intersect_key($elements['Inkoop'], array_flip(['id', 'area', 'parent', 'kind', 'archived'])));
+            $this->assertSame($domain->id, $elements['Werving']['parent']);
+            $this->assertTrue($elements['Werving']['archived']);
+            $page->has('modalities', 4)->where('modalities.0.letter', 'C')->where('icons.0', 'users');
+        });
+    }
+
+    public function test_the_undo_token_of_a_deletion_is_shared_with_the_next_page(): void
+    {
+        $canvas = Canvas::factory()->create();
+
+        $this->actingAs(User::factory()->administrator()->create())->withSession(['undo_token' => 'token-1'])->get("/canvases/{$canvas->id}/entry")->assertInertia(fn (Assert $page) => $page->where('flash.undoToken', 'token-1'));
+    }
+
     public function test_a_reader_and_an_archived_canvas_are_redirected_to_view(): void
     {
         $canvas = Canvas::factory()->create();
