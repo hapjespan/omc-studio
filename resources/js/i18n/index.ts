@@ -7,3 +7,7 @@ export function t(key: string, params: Record<string, string | number> = {}): st
     if (message === undefined) throw new Error(`Missing message key: ${key}`);
     return message.replace(/:(\w+)/g, (match, name: string) => (name in params ? String(params[name]) : match));
 }
+
+export function hasMessage(key: string): boolean {
+    return key in catalogue;
+}
