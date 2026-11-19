@@ -4,6 +4,7 @@ namespace App\Services\Undo;
 
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Models\Statement;
 use App\Models\UndoRecord;
 use App\Models\User;
 use App\Services\Audit\AuditContext;
@@ -16,6 +17,8 @@ class UndoStore
     use WritableGuard;
 
     public const ELEMENT_DELETION = 'element_deletion';
+
+    public const GOAL_DELETION = 'goal_deletion';
 
     private const LIFETIME_MINUTES = 10;
 
@@ -53,6 +56,12 @@ class UndoStore
             $this->refuse('undo_unavailable');
         }
 
+        if ($record->kind === self::GOAL_DELETION) {
+            $this->restoreGoal($record);
+
+            return;
+        }
+
         $rows = match ($record->kind) {
             self::ELEMENT_DELETION => $this->rows($record),
             default => $this->refuse('undo_unavailable'),
@@ -68,6 +77,25 @@ class UndoStore
             $this->assertStructureWritable($canvas);
             $this->assertEveryRuleStillHolds($rows);
             $this->context->during('undone', fn () => $this->insert($rows));
+
+            $record->delete();
+        });
+    }
+
+    private function restoreGoal(UndoRecord $record): void
+    {
+        /** @var array<string, mixed> $row */
+        $row = ((array) $record->payload)['statements'][0];
+
+        $canvas = Canvas::query()->whereKey($row['canvas_id'])->first();
+
+        if ($canvas === null) {
+            $this->refuse('undo_parent_gone');
+        }
+
+        $this->writes->run([$canvas], function () use ($canvas, $record, $row) {
+            $this->assertStructureWritable($canvas);
+            $this->context->during('undone', fn () => (new Statement)->forceFill($row)->save());
 
             $record->delete();
         });

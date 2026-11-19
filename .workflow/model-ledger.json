@@ -552,6 +552,9 @@
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T156": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T161": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"

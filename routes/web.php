@@ -22,6 +22,7 @@ use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\StatementController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
@@ -125,4 +126,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::patch('/templates/{canvas}', [TemplateController::class, 'update']);
     Route::delete('/templates/{canvas}', [TemplateController::class, 'destroy']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}')->group(function () {
+    Route::put('/statements/{kind}', [StatementController::class, 'text'])->whereIn('kind', ['mission', 'vision']);
+    Route::post('/goals', [StatementController::class, 'store']);
+    Route::patch('/goals/{goal}', [StatementController::class, 'update']);
+    Route::post('/goals/{goal}/reorder', [StatementController::class, 'reorder']);
+    Route::delete('/goals/{goal}', [StatementController::class, 'destroy']);
 });
