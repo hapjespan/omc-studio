@@ -77,7 +77,7 @@ class OverviewTest extends TestCase
         $canvas = Canvas::factory()->create();
         Element::factory()->create(['canvas_id' => $canvas->id]);
         $this->actingAs(User::factory()->administrator()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
-            ->where('organisations.0.canvases.0.counts', ['elements' => 1, 'statements' => 0]));
+            ->where('organisations.0.canvases.0.counts', ['elements' => 1, 'statements' => 0, 'allocation_sets' => 0, 'finalised_years' => 0]));
 
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
             ->where('canWrite', false)->where('templates', [])->where('organisations.0.canvases.0.counts', null));
