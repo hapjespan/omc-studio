@@ -352,5 +352,17 @@
   "T086": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
+  },
+  "T094": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T095": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T096": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }

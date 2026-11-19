@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'slug', 'logo_path', 'archived_at'])]
+#[Fillable(['name', 'slug', 'archived_at'])]
 class Organisation extends Model
 {
     /** @use HasFactory<OrganisationFactory> */
