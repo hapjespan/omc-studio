@@ -78,5 +78,9 @@
     "shell.breadcrumb": "Kruimelpad",
     "shell.role.administrator": "Administrator",
     "shell.role.reader": "Lezer",
-    "shell.account": "Mijn account"
+    "shell.account": "Mijn account",
+    "shell.tabs": "Hoofdnavigatie",
+    "shell.tab.canvas": "Canvas",
+    "shell.tab.overview": "Overzicht",
+    "shell.tab.admin": "Beheer"
 }
