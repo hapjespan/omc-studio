@@ -31,7 +31,7 @@ function run(): void {
             <label class="flex items-center gap-2 text-[13px]"><input v-model="withFigures" type="checkbox" />{{ t('carry_over.with_figures') }}</label>
             <div><button type="submit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('carry_over.run') }}</button></div>
         </form>
-        <section v-if="report" aria-labelledby="carry-over-result" class="mt-4 text-[13px]">
+        <section role="region" v-if="report" aria-labelledby="carry-over-result" class="mt-4 text-[13px]">
             <h2 id="carry-over-result" role="status" class="text-[16px] font-semibold">{{ report.summary }}</h2>
             <table v-if="report.copied.length" class="mt-2 w-full">
                 <caption class="text-left font-semibold">{{ t('carry_over.copied') }}</caption>

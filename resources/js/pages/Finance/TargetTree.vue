@@ -11,7 +11,7 @@ const set = computed(() => new Set(props.inSet));
 </script>
 
 <template>
-    <section aria-labelledby="allocation-targets" class="min-w-0">
+    <section role="region" aria-labelledby="allocation-targets" class="min-w-0">
         <h2 id="allocation-targets" class="text-[15px] font-semibold">{{ t('allocation_page.targets') }}</h2>
         <p class="mt-1 text-[13px]">{{ t('allocation_page.drag_hint') }}</p>
         <p v-if="!figuresAvailable" role="status" class="mt-1 text-[13px] text-[#8A5A00]">{{ t('allocation_page.total_hidden') }}</p>

@@ -34,7 +34,7 @@ function dropped(event: DragEvent): void {
 </script>
 
 <template>
-    <section :aria-label="t('allocation_page.drop_zone')" class="min-w-0" @dragover.prevent @drop.prevent="dropped">
+    <section role="region" :aria-label="t('allocation_page.drop_zone')" class="min-w-0" @dragover.prevent @drop.prevent="dropped">
         <p v-if="lines.length === 0" class="rounded-md border border-dashed border-[#848B95] p-3 text-[13px]">{{ t('allocation_page.no_lines') }}</p>
         <ul class="space-y-2">
             <li v-for="(line, index) in lines" :key="line.elementId" class="rounded-md border border-[#848B95] p-2 text-[13px]">

@@ -89,7 +89,7 @@ function load(query: ListState, year: number | null = props.year): void {
         <CarryOver v-model:open="carryOpen" :canvas-id="canvas.id" :years="years" />
         <FinaliseCard class="mt-3" :canvas-id="canvas.id" :year="year" :remaining="cards.unknown.count" :finalised="yearFinalised" :writable="!organisation.archived" />
     </template>
-    <section v-if="canvas && cards" :aria-label="t('cost_records.cards')" class="mt-3 grid gap-3 sm:grid-cols-3">
+    <section role="region" v-if="canvas && cards" :aria-label="t('cost_records.cards')" class="mt-3 grid gap-3 sm:grid-cols-3">
         <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('cost_records.card_budget') }}</h2><p>{{ formatAmount(cards.budgetCents) }}</p><p>{{ t('fields.forecast') }}: {{ formatAmount(cards.forecastCents) }}</p></div>
         <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_allocated') }}</h2><p>{{ formatAmount(cards.allocated.budget) }}</p><p>{{ t('cost_records.card_of', { done: cards.allocated.count, total: cards.allocated.count + cards.unknown.count }) }}</p></div>
         <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_unallocated') }}</h2><p>{{ formatAmount(cards.unknown.budget) }}</p><p>{{ plural('cost_records.card_count', cards.unknown.count) }}, {{ formatShare(cards.unknown.budget, cards.budgetCents) }}</p></div>

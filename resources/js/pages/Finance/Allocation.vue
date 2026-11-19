@@ -111,7 +111,7 @@ const canClear = computed(() => writable.value && record.value?.status === 'allo
     <div v-if="undo.state.value" class="mt-3"><UndoMessage :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" /></div>
     <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)]">
         <CostRecordStatusList :records="costRecords" :chosen="chosen" @choose="choose" />
-        <section aria-labelledby="allocation-middle" class="min-w-0">
+        <section role="region" aria-labelledby="allocation-middle" class="min-w-0">
             <template v-if="record">
                 <h2 id="allocation-middle" class="text-[15px] font-semibold">{{ t('allocation_page.lines', { name: record.name }) }}</h2>
                 <p class="mt-1 flex flex-wrap items-center gap-2 text-[13px]">

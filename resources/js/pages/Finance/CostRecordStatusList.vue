@@ -11,7 +11,7 @@ const shown = computed(() => props.records.filter((record) => `${record.code ?? 
 </script>
 
 <template>
-    <section aria-labelledby="allocation-records" class="min-w-0">
+    <section role="region" aria-labelledby="allocation-records" class="min-w-0">
         <h2 id="allocation-records" class="text-[15px] font-semibold">{{ t('allocation_page.records') }}</h2>
         <label for="allocation-records-search" class="mt-2 block text-[13px]">{{ t('list.search') }}</label>
         <input id="allocation-records-search" v-model="search" type="search" class="mt-1 w-full rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]" />

@@ -15,7 +15,7 @@ function finalise(): void {
 </script>
 
 <template>
-    <section aria-labelledby="finalise-card-title" class="rounded-md border border-[#848B95] p-3 text-[13px]">
+    <section role="region" aria-labelledby="finalise-card-title" class="rounded-md border border-[#848B95] p-3 text-[13px]">
         <h2 id="finalise-card-title" class="text-[14px] font-semibold">{{ t('finalise.card_title') }}</h2>
         <p class="mt-1">{{ text }}</p>
         <p v-if="refusal" role="alert" class="mt-1 text-[#A12A1E]">{{ refusal }}</p>

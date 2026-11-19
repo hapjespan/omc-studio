@@ -52,7 +52,7 @@ const remove = (): void => {
 </script>
 
 <template>
-    <section :aria-label="t('yearly_figures.title', { year })" class="mt-4 border-t border-[#D5D9DF] pt-3">
+    <section role="region" :aria-label="t('yearly_figures.title', { year })" class="mt-4 border-t border-[#D5D9DF] pt-3">
         <h3 class="text-[14px] font-semibold">{{ t('yearly_figures.title', { year }) }}</h3>
         <div role="alert" class="mt-2"><ErrorSummary :errors="errors" prefix="figures-" /></div>
         <form novalidate class="mt-2 flex flex-col gap-3" @submit.prevent="save">
