@@ -13,6 +13,7 @@ use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
 use App\Services\Finance\FigureService;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,8 +30,8 @@ class CanvasViewController extends Controller
         $overlay = in_array($request->query('overlay'), self::OVERLAYS, true) ? $request->query('overlay') : 'none';
         $filters = [
             'costKind' => CostKind::tryFrom($this->text($request, 'cost_kind'))?->value,
-            'ownerId' => $organisation?->owners()->whereKey($this->text($request, 'owner'))->value('id'),
-            'applicationId' => $organisation?->applications()->whereKey($this->text($request, 'application'))->value('id'),
+            'ownerId' => $this->owned($organisation?->owners(), $this->identifier($request, 'owner')),
+            'applicationId' => $this->owned($organisation?->applications(), $this->identifier($request, 'application')),
         ];
         $year = $request->attributes->get('fiscal_year');
         $financial = $overlay === 'financial';
@@ -90,6 +91,19 @@ class CanvasViewController extends Controller
         $value = $request->query($key);
 
         return is_string($value) ? $value : '';
+    }
+
+    /** @param HasMany<*, *>|null $relation */
+    private function owned(?HasMany $relation, ?int $id): ?int
+    {
+        return $relation === null || $id === null ? null : $relation->whereKey($id)->value('id');
+    }
+
+    private function identifier(Request $request, string $key): ?int
+    {
+        $value = $this->text($request, $key);
+
+        return ctype_digit($value) && strlen($value) < 19 ? (int) $value : null;
     }
 
     /** @return list<array{name: string, id: string|int, amountCents: int, basisPoints: int}> */

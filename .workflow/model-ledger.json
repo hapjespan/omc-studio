@@ -808,12 +808,20 @@
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T292": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
   "T293": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
   "T294": {
     "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T295": {
+    "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
   "T296": {
