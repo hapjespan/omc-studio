@@ -66,9 +66,13 @@ class CostRecordImport
                 $this->refuse('import.refused_changed');
             }
 
+            $batch = new CostRecordBatch($this->context, (int) $organisation->getKey());
+
             foreach ($scan['rows'] as $row) {
-                $this->apply($organisation, $data, $row);
+                $this->apply($organisation, $data, $row, $batch);
             }
+
+            $batch->flush();
 
             return ['totals' => $scan['totals']];
         }));
@@ -207,7 +211,7 @@ class CostRecordImport
      * @param  array{yearModels: Collection<int, FiscalYear>, years: array<int, int>, records: Collection<string, CostRecord>, owners: array<int, string>, applications: array<int, string>}  $data
      * @param  array{cells: array<string, string>, fields: array<string, ?string>, figures: ?array<string, ?int>, year: ?int}  $row
      */
-    private function apply(Organisation $organisation, array &$data, array $row): void
+    private function apply(Organisation $organisation, array &$data, array $row, CostRecordBatch $batch): void
     {
         $attributes = [
             'name' => $row['fields']['name'],
@@ -218,14 +222,19 @@ class CostRecordImport
             'application_id' => $this->entry(Application::class, $organisation, $data['applications'], $row['cells']['applicatie']),
         ];
 
-        $record = $data['records']->get(mb_strtolower($row['cells']['code']));
+        $key = mb_strtolower($row['cells']['code']);
+        $record = $data['records']->get($key);
 
         if ($record instanceof CostRecord) {
             $record->fill($attributes)->save();
         } else {
-            $record = CostRecord::create(['organisation_id' => $organisation->getKey(), 'code' => $row['cells']['code'], ...$attributes]);
-            $record->setRelation('yearlyFigures', new Collection);
-            $data['records']->put((string) $record->code_normalised, $record);
+            $batch->has($key) || $batch->record($key, $row['cells']['code'], $attributes);
+
+            if ($row['figures'] !== null && $row['year'] !== null) {
+                $batch->figure($key, $row['year'], $row['figures']);
+            }
+
+            return;
         }
 
         if ($row['figures'] === null || $row['year'] === null) {

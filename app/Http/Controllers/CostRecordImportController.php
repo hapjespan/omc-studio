@@ -35,6 +35,8 @@ class CostRecordImportController extends Controller
 
     private function path(Request $request): string
     {
+        ini_set('memory_limit', '1G');
+
         $request->validate(['file' => ['required', new CsvUploadRule(CostRecordImport::COLUMNS)]]);
 
         /** @var UploadedFile $file */
