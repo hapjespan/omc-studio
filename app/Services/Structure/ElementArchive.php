@@ -15,6 +15,7 @@ class ElementArchive
         private readonly ElementNames $names,
         private readonly SiblingPosition $positions,
         private readonly UnknownAllocationGuard $unknown,
+        private readonly ElementTree $tree,
     ) {}
 
     public function archive(Element $element): void
@@ -29,6 +30,8 @@ class ElementArchive
             $this->unknown->assertNone($element);
 
             if ($element->archived_at === null) {
+                $this->tree->assertNoAllocationLines($element);
+
                 $this->stamp($element, now(), null);
             }
         });
