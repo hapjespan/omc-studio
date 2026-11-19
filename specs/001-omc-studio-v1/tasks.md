@@ -471,7 +471,7 @@ No new question for the product owner came out of the decomposition. Two things 
 
 **Parallel with**: Phase D1.15, Phase D1.16
 
-- [ ] T158 [US14] Write the Modality rules in `ElementTree::update`: activity Areas only (a request on a list Area Element is refused), Rationale only with a Modality, setting "Geen" clears both after the confirmation flag. Files: `app/Services/Structure/ElementTree.php`, `tests/Feature/Structure/ModalityRulesTest.php`. Accept: US14 sc 2 and 3; the four Modalities cannot be changed by any route (US14 sc 4, FR-043).
+- [x] T158 [US14] Write the Modality rules in `ElementTree::update`: activity Areas only (a request on a list Area Element is refused), Rationale only with a Modality, setting "Geen" clears both after the confirmation flag. Files: `app/Services/Structure/ElementTree.php`, `tests/Feature/Structure/ModalityRulesTest.php`. Accept: US14 sc 2 and 3; the four Modalities cannot be changed by any route (US14 sc 4, FR-043).
 - [ ] T159 [US14] Build the Modality button group "Common", "Adaptive", "Specialized", "Distinct", "Geen" each with its letter, the editable "Onderbouwing", the confirmation that the Rationale goes with "Geen", and the mark (letter, colour, dark and light outline) in the tree. Files: `resources/js/pages/Canvas/EntryRow.vue`, `resources/js/pages/Canvas/ElementPanel.vue`, `resources/js/components/ModalityButtons.vue`, `resources/js/components/ModalityMark.vue`, `lang/nl.json`, `tests/e2e/entry/modality.spec.ts`. Accept: US14 sc 1; the letter meets 4.5:1 on the mark and the mark 3:1 on any canvas colour (WB3). `ElementPanel.vue` hosts the button group and `EntryRow.vue` the mark. WCAG: WB1-WB6.
 
 **Checkpoint**: US14 independent test passes.
