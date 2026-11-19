@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Services\Snapshot\Snapshots;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 
 class FullImportTest extends CanvasExchangeTestCase
@@ -48,19 +47,6 @@ class FullImportTest extends CanvasExchangeTestCase
     private function template(string $name): array
     {
         return ['name' => $name, 'statements' => [], 'elements' => []];
-    }
-
-    protected function wipe(): void
-    {
-        DB::statement('PRAGMA foreign_keys = OFF');
-
-        foreach (['snapshots', 'allocation_lines', 'allocation_sets', 'yearly_figures', 'finalised_years', 'elements', 'statements', 'cost_records', 'owners', 'applications', 'fiscal_years'] as $table) {
-            DB::table($table)->delete();
-        }
-
-        DB::table('canvases')->where('is_blank_template', false)->delete();
-        DB::table('organisations')->delete();
-        DB::statement('PRAGMA foreign_keys = ON');
     }
 
     /**

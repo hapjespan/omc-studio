@@ -11,6 +11,7 @@ use App\Models\Statement;
 use App\Models\YearlyFigure;
 use App\Services\Canvas\UnknownAllocationDomain;
 use App\Services\Exchange\CanvasExport;
+use Illuminate\Support\Facades\DB;
 use Tests\Feature\Allocation\AllocationTestCase;
 
 abstract class CanvasExchangeTestCase extends AllocationTestCase
@@ -48,6 +49,16 @@ abstract class CanvasExchangeTestCase extends AllocationTestCase
         $this->allocate($this->costRecordByCode('LC-001'), 2027, [$third->id => 10000]);
         $this->allocate($this->costRecordByCode('LC-002'), 2027, [$third->id => 10000]);
         $this->finalise(2027);
+    }
+
+    protected function wipe(): void
+    {
+        foreach (['allocation_lines', 'allocation_sets', 'snapshots', 'yearly_figures', 'finalised_years', 'elements', 'statements', 'cost_records', 'owners', 'applications', 'fiscal_years'] as $table) {
+            DB::table($table)->delete();
+        }
+
+        DB::table('canvases')->where('is_blank_template', false)->delete();
+        DB::table('organisations')->delete();
     }
 
     protected function costRecordByCode(string $code): CostRecord
