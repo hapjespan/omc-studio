@@ -198,5 +198,8 @@
   },
   "T102": {
     "built_by": "claude-sonnet-5-5"
+  },
+  "T103": {
+    "built_by": "claude-sonnet-5-5"
   }
 }
