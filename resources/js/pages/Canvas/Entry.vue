@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { t } from '../../i18n';
 import EntryTree from './EntryTree.vue';
 import type { AreaKey, ElementKind } from '../../layout/types';
@@ -16,7 +16,8 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ canvas: { id: number; name: string }; areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[] }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[] }>();
+const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
 const selectedId = ref<string | null>(null);

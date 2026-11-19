@@ -481,7 +481,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T138": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T139": {
     "built_by": "claude-sonnet-5-5"
