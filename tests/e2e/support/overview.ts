@@ -26,9 +26,9 @@ export function stubEntry(page: import('@playwright/test').Page): { next(): Prom
             if (route.request().method() !== 'POST') return route.continue();
             const response = await route.fetch();
             if (!/\/canvases\/\d+\/entry$/.test(response.url())) return route.fulfill({ response });
-            targets.push(response.url());
             const overview = await route.fetch({ url: new URL('/overview', response.url()).toString(), method: 'GET', postData: null });
-            return route.fulfill({ response: overview });
+            await route.fulfill({ response: overview });
+            targets.push(response.url());
         },
     );
 
