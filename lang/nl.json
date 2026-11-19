@@ -420,5 +420,11 @@
     "entry.system": "Systeem",
     "entry.unknown_explanation": "Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld",
     "entry.restore_named": ":name terugzetten",
-    "entry.restored": ":name is teruggezet"
+    "entry.restored": ":name is teruggezet",
+    "quick_entry.line_error": "Regel :line: :message",
+    "quick_entry.indent_mismatch": "inspringing past niet bij de regel erboven",
+    "quick_entry.no_clusters": "in deze area bestaan geen clusters",
+    "quick_entry.duplicate": "deze naam staat al onder dezelfde regel erboven",
+    "quick_entry.sign": "het teken > is niet toegestaan",
+    "quick_entry.too_long": "de naam is langer dan 150 tekens"
 }
