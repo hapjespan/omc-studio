@@ -10,11 +10,13 @@ import { computeBlocks, type Fixture } from './layout';
 import { watchFinishedActions } from './changes';
 import { renderHtmlView } from './html-view';
 import { canvasMeasurer } from './measure';
+import { collectLoad, scaledFixture } from './measure-load';
 import { inertShortcuts, restrict } from './restrict';
 import { readBlocks } from './roundtrip';
 import { buildScene } from './scene';
 
-const fixture = fixtureJson as Fixture;
+const bulk = Number(new URLSearchParams(location.search).get('bulk') ?? 0);
+const fixture = (bulk > 0 ? scaledFixture(fixtureJson as Fixture, bulk) : fixtureJson) as Fixture;
 
 const remoteFontControl = new URLSearchParams(location.search).has('control-remote-font');
 
@@ -47,6 +49,7 @@ async function start() {
     });
     await ready;
     Object.assign(window, { proof: { editor, graph, fixture, blocks, restrictions, inertShortcuts, readBlocks: () => readBlocks(graph), watchFinishedActions: (listener: (action: { ids: string[]; at: number }) => void) => watchFinishedActions(editor, graph, listener) } });
+    Object.assign((window as any).proof, { load: collectLoad(performance.now()) });
     document.documentElement.dataset.ready = 'true';
 }
 

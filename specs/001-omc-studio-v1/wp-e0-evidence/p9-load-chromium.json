@@ -1,0 +1,140 @@
+{
+  "machine": {
+    "cpu": "unknown",
+    "arch": "arm64",
+    "cores": 11,
+    "memoryGigabytes": 7.7,
+    "kernel": "Linux version 7.0.14-linuxkit (root@buildkitsandbox) (gcc (A",
+    "browser": "chromium 159.0.8154.6",
+    "note": "container in a virtual machine, headless, software rendering; not an ordinary laptop"
+  },
+  "scene": {
+    "samples": [
+      {
+        "wall": 454,
+        "readyAt": 348,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 0.5
+      },
+      {
+        "wall": 385,
+        "readyAt": 302,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 0.6
+      },
+      {
+        "wall": 376,
+        "readyAt": 301,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 0.5
+      },
+      {
+        "wall": 425,
+        "readyAt": 352,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 1
+      },
+      {
+        "wall": 391,
+        "readyAt": 305,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 0.4
+      }
+    ],
+    "medianReadyMs": 305,
+    "maxReadyMs": 352,
+    "maxWallMs": 454,
+    "maxActionMs": 1
+  },
+  "scene-cpu-x4": {
+    "samples": [
+      {
+        "wall": 1011,
+        "readyAt": 923,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 2
+      },
+      {
+        "wall": 974,
+        "readyAt": 899,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 2.9
+      },
+      {
+        "wall": 1052,
+        "readyAt": 962,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 2.2
+      },
+      {
+        "wall": 1065,
+        "readyAt": 972,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 1.5
+      },
+      {
+        "wall": 1022,
+        "readyAt": 944,
+        "totalBytes": 12319640,
+        "heapMegabytes": 16.3,
+        "actionMs": 2.1
+      }
+    ],
+    "medianReadyMs": 944,
+    "maxReadyMs": 972,
+    "maxWallMs": 1065,
+    "maxActionMs": 2.9
+  },
+  "bulk-500": {
+    "samples": [
+      {
+        "wall": 561,
+        "readyAt": 468,
+        "totalBytes": 12319640,
+        "heapMegabytes": 33.5,
+        "actionMs": 1
+      },
+      {
+        "wall": 547,
+        "readyAt": 465,
+        "totalBytes": 12319640,
+        "heapMegabytes": 35.6,
+        "actionMs": 0.5
+      },
+      {
+        "wall": 522,
+        "readyAt": 444,
+        "totalBytes": 12319640,
+        "heapMegabytes": 31.6,
+        "actionMs": 0.6
+      },
+      {
+        "wall": 516,
+        "readyAt": 446,
+        "totalBytes": 12319640,
+        "heapMegabytes": 31.6,
+        "actionMs": 0.5
+      },
+      {
+        "wall": 535,
+        "readyAt": 443,
+        "totalBytes": 12319640,
+        "heapMegabytes": 31.6,
+        "actionMs": 0.6
+      }
+    ],
+    "medianReadyMs": 446,
+    "maxReadyMs": 468,
+    "maxWallMs": 561,
+    "maxActionMs": 1
+  }
+}
