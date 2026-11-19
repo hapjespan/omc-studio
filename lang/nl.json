@@ -509,5 +509,8 @@
     "cost_records.deleted_count": ":count kostenpost verwijderd|:count kostenposten verwijderd",
     "rule.redistribution_choice_required": ":year: kies wat er met de verdeling gebeurt",
     "rule.redistribution_target_inside": "Kies een doel buiten het element dat je verwijdert",
-    "rule.redistribution_target_cannot_carry": "Doel :name kan geen kosten dragen"
+    "rule.redistribution_target_cannot_carry": "Doel :name kan geen kosten dragen",
+    "carry_over.target_not_empty": "doeljaar niet leeg",
+    "carry_over.no_figures": "geen jaarwaarden in :year",
+    "carry_over.archived": "gearchiveerd"
 }
