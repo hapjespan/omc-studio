@@ -26,6 +26,8 @@ class FullImportValidator
 
     private const STUB = ['statements' => [], 'elements' => [], 'layout' => null, 'allocation_sets' => [], 'finalised_years' => []];
 
+    private const TEMPLATE = ['name' => null, 'statements' => null, 'elements' => null];
+
     /** @var array<string, bool> */
     private array $recordIds = [];
 
@@ -200,7 +202,7 @@ class FullImportValidator
 
         foreach ($templates as $index => $template) {
             $at = 'templates['.$index.']';
-            $result = $this->validator->block([...self::STUB, ...$template]);
+            $result = $this->validator->blockWithoutRecords([...self::STUB, ...array_intersect_key($template, self::TEMPLATE)]);
             $this->collect($result['errors'], $at.'.', $result['count']);
 
             $name = is_array($result['canvas']) ? ($result['canvas']['name'] ?? null) : null;

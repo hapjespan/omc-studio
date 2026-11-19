@@ -27,6 +27,8 @@ async function send(url: string): Promise<Response | null> {
     refusal.value = '';
     try {
         return await fetch(url, { method: 'POST', body, credentials: 'same-origin', headers: { 'X-XSRF-TOKEN': token, Accept: 'application/json' } });
+    } catch {
+        return new Response(null, { status: 503 });
     } finally {
         busy.value = false;
     }

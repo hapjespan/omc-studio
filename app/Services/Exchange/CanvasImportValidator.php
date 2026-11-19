@@ -82,6 +82,17 @@ class CanvasImportValidator
     }
 
     /** @return array{canvas: mixed, errors: list<array{location: string, message: string}>, count: int} */
+    public function blockWithoutRecords(mixed $node): array
+    {
+        $this->years = [];
+        $this->recordIds = [];
+        $this->recordYears = [];
+        $this->recordLabels = [];
+
+        return $this->block($node);
+    }
+
+    /** @return array{canvas: mixed, errors: list<array{location: string, message: string}>, count: int} */
     public function block(mixed $node): array
     {
         $this->errors = [];

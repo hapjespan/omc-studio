@@ -160,6 +160,18 @@ class FullImportTest extends CanvasExchangeTestCase
         $this->assertSame(['Sjabloon A', 'Sjabloon A (geïmporteerd)'], Canvas::where('scope_key', 'template')->where('is_blank_template', false)->orderBy('id')->pluck('name')->all());
     }
 
+    public function test_a_template_block_carries_no_allocation_sets_or_finalised_years(): void
+    {
+        $data = $this->emptyFull();
+        $data['templates'] = [[...$this->template('Sjabloon A'), 'allocation_sets' => [['cost_record_id' => 'onbekend', 'year' => 2026, 'lines' => []]], 'finalised_years' => [['year' => 2026, 'finalised_at' => now()->toIso8601String()]]]];
+
+        $this->send('/admin/import/full/preview', $data)->assertOk()->assertJsonPath('count', 0);
+        $this->send('/admin/import/full', $data)->assertOk();
+
+        $this->assertSame(0, DB::table('allocation_sets')->count());
+        $this->assertSame(0, DB::table('finalised_years')->count());
+    }
+
     public function test_a_suffixed_template_name_stays_within_150_characters(): void
     {
         $data = $this->emptyFull();
