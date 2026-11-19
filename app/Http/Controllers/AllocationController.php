@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AllocationRequest;
+use App\Http\Resources\AllocationPage;
 use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\FiscalYear;
@@ -10,10 +11,21 @@ use App\Models\User;
 use App\Services\Allocation\AllocationSets;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AllocationController extends Controller
 {
     public function __construct(private readonly AllocationSets $sets) {}
+
+    public function index(Request $request, Canvas $canvas, AllocationPage $page): Response
+    {
+        $canvas->loadMissing('organisation');
+        $year = $canvas->organisation->fiscalYears()->where('year', $request->attributes->get('fiscal_year'))->first();
+        $chosen = $request->query('cost_record');
+
+        return Inertia::render('Finance/Allocation', $page->props($canvas, $year, is_string($chosen) ? $chosen : null));
+    }
 
     public function update(AllocationRequest $request, Canvas $canvas, int $year, CostRecord $costRecord): RedirectResponse
     {
