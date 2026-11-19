@@ -8,7 +8,7 @@ class CsvWriter
 
     private const SPECIAL = ";\"\n\r";
 
-    private const FORMULA = ['=', '+', '-', '@', "\t", "\r"];
+    public const FORMULA = ['=', '+', '-', '@', "\t", "\r"];
 
     public function __construct(private readonly mixed $handle) {}
 

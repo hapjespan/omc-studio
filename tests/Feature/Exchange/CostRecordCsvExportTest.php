@@ -62,6 +62,17 @@ class CostRecordCsvExportTest extends ExchangeTestCase
         $this->assertSame(['new' => 0, 'updated' => 0, 'unchanged' => 3, 'errors' => 0], $report->json('totals'));
     }
 
+    public function test_values_starting_with_a_formula_character_read_unchanged_when_imported_again(): void
+    {
+        $this->costRecord('-K1', '=SOM(A1)', 5_000);
+        $this->costRecord('K2', '+Telecom', 6_000);
+
+        $file = UploadedFile::fake()->createWithContent('import.csv', $this->export());
+        $report = $this->post('/organisations/'.$this->organisation->id.'/cost-records/import/preview', ['file' => $file], ['Accept' => 'application/json'])->assertOk();
+
+        $this->assertSame(['new' => 0, 'updated' => 0, 'unchanged' => 2, 'errors' => 0], $report->json('totals'));
+    }
+
     public function test_any_signed_in_user_may_export_a_guest_may_not(): void
     {
         $this->costRecord('K1');

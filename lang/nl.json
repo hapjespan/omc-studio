@@ -706,6 +706,6 @@
     "jsonx.canvas_name_taken": "Canvasnaam: dit canvas bestaat al in deze organisatie",
     "jsonx.organisation_name_taken": "Organisatienaam: deze organisatie bestaat al",
     "jsonx.archived_parent": ":location: een actief element hangt onder een gearchiveerd element",
-    "jsonx.set_without_figures": ":location: deze kostenpost heeft geen jaarwaarden in dit jaar, dus er kan geen verdeling zijn",
+    "jsonx.set_without_figures": ":location: deze kostenpost heeft geen jaarwaarden in dit jaar, dus er kan geen verdeling zijn. Een export met een carry-over-toewijzing zonder jaarwaarden komt daarom niet terug via importeren",
     "jsonx.finalised_incomplete": ":location: :year kan niet definitief zijn: er is geen verdeling in dit canvas voor :records"
 }

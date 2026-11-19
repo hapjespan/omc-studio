@@ -37,7 +37,7 @@ class CsvReader
                     continue;
                 }
 
-                $values = array_map(fn (?string $field): string => (string) $field, $fields);
+                $values = array_map(fn (?string $field): string => self::unprotected((string) $field), $fields);
 
                 if ($first) {
                     $values[0] = self::stripped($values[0]);
@@ -57,6 +57,11 @@ class CsvReader
     private static function breaks(array $fields): int
     {
         return array_sum(array_map(fn (?string $field): int => substr_count((string) $field, "\n"), $fields));
+    }
+
+    private static function unprotected(string $field): string
+    {
+        return strlen($field) > 1 && $field[0] === "'" && in_array($field[1], CsvWriter::FORMULA, true) ? substr($field, 1) : $field;
     }
 
     private static function stripped(string $field): string
