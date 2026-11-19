@@ -426,5 +426,17 @@
     "quick_entry.no_clusters": "in deze area bestaan geen clusters",
     "quick_entry.duplicate": "deze naam staat al onder dezelfde regel erboven",
     "quick_entry.sign": "het teken > is niet toegestaan",
-    "quick_entry.too_long": "de naam is langer dan 150 tekens"
+    "quick_entry.too_long": "de naam is langer dan 150 tekens",
+    "quick_entry.open": "Snel invoeren",
+    "quick_entry.title": "Snel invoeren in :area",
+    "quick_entry.label": "Regels",
+    "quick_entry.hint": "Eén element per regel. Tab springt een niveau in. Druk op Escape en daarna op Tab om het tekstveld te verlaten.",
+    "quick_entry.preview": "Voorbeeld",
+    "quick_entry.new": "nieuw",
+    "quick_entry.exists": "bestaat al",
+    "quick_entry.errors": "Fouten in de invoer",
+    "quick_entry.save": "Opslaan",
+    "quick_entry.close": "Sluiten",
+    "quick_entry.saved": "Opgeslagen: :count nieuwe elementen",
+    "quick_entry.preview_failed": "Het voorbeeld kon niet worden gemaakt"
 }
