@@ -17,6 +17,8 @@ return [
 
     'default' => env('CACHE_STORE', 'file'),
 
+    'throttle_store' => env('CACHE_THROTTLE_STORE', 'file'),
+
     /*
     |--------------------------------------------------------------------------
     | Cache Stores
