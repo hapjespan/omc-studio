@@ -83,7 +83,7 @@ class AllocationCsvImport
                 continue;
             }
 
-            $row = array_combine(AllocationCsv::COLUMNS, array_pad(array_map('trim', $cells), count(AllocationCsv::COLUMNS), ''));
+            $row = array_combine(AllocationCsv::COLUMNS, array_slice(array_pad(array_map('trim', $cells), count(AllocationCsv::COLUMNS), ''), 0, count(AllocationCsv::COLUMNS)));
             $record = $records->get(mb_strtolower($row['kostenpost_code']));
             $year = $years->get((int) $row['jaar']);
             $element = $targets[mb_strtolower($row['doel_pad'])] ?? null;
