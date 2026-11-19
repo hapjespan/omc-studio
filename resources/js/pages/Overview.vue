@@ -37,7 +37,7 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
         <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-[#454C57]">{{ t('overview.empty_organisation') }}</p>
         <ul v-else class="mt-2 flex flex-wrap gap-4">
             <li v-for="canvas in organisation.canvases" :key="canvas.id">
-                <CanvasCard :canvas="canvas" :layout="layout" :measurer="measurer" />
+                <CanvasCard :canvas="canvas" :layout="layout" :measurer="measurer" :can-write="canWrite" />
             </li>
         </ul>
     </section>

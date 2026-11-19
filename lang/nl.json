@@ -308,5 +308,12 @@
     "overview.empty_organisation": "Deze organisatie heeft nog geen canvassen",
     "overview.updated": "Laatst gewijzigd :date",
     "overview.archived_badge": "Gearchiveerd",
-    "overview.new_canvas": "Nieuw canvas"
+    "overview.new_canvas": "Nieuw canvas",
+    "canvas_card.actions": "Acties voor :name",
+    "canvas_card.actions_label": "Acties",
+    "canvas_card.copy": "Kopiëren",
+    "canvas_card.rename": "Naam wijzigen",
+    "canvas_card.archive": "Archiveren",
+    "canvas_card.restore": "Terugzetten",
+    "canvas_card.delete": "Verwijderen"
 }
