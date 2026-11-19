@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\SecondFactorChallengeController;
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasModeController;
+use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
@@ -58,4 +59,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/session/keep-alive', KeepAliveController::class);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/organisations/{organisation}/logo', OrganisationLogoController::class);
 });
