@@ -16,12 +16,15 @@ class OrganisationRequest extends AppFormRequest
     {
         $label = __('fields.name');
 
-        return ['name' => ['required', 'string', new TrimmedText($label, 150)]];
+        return [
+            'name' => ['required', 'string', new TrimmedText($label, 150)],
+            'logo' => ['nullable', 'file'],
+        ];
     }
 
     /** @return array<string, string> */
     public function messages(): array
     {
-        return ['name.required' => __('organisations.name_required')];
+        return ['name.required' => __('organisations.name_required'), 'logo.file' => __('organisations.logo_invalid')];
     }
 }

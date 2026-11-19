@@ -246,5 +246,17 @@
     "organisations.name_taken": "Naam: er bestaat al een organisatie met deze naam",
     "organisations.name_required": "Naam: vul een naam in van 1 tot 150 tekens",
     "organisations.logo_invalid": "Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels",
-    "organisations.delete_blocked": "Deze organisatie heeft nog canvassen of kostenposten. Archiveer haar, of verwijder die eerst"
+    "organisations.delete_blocked": "Deze organisatie heeft nog canvassen of kostenposten. Archiveer haar, of verwijder die eerst",
+    "organisations.title": "Organisaties",
+    "organisations.new": "Nieuwe organisatie",
+    "organisations.logo": "Logo",
+    "organisations.logo_hint": "PNG of JPEG, hoogstens 1 MB en 4000 bij 4000 pixels",
+    "organisations.save": "Opslaan",
+    "organisations.archive": "Archiveren",
+    "organisations.created": "Organisatie aangemaakt",
+    "organisations.saved": "Organisatie opgeslagen",
+    "organisations.deleted": "Organisatie verwijderd",
+    "organisations.archived": "Organisatie gearchiveerd",
+    "organisations.restored": "Organisatie teruggezet",
+    "organisations.delete_consequence": "Verwijdert ook het logboek van deze organisatie. Ongedaan maken kan niet"
 }
