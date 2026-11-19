@@ -159,5 +159,12 @@
     "list.sort_descending": "aflopend gesorteerd",
     "list.filter_all": "Alle",
     "list.filter_remove": "Filter verwijderen: :filter :value",
-    "list.new": "Nieuw"
+    "list.new": "Nieuw",
+    "list.actions": "Acties",
+    "list.delete": "Verwijderen",
+    "list.delete_title": ":name verwijderen?",
+    "list.delete_none": "Dit verwijdert verder niets",
+    "list.delete_type_name": "Typ de naam :name om te bevestigen",
+    "list.delete_name_field": "Naam ter bevestiging",
+    "list.cancel": "Annuleren"
 }

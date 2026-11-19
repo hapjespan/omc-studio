@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { t } from '../../i18n';
+import ConfirmDelete from './ConfirmDelete.vue';
 import FilterBar, { type FilterDef } from './FilterBar.vue';
 import ListForm from './ListForm.vue';
 import SortHeader from './SortHeader.vue';
@@ -9,11 +10,13 @@ export type ListRow = { id: number | string; name: string; archived_at?: string 
 export type ListColumn = { key: string; label: string; sortable?: boolean };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string }>(), { canCreate: true });
-const emit = defineEmits<{ change: [query: ListState] }>();
+const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean }>(), { canCreate: true });
+const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow] }>();
 
 const editing = ref<ListRow | 'new' | null>(null);
 const formOpen = computed({ get: () => editing.value !== null, set: (open) => { if (!open) editing.value = null; } });
+const deleting = ref<ListRow | null>(null);
+const deleteOpen = computed({ get: () => deleting.value !== null, set: (open) => { if (!open) deleting.value = null; } });
 const SEARCH_DELAY_MS = 250;
 const search = ref(props.query.search);
 const searchField = ref<HTMLInputElement>();
@@ -62,6 +65,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                         <SortHeader v-if="column.sortable" :label="column.label" :direction="directionOf(column.key)" @sort="sortBy(column.key)" />
                         <th v-else scope="col" class="px-2 py-1.5 text-left text-[12.5px] font-semibold">{{ column.label }}</th>
                     </template>
+                    <th v-if="canDelete" scope="col" class="sr-only">{{ t('list.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -70,10 +74,14 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                         <button v-if="index === 0 && $slots.form" type="button" class="rounded-md px-1 py-0.5 text-left underline" @click="editing = row">{{ row[column.key] }}</button>
                         <template v-else>{{ row[column.key] }}</template>
                     </td>
+                    <td v-if="canDelete" class="px-2 py-1.5">
+                        <button type="button" :aria-label="`${t('list.delete')} ${row.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="deleting = row">{{ t('list.delete') }}</button>
+                    </td>
                 </tr>
                 <tr v-if="rows.length === 0"><td :colspan="columns.length" class="px-2 py-3 text-[#454C57]">{{ t('list.empty') }}</td></tr>
             </tbody>
         </table>
+        <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="emit('delete', deleting)" />
         <ListForm v-if="$slots.form" v-model:open="formOpen" :title="editing === 'new' || editing === null ? (createTitle ?? t('list.new')) : editing.name" v-slot="{ close, setDirty }">
             <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :set-dirty="setDirty" />
         </ListForm>

@@ -1,6 +1,7 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
+import { matchesName } from '../../../resources/js/components/list/ConfirmDelete.vue';
 import ListView, { type ListState } from '../../../resources/js/components/list/ListView.vue';
 
 const render = (props: Record<string, unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props) }));
@@ -83,5 +84,27 @@ describe('ListView form flow', () => {
 
         expect(plain).not.toContain('Nieuw');
         expect(readOnly).not.toContain('Nieuw');
+    });
+});
+
+describe('matchesName', () => {
+    it('is exact, case sensitive and ignores nothing but surrounding spaces', () => {
+        expect(matchesName('Intake', 'Intake')).toBe(true);
+        expect(matchesName(' Intake ', 'Intake')).toBe(true);
+        expect(matchesName('intake', 'Intake')).toBe(false);
+        expect(matchesName('', '')).toBe(false);
+    });
+});
+
+describe('ListView deletion', () => {
+    it('labels each delete button with the row name', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, canDelete: true });
+
+        expect(html).toContain('aria-label="Verwijderen Anna"');
+        expect(html).toContain('aria-label="Verwijderen Bram"');
+    });
+
+    it('offers no delete button unless allowed', async () => {
+        expect(await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle })).not.toContain('Verwijderen');
     });
 });
