@@ -56,4 +56,16 @@ describe('setStyle', () => {
         const { result } = run({ fill: '#112233' }, ['direction', 'nope']);
         expect(result.ids).toEqual([]);
     });
+
+    it('repaints a colour-only change without rewrapping or growing', () => {
+        const view = open(tree, layouts);
+        let calls = 0;
+        const counting = { width: (text: string, font: Parameters<typeof fakeMeasurer.width>[1]) => (calls++, fakeMeasurer.width(text, font)) };
+        const before = boxOf(view.editor, 'a');
+        view.restrictions.privileged(() => setStyle(view.selection(['a', 'd']), view.canvas, { fill: '#112233', fill_opacity: 50, border_width: 3, text_colour: '#FFFFFF' }, { measurer: counting }));
+        expect(calls).toBe(0);
+        expect(boxOf(view.editor, 'a')).toEqual(before);
+        view.restrictions.privileged(() => setStyle(view.selection(['a']), view.canvas, { font_size: 30 }, { measurer: counting }));
+        expect(calls).toBeGreaterThan(0);
+    });
 });
