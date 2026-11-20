@@ -79,6 +79,14 @@ export class OpenPencilEngine implements DrawingEngine {
         this.mounted().editor.zoomToFit();
     }
 
+    getZoom(): number {
+        return this.mounted().editor.state.zoom;
+    }
+
+    setTool(tool: 'select' | 'pan'): void {
+        this.mounted().editor.setTool(tool === 'pan' ? 'HAND' : 'SELECT');
+    }
+
     destroy(): void {
         for (const stop of this.stops.splice(0)) stop();
         this.listeners.clear();
