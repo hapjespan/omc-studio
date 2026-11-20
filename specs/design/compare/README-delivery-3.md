@@ -53,7 +53,11 @@ Foundation gaps for the first session:
 
 - D3-10 closed: surface `#F6F7F5`, 1px `#DCDFE2`, radius 8px, Space Grotesk 14px/600 title, year line 12.5px secondary. The component sits under `canvas/` but is named in this task; the other `canvas/` files are not touched.
 
-## Open: after the Bekijken merge
+## Open
 
-- `Canvas/SnapshotView.vue` (selector, header placement of the banner) and `canvas/ExportMenu.vue` (with the overlay switch) belong to the Bekijken builder; their conformance is open until that merge. Reason: another builder is changing those files now.
 - Product owner remarks on these screens are recorded here as further findings once he has seen them next to the boards (T387 accept).
+
+## Update after the merge with the Bekijken work
+
+- `Canvas/SnapshotView.vue` already uses the shell page-header targets (`HeaderSlot` title and actions), `OverlaySwitch`, `VersionSelect` with `ChipSelect` and the restyled `SnapshotBanner`: closed, nothing left to change there.
+- `canvas/ExportMenu.vue`: popover edge `#DCDFE2` with the contract shadow `0 1px 3px rgba(0,0,0,.12)`, menu items 32px high with radius 4, overlay switch with a 24px target and a 16px ink checkbox: closed (commit "style: export menu popover").
