@@ -63,7 +63,7 @@ De acht area's: "Koers", "Richten", "Beheersen", "Actoren", "Kanalen", "Waardepr
 
 **Doe dit**
 
-1. Open het canvas in Invoeren en kies de area "Primaire activiteiten".
+1. Open het canvas in Invoeren, herlaad de pagina (adresbalk, Enter) vanwege de open fout in hoofdstuk 6, en kies de area "Primaire activiteiten".
 2. Kies "Domein", typ een naam in "+ Domein" en druk op Enter.
 3. Typ onder het domein in de regel "Activiteit of cluster toevoegen aan ..." een naam en druk op Enter. Voeg zo meerdere activiteiten toe.
 4. Kies in de regel de keuze "Cluster" (naast "Activiteit"), typ een naam en druk op Enter.
@@ -178,7 +178,7 @@ Elke verwijdering vraagt om bevestiging en noemt wat er mee verdwijnt. Na een ve
 
 Zo zie je het in de schermen. Als enige beheerder open je in "Beheer", "Gebruikers" je eigen rij: het veld "Rol" staat uit, "Verwijderen" staat uit, en de uitleg zegt "Je kunt je eigen account niet verwijderen of je eigen rol wijzigen". Die melding komt voor de melding over de laatste beheerder, omdat de server eerst controleert of je jezelf wijzigt. Je kunt dus als enige beheerder je eigen rol niet eens proberen te wijzigen.
 
-De melding "Er moet minstens één beheerder blijven" is er voor het moment dat twee beheerders elkaar op hetzelfde moment van beheerder naar lezer zetten of verwijderen: de ene lukt, de andere wordt geweigerd, zodat er altijd een beheerder overblijft. Met twee beheerders, A en B, in twee browsers: laat A rol van B op "Lezer" zetten en B tegelijk rol van A. Dat is met de hand bijna niet gelijktijdig te krijgen: is de eerste klaar, dan is de tweede geen beheerder meer en krijgt hij gewoon "Geen toegang" in plaats van deze melding. **De melding is dus alleen via de schermen te zien bij echt gelijktijdig klikken; de tests dwingen dat af met twee processen tegelijk.** Voor de losse gevallen roepen twee tests de controle rechtstreeks aan met een lezer als uitvoerder (`test_demoting_the_last_administrator_is_refused`, `test_deleting_the_last_administrator_is_refused`), omdat een echt verzoek van een lezer al op rechten wordt geweigerd.
+De melding "Er moet minstens één beheerder blijven" is er voor het moment dat twee beheerders elkaar op hetzelfde moment van beheerder naar lezer zetten of verwijderen: de ene lukt, de andere wordt geweigerd, zodat er altijd een beheerder overblijft. Met twee beheerders, A en B, in twee browsers: laat A de rol van B op "Lezer" zetten en B tegelijk de rol van A. Dat is met de hand bijna niet gelijktijdig te krijgen: is de eerste klaar, dan is de tweede geen beheerder meer en krijgt hij gewoon "Geen toegang" in plaats van deze melding. **De melding is dus alleen via de schermen te zien bij echt gelijktijdig klikken; de tests dwingen dat af met twee processen tegelijk.** Voor de losse gevallen roept de test voor het verwijderen de controle rechtstreeks aan met een lezer als uitvoerder (`test_deleting_the_last_administrator_is_refused`) en loopt de test voor het terugzetten naar lezer via de gebruikersadministratie zonder ingelogde gebruiker (`test_demoting_the_last_administrator_is_refused`), omdat een echt verzoek van een lezer al op rechten wordt geweigerd.
 
 **Bewijs**
 

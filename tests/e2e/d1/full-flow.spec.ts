@@ -80,12 +80,12 @@ test('an Administrator creates an Organisation and a Canvas, fills it through In
     await expectNoAxeViolations(page);
 
     await areas.getByRole('button', { name: /Koers/ }).click();
-    const koers = page.getByRole('region', { name: 'Koers' });
-    const missionForm = koers.locator('form').filter({ has: page.getByLabel('Missie', { exact: true }) });
+    const direction = page.getByRole('region', { name: 'Koers' });
+    const missionForm = direction.locator('form').filter({ has: page.getByLabel('Missie', { exact: true }) });
     await missionForm.getByLabel('Missie', { exact: true }).fill('Leren voor het leven');
     await missionForm.getByRole('button', { name: 'Opslaan', exact: true }).click();
-    await expect(koers.getByLabel('Missie', { exact: true })).toHaveValue('Leren voor het leven');
-    const goals = koers.getByRole('region', { name: 'Strategische doelen' });
+    await expect(direction.getByLabel('Missie', { exact: true })).toHaveValue('Leren voor het leven');
+    const goals = direction.getByRole('region', { name: 'Strategische doelen' });
     for (const title of ['Groei', 'Kwaliteit']) {
         await goals.getByLabel('Titel', { exact: true }).fill(title);
         await goals.getByLabel('Uitleg', { exact: true }).fill(`Uitleg ${title}`);
