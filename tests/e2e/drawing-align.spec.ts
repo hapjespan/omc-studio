@@ -46,10 +46,10 @@ test('distribute needs three and equal size needs two selected', async ({ page }
     const layers = await openDrawing(page, seedRow());
     const toolbar = page.getByRole('toolbar', { name: 'Gereedschap' });
     await layers.getByRole('button', { name: 'Alfa', exact: true }).click();
-    await expect(toolbar.getByRole('button', { name: 'Gelijke breedte' })).toBeDisabled();
+    await expect(page.locator('[data-arrange]').getByRole('button', { name: 'Gelijke breedte' })).toBeDisabled();
     await layers.getByRole('button', { name: 'Beta', exact: true }).focus();
     await page.keyboard.press('Control+Space');
-    await expect(toolbar.getByRole('button', { name: 'Gelijke breedte' })).toBeEnabled();
+    await expect(page.locator('[data-arrange]').getByRole('button', { name: 'Gelijke breedte' })).toBeEnabled();
     await toolbar.getByRole('button', { name: 'Gelijk verdelen' }).click();
     await expect(page.getByRole('menuitem', { name: 'Verticaal', exact: true })).toHaveAttribute('data-disabled', '');
 });

@@ -112,6 +112,7 @@ const moveFlow = createMoveFlow({
     text: (key, values) => t(key, values),
     refresh: (keepOwn, message) => refresh(keepOwn, message),
 });
+const cut = computed(() => drawn.value?.warnings.some((warning) => warning.kind === 'directionTextCut') ?? false);
 const targetPath = computed(() => (moveFlow.pending.value ? pathOf(moveFlow.pending.value.targetId, props.layout.areas, props.elements) : ''));
 const restore = (): HTMLElement | null => {
     const intent = moveFlow.pending.value;
@@ -355,28 +356,28 @@ onBeforeUnmount(() => {
 
 <template>
     <Head :title="canvas.name" />
-    <header class="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <header class="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
+        <Header :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" @reset="askReset('canvas')" />
     </header>
     <DragLabel :event="verdict" />
     <LeaveDialog :open="leaveTarget !== null" :failed="saveStatus === 'failed' && retried" @retry="leaveRetry" @discard="leaveDiscard" @stay="leaveTarget = null" />
     <ResetDialogs :scope="resetScope" :name="resetName" :count="resetCount" @confirm="performReset" @cancel="resetScope = null" />
     <MoveDialog :open="moveFlow.pending.value !== null" :busy="moveFlow.busy.value" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
-    <Header class="mt-3" :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" @reset="askReset('canvas')" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>
-    <DirectionBand v-if="drawn" class="mt-3" :drawn="drawn" :statements="statements" @peek="peeked = $event" />
+    <DirectionBand v-if="drawn" :class="cut ? 'mt-3' : 'sr-only'" :drawn="drawn" :statements="statements" @peek="peeked = $event" />
     <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]" :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting">
         <LayersPanel :fresh="fresh" :areas="layout.areas" @keydown="onKey" :elements="elements" :selected="selected" class="max-h-[40vh] overflow-auto lg:max-h-[calc(100vh-14rem)]" @select="pick" />
         <div class="flex min-w-0 flex-col gap-3">
-            <div ref="host" role="group" tabindex="0" @keydown="onKey" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[60vh] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#c3c9cf_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[calc(100vh-17rem)]" :data-state="state" :data-view="view"></div>
+            <div ref="host" role="group" tabindex="0" @keydown="onKey" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[70vh] min-h-[480px] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#b4bbc2_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[max(720px,calc(100vh-14rem))]" :data-state="state" :data-view="view"></div>
             <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Announcer :message="notice" />
-            <Toolbar v-model:grid="grid" :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
+            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel :invalid="invalid" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" @box="setBox" @move="moveTo" @reset="askReset">
+        <PropertiesPanel v-model:grid="grid" :count="selected.length" :path="single ? pathOf(single, layout.areas, elements) : ''" :canvas-id="canvas.id" @command="command" :invalid="invalid" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" @box="setBox" @move="moveTo" @reset="askReset">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>

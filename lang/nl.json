@@ -637,5 +637,8 @@
     "drawing.reset_body": "Plek, grootte en stijl gaan terug naar de automatische opmaak.",
     "drawing.reset_confirm": "Terugzetten",
     "drawing.value_invalid": "Deze waarde is niet opgeslagen",
-    "drawing.reset_done": "Opmaak teruggezet naar automatisch"
+    "drawing.reset_done": "Opmaak teruggezet naar automatisch",
+    "drawing.invoeren_note_before": "Naam, modaliteit en cijfers wijzig je in",
+    "drawing.invoeren_note_after": ". De structuur verandert hier alleen door Shift-slepen na een bevestiging.",
+    "drawing.layers_note": "Elke laag is een element uit Invoeren. Nieuwe elementen staan al op een automatische plek en zijn gemarkeerd met nieuw."
 }

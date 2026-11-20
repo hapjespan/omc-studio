@@ -173,6 +173,33 @@ Status: bewust afwijkend. A docked panel of 360 pixels, white, radius 10, hairli
 4. Panel content: title "Mila de Vries", a "Sluiten" button at the top right, the fields "Naam", "E-mailadres", "Rol" (the Role renders as a plain input, no chevron), then one wrapping row of buttons "Opslaan", "Wachtwoord resetten", "Sessies beëindigen", "Verwijderen". Contract for the side-panel form: kind and path above the title, fields, "Opslaan" and "Annuleren", then the consequence text, then "Archiveren" and "Verwijderen" (danger). There is no "Annuleren", no consequence text, and "Opslaan" is secondary not primary.
 Status: bewust afwijkend. Kind above an 18-pixel title, fields (the Role is a select with a chevron), "Opslaan" primary and "Annuleren", the non-destructive actions, then below a divider the consequence text and the danger "Verwijderen". Deviations: on open the first field is selected; the consequence text is not shown on the user’s own row, where "Verwijderen" is disabled; the Organisations panel has no consequence text and no "Verwijderen" (deleting goes through the row action and the typed-name dialog).
 
+## Screen 6: Tekenen (`tekenen-built.png`, then `tekenen-after.png`, against `tekenen-board.png`, board 1b)
+
+Date: 2026-11-20. Built from the dt/b branch after DT.7 and the DT.5 review fixes. Sample data of `.scratch/compare-seed.php` (organisation "Voorbeeld BV", canvas "Voorbeeldcanvas"), Chromium, viewport 1440 wide, full page, the Domain "Ouders & communicatie" selected, own application server on a private port and a private SQLite database, both stopped afterwards. `tekenen-built.png` is the page before the cheap fixes of this step, `tekenen-after.png` after them. The board shows the colour group, "Hoeken" and "Stijl naar alle domeinen hier" of DT.6, which a different session builds; those points are listed as waiting.
+
+| # | Point of the board | Status | Note |
+|---|---|---|---|
+| 1 | Page title with the mode switch Invoeren, Tekenen, Bekijken (Tekenen ink) | closed | the same order and segmented control as board and contract |
+| 2 | Undo and redo as icon buttons on the title line | opgelost | before: two grey text buttons on a second line; after: foundation `IconButton` with the new `undo` and `redo` icons, disabled while there is nothing to undo or redo |
+| 3 | Save state "Opmaak opgeslagen" with a green check | bewust afwijkend | decision 4 of the questions below: shown only after a save in this session; after a save the text is green with a check like the board |
+| 4 | Pill "Tekenvlak: OpenPencil, lokaal meegeleverd" | opgelost | now the foundation `Pill` on the title line |
+| 5 | "Alles automatisch opmaken" and "Passend maken" at the right of the title line | opgelost | one row with the title, as the board; before: a second row |
+| 6 | Left panel "Lagen" with the tree, the selected row in accent tint, the pill "nieuw" | closed | the tree and the pill exist; the explanatory note of the board is now under the tree (text provisional, assumption DT9-2) |
+| 7 | "Koers" as a row in Lagen | bewust afwijkend | US35 scenarios 1 and 12: the seven Areas other than Direction; the band cannot be selected |
+| 8 | Collapsed tree with disclosure arrows | open | built: every row expanded, so keyboard and screen reader users reach every row; assumption DT9-1 with advice |
+| 9 | Artboard on an 8 pixel dot grid, Direction band inside the Artboard | bewust afwijkend | the dots are a CSS background of the drawing surface and do not zoom with the Artboard (assumption DT3-2); the band text is drawn locked inside the Artboard; its HTML copy for hover, focus and the Warning now only shows when text is cut (before: always, a large block above the drawing) |
+| 10 | Frame title above the Artboard | opgelost | the library drew the node name "artboard" above the frame; the name is now empty |
+| 11 | Selection frame with handles and the size label "286 × 204" | closed | drawn by the library, also seen in the screenshot ("284 × 152") |
+| 12 | Right panel: kicker with the path, the name as title, "Plek en grootte" with X, Y, B, H in a two by two grid with short labels | opgelost | before: the title "Eigenschappen" and long visible labels that wrapped; after: kicker, name and short labels; the accessible name of every field stays "X van <naam>" |
+| 13 | "Kleur" (Vulling, Rand, Tekst), "Hoeken", "Stijl naar alle domeinen hier" | waiting for DT.6 | not built here |
+| 14 | "Terug naar automatische plek" | closed | plus "Domein terug naar automatisch" for a Domain (US37 scenario 9) |
+| 15 | Note that name and figures change in Invoeren, with a link | bewust afwijkend | the sentence says the structure only changes through Shift-drag after a confirmation (ADR 0036), which the board predates; the link to Invoeren is there |
+| 16 | Bottom toolbar: Selecteren en verplaatsen, Schuiven, Uitlijnen, Gelijk verdelen, Zoom | opgelost | before the toolbar also held equal width, equal height, order and Raster; they moved to the right panel as the design contract lists them in the property panel (US35 scenarios 7 to 9); Uitlijnen and Gelijk verdelen are menus |
+| 17 | Tool icon on "Selecteren en verplaatsen" and the zoom as a chip | bewust afwijkend | text only, no pointer icon, the zoom is plain text; no icon exists in the foundation set; assumption DT9-3 |
+| 18 | Top navigation tabs (Kostenposten, Toewijzen, Versies) and the period select | not applicable | delivery 2 |
+
+Questions only the product owner can answer, recorded as assumptions in `tasks.md` (DT9-1 to DT9-3).
+
 ## Summary of the first round, 2026-11-19
 
 - The colours of the canvas (Domain, Cluster and Activity fills), the modality colours, the radius of Areas and controls, the 24-pixel indent and the 2-pixel ink border of the selected Area card follow the contract.
