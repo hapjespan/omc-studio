@@ -25,6 +25,12 @@ describe('wrapText', () => {
         expect(wrapText(`ab ${'y'.repeat(30)}`, 100, font, fakeMeasurer)).toEqual(['ab', 'y'.repeat(20), 'y'.repeat(10)]);
     });
 
+    it('counts the letter spacing of the font in the measured width', () => {
+        const spaced: FontSpec = { ...font, tracking: 0.2 };
+        expect(wrapText('x'.repeat(20), 100, font, fakeMeasurer)).toHaveLength(1);
+        expect(wrapText('x'.repeat(20), 100, spaced, fakeMeasurer).length).toBeGreaterThan(1);
+    });
+
     it('gives deep-equal lines on two calls', () => {
         const text = 'Een lange naam met woorden en een extraordinarilylongwordthatbreaks';
         expect(wrapText(text, 120, font, fakeMeasurer)).toEqual(wrapText(text, 120, font, fakeMeasurer));

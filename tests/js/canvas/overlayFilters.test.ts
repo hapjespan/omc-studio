@@ -14,12 +14,14 @@ describe('activeFilters', () => {
 });
 
 describe('OverlayFilters', () => {
-    it('offers three labelled single choices each with Alle and shows the active filters', async () => {
+    it('offers three chips with a single choice each with Alle, applies only after a change and announces the active filters', async () => {
         const html = await renderToString(createSSRApp({ render: () => h(OverlayFilters, { filters: { costKind: null, ownerId: 3, applicationId: null }, options }) }));
         for (const label of ['Soort kosten', 'Eigenaar', 'Applicatie']) expect(html).toContain(label);
         expect(html.match(/>Alle</g)).toHaveLength(3);
-        expect(html).toMatch(/<option value="3" selected/);
-        expect(html).toContain('Filteren</button>');
+        expect(html).toContain('<option value="3" selected>Afdeling ICT</option>');
+        expect(html).toContain('<option value="" >Alle</option>'.replace(' >','>'));
+        expect(html).toContain('aria-label="Soort kosten"');
+        expect(html).not.toContain('Filteren</button>');
         expect(html).not.toContain('onchange');
         expect(html).toContain('Actieve filters: Eigenaar: Afdeling ICT');
     });

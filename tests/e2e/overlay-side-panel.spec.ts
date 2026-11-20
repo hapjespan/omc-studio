@@ -11,11 +11,11 @@ test('the side panel lists the totals and proves they close to the cent, with Nu
     await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
 
     const panel = page.getByRole('complementary', { name: 'Totalen van het canvas' });
-    await expect(panel).toContainText('Budget');
+    await expect(panel).toContainText('Canvastotaal 2026 · budget');
     await expect(panel).toContainText('€ 4.000');
     await expect(panel).toContainText('Prognose');
-    await expect(panel).toContainText('1 kostenpost · € 1.000');
-    await expect(panel).toContainText('1 kostenpost · € 3.000');
+    await expect(panel).toContainText('Toegewezen · 1 kostenpost€ 1.000');
+    await expect(panel).toContainText('Onbekende allocatie · 1 kostenpost€ 3.000');
     await expect(panel.locator('[data-closing]')).toHaveText('Totalen sluiten: € 1.000,00 + € 3.000,00 = € 4.000,00');
     await expect(panel).toContainText('Geen modaliteit');
     await expect(panel).toContainText('Onbekende allocatie');

@@ -59,7 +59,7 @@ class SnapshotViewController extends Controller
                     'position' => $area->position,
                     'label' => __('areas.'.$area->key.'.name'),
                 ])->values(),
-                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('overview.goals')],
+                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('direction_entry.goals')],
             ],
             'elements' => array_map(fn (array $stored) => [
                 'id' => $stored['id'],

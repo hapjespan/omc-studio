@@ -107,3 +107,14 @@ test('without an overlay the Met overlay switch is absent', async ({ page }) => 
     await page.goto(`/canvases/${canvas.id}/view`);
     await expect(page.getByRole('switch', { name: 'Met overlay' })).toHaveCount(0);
 });
+
+test('in print the scroller is at least as tall as the Artboard', async ({ page }) => {
+    const seed = seedOverlay(`Print ${randomUUID().slice(0, 8)}`);
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
+    for (let step = 0; step < 8; step++) await page.getByRole('button', { name: 'Inzoomen' }).click();
+    await page.emulateMedia({ media: 'print' });
+    const scroller = (await page.locator('[data-scroller]').boundingBox())!;
+    const artboard = (await page.locator('[data-artboard]').boundingBox())!;
+    expect(scroller.height).toBeGreaterThanOrEqual(artboard.height - 1);
+});
