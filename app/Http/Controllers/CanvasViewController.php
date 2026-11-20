@@ -62,7 +62,7 @@ class CanvasViewController extends Controller
                     'position' => $area->position,
                     'label' => __('areas.'.$area->key.'.name'),
                 ])->values(),
-                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('overview.goals')],
+                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('direction_entry.goals')],
             ],
             'elements' => fn () => Element::where('canvas_id', $canvas->id)->whereNull('archived_at')->with('area:id,key')->get()->map(fn (Element $element) => [
                 'id' => $element->id,

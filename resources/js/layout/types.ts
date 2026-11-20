@@ -100,6 +100,7 @@ export interface DirectionColumn {
     width: number;
     label: string | null;
     lines: string[];
+    emphasis: { line: number; from: number; to: number }[];
     truncated: boolean;
 }
 

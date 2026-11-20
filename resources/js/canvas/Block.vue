@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isListArea } from '../layout/arrangeAreas';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -6,10 +7,14 @@ import UnknownCard from './UnknownCard.vue';
 const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null; colour?: { background: string; text: string } | null; summary?: string | null; inert?: boolean }>();
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, source: PeekSource] }>();
 
-const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
+const padding = { area: [12, 12], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
+const HAIRLINE = '#DCDFE2';
+const SECONDARY = '#454C57';
 const box = (): Record<string, string> => {
     const { block } = props;
-    const [x, y] = padding[block.kind];
+    const [x, y] = block.kind !== 'area' && isListArea(block.areaKey) ? [0, 0] : padding[block.kind];
+    const border = block.style.border ?? (props.colour ? HAIRLINE : null);
+    const heading = block.kind === 'area' && block.id !== 'direction';
     return {
         left: `${block.x}px`,
         top: `${block.y}px`,
@@ -17,9 +22,10 @@ const box = (): Record<string, string> => {
         height: `${block.drawnHeight}px`,
         zIndex: String(block.z + 1),
         background: props.colour?.background ?? block.style.fill ?? 'transparent',
-        border: block.style.border ? `1px solid ${block.style.border}` : '0',
+        border: border ? `1px solid ${border}` : '0',
         borderRadius: `${block.style.radius}px`,
-        color: props.colour?.text ?? block.style.textColour,
+        color: props.colour?.text ?? (heading ? SECONDARY : block.style.textColour),
+        letterSpacing: heading ? '0.04em' : 'normal',
         padding: `${y}px ${x}px`,
         fontFamily: `"${block.style.font.family}"`,
         fontSize: `${block.style.font.size}px`,
@@ -32,8 +38,8 @@ const box = (): Record<string, string> => {
 <template>
     <button
         type="button"
-        class="absolute box-border block overflow-visible text-left"
-        :class="{ 'outline-2 outline-accent': selected, 'pointer-events-none': inert }"
+        class="absolute box-border flex flex-col items-stretch justify-start overflow-visible text-left"
+        :class="{ 'outline-2 -outline-offset-2 outline-ink': selected, 'pointer-events-none': inert }"
         :inert="inert || undefined"
         :data-block="block.id"
         :data-kind="block.kind"
@@ -53,7 +59,8 @@ const box = (): Record<string, string> => {
         <UnknownCard v-if="block.system" :colour="block.style.textColour" />
         <span
             v-if="block.modality && modalityColour"
-            class="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-[3px] text-[11px] font-bold leading-none text-white"
+            class="absolute flex items-center justify-center rounded-badge text-[11px] font-bold leading-none text-white"
+            :class="block.kind === 'domain' ? 'right-3 top-[13px] h-[18px] w-[18px]' : 'right-1.5 top-1.5 h-4 w-4'"
             :style="{ background: modalityColour }"
             aria-hidden="true"
         >{{ block.modality }}</span>

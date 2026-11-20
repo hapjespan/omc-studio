@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, useSlots } from 'vue';
 import { t } from '../i18n';
 import { ARTBOARD } from '../layout';
-import type { DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
+import type { DirectionColumn, DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
 import ArtboardEdge from './ArtboardEdge.vue';
 import Block from './Block.vue';
 import HoverContent, { DIRECTION_PREFIX, directionText } from './HoverContent.vue';
@@ -76,6 +76,12 @@ const colours = computed(() => new Map(props.modalities.map((modality) => [modal
 const modalityNames = computed(() => new Map(props.modalities.map((modality) => [modality.letter, t(`view.modality.${modality.key}`)])));
 const band = computed(() => props.drawn.blocks.find((block) => block.id === 'direction'));
 const blocks = computed(() => props.drawn.blocks);
+const segments = (column: DirectionColumn, index: number): { text: string; bold: boolean }[] => {
+    const line = column.lines[index];
+    const range = column.emphasis.find((candidate) => candidate.line === index);
+    if (!range) return [{ text: line, bold: false }];
+    return [{ text: line.slice(0, range.from), bold: false }, { text: line.slice(range.from, range.to), bold: true }, { text: line.slice(range.to), bold: false }].filter((part) => part.text !== '');
+};
 </script>
 
 <template>
@@ -102,7 +108,8 @@ const blocks = computed(() => props.drawn.blocks);
                 v-for="block in blocks"
                 :key="block.id"
                 class="pointer-events-none absolute overflow-hidden"
-                :style="{ left: `${block.x}px`, top: `${block.y}px`, width: `${block.width}px`, height: `${block.drawnHeight}px`, zIndex: 40 }"
+                :class="{ 'outline-2 -outline-offset-2 outline-ink': selectedId === block.id }"
+                :style="{ left: `${block.x}px`, top: `${block.y}px`, width: `${block.width}px`, height: `${block.drawnHeight}px`, zIndex: 40, borderRadius: `${block.style.radius}px` }"
                 :data-overlay-card="block.id"
                 aria-hidden="true"
             >
@@ -126,8 +133,11 @@ const blocks = computed(() => props.drawn.blocks);
                 @focus="column.truncated && peek(DIRECTION_PREFIX + column.key, 'focus')"
                 @blur="column.truncated && peek(null, 'focus')"
             >
-                <p v-if="column.label" class="text-[11px] font-semibold leading-[14px]" :style="{ color: band.style.labelColour }">{{ column.label }}</p>
-                <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label }">{{ line }}</p>
+                <p v-if="column.key === 'logo'" class="flex h-[90px] w-[154px] items-center justify-center rounded-control border border-dashed border-[color:var(--color-dashed)] text-[11px]" :style="{ color: band.style.labelColour }" data-direction-logo>{{ t('view.logo') }}</p>
+                <p v-if="column.label" class="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.06em]" :style="{ color: band.style.labelColour }">{{ column.label }}</p>
+                <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label }">
+                    <template v-for="(part, at) in segments(column, index)" :key="at"><strong v-if="part.bold" class="font-bold">{{ part.text }}</strong><span v-else :style="column.key === 'goals' ? { color: band.style.labelColour } : undefined">{{ part.text }}</span></template>
+                </p>
             </div>
         </div>
         <span class="sr-only">{{ t('view.artboard') }}</span>
