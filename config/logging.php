@@ -1,5 +1,6 @@
 <?php
 
+use App\Logging\PruneByAge;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -71,6 +72,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
+            'tap' => [PruneByAge::class.':laravel,14'],
             'replace_placeholders' => true,
         ],
 
@@ -80,6 +82,7 @@ return [
             'formatter' => JsonFormatter::class,
             'level' => 'info',
             'days' => 90,
+            'tap' => [PruneByAge::class.':security,90'],
             'replace_placeholders' => true,
         ],
 
