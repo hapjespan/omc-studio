@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import Panel from '../../components/ui/Panel.vue';
 import { t } from '../../i18n';
 import type { LayoutArea, LayoutElement } from '../../layout';
 
@@ -17,8 +18,8 @@ const childrenOf = (id: string): LayoutElement[] => props.elements.filter((eleme
 </script>
 
 <template>
-    <nav :aria-label="t('drawing.layers')">
-        <h2 class="text-[13px] font-semibold">{{ t('drawing.layers') }}</h2>
+    <Panel :heading="t('drawing.layers')">
+        <nav :aria-label="t('drawing.layers')">
         <ul class="mt-2 flex flex-col gap-2">
             <li v-for="area in shown" :key="area.key">
                 <button type="button" class="w-full rounded-control px-2 py-1 text-left text-[13px] font-semibold aria-pressed:bg-accent-soft" :aria-pressed="selected.includes(area.key)" :data-layer="area.key" @click="$emit('select', area.key, false)" @keydown="onKey($event, area.key)">{{ area.label }}</button>
@@ -43,5 +44,6 @@ const childrenOf = (id: string): LayoutElement[] => props.elements.filter((eleme
                 </ul>
             </li>
         </ul>
-    </nav>
+        </nav>
+    </Panel>
 </template>
