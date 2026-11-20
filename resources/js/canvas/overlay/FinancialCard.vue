@@ -84,7 +84,6 @@ import { computed } from 'vue';
 import type { DrawnBlock } from '../../layout/types';
 
 const INK = '#171B21';
-const SECONDARY = '#454C57';
 const TRACK_HEADROOM = 1.2;
 
 const props = defineProps<{ block: DrawnBlock; figures: ElementFigures; counts: CardCounts; year: number | null; colour?: { background: string; text: string } | null }>();
@@ -95,7 +94,7 @@ const parts = computed(() => fitParts(room.value - gap.value - AMOUNT_HEIGHT, ga
 const lines = computed(() => cardLines(props.figures, props.counts, props.year));
 const background = computed(() => props.colour?.background ?? props.block.style.fill ?? '#FFFFFF');
 const text = computed(() => props.colour?.text ?? props.block.style.textColour);
-const secondary = computed(() => (text.value.toUpperCase() === INK ? SECONDARY : text.value));
+const secondary = computed(() => (text.value.toUpperCase() === INK ? 'var(--color-secondary)' : text.value));
 const scale = computed(() => Math.max(props.figures.total.budget * TRACK_HEADROOM, props.figures.total.forecast, 1));
 const within = computed(() => `${(Math.min(props.figures.total.forecast, props.figures.total.budget) / scale.value) * 100}%`);
 const over = computed(() => `${(Math.max(0, props.figures.total.forecast - props.figures.total.budget) / scale.value) * 100}%`);
@@ -110,7 +109,7 @@ const stripe = computed(() => `${(props.figures.total.budget / scale.value) * 10
                 <p class="flex items-baseline gap-2 whitespace-nowrap" data-total>
                     <span class="font-display text-[22px] font-bold leading-[30.8px] tracking-[-0.01em]" data-total-amount>{{ lines.amount }}</span>{{ ' ' }}<span class="min-w-0 truncate text-[12px] leading-[16.8px]" :style="{ color: secondary }" data-share>{{ lines.share }}</span>
                 </p>
-                <div v-if="parts.has('bar')" class="relative h-1.5 w-full shrink-0 rounded-[3px]" style="background: rgba(23, 27, 33, 0.14)" data-bar>
+                <div v-if="parts.has('bar')" class="relative h-1.5 w-full shrink-0 rounded-[3px] bg-hairline" data-bar>
                     <div class="absolute inset-y-0 left-0 rounded-[3px] bg-current" :style="{ width: within }" data-bar-fill />
                     <div v-if="figures.total.forecast > figures.total.budget" class="absolute inset-y-0 rounded-r-[3px]" :style="{ left: within, width: over, background: OVER_BUDGET }" data-bar-over />
                     <div class="absolute -top-[3px] h-3 w-0.5 bg-current" :style="{ left: stripe }" data-bar-budget />

@@ -1,7 +1,7 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
-import FinancialCard, { cardLines, countsText, fitParts } from '../../../resources/js/canvas/overlay/FinancialCard.vue';
+import FinancialCard, { AMOUNT_HEIGHT, cardLines, countsText, fitParts } from '../../../resources/js/canvas/overlay/FinancialCard.vue';
 import type { ElementFigures, Money } from '../../../resources/js/canvas/overlay/figures';
 import { descendantCounts } from '../../../resources/js/canvas/overlay/counts';
 import { computeCanvasLayout } from '../../../resources/js/layout';
@@ -61,6 +61,21 @@ describe('FinancialCard', () => {
         const html = await renderToString(createSSRApp({ render: () => h(FinancialCard, { block, figures: figures(1000, 1100, 1000), counts: { activities: 0, clusters: 0 }, year: 2026 }) }));
         expect(html).toContain('data-bar-over');
         expect(html).toContain('#9A7811');
+    });
+});
+
+describe('Domain minimum height', () => {
+    it.each([['Onderwijs'], ['Een heel erg lange domeinnaam die over twee regels loopt']])('leaves room for the amount line under the title of the childless Domain %s', (name) => {
+        const drawn = computeCanvasLayout({ ...emptyInput(), elements: [element('d', 'primary_activities', 'domain', name)] }, fakeMeasurer);
+        const block = drawn.blocks.find((candidate) => candidate.id === 'd')!;
+        const room = block.drawnHeight - (13 + block.textLines.length * block.style.lineHeight) - 13;
+        expect(room).toBeGreaterThanOrEqual(6 + AMOUNT_HEIGHT);
+    });
+
+    it('also leaves that room when the Domain has one Activity', () => {
+        const drawn = computeCanvasLayout({ ...emptyInput(), elements: [element('d', 'primary_activities', 'domain', 'Onderwijs'), element('a', 'primary_activities', 'activity', 'Les', 'd')] }, fakeMeasurer);
+        const block = drawn.blocks.find((candidate) => candidate.id === 'd')!;
+        expect(block.drawnHeight - (13 + block.textLines.length * block.style.lineHeight) - 13).toBeGreaterThanOrEqual(6 + AMOUNT_HEIGHT);
     });
 });
 

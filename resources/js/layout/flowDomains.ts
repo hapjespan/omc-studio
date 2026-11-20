@@ -17,7 +17,7 @@ export const CARD_GAP = 12;
 const CHILD_GAP = 6;
 const CLUSTER_INDENT = 8;
 const MODALITY_BADGE = 22;
-export const MIN_DOMAIN_HEIGHT = 68;
+export const AMOUNT_ROOM = 39;
 const padding: Record<ElementKind, { x: number; y: number }> = {
     domain: { x: 12, y: 12 },
     cluster: { x: 8, y: 8 },
@@ -56,7 +56,7 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
         const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
-    block.drawnHeight = element.kind === 'domain' ? Math.max(MIN_DOMAIN_HEIGHT, cursor + pad.y) : cursor + pad.y;
+    block.drawnHeight = element.kind === 'domain' ? Math.max(2 * pad.y + textLines.length * style.lineHeight + AMOUNT_ROOM, cursor + pad.y) : cursor + pad.y;
 
     return block;
 }
