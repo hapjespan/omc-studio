@@ -3,6 +3,7 @@ import { DIRECTION_HEIGHT, layoutDirection } from './direction';
 import { flowDomains, type Flow, type FlowContext } from './flowDomains';
 import { flowList } from './listAreas';
 import { resolveStyle } from './resolveStyle';
+import { manualRect } from './manual';
 import { buildDomains, type TreeNode } from './tree';
 import { computeWarnings } from './warnings';
 import { wrapText } from './wrapText';
@@ -11,7 +12,8 @@ import type { AreaKey, CanvasLayoutInput, DrawnBlock, DrawnCanvas, LayoutWarning
 export const ARTBOARD = { width: ARTBOARD_WIDTH, height: ARTBOARD_HEIGHT, directionHeight: DIRECTION_HEIGHT } as const;
 
 export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeasurer): DrawnCanvas {
-    const context: FlowContext = { measurer, style: (element, level) => resolveStyle(element.area, level, input.layouts?.[element.id]?.style) };
+    const rect = (id: string) => manualRect(input.layouts?.[id]);
+    const context: FlowContext = { measurer, rect, style: (element, level) => resolveStyle(element.area, level, input.layouts?.[element.id]?.style) };
     const areas = [...input.areas].sort((a, b) => a.position - b.position);
     const flows = new Map<AreaKey, Flow>();
     const domainsByArea = new Map<AreaKey, TreeNode[]>();
@@ -20,12 +22,16 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
     for (const area of areas.filter((candidate) => candidate.key !== 'direction')) {
         const domains = buildDomains(input.elements, area.key);
         domainsByArea.set(area.key, domains);
-        const flow = (area.kind === 'list' ? flowList : flowDomains)(domains, area.key, areaWidth(area.key) - 2 * AREA_PADDING, context);
+        const flow = (area.kind === 'list' ? flowList : flowDomains)(domains, area.key, (rect(area.key)?.width ?? areaWidth(area.key)) - 2 * AREA_PADDING, context);
         flows.set(area.key, flow);
-        required[area.key] = areaChrome() + flow.height;
+        if (!rect(area.key)) required[area.key] = areaChrome() + flow.height;
     }
 
     const frames = arrangeAreas(required);
+    for (const area of areas) {
+        const own = rect(area.key);
+        if (own) frames[area.key] = { x: own.x, y: own.y, width: own.width, height: own.height };
+    }
     const blocks: DrawnBlock[] = [];
     for (const area of areas) {
         const frame = frames[area.key];
@@ -39,7 +45,7 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
             y: frame.y,
             width: frame.width,
             drawnHeight: frame.height,
-            z: 0,
+            z: rect(area.key)?.z ?? 0,
             textLines: area.key === 'direction' ? [] : wrapText(area.label.toUpperCase(), frame.width - 2 * AREA_PADDING - area.label.length * AREA_LETTER_SPACING * style.font.size, style.font, measurer),
             modality: null,
             system: false,

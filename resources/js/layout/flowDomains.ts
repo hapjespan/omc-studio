@@ -1,10 +1,12 @@
+import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
 import type { TreeNode } from './tree';
 import { wrapText } from './wrapText';
-import type { AreaKey, BlockStyle, DrawnBlock, ElementKind, LayoutElement, TextMeasurer } from './types';
+import type { AreaKey, BlockStyle, DrawnBlock, ElementKind, LayoutElement, ManualRect, TextMeasurer } from './types';
 
 export interface FlowContext {
     measurer: TextMeasurer;
     style: (element: LayoutElement, level: ElementKind) => BlockStyle;
+    rect?: (id: string) => ManualRect | null;
 }
 
 export interface Flow {
@@ -26,7 +28,7 @@ const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 
 
 export const columnCount = (width: number): number => Math.max(1, Math.floor((width + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
 
-function place(node: TreeNode, area: AreaKey, x: number, y: number, width: number, out: DrawnBlock[], context: FlowContext): DrawnBlock {
+function place(node: TreeNode, area: AreaKey, x: number, y: number, width: number, out: DrawnBlock[], context: FlowContext, own: ManualRect | null = null): DrawnBlock {
     const { element } = node;
     const pad = padding[element.kind];
     const style = context.style(element, element.kind);
@@ -41,7 +43,7 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
         y,
         width,
         drawnHeight: 0,
-        z: depth[element.kind],
+        z: own?.z ?? depth[element.kind],
         textLines,
         modality: element.modality,
         system: !!element.unknownAllocation,
@@ -51,11 +53,16 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
 
     let cursor = pad.y + textLines.length * style.lineHeight;
     for (const child of node.children) {
+        const childRect = context.rect?.(child.element.id) ?? null;
+        if (childRect) {
+            place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect);
+            continue;
+        }
         const indent = child.element.kind === 'cluster' ? CLUSTER_INDENT : 0;
         const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
-    block.drawnHeight = cursor + pad.y;
+    block.drawnHeight = own?.height ?? cursor + pad.y;
 
     return block;
 }
@@ -64,13 +71,23 @@ export function flowDomains(domains: TreeNode[], area: AreaKey, innerWidth: numb
     const columns = columnCount(innerWidth);
     const cardWidth = Math.floor((innerWidth - (columns - 1) * CARD_GAP) / columns);
     const blocks: DrawnBlock[] = [];
+    const automatic = domains.filter((domain) => !context.rect?.(domain.element.id));
     let y = 0;
 
-    for (let start = 0; start < domains.length; start += columns) {
-        const row = domains.slice(start, start + columns).map((domain, index) => place(domain, area, index * (cardWidth + CARD_GAP), y, cardWidth, blocks, context));
+    for (let start = 0; start < automatic.length; start += columns) {
+        const row = automatic.slice(start, start + columns).map((domain, index) => place(domain, area, index * (cardWidth + CARD_GAP), y, cardWidth, blocks, context));
         const rowHeight = Math.max(...row.map((card) => card.drawnHeight));
         y += rowHeight + CARD_GAP;
     }
+    let height = automatic.length === 0 ? 0 : y - CARD_GAP;
 
-    return { blocks, height: domains.length === 0 ? 0 : y - CARD_GAP };
+    for (const domain of domains) {
+        const rect = context.rect?.(domain.element.id);
+        if (!rect) continue;
+        const top = rect.y - AREA_HEADER - AREA_PADDING;
+        place(domain, area, rect.x - AREA_PADDING, top, rect.width, blocks, context, rect);
+        height = Math.max(height, top + rect.height);
+    }
+
+    return { blocks, height };
 }
