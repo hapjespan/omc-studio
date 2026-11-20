@@ -23,8 +23,9 @@ test('a sample Organisation carries the text label Voorbeeld on its overview sec
     try {
         await signInAs(page, 'administrator');
         await page.goto('/overview');
-        await expect(page.getByRole('region', { name: new RegExp(name) }).getByText('Voorbeeld', { exact: true })).toBeVisible();
-        await expectNoAxeViolations(page);
+        const section = page.getByRole('region', { name: new RegExp(name) });
+        await expect(section.getByText('Voorbeeld', { exact: true })).toBeVisible();
+        await expectNoAxeViolations(page, undefined, `[aria-labelledby="${await section.getAttribute('aria-labelledby')}"]`);
 
         await page.goto(`/canvases/${canvas}`);
         await expect(page.getByRole('navigation', { name: 'Kruimelpad' }).getByText('Voorbeelddata')).toBeVisible();

@@ -23,8 +23,8 @@ test('Eigenaren and Applicaties appear in Beheer for Administrators and open a l
 
     await page.goto(`/admin/organisations/${organisation.id}/owners`);
     const chooser = page.getByRole('navigation', { name: 'Organisatie' });
-    await expect(chooser.getByRole('link', { name: organisation.name })).toHaveAttribute('aria-current', 'page');
-    await chooser.getByRole('link', { name: organisation.name }).click();
+    await expect(chooser.getByLabel('Organisatie')).toHaveValue(String(organisation.id));
+    await chooser.getByLabel('Organisatie').selectOption({ label: organisation.name });
     await expect(page.getByRole('heading', { level: 1, name: 'Eigenaren' })).toBeVisible();
     await expectNoAxeViolations(page);
 });

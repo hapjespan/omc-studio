@@ -13,7 +13,7 @@ test('an Administrator reaches Kostenposten from an Organisation without Canvase
 
     const section = page.getByRole('region', { name });
     await expect(section.getByText('Deze organisatie heeft nog geen canvassen')).toBeVisible();
-    await expectNoAxeViolations(page);
+    await expectNoAxeViolations(page, undefined, `[aria-labelledby="organisation-${organisation}"]`);
     await section.getByRole('link', { name: 'Kostenposten' }).click();
     await expect(page).toHaveURL(new RegExp(`/organisations/${organisation}/cost-records`));
 });

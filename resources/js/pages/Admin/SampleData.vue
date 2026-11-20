@@ -8,9 +8,6 @@ import Callout from '../../components/ui/Callout.vue';
 import Dialog from '../../components/overlays/Dialog.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
-import { useQuietStatus } from '../../shell/layout';
-
-useQuietStatus();
 
 defineProps<{ present: boolean; name: string | null }>();
 const confirming = ref(false);

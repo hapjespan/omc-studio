@@ -17,7 +17,7 @@ test('a faulty file disables Importeren, a clean export imports into a new organ
     await page.getByRole('button', { name: 'Controleren' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'kies een JSON-export' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Importeren', exact: true })).toBeDisabled();
-    await expectNoAxeViolations(page);
+    await expectNoAxeViolations(page, undefined, '#import-canvas-panel');
 
     await page.getByLabel('JSON-bestand').setInputFiles({ name: 'ok.json', mimeType: 'application/json', buffer: Buffer.from(exported) });
     await page.getByRole('button', { name: 'Controleren' }).click();

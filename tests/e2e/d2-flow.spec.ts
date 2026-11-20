@@ -34,6 +34,7 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     const canvas = Number(/canvases\/(\d+)/.exec(page.url())?.[1]);
 
     await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+    await page.getByRole('button', { name: 'Domein', exact: true }).click();
     const domain = page.getByLabel('+ Domein');
     await domain.fill('Inkoop');
     await domain.press('Enter');
@@ -122,7 +123,7 @@ const screens: [string, (canvas: number, organisation: number) => string, (page:
     ['Systeemmeldingen', () => '/admin/system-notices', firstRow('main h1')],
 ];
 
-test.describe('P-1: screens answer within one second on 500 Elements and 1000 Cost records', { annotation: { type: 'note', description: 'Timing needs an unloaded server: run this block alone with --workers=1 (npx playwright test tests/e2e/d2-flow.spec.ts -g "P-1" --workers=1).' } }, () => {
+test.describe('P-1: screens answer within one second on 500 Elements and 1000 Cost records @performance', { annotation: { type: 'note', description: 'Timing needs an unloaded server: run this block alone with --workers=1 (npx playwright test tests/e2e/d2-flow.spec.ts -g "P-1" --workers=1).' } }, () => {
     test.describe.configure({ mode: 'serial' });
 
     let canvas = 0;

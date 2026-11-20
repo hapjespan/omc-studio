@@ -7,9 +7,10 @@ export type EntriesProps = { rows: EntryRow[]; count: number; query: ListState; 
 
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../fields/ErrorSummary.vue';
 import AppButton from '../ui/AppButton.vue';
+import ChipSelect from '../ui/ChipSelect.vue';
 import SelectField from '../fields/SelectField.vue';
 import TextField from '../fields/TextField.vue';
 import { focusFirstInvalid } from '../fields/focusFirstInvalid';
@@ -105,9 +106,7 @@ function submit(row: Row | null, close: () => void): void {
     <Head :title="title" />
     <h1 class="text-[20px] font-semibold">{{ title }}</h1>
     <nav :aria-label="t('lists.choose_organisation')" class="mt-2">
-        <ul class="flex flex-wrap gap-2 text-[13px]">
-            <li v-for="option in organisations" :key="option.id"><Link :href="routes.organisationEntries(option.id, kind)" :aria-current="option.id === organisation.id ? 'page' : undefined" class="rounded-control border border-edge px-2.5 py-1" :class="{ 'font-semibold underline': option.id === organisation.id }">{{ option.name }}<template v-if="option.archived_at"> ({{ t('list.archived') }})</template></Link></li>
-        </ul>
+        <ChipSelect id="organisation-switch" :label="t('lists.choose_organisation')" :model-value="String(organisation.id)" :options="organisations.map((option) => ({ value: String(option.id), label: option.archived_at ? `${option.name} (${t('list.archived')})` : option.name }))" @update:model-value="router.get(routes.organisationEntries(Number($event), kind))" />
     </nav>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
