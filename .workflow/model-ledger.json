@@ -667,5 +667,9 @@
   "T385": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
+  },
+  "T386": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }
