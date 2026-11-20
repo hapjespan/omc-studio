@@ -10,6 +10,7 @@ import ColourField from './ColourField.vue';
 export interface StyleTarget {
     kind: 'area' | 'domain' | 'cluster' | 'activity';
     resolved: BlockStyle;
+    backdrop: string;
 }
 
 const props = defineProps<{ id: string; name: string; target: StyleTarget }>();

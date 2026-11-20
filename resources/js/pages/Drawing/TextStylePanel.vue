@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
 import CheckBox from '../../components/ui/CheckBox.vue';
 import SegmentedControl from '../../components/ui/SegmentedControl.vue';
+import { contrastRatio, MINIMUM_CONTRAST, ratioLabel } from '../../colour';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import { t } from '../../i18n';
 import { supportsItalic } from '../../layout/fonts';
 import ColourField from './ColourField.vue';
 import type { StyleTarget } from './StylePanel.vue';
 
-const props = defineProps<{ id: string; name: string; target: StyleTarget; colourError?: string }>();
-const emit = defineEmits<{ style: [patch: StylePatch]; invalid: [key: string, text: string] }>();
-defineExpose({ focusColour: () => colour.value?.focus() });
+const props = defineProps<{ id: string; name: string; target: StyleTarget }>();
+const emit = defineEmits<{ style: [patch: StylePatch] }>();
 
 const colour = ref<{ focus: () => void }>();
+const ratio = computed(() => contrastRatio(props.target.resolved.textColour, props.target.backdrop));
+const failing = computed(() => ratio.value < MINIMUM_CONTRAST);
+const contrastError = computed(() => (failing.value ? t('layout.rule.contrast', { name: props.name, ratio: ratioLabel(ratio.value) }) : undefined));
 const size = ref(String(props.target.resolved.font.size));
 const sizeError = ref('');
 const fonts = [
@@ -58,6 +61,11 @@ function commitSize(): void {
     emit('style', { font_size: number });
 }
 
+function commitColour(hex: string): void {
+    emit('style', { text_colour: hex });
+    if (contrastRatio(hex, props.target.backdrop) < MINIMUM_CONTRAST) void nextTick().then(nextTick).then(() => colour.value?.focus());
+}
+
 const pickFont = (value: string): void => emit('style', value === 'space_grotesk' ? { font: value, italic: null } : { font: value });
 </script>
 
@@ -79,10 +87,10 @@ const pickFont = (value: string): void => emit('style', value === 'space_grotesk
             :swatch-label="t('drawing_style.text_swatch', { name })"
             :value="target.resolved.textColour"
             :invalid-message="t('layout.style.text_colour', { name })"
-            :error="colourError"
-            @commit="emit('style', { text_colour: $event })"
-            @invalid="emit('invalid', 'text_colour', $event)"
+            :error="contrastError"
+            @commit="commitColour"
         />
+        <p class="text-[12.5px] text-secondary" data-contrast>{{ t('drawing_style.contrast', { ratio: ratioLabel(ratio) }) }}</p>
         <SegmentedControl :label="t('drawing_style.align_horizontal_of', { name })" :items="horizontal" :active="target.resolved.alignHorizontal" @select="emit('style', { align_horizontal: $event })" />
         <SegmentedControl :label="t('drawing_style.align_vertical_of', { name })" :items="vertical" :active="target.resolved.alignVertical" @select="emit('style', { align_vertical: $event })" />
     </section>

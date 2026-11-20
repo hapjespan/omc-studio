@@ -4,9 +4,10 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { resolveStyle } from '../../layout/resolveStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
+import { backdropOf } from './backdrop';
 import type { StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { CanvasLayoutInput, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
+import type { BlockStyle, CanvasLayoutInput, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
 import { modeSwitchPlacement } from '../../shell/modes';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
@@ -85,8 +86,11 @@ const names = computed(() => new Map<string, string>([...props.layout.areas.map(
 const single = computed(() => (selected.value.length === 1 ? selected.value[0] : null));
 const refreshBox = (): void => {
     box.value = single.value ? (engine.value?.getBox(single.value) ?? null) : null;
-    const block = single.value ? drawn.value?.blocks.find((candidate) => candidate.id === single.value) : undefined;
-    target.value = block && block.areaKey !== 'direction' && engine.value && single.value ? { kind: block.kind, resolved: resolveStyle(block.areaKey, block.kind, engine.value.getStyle(single.value) as ElementStyle) } : null;
+    const blocks = new Map((drawn.value?.blocks ?? []).map((candidate) => [candidate.id, candidate]));
+    const block = single.value ? blocks.get(single.value) : undefined;
+    const live = engine.value;
+    const styleOf = (id: string): BlockStyle => resolveStyle(blocks.get(id)!.areaKey, blocks.get(id)!.kind, (live?.getStyle(id) ?? {}) as ElementStyle);
+    target.value = block && block.areaKey !== 'direction' && live ? { kind: block.kind, resolved: styleOf(block.id), backdrop: backdropOf(block, blocks, styleOf) } : null;
 };
 const setStyle = (patch: StylePatch): void => {
     const result = engine.value?.setStyle(patch);

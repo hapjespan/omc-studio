@@ -82,5 +82,61 @@
             "effective": "#477ACA",
             "text": "#FFFFFF"
         }
+    ],
+    "ratioCases": [
+        {
+            "text": "#FFFFFF",
+            "background": "#FFFFFF",
+            "label": "1,0",
+            "passes": false
+        },
+        {
+            "text": "#777777",
+            "background": "#FFFFFF",
+            "label": "4,4",
+            "passes": false
+        },
+        {
+            "text": "#767676",
+            "background": "#FFFFFF",
+            "label": "4,5",
+            "passes": true
+        },
+        {
+            "text": "#000000",
+            "background": "#FFFFFF",
+            "label": "21,0",
+            "passes": true
+        },
+        {
+            "text": "#171B21",
+            "background": "#FFFF00",
+            "label": "16,0",
+            "passes": true
+        },
+        {
+            "text": "#FFFFFF",
+            "background": "#FFFF00",
+            "label": "1,0",
+            "passes": false
+        },
+        {
+            "text": "#FFFFFF",
+            "background": "#1E5FBF",
+            "label": "6,0",
+            "passes": true
+        },
+        {
+            "text": "#171B21",
+            "background": "#1E5FBF",
+            "label": "2,8",
+            "passes": false
+        },
+        {
+            "text": "#B4540A",
+            "background": "#FFFFFF",
+            "label": "4,9",
+            "passes": true
+        }
     ]
 }

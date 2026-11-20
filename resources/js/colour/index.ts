@@ -1,5 +1,7 @@
 import defaults from '../../data/default-colours.json';
 
+export const MINIMUM_CONTRAST = 4.5;
+
 export const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 const channel = (value: number): number => {
@@ -16,6 +18,8 @@ export const contrastRatio = (a: string, b: string): number => {
     const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x);
     return (high + 0.05) / (low + 0.05);
 };
+
+export const ratioLabel = (ratio: number): string => (Math.floor(ratio * 10) / 10).toFixed(1).replace('.', ',');
 
 export const effectiveFill = (fill: string, opacity: number, behind: string): string => {
     const alpha = opacity / 100;

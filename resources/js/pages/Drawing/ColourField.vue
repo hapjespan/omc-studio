@@ -32,7 +32,7 @@ function commit(): void {
     emit('commit', typed.toUpperCase());
 }
 
-defineExpose({ focus: () => field.value?.querySelector('input')?.focus() });
+defineExpose({ focus: () => field.value?.querySelector<HTMLInputElement>('input[type=text]')?.focus() });
 </script>
 
 <template>

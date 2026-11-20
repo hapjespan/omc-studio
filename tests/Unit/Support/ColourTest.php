@@ -41,6 +41,20 @@ class ColourTest extends TestCase
         }
     }
 
+    public function test_the_ratio_cases_of_the_fixture_read_and_pass_as_in_typescript(): void
+    {
+        $cases = $this->fixture()['ratioCases'];
+
+        $this->assertCount(9, $cases);
+
+        foreach ($cases as $case) {
+            $ratio = Colour::contrast($case['text'], $case['background']);
+
+            $this->assertSame($case['label'], Colour::ratioLabel($ratio), $case['text'].' on '.$case['background']);
+            $this->assertSame($case['passes'], $ratio >= $this->fixture()['minimumRatio']);
+        }
+    }
+
     public function test_the_direction_labels_are_readable_on_the_band(): void
     {
         $defaults = Colour::defaults();
