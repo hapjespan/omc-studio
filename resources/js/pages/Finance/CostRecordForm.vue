@@ -7,6 +7,8 @@ import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import type { ListRow } from '../../components/list/ListView.vue';
+import AppButton from '../../components/ui/AppButton.vue';
+import Icon from '../../components/ui/Icon.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
@@ -37,32 +39,46 @@ function submit(): void {
         <ErrorSummary :errors="errors" />
         <p v-if="archived" role="note" class="text-[13px]">{{ t('cost_records.archived_readonly') }}</p>
         <fieldset :disabled="archived" class="flex flex-col gap-3">
-            <TextField id="code" v-model="draft.code" :label="`${t('fields.code')} (${t('form.optional')})`" :error="errors.code" @update:model-value="touch" />
             <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="touch" />
-            <Field id="cost_kind" :label="t('fields.cost_kind')" :error="errors.cost_kind" v-slot="{ describedby, invalid }">
-                <select id="cost_kind" v-model="draft.cost_kind" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]">
-                    <option value="" disabled>{{ t('form.choose') }}</option>
-                    <option v-for="kind in costKinds" :key="kind" :value="kind">{{ t(`cost_kind.${kind}`) }}</option>
-                </select>
-            </Field>
-            <TextField id="supplier" v-model="draft.supplier" :label="`${t('fields.supplier')} (${t('form.optional')})`" :error="errors.supplier" @update:model-value="touch" />
+            <div class="grid items-end gap-3 sm:grid-cols-2">
+                <TextField id="code" v-model="draft.code" :label="`${t('fields.code')} (${t('form.optional')})`" :error="errors.code" @update:model-value="touch" />
+                <Field id="cost_kind" :label="t('fields.cost_kind')" :error="errors.cost_kind" v-slot="{ describedby, invalid }">
+                    <div class="relative flex">
+                        <select id="cost_kind" v-model="draft.cost_kind" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink w-full appearance-none pr-8">
+                            <option value="" disabled>{{ t('form.choose') }}</option>
+                            <option v-for="kind in costKinds" :key="kind" :value="kind">{{ t(`cost_kind.${kind}`) }}</option>
+                        </select>
+                        <Icon name="chevron-down" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink" />
+                    </div>
+                </Field>
+            </div>
             <Field id="owner_id" :label="t('fields.owner')" :hint="t('cost_records.owner_hint')" :error="errors.owner_id" v-slot="{ describedby, invalid }">
-                <select id="owner_id" v-model="draft.owner_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]">
-                    <option value="" disabled>{{ t('form.choose') }}</option>
-                    <option v-for="owner in owners" :key="owner.id" :value="String(owner.id)">{{ owner.name }}</option>
-                </select>
+                <div class="relative flex">
+                    <select id="owner_id" v-model="draft.owner_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink w-full appearance-none pr-8">
+                        <option value="" disabled>{{ t('form.choose') }}</option>
+                        <option v-for="owner in owners" :key="owner.id" :value="String(owner.id)">{{ owner.name }}</option>
+                    </select>
+                    <Icon name="chevron-down" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink" />
+                </div>
             </Field>
-            <TextField id="cost_centre" v-model="draft.cost_centre" :label="`${t('fields.cost_centre')} (${t('form.optional')})`" :error="errors.cost_centre" @update:model-value="touch" />
             <Field id="application_id" :label="`${t('fields.application')} (${t('form.optional')})`" :error="errors.application_id" v-slot="{ describedby, invalid }">
-                <select id="application_id" v-model="draft.application_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]">
-                    <option value="">{{ t('form.none') }}</option>
-                    <option v-for="application in applications" :key="application.id" :value="String(application.id)">{{ application.name }}</option>
-                </select>
+                <div class="relative flex">
+                    <select id="application_id" v-model="draft.application_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink w-full appearance-none pr-8">
+                        <option value="">{{ t('form.none') }}</option>
+                        <option v-for="application in applications" :key="application.id" :value="String(application.id)">{{ application.name }}</option>
+                    </select>
+                    <Icon name="chevron-down" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink" />
+                </div>
             </Field>
-            <TextArea id="description" v-model="draft.description" :label="`${t('fields.description')} (${t('form.optional')})`" :error="errors.description" @update:model-value="touch" />
+            <div class="grid items-end gap-3 sm:grid-cols-2">
+                <TextField id="supplier" v-model="draft.supplier" :label="`${t('fields.supplier')} (${t('form.optional')})`" :error="errors.supplier" @update:model-value="touch" />
+                <TextField id="cost_centre" v-model="draft.cost_centre" :label="`${t('fields.cost_centre')} (${t('form.optional')})`" :error="errors.cost_centre" @update:model-value="touch" />
+            </div>
+            <TextArea id="description" v-model="draft.description" :rows="3" :label="`${t('fields.description')} (${t('form.optional')})`" :error="errors.description" @update:model-value="touch" />
         </fieldset>
-        <div class="flex gap-2">
-            <button v-if="!archived" type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('cost_records.save') }}</button>
+        <div v-if="!archived" class="flex gap-2">
+            <AppButton type="submit" variant="primary" :disabled="busy">{{ t('cost_records.save') }}</AppButton>
+            <AppButton @click="emit('close')">{{ t('list.cancel') }}</AppButton>
         </div>
     </form>
 </template>
