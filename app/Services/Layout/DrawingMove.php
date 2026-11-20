@@ -24,11 +24,12 @@ class DrawingMove
         private readonly ElementTree $tree,
         private readonly LayoutRows $rows,
         private readonly LayoutAudit $audit,
+        private readonly MovedBlockFit $fit,
     ) {}
 
     /**
      * @param  array<string, mixed>  $request
-     * @return array{structure_version: int, layout_version: int}
+     * @return array{structure_version: int, layout_version: int, layout: ?array<string, mixed>}
      */
     public function move(Canvas $canvas, array $request): array
     {
@@ -45,12 +46,13 @@ class DrawingMove
 
             $this->tree->move($element, $target);
             $this->order($element, $request['position'] ?? null);
+            $layout = $this->fit->apply($canvas, $element, $target, $layout);
             $this->assertFits($canvas, $element, $layout);
-            $this->store($canvas, $element, $layout);
+            $stored = $this->store($canvas, $element, $layout);
 
             $this->audit->record($canvas, $before, $this->audit->current($canvas));
 
-            return $this->storedVersions($canvas);
+            return [...$this->storedVersions($canvas), 'layout' => $stored];
         });
     }
 
@@ -160,30 +162,39 @@ class DrawingMove
         return ['areas' => $areas, 'elements' => $elements];
     }
 
-    /** @param ?array<string, mixed> $layout */
-    private function store(Canvas $canvas, Element $element, ?array $layout): void
+    /**
+     * @param  ?array<string, mixed>  $layout
+     * @return ?array<string, mixed>
+     */
+    private function store(Canvas $canvas, Element $element, ?array $layout): ?array
     {
         $id = (string) $element->getKey();
 
         if ($layout === null) {
             $this->rows->remove($canvas, [$id]);
 
-            return;
+            return null;
         }
 
-        Layout::query()->updateOrCreate(['element_id' => $id], [
-            'canvas_id' => $canvas->getKey(),
-            'area_id' => null,
+        $stored = [
             'x' => $layout['x'],
             'y' => $layout['y'],
             'width' => $layout['width'],
             'height' => $layout['height'],
             'z' => $layout['z'] ?? 0,
             'style' => $layout['style'] ?? [],
+        ];
+
+        Layout::query()->updateOrCreate(['element_id' => $id], [
+            'canvas_id' => $canvas->getKey(),
+            'area_id' => null,
+            ...$stored,
             'format_version' => self::FORMAT_VERSION,
         ]);
 
         $canvas->raiseLayoutVersion();
+
+        return $stored;
     }
 
     /** @return array{structure_version: int, layout_version: int} */

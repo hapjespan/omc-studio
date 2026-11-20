@@ -129,13 +129,14 @@ class DrawingMoveTest extends StructureTestCase
         $this->assertSame($this->loaded, ['structure_version' => (int) $this->canvas->structure_version, 'layout_version' => (int) $this->canvas->layout_version]);
     }
 
-    public function test_a_block_outside_the_width_of_its_new_parent_is_refused(): void
+    public function test_a_block_outside_the_width_of_its_new_parent_is_pushed_inside(): void
     {
-        $this->move($this->payload(['layout' => ['x' => 200, 'y' => 0, 'width' => 200, 'height' => 100, 'z' => 0, 'style' => []]]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('rule');
+        $this->move($this->payload(['layout' => ['x' => 200, 'y' => 0, 'width' => 200, 'height' => 100, 'z' => 0, 'style' => []]]))->assertOk();
 
-        $this->assertSame($this->source->id, $this->cluster->fresh()?->parent_id);
+        $row = Layout::query()->where('element_id', $this->cluster->id)->firstOrFail();
+
+        $this->assertSame($this->target->id, $this->cluster->fresh()?->parent_id);
+        $this->assertSame([84, 0, 200, 100], [$row->x, $row->y, $row->width, $row->height]);
     }
 
     public function test_a_reader_is_refused(): void
