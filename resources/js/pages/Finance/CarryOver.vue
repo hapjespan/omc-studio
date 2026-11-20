@@ -29,8 +29,8 @@ function run(): void {
     <SidePanel v-model:open="open" :title="t('carry_over.title')">
         <p v-if="refusal" role="alert" class="mb-2 text-[13px] text-danger">{{ refusal }}</p>
         <form novalidate class="flex flex-col gap-3" @submit.prevent="run">
-            <label class="flex flex-col gap-1 text-[13px]">{{ t('carry_over.source') }}<NativeSelect id="carry-over-source" v-model="source"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></NativeSelect></label>
-            <label class="flex flex-col gap-1 text-[13px]">{{ t('carry_over.target') }}<NativeSelect id="carry-over-target" v-model="target"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></NativeSelect></label>
+            <NativeSelect id="carry-over-source" v-model="source" :label="t('carry_over.source')" :options="options" />
+            <NativeSelect id="carry-over-target" v-model="target" :label="t('carry_over.target')" :options="options" />
             <label class="flex items-center gap-2 text-[13px]"><CheckBox v-model="withFigures" />{{ t('carry_over.with_figures') }}</label>
             <div><AppButton type="submit" variant="primary">{{ t('carry_over.run') }}</AppButton></div>
         </form>

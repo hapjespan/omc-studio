@@ -3,7 +3,6 @@ import { computed, nextTick, reactive, ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
-import Field from '../../components/fields/Field.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
@@ -42,25 +41,10 @@ function submit(): void {
             <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="touch" />
             <div class="grid items-end gap-3 sm:grid-cols-2">
                 <TextField id="code" v-model="draft.code" :label="`${t('fields.code')} (${t('form.optional')})`" :error="errors.code" @update:model-value="touch" />
-                <Field id="cost_kind" :label="t('fields.cost_kind')" :error="errors.cost_kind" v-slot="{ describedby, invalid }">
-                    <NativeSelect id="cost_kind" v-model="draft.cost_kind" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
-                            <option value="" disabled>{{ t('form.choose') }}</option>
-                            <option v-for="kind in costKinds" :key="kind" :value="kind">{{ t(`cost_kind.${kind}`) }}</option>
-                        </NativeSelect>
-                </Field>
+                <NativeSelect id="cost_kind" v-model="draft.cost_kind" :label="t('fields.cost_kind')" :error="errors.cost_kind" :empty-label="t('form.choose')" :options="costKinds.map((kind) => ({ value: kind, label: t(`cost_kind.${kind}`) }))" />
             </div>
-            <Field id="owner_id" :label="t('fields.owner')" :hint="t('cost_records.owner_hint')" :error="errors.owner_id" v-slot="{ describedby, invalid }">
-                <NativeSelect id="owner_id" v-model="draft.owner_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
-                        <option value="" disabled>{{ t('form.choose') }}</option>
-                        <option v-for="owner in owners" :key="owner.id" :value="String(owner.id)">{{ owner.name }}</option>
-                    </NativeSelect>
-            </Field>
-            <Field id="application_id" :label="`${t('fields.application')} (${t('form.optional')})`" :error="errors.application_id" v-slot="{ describedby, invalid }">
-                <NativeSelect id="application_id" v-model="draft.application_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
-                        <option value="">{{ t('form.none') }}</option>
-                        <option v-for="application in applications" :key="application.id" :value="String(application.id)">{{ application.name }}</option>
-                    </NativeSelect>
-            </Field>
+            <NativeSelect id="owner_id" v-model="draft.owner_id" :label="t('fields.owner')" :hint="t('cost_records.owner_hint')" :error="errors.owner_id" :empty-label="t('form.choose')" :options="owners.map((owner) => ({ value: String(owner.id), label: owner.name }))" />
+            <NativeSelect id="application_id" v-model="draft.application_id" :label="`${t('fields.application')} (${t('form.optional')})`" :error="errors.application_id" :empty-label="t('form.none')" :options="applications.map((application) => ({ value: String(application.id), label: application.name }))" />
             <div class="grid items-end gap-3 sm:grid-cols-2">
                 <TextField id="supplier" v-model="draft.supplier" :label="`${t('fields.supplier')} (${t('form.optional')})`" :error="errors.supplier" @update:model-value="touch" />
                 <TextField id="cost_centre" v-model="draft.cost_centre" :label="`${t('fields.cost_centre')} (${t('form.optional')})`" :error="errors.cost_centre" @update:model-value="touch" />

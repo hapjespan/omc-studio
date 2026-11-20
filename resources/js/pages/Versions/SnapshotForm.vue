@@ -2,7 +2,6 @@
 import { computed, nextTick, reactive, ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
-import Field from '../../components/fields/Field.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextArea from '../../components/fields/TextArea.vue';
@@ -33,11 +32,7 @@ function submit(): void {
     <form novalidate class="flex flex-col gap-4" @submit.prevent="submit" @input="touch" @change="touch">
         <ErrorSummary :errors="errors" />
         <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="touch" />
-        <Field v-if="!row" id="fiscal_year" :label="t('snap.field.year')" :error="errors.fiscal_year" v-slot="{ describedby, invalid }">
-            <NativeSelect id="fiscal_year" v-model="draft.fiscal_year" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
-                <option v-for="year in years" :key="year" :value="String(year)">{{ year }}</option>
-            </NativeSelect>
-        </Field>
+        <NativeSelect v-if="!row" id="fiscal_year" v-model="draft.fiscal_year" :label="t('snap.field.year')" :error="errors.fiscal_year" :options="years.map((year) => ({ value: String(year), label: String(year) }))" />
         <TextArea id="remark" v-model="draft.remark" :label="`${t('fields.remark')} (${t('form.optional')})`" :error="errors.remark" @update:model-value="touch" />
         <div class="flex gap-2">
             <AppButton type="submit" variant="primary" :disabled="busy">{{ t('snap.save') }}</AppButton>

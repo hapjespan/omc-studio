@@ -134,17 +134,16 @@ All live under `resources/js/components/` and are the only way to build these pa
 | `ui/ActionMenu` | `label` (button text, chevron), `items` as `{ key, label, disabled? }`, emits `select(key)`; reka-ui DropdownMenu, keyboard operable |
 | `ui/icons` | adds `fit`; `minus` already existed |
 | `fields/FileField` | `id`, `label`, `accept`, `hint`, `error`, `v-model` (`File` or null: a reset to null clears the shown name), emits `pick(file or null)`; 36 high box, 28 high button reading "Kies een bestand", the file name beside it; the native input stays the labelled, focusable control |
+| `fields/InlineField` | `v-model` string, `id`, `label` (accessible name, visually hidden through `Field` `hideLabel`), `suffix` (for example "%", drawn inside the box and `aria-hidden`: the unit belongs in the `label`, for example "Percentage regel 1"), `hint`, `error`, `inputmode` text, decimal or numeric, `disabled`; 84 by 36 box, text right-aligned in Space Grotesk 13 bold, border `#848B95`, `#C0645A` with `aria-invalid` on error, `aria-describedby` through `Field`; hint (11.5 muted) and error (12.5 danger) sit below the box as in every field; non-prop attributes land on the `Field` root as with `TextField`; disabled is a grey `#E6E8E6` fill with muted text and a muted edge |
+| `fields/NativeSelect` | `v-model` string, `id`, `label` (visible, through `Field`), `options` as `{ value, label }`, `emptyLabel` (when given, a first option with value empty and this text), `hint`, `error`, `disabled` (grey `#E6E8E6` fill, muted text and muted chevron), `bare` (no `Field` wrapper, the select is as wide as its content or the width given by a class: attributes land on the select, `label` becomes its `aria-label` and the visible label sits outside, options through the `options` prop or the default slot; for filter chips); native select, chevron, 36 high, border `#848B95`, `#C0645A` with `aria-invalid` on error; use it where `SelectField` cannot hold an empty value |
+| `ui/ReportTable` | `caption` (accessible, visually hidden), `columns` as `{ key, label, align? }` with align left (default) or right, `rows` as records, `empty` (optional, the text when there are no rows; omitted means no empty row), `rowHeader` (column key whose cells become `th scope="row"`); slots `cell-<key>` with `{ row, value }`; bordered white card (hairline, radius 8, white as every card surface in the contract) that is a focusable named region (`role="region"`, `tabindex="0"`, `aria-label` from the caption) so a sideways scroll can be reached by keyboard; the Toewijzen lines stay outside `ReportTable` because they are interactive cards, not report rows, small header 11.5 `#454C57`, right-aligned columns use tabular figures |
 | `shell/HeaderSlot` | `to` title or actions; the page puts its title or actions inside it and they appear in the page header row of the shell; the row exists only while a page uses a slot |
+| `shell/TopBar` | the breadcrumb wraps anywhere and the right-hand group (fiscal year, role menu) wraps, so the bar does not scroll sideways at 320 CSS pixels with a long organisation and canvas name; no props changed, the 1440 look is unchanged |
 | `shell/layout` | `useWideMain()` in a page setup sets the main padding to 24 instead of 16, `useQuietStatus()` makes the shell status region visually hidden but still announced; both reset on unmount, the defaults are 16 pixels and visible text |
 
 The shell status region shows its message as text by default, as in delivery 1 (flash statuses, "Wachtwoord gekopieerd"); a page that shows the confirmation elsewhere opts in to the visually hidden mode.
 
-Foundation gaps of the later deliveries that this set does not cover, tracked here:
-
-- F-2: a compact inline field with a hidden label and a "%" suffix (Toewijzen percentage input).
-- F-6: the top bar overflows at 320 pixels once a Fiscal year selector and notices sit in it.
-- G-8: one shared report table for the three report tables (`ImportReport`, `CountsReport`, the Toewijzen lines).
-- K-28: a styled native select with an empty value item, or `SelectField` accepting one (the specs use `selectOption`).
+Foundation gaps F-2, F-6, G-8 and K-28 are closed by T386: `InlineField`, the narrow top bar, `ReportTable` and `NativeSelect` above.
 
 ## States
 
