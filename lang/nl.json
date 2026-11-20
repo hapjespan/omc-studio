@@ -542,5 +542,6 @@
     "layout.rule.area_outside": "Opmaak :name: deze area valt buiten het tekenvlak of over de koersbalk",
     "layout.rule.direction_layout": "Opmaak: de koersbalk krijgt geen opmaak",
     "layout.rule.unknown_area": "Opmaak: onbekende area :key",
-    "layout.rule.too_small": "Opmaak :name: kies een breedte van minstens 40 en een hoogte van minstens 24 pixels"
+    "layout.rule.too_small": "Opmaak :name: kies een breedte van minstens 40 en een hoogte van minstens 24 pixels",
+    "layout.rule.contrast": "Tekst :name: kies een tekstkleur met meer contrast, nu :ratio:1, minstens 4,5:1"
 }

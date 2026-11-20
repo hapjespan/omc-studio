@@ -4,6 +4,7 @@ namespace App\Services\Layout;
 
 use App\Models\Area;
 use App\Rules\LayoutStyle;
+use App\Support\Colour;
 use Illuminate\Validation\ValidationException;
 
 class LayoutValidator
@@ -17,6 +18,8 @@ class LayoutValidator
     private const ARTBOARD_HEIGHT = 1188;
 
     private const DIRECTION_HEIGHT = 180;
+
+    private const MINIMUM_CONTRAST = 4.5;
 
     /** @var array<string, array{id: string, area: string, parent: ?string, kind: string, name: string}> */
     private array $byId;
@@ -47,7 +50,8 @@ class LayoutValidator
             ...$this->containment($entries, $areas),
             ...$this->areaBounds($areas),
             ...$this->minimumSizes($entries, $areas),
-            ...$this->styles($entries, $areas),
+            ...$styles = $this->styles($entries, $areas),
+            ...($styles === [] ? $this->contrast($entries, $areas) : []),
         ];
     }
 
@@ -225,6 +229,68 @@ class LayoutValidator
         }
 
         return $refused;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $entries
+     * @param  array<array-key, mixed>  $areas
+     * @return list<array{rule: string, element: ?string, message: string}>
+     */
+    private function contrast(array $entries, array $areas): array
+    {
+        $manual = $this->manualEntries($entries);
+        $refused = [];
+
+        foreach ($manual as $id => $entry) {
+            if (isset($entry['style']['text_colour'])) {
+                $refused = [...$refused, ...$this->contrastRefusal($entry['style']['text_colour'], $this->elementFill($id, $manual, $areas), $this->name($id), $id)];
+            }
+        }
+
+        foreach ($areas as $key => $area) {
+            if (isset($area['style']['text_colour'])) {
+                $refused = [...$refused, ...$this->contrastRefusal($area['style']['text_colour'], $this->areaFill((string) $key, $areas), $this->areaName((string) $key), null)];
+            }
+        }
+
+        return $refused;
+    }
+
+    /** @return list<array{rule: string, element: ?string, message: string}> */
+    private function contrastRefusal(string $text, string $fill, string $name, ?string $element): array
+    {
+        $ratio = Colour::contrast($text, $fill);
+
+        if ($ratio >= self::MINIMUM_CONTRAST) {
+            return [];
+        }
+
+        return [$this->refusal('contrast', $element, ['name' => $name, 'ratio' => number_format(floor($ratio * 10) / 10, 1, ',', '')])];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $manual
+     * @param  array<array-key, mixed>  $areas
+     */
+    private function elementFill(string $id, array $manual, array $areas): string
+    {
+        $element = $this->byId[$id];
+        $behind = $element['parent'] === null
+            ? $this->areaFill($element['area'], $areas)
+            : $this->elementFill($element['parent'], $manual, $areas);
+        $style = $manual[$id]['style'] ?? [];
+        $own = $style['fill'] ?? Colour::defaults()['areas'][$element['area']][$element['kind']] ?? null;
+
+        return $own === null ? $behind : Colour::effectiveFill($own, $style['fill_opacity'] ?? 100, $behind);
+    }
+
+    /** @param array<array-key, mixed> $areas */
+    private function areaFill(string $key, array $areas): string
+    {
+        $white = Colour::defaults()['white'];
+        $style = $areas[$key]['style'] ?? [];
+
+        return isset($style['fill']) ? Colour::effectiveFill($style['fill'], $style['fill_opacity'] ?? 100, $white) : $white;
     }
 
     /**
