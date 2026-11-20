@@ -645,6 +645,7 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T383": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }
