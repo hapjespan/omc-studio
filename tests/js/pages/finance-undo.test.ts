@@ -8,7 +8,7 @@ type FlashBulk = { done: number; skipped: { name: string; reason: string }[] };
 const flash: { undo: FlashUndo | null; bulk: FlashBulk | null } = { undo: null, bulk: null };
 
 vi.mock('@inertiajs/vue3', () => ({
-    router: { get: () => {}, post: () => {}, put: () => {}, delete: () => {} },
+    router: { get: () => {}, post: () => {}, put: () => {}, delete: () => {}, on: () => () => {} },
     usePage: () => ({ props: { errors: {}, flash } }),
     Head: { render: () => null },
 }));
