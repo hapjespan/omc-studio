@@ -66,6 +66,7 @@ test('Kostenposten of the Canvas: search, open a record, carry over and finalise
     await activate(page, page.getByRole('button', { name: 'Licentie', exact: true }));
     await expect(page.getByRole('dialog', { name: 'Licentie' })).toBeVisible();
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('button', { name: 'Licentie', exact: true })).toBeFocused();
 
     const ready = seedAllocation(unique(), {});
     await page.goto(`/canvases/${ready.canvas}/cost-records?year=2026`);
@@ -94,6 +95,9 @@ test('Toewijzen: choose a record, add Targets, enter percentages and save by key
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026`);
 
     await activate(page, page.getByRole('button', { name: /Licentie/ }));
+    await expect(page.getByRole('heading', { level: 2, name: 'Licentie' })).toBeVisible();
+    await activate(page, page.getByRole('button', { name: 'Uitklappen: Inkoop' }));
+    await expect(page.getByRole('button', { name: 'Inklappen: Inkoop' })).toHaveAttribute('aria-expanded', 'true');
     await activate(page, page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }));
     await activate(page, page.getByRole('button', { name: 'Toevoegen aan verdeling: Bestellen' }));
     await activate(page, page.getByRole('button', { name: 'Toevoegen aan verdeling: Betalen' }));

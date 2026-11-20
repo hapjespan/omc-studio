@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedOrganisation, tinker } from './support/finance';
+import { seedOrganisation, tinker, expandTarget } from './support/finance';
 import { seedPerformanceCanvas } from './support/overlay';
 import { signInAs } from './support/shell';
 
@@ -62,7 +62,10 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await page.keyboard.press('Escape');
 
     await page.goto(`/canvases/${canvas}/allocation?year=2026`);
+
     await page.getByRole('button', { name: /Licentie planning/ }).click();
+    await expect(page.getByRole('heading', { level: 2, name: 'Licentie planning' })).toBeVisible();
+    await expandTarget(page, 'Inkoop');
     await addPercentage(page, 'Offreren', '33,33');
     await addPercentage(page, 'Bestellen', '33,33');
     await addPercentage(page, 'Betalen', '33,34');

@@ -11,7 +11,8 @@ test('deletion names the consequence in numbers and Ongedaan maken restores it',
     await signInAs(page, 'administrator');
     await page.goto(`/organisations/${organisation}/cost-records?year=2026`);
 
-    await page.getByRole('button', { name: 'Verwijderen Licentie' }).click();
+    await page.getByRole('button', { name: 'Licentie', exact: true }).click();
+    await page.getByRole('dialog', { name: 'Licentie' }).getByRole('button', { name: 'Verwijderen', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Licentie verwijderen?' });
     await expect(dialog).toContainText('Verwijdert ook 1 jaarwaarde en 2 toewijzingssets');
     await dialog.getByRole('button', { name: 'Verwijderen' }).click();

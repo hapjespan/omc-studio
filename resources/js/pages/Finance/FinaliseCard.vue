@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { t } from '../../i18n';
+import AppButton from '../../components/ui/AppButton.vue';
 import { routes } from '../../routes';
 
 const props = defineProps<{ canvasId: number; year: number; remaining: number; finalised: boolean; writable: boolean }>();
@@ -15,10 +16,10 @@ function finalise(): void {
 </script>
 
 <template>
-    <section role="region" aria-labelledby="finalise-card-title" class="rounded-md border border-[#848B95] p-3 text-[13px]">
-        <h2 id="finalise-card-title" class="text-[14px] font-semibold">{{ t('finalise.card_title') }}</h2>
-        <p class="mt-1">{{ text }}</p>
-        <p v-if="refusal" role="alert" class="mt-1 text-[#A12A1E]">{{ refusal }}</p>
-        <button v-if="!finalised && writable" type="button" :disabled="remaining > 0" class="mt-2 rounded-md border border-[#848B95] px-3 py-1.5 font-semibold disabled:opacity-60" @click="finalise">{{ t('finalise.card_button') }}</button>
+    <section role="region" aria-labelledby="finalise-card-title" class="rounded-panel border border-hairline bg-white px-4 py-3.5 text-[12.5px]">
+        <h2 id="finalise-card-title" class="sr-only">{{ t('finalise.card_title') }}</h2>
+        <p>{{ text }}</p>
+        <p v-if="refusal" role="alert" class="mt-1 text-danger">{{ refusal }}</p>
+        <AppButton v-if="!finalised && writable" class="mt-2.5" icon="lock" :disabled="remaining > 0" @click="finalise">{{ t('finalise.card_button') }}</AppButton>
     </section>
 </template>

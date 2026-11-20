@@ -7,6 +7,7 @@ import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import ConfirmDelete from '../../components/list/ConfirmDelete.vue';
 import type { ListRow } from '../../components/list/ListView.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import UndoMessage from '../../components/list/UndoMessage.vue';
 import { useUndoFlash } from '../../components/list/undoFlash';
 import { plural, t } from '../../i18n';
@@ -19,7 +20,7 @@ const page = usePage();
 const errors = computed(() => ((page.props.errors as Record<string, unknown>).figures ?? {}) as Record<string, string>);
 const figures = computed(() => props.row.figures as Record<string, string>);
 const draft = reactive({ ...figures.value });
-const initial = JSON.stringify(draft);
+let initial = JSON.stringify(draft);
 const busy = ref(false);
 const deleting = ref(false);
 const archived = computed(() => Boolean(props.row.archived_at));
@@ -40,7 +41,7 @@ const optionalHint = (label: string, example: string): string => `${label} (${t(
 watch(() => props.row.id, () => Object.assign(draft, figures.value));
 
 function save(): void {
-    router.put(routes.costRecordYear(props.row.id, props.year), { ...draft }, { errorBag: 'figures', preserveScroll: true, preserveState: true, onStart: () => (busy.value = true), onFinish: () => (busy.value = false), onError: () => nextTick(focusFirstInvalid) });
+    router.put(routes.costRecordYear(props.row.id, props.year), { ...draft }, { errorBag: 'figures', preserveScroll: true, preserveState: true, onStart: () => (busy.value = true), onFinish: () => (busy.value = false), onSuccess: () => { initial = JSON.stringify(draft); emit('dirty', false); }, onError: () => nextTick(focusFirstInvalid) });
 }
 
 const undo = useUndoFlash('figures');
@@ -52,23 +53,27 @@ const remove = (): void => {
 </script>
 
 <template>
-    <section role="region" :aria-label="t('yearly_figures.title', { year })" class="mt-4 border-t border-[#D5D9DF] pt-3">
-        <h3 class="text-[14px] font-semibold">{{ t('yearly_figures.title', { year }) }}</h3>
+    <section role="region" :aria-label="t('yearly_figures.title', { year })" class="mt-4 border-t border-hairline pt-4">
+        <h3 class="font-display text-[13px] font-semibold">{{ t('yearly_figures.title', { year }) }}</h3>
         <div role="alert" class="mt-2"><ErrorSummary :errors="errors" prefix="figures-" /></div>
         <form novalidate class="mt-2 flex flex-col gap-3" @submit.prevent="save">
             <fieldset :disabled="archived" class="flex flex-col gap-3">
-                <TextField id="figures-budget" v-model="draft.budget" :label="hint(t('fields.budget'), '1.234,56')" :error="errors.budget" @update:model-value="touch" />
-                <TextField id="figures-forecast" v-model="draft.forecast" :label="optionalHint(t('fields.forecast'), '1.234,56')" :error="errors.forecast" @update:model-value="touch" />
-                <TextField id="figures-run" v-model="draft.run" :label="optionalHint(t('fields.run'), '60')" :error="errors.run" @update:model-value="touch" />
-                <TextField id="figures-change" v-model="draft.change" :label="optionalHint(t('fields.change'), '30')" :error="errors.change" @update:model-value="touch" />
+                <div class="grid items-end gap-3 sm:grid-cols-2">
+                    <TextField id="figures-budget" v-model="draft.budget" :label="hint(t('fields.budget'), '1.234,56')" :error="errors.budget" @update:model-value="touch" />
+                    <TextField id="figures-forecast" v-model="draft.forecast" :label="optionalHint(t('fields.forecast'), '1.234,56')" :error="errors.forecast" @update:model-value="touch" />
+                    <TextField id="figures-run" v-model="draft.run" :label="optionalHint(t('fields.run'), '60')" :error="errors.run" @update:model-value="touch" />
+                    <TextField id="figures-change" v-model="draft.change" :label="optionalHint(t('fields.change'), '30')" :error="errors.change" @update:model-value="touch" />
+                </div>
                 <p aria-live="polite" class="text-[13px]">{{ t('yearly_figures.undetermined', { share: undetermined }) }}</p>
-                <TextField id="figures-fte" v-model="draft.fte" :label="optionalHint(t('fields.fte'), '1,5')" :error="errors.fte" @update:model-value="touch" />
-                <TextField id="figures-reference_date" v-model="draft.reference_date" type="date" :label="`${t('fields.reference_date')} (${t('form.optional')})`" :error="errors.reference_date" @update:model-value="touch" />
-                <TextArea id="figures-remark" v-model="draft.remark" :label="`${t('fields.remark')} (${t('form.optional')})`" :error="errors.remark" @update:model-value="touch" />
+                <div class="grid items-end gap-3 sm:grid-cols-2">
+                    <TextField id="figures-fte" v-model="draft.fte" :label="optionalHint(t('fields.fte'), '1,5')" :error="errors.fte" @update:model-value="touch" />
+                    <TextField id="figures-reference_date" v-model="draft.reference_date" type="date" :label="`${t('fields.reference_date')} (${t('form.optional')})`" :error="errors.reference_date" @update:model-value="touch" />
+                </div>
+                <TextArea id="figures-remark" v-model="draft.remark" :rows="3" :label="`${t('fields.remark')} (${t('form.optional')})`" :error="errors.remark" @update:model-value="touch" />
             </fieldset>
-            <div v-if="!archived" class="flex gap-2">
-                <button type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('yearly_figures.save') }}</button>
-                <button v-if="hasFigures" type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="deleting = true">{{ t('yearly_figures.delete') }}</button>
+            <div v-if="!archived" class="flex flex-wrap gap-2">
+                <AppButton type="submit" class="whitespace-nowrap" variant="primary" :disabled="busy">{{ t('yearly_figures.save') }}</AppButton>
+                <AppButton v-if="hasFigures" class="whitespace-nowrap" variant="danger" @click="deleting = true">{{ t('yearly_figures.delete') }}</AppButton>
             </div>
         </form>
         <UndoMessage v-if="undo.state.value" :key="undo.state.value.id" class="mt-3" :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" />
