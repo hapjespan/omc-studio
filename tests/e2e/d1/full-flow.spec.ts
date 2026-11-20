@@ -1,11 +1,12 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
-import { tinker, unique } from '../support/overview';
+import { unique } from '../support/overview';
 import { signInAs } from '../support/shell';
+import { seedPhp } from '../support/seed';
 
 test('an Administrator creates an Organisation and a Canvas, fills it through Invoeren and Snel invoeren, writes the Koers and views the result in Bekijken', async ({ page, guards }) => {
     const organisation = unique('Stichting');
     const canvas = unique('Operating model');
-    tinker('app(App\\Services\\Operations\\InstallSteps::class)->run();');
+    seedPhp('app(App\\Services\\Operations\\InstallSteps::class)->run();');
     await signInAs(page, 'administrator');
 
     await guards.assertNoCspViolation();

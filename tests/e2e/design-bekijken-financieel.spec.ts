@@ -1,16 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import type { Locator, Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { tinker } from './support/finance';
 import { seedOverlay } from './support/overlay';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const INK = 'rgb(23, 27, 33)';
 const SECONDARY = 'rgb(69, 76, 87)';
 
 const seed = (): number => {
     const data = seedOverlay(`Ontwerp ${randomUUID().slice(0, 8)}`);
-    tinker(
+    seedPhp(
         `$c = App\\Models\\Canvas::find(${data.canvas}); $a = fn ($k) => App\\Models\\Area::where('key', $k)->value('id'); ` +
             `$g = App\\Models\\Element::create(['canvas_id' => $c->id, 'area_id' => $a('actors'), 'kind' => 'domain', 'name' => 'Klanten']); ` +
             `App\\Models\\Element::create(['canvas_id' => $c->id, 'area_id' => $a('actors'), 'kind' => 'activity', 'name' => 'Ouders', 'parent_id' => $g->id]); ` +

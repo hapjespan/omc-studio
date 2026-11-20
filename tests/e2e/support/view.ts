@@ -1,7 +1,5 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './seed';
 
 export interface ViewCanvas {
     id: number;
@@ -11,7 +9,7 @@ export interface ViewCanvas {
 const run = (code: string): string => {
     for (let attempt = 1; ; attempt++) {
         try {
-            return execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env, maxBuffer: 64 * 1024 * 1024 }).toString();
+            return seedPhp(code);
         } catch (error) {
             if (attempt >= 3) throw error;
         }

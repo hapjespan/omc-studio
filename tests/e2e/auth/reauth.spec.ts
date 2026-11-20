@@ -1,9 +1,7 @@
-import { execFileSync } from 'node:child_process';
 import type { Page } from '@playwright/test';
 import { createUser } from '../support/accounts';
 import { expectNoAxeViolations, expect, test } from '../support/guards';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from '../support/seed';
 
 function leaveSeconds(email: string, seconds: number): void {
     const code = [
@@ -13,7 +11,7 @@ function leaveSeconds(email: string, seconds: number): void {
         `$payload['signed_in_at'] = time() - (12 * 3600 - ${seconds});`,
         "Illuminate\\Support\\Facades\\DB::table('sessions')->where('id', $row->id)->update(['payload' => base64_encode(json_encode($payload))]); }",
     ].join(' ');
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
 }
 
 async function signIn(page: Page, email: string, password: string): Promise<void> {

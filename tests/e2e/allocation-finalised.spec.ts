@@ -1,13 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedAllocation, tinker, expandTarget } from './support/finance';
+import { seedAllocation, expandTarget } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
 test('a Finalised year shows the banner and disables every edit control', async ({ page }) => {
     const seed = seedAllocation(unique(), { Licentie: 23000 });
-    tinker(`$f = App\\Models\\FiscalYear::where('organisation_id', ${seed.organisation})->where('year', 2026)->first(); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => ${seed.canvas}, 'fiscal_year_id' => $f->id]);`);
+    seedPhp(`$f = App\\Models\\FiscalYear::where('organisation_id', ${seed.organisation})->where('year', 2026)->first(); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => ${seed.canvas}, 'fiscal_year_id' => $f->id]);`);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
     await expandTarget(page, 'Inkoop');

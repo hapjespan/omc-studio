@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedOrganisation, tinker } from './support/finance';
+import { seedOrganisation } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
 function seedFinalisedCanvas(organisation: number, name: string): void {
-    tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => '${name}']); $f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->where('year', 2026)->first(); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
+    seedPhp(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => '${name}']); $f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->where('year', 2026)->first(); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
 }
 
 test('the panel shows the state per canvas as text and Heropenen asks for confirmation', async ({ page }) => {

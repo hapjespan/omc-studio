@@ -1,14 +1,12 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './seed';
 
 export function createAccount(role: 'administrator' | 'reader'): { email: string; password: string } {
     const email = `${randomUUID()}@example.test`;
     const password = `pw-${randomUUID()}`;
     const state = role === 'administrator' ? '->administrator()' : '';
-    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\User::factory()${state}->create(['email' => '${email}', 'password' => '${password}']);`], { env });
+    seedPhp(`App\\Models\\User::factory()${state}->create(['email' => '${email}', 'password' => '${password}']);`);
 
     return { email, password };
 }
@@ -29,7 +27,7 @@ export function createCanvas(names?: { organisation: string; canvas: string }): 
     const code = names
         ? `$o = App\\Models\\Organisation::factory()->create(['name' => ${quoted(names.organisation)}]); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => $o->id, 'name' => ${quoted(names.canvas)}]); echo 'ID=' . $c->id;`
         : "$c = App\\Models\\Canvas::factory()->create(); echo 'ID=' . $c->id;";
-    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
+    const output = seedPhp(code);
 
     return Number(/ID=(\d+)/.exec(output)?.[1]);
 }

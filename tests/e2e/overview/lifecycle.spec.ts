@@ -1,6 +1,7 @@
 import { expect, test } from '../support/guards';
-import { seedOrganisation, tinker, unique } from '../support/overview';
+import { seedOrganisation, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
+import { seedPhp } from '../support/seed';
 
 test('create from Leeg canvas, copy within and across Organisations, archive, restore and delete', async ({ page }) => {
     test.slow();
@@ -9,7 +10,7 @@ test('create from Leeg canvas, copy within and across Organisations, archive, re
     const canvas = unique('Operating model');
     const within = unique('Kopie');
     const across = unique('Elders');
-    tinker("app(App\\Services\\Operations\\InstallSteps::class)->run();");
+    seedPhp("app(App\\Services\\Operations\\InstallSteps::class)->run();");
     seedOrganisation(source);
     seedOrganisation(target);
     await signInAs(page, 'administrator');

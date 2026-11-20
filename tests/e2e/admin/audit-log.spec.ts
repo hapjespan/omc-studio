@@ -1,9 +1,7 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { signInAs } from '../support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from '../support/seed';
 
 function renameElement(userName: string, canvasName: string, oldName: string, newName: string): void {
     const code = [
@@ -13,7 +11,7 @@ function renameElement(userName: string, canvasName: string, oldName: string, ne
         `Illuminate\\Support\\Facades\\Auth::login($u);`,
         `$e->update(['name' => '${newName}']);`,
     ].join(' ');
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
 }
 
 test('a renamed Element shows in Logboek with old and new name and filters by Canvas and user', async ({ page }) => {

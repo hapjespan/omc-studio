@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedCostRecord, seedOrganisation, tinker } from './support/finance';
+import { seedCostRecord, seedOrganisation } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
@@ -20,7 +21,7 @@ test('one labelled year select switches the table to another year', async ({ pag
 
 test('the Kostenposten tab is shown to an Administrator with a Canvas and not to a Reader', async ({ page }) => {
     const organisation = seedOrganisation(unique());
-    const output = tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); echo 'ID=' . $c->id;`);
+    const output = seedPhp(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); echo 'ID=' . $c->id;`);
     const canvas = Number(/ID=(\d+)/.exec(output)?.[1]);
 
     await signInAs(page, 'administrator');
@@ -31,7 +32,7 @@ test('the Kostenposten tab is shown to an Administrator with a Canvas and not to
 
 test('the Toewijzen tab opens the allocation page of the Canvas', async ({ page }) => {
     const organisation = seedOrganisation(unique());
-    const canvas = Number(/ID=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); echo 'ID=' . $c->id;`))?.[1]);
+    const canvas = Number(/ID=(\d+)/.exec(seedPhp(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); echo 'ID=' . $c->id;`))?.[1]);
 
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas}/view`);

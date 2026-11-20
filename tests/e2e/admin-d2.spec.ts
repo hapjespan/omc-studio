@@ -1,15 +1,13 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 function seed(archived: boolean): { name: string; id: number } {
     const name = `Beheer ${randomUUID().slice(0, 8)}`;
     const state = archived ? ", 'archived_at' => now()" : '';
     const code = `$o = App\\Models\\Organisation::factory()->create(['name' => '${name}'${state}]); App\\Models\\Owner::factory()->create(['organisation_id' => $o->id, 'name' => 'Vast']); echo 'ID=' . $o->id;`;
-    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
+    const output = seedPhp(code);
 
     return { name, id: Number(/ID=(\d+)/.exec(output)?.[1]) };
 }
