@@ -68,7 +68,7 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
         const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
-    block.drawnHeight = Math.max(own?.height ?? 0, cursor + pad.y, hanging === 0 ? 0 : hanging + pad.y);
+    block.drawnHeight = Math.max(own?.height ?? 0, cursor + pad.y);
 
     return block;
 }

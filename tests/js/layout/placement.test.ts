@@ -56,4 +56,12 @@ describe('Placement in a parent with Manual children', () => {
         run([domain, activity('a', 1), activity('b', 2)], layouts);
         expect(layouts).toEqual(copy);
     });
+
+    it('places an automatic item of a list Group under its lowest Manual item', () => {
+        const elements = [element('g', 'actors', 'domain', 'Ouders'), element('a', 'actors', 'activity', 'Moeder', 'g', 1), element('b', 'actors', 'activity', 'Vader', 'g', 2)];
+        const canvas = run(elements, { g: manual(10, 60, 200, 100), a: manual(8, 30, 120, 40) });
+        const [a, b] = ['a', 'b'].map((id) => find(canvas, id));
+        expect(b.y).toBe(a.y + a.drawnHeight + 4);
+        expect(canvas.warnings.filter((warning) => warning.kind === 'overlap')).toEqual([]);
+    });
 });

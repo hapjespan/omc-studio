@@ -116,9 +116,16 @@ class CanvasLifecycle
 
         $canvas = Canvas::create(['organisation_id' => $organisation->getKey(), 'kind' => CanvasKind::Canvas, 'name' => trim($name)]);
 
-        $this->cloneLayouts($source, $canvas, $this->cloneElements($source, $canvas));
+        $elements = $this->cloneElements($source, $canvas);
         $this->cloneStatements($source, $canvas);
-        UnknownAllocationDomain::ensure($canvas);
+        $unknown = UnknownAllocationDomain::ensure($canvas);
+        $sourceUnknown = Element::where('canvas_id', $source->getKey())->where('is_unknown_allocation', true)->value('id');
+
+        if ($unknown !== null && $sourceUnknown !== null) {
+            $elements[(string) $sourceUnknown] = (string) $unknown->getKey();
+        }
+
+        $this->cloneLayouts($source, $canvas, $elements);
 
         return $canvas;
     }

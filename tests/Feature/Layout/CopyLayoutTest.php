@@ -8,6 +8,7 @@ use App\Models\Layout;
 use App\Models\Organisation;
 use App\Services\Canvas\CanvasLifecycle;
 use App\Services\Canvas\TemplateService;
+use App\Services\Canvas\UnknownAllocationDomain;
 use Tests\Feature\Structure\StructureTestCase;
 
 class CopyLayoutTest extends StructureTestCase
@@ -105,5 +106,18 @@ class CopyLayoutTest extends StructureTestCase
         $this->assertSame(0, Layout::query()->where('canvas_id', $template->id)->count());
         $this->assertSame(0, Layout::query()->where('canvas_id', $started->id)->count());
         $this->assertSame(0, (int) $started->layout_version);
+    }
+
+    public function test_the_layout_of_the_unknown_allocation_domain_follows_it_to_the_copy(): void
+    {
+        $unknown = UnknownAllocationDomain::ensure($this->canvas);
+        Layout::create(['canvas_id' => $this->canvas->id, 'element_id' => $unknown->id, 'x' => 5, 'y' => 6, 'width' => 200, 'height' => 80, 'z' => 0, 'style' => [], 'format_version' => 1]);
+
+        $copy = $this->copy();
+        $copied = Element::query()->where('canvas_id', $copy->getKey())->where('is_unknown_allocation', true)->firstOrFail();
+
+        $row = Layout::query()->where('element_id', $copied->id)->firstOrFail();
+        $this->assertSame([5, 6, 200, 80], [$row->x, $row->y, $row->width, $row->height]);
+        $this->assertNotSame($unknown->id, $copied->id);
     }
 }

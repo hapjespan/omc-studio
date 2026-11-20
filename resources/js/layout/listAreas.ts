@@ -1,4 +1,5 @@
 import { stackOrder } from './manual';
+import { automaticStart } from './placement';
 import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
 import type { Flow, FlowContext } from './flowDomains';
 import type { TreeNode } from './tree';
@@ -12,7 +13,6 @@ const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 
 
 export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, context: FlowContext): Flow {
     const blocks: DrawnBlock[] = [];
-    let y = 0;
 
     const draw = (node: TreeNode, x: number, top: number, width: number, own: ManualRect | null = null): DrawnBlock => {
         const { element } = node;
@@ -37,18 +37,20 @@ export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, 
         let hanging = 0;
         for (const child of node.children) {
             const childRect = context.rect?.(child.element.id) ?? null;
-            if (childRect) {
-                hanging = Math.max(hanging, childRect.y + draw(child, x + childRect.x, top + childRect.y, childRect.width, childRect).drawnHeight);
-                continue;
-            }
+            if (childRect) hanging = Math.max(hanging, childRect.y + draw(child, x + childRect.x, top + childRect.y, childRect.width, childRect).drawnHeight);
+        }
+        block.drawnHeight = automaticStart(block.drawnHeight, hanging);
+        for (const child of node.children) {
+            if (context.rect?.(child.element.id)) continue;
             const item = draw(child, x + ITEM_INDENT, top + block.drawnHeight + ITEM_GAP, width - ITEM_INDENT);
             block.drawnHeight += ITEM_GAP + item.drawnHeight;
         }
-        block.drawnHeight = Math.max(block.drawnHeight, own?.height ?? 0, hanging);
+        block.drawnHeight = Math.max(block.drawnHeight, own?.height ?? 0);
         return block;
     };
 
     const automatic = groups.filter((group) => !context.rect?.(group.element.id));
+    let y = 0;
     for (const group of automatic) y += draw(group, 0, y, innerWidth).drawnHeight + GROUP_GAP;
     let height = automatic.length === 0 ? 0 : y - GROUP_GAP;
 
