@@ -63,7 +63,7 @@ De acht area's: "Koers", "Richten", "Beheersen", "Actoren", "Kanalen", "Waardepr
 
 **Doe dit**
 
-1. Open het canvas in Invoeren, herlaad de pagina (adresbalk, Enter) vanwege de open fout in hoofdstuk 6, en kies de area "Primaire activiteiten".
+1. Open het canvas in Invoeren en kies de area "Primaire activiteiten".
 2. Kies "Domein", typ een naam in "+ Domein" en druk op Enter.
 3. Typ onder het domein in de regel "Activiteit of cluster toevoegen aan ..." een naam en druk op Enter. Voeg zo meerdere activiteiten toe.
 4. Kies in de regel de keuze "Cluster" (naast "Activiteit"), typ een naam en druk op Enter.
@@ -86,7 +86,7 @@ Elke actie verschijnt direct in de lijst zonder dat de pagina opnieuw laadt. Na 
 - `tests/e2e/entry/keyboard-only.spec.ts`, "the independent test of Invoeren runs with the keyboard only".
 - Beeld: [invoeren-after.png](../design/compare/invoeren-after.png).
 
-**Let op: bekende fout `[GAP referrer back()]`, nog open.** Dit criterium zegt "zonder de pagina te verlaten", en dat klopt nu niet overal. Zie hoofdstuk 6 voor de precieze omvang: na het openen van een canvas via een link, ook een bestaand canvas vanuit "Overzicht", springt het scherm na het opslaan van bijvoorbeeld het eerste "Domein" terug naar "Overzicht" tot je de pagina herlaadt.
+**Opgelost op 2026-11-20: `[GAP referrer back()]`.** Opslaan op een pagina die je via een link in de applicatie bereikte (bijvoorbeeld een bestaand canvas vanuit "Overzicht") bracht je terug naar "Overzicht". Besluit van de producteigenaar, optie A: `Referrer-Policy: same-origin` (ADR 0046). Bewijs: `tests/e2e/entry/referrer.spec.ts` (bestaand canvas via zijn kaart, een domein toevoegen en de missie opslaan zonder herladen, je blijft op Invoeren) en `HeadersTest`.
 
 ### Criterium 4: "Een activiteit kan niet buiten een domein bestaan; de API weigert dit met een leesbare melding."
 
@@ -196,7 +196,7 @@ Alleen wat op 2026-11-20 is gedraaid staat als resultaat; de rest staat als "nie
 |---|---|---|
 | SC-001 schone start binnen 3 minuten | niet gedraaid: Docker ontbreekt in de ontwikkelcontainer; alleen de start-e2e is gedraaid (groen) en het eerdere hostbewijs van 2026-11-19 (2 s tot eerste antwoord, warme cache) | `auth/first-start.spec.ts`, `wp1-evidence.md` |
 | SC-002 acht area's direct | geslaagd | de doorlopende test `tests/e2e/d1/full-flow.spec.ts` groen op Chromium, Firefox en WebKit; `AreasImmutableTest` in `composer test` |
-| SC-003 domein, activiteiten, cluster, "Hangt onder", muis en toetsenbord, zonder de pagina te verlaten | niet geslaagd zonder herladen, open fout `[GAP referrer back()]`: wie een canvas via een link opent (bijvoorbeeld de kaart in "Overzicht") en dan een formulier opslaat, kan op een andere pagina uitkomen; na een herlaad werkt het (zie hoofdstuk 6). Daarnaast de afwijking van criterium 3 (geen slepen). Geslaagd na herladen op Chromium, Firefox en WebKit | `d1/full-flow.spec.ts` (met de herlaadstap `workaroundGapReferrerBack`), `entry/parent-select.spec.ts`, `entry/keyboard-only.spec.ts` (alle drie groen op de drie engines in de run van hoofdstuk 3) |
+| SC-003 domein, activiteiten, cluster, "Hangt onder", muis en toetsenbord, zonder de pagina te verlaten | geslaagd: de fout `[GAP referrer back()]` is op 2026-11-20 opgelost (ADR 0046), je blijft na opslaan op de pagina. Daarnaast de afwijking van criterium 3 (geen slepen) | `entry/referrer.spec.ts`, `d1/full-flow.spec.ts` (zonder herlaadstap), `entry/parent-select.spec.ts`, `entry/keyboard-only.spec.ts`; de uitkomst op de drie engines staat in de beschrijving van de pull request van ADR 0046 |
 | SC-004 activiteit buiten een domein altijd geweigerd, via de schermen en rechtstreeks | geslaagd | `CreateElementTest`, `RefusalMatrixTest` in `composer test` |
 | SC-005 3 domeinen met 15 activiteiten binnen een minuut | geslaagd in de geautomatiseerde run; een geoefend mens niet gemeten | `entry/quick-entry-timing.spec.ts` |
 | SC-006 geen area te wijzigen | geslaagd | `AreasImmutableTest` in `composer test` |
@@ -224,7 +224,7 @@ Runs van 2026-11-20 op deze tak:
 | Hoofdstuk | Test |
 |---|---|
 | V2 validatie en bedrijfslogica (regels op de server, laatste beheerder) | `D1RefusalCoverageTest`, `D1RefusalMessagesTest`, `RefusalMatrixTest`, `LastAdministratorTest` |
-| V3 frontend (CSP, nosniff, no-referrer, framing) | `tests/Feature/Security/HeadersTest.php`; de CSP-bewaker in elke e2e-spec |
+| V3 frontend (CSP, nosniff, same-origin referrer policy, framing) | `tests/Feature/Security/HeadersTest.php`; de CSP-bewaker in elke e2e-spec |
 | V4 alleen POST, PUT, PATCH en DELETE met token voor wijzigingen | `tests/Feature/Security/RouteEnumerationTest.php` |
 | V5 bestanden (logo: type, grootte, hercoderen) | `tests/Feature/Organisations/LogoUploadTest.php` |
 | V6 authenticatie (wachtwoordregels, blokkade, tweede factor) | `tests/Feature/Accounts/SignInServiceTest.php`, `PasswordChangeTest.php`, `SecondFactorEnableTest.php`, `TotpReplayTest.php` |
@@ -297,17 +297,6 @@ Bord 2 laat de financiële overlay zien; voor oplevering 1 telt alleen de indeli
 - **Prestaties.** SC-020 is gemeten op een machine met 11 kernen en SQLite, terwijl de CI-runner 2 vCPU heeft. De prestatiespecs zijn apart gedraaid met een werker (ADR 0044). De krapste waarde van eerdere runs was Invoeren openen op Firefox en WebKit (p95 996 ms, 1063 ms onder belasting; `docs/ci-blocked-merges.md`). In deze run was de krapste waarde Bekijken met 25 domeinen op WebKit (p95 820 ms, een uitschieter van 1159 ms).
 - **Geoefend mens binnen een minuut** (SC-005): gemeten met een geautomatiseerde invoer, niet door een persoon.
 - **Eenmalige mislukkingen eerder op deze tak.** In een eerdere, bredere Chromium-run (voor commit e5598d2) mislukte `tests/e2e/entry/reorder.spec.ts` bij het zaaien met `php artisan tinker` (het commando stopte met een foutcode); bij herhaling groen, en in de volledige run op de drie engines mislukte niets. De oorzaak van deze sporadische zaai-fout is niet onderzocht; ze kwam ook in andere runs sporadisch voor.
-- **Bekende fout `[GAP referrer back()]`, open** (zie `tasks.md`, "Assumptions awaiting the product owner"). Oorzaak: de server stuurt na een opslag terug met `back()` (onder andere `ElementController`), en `Referrer-Policy: no-referrer` (FR-090, `SecurityHeaders`) zorgt dat de browser bij een link-navigatie (Inertia) de vorige pagina niet doorgeeft. De server valt dan terug op de laatste volledig geladen pagina.
-
-  Op 2026-11-20 in Chromium op de vrijgegeven code, op de eigen server, waargenomen:
-  1. Nieuw canvas: "Overzicht" volledig laden, "Nieuw canvas", "Aanmaken", area "Primaire activiteiten", "Domein", naam, Enter. Verwacht: de rij staat in de lijst. Gekregen: de pagina staat op "Overzicht" en de rij is niet te zien.
-  2. Bestaand canvas vanuit "Overzicht" via zijn kaart geopend (zonder herladen), area "Primaire activiteiten", "Domein", naam, Enter. Gekregen: "Overzicht".
-  3. Zelfde weg, area "Koers", "Missie" invullen en "Opslaan". Gekregen: "Overzicht".
-  4. Vanuit Bekijken via de keuzeschakelaar naar "Invoeren", een activiteit kiezen, "Naam" wijzigen en "Opslaan" in het paneel. Gekregen: de pagina van Bekijken (de laatste volledig geladen pagina).
-  5. Na een volledige herlaad van de Invoeren-pagina (adresbalk, Enter) werkt hetzelfde formulier wel en blijf je op Invoeren (Koers opslaan gaf `/canvases/<id>/entry`).
-
-  Omvang: elk formulier dat met `back()` antwoordt, op een pagina die je via een link in de applicatie hebt bereikt. Dat zijn volgens de code alle schrijfacties in Invoeren (elementen, "Snel invoeren", Koers, "Ongedaan maken"), de acties op een canvaskaart en sjabloon, en de formulieren in "Beheer" (organisaties en gebruikers) en de herauthenticatie. Waargenomen in de app zijn alleen de vier gevallen hierboven; de overige zijn uit de code afgeleid en niet in de app geprobeerd. Of de wijziging zelf in deze gevallen is opgeslagen, is in deze probe niet gecontroleerd.
-
-  De doorlopende test herlaadt de pagina na het aanmaken van het canvas, in een functie met de naam `workaroundGapReferrerBack`. Jij beslist: `Referrer-Policy: same-origin` (geen lek naar buiten, nog steeds geen uitgaand verzoek) of een expliciet terugkeerpad per formulier. Zolang dat open is, is SC-003 niet geslaagd zonder herladen.
+- **Opgelost: `[GAP referrer back()]`.** Op 2026-11-20 is `Referrer-Policy` van `no-referrer` naar `same-origin` gezet (ADR 0046, besluit van de producteigenaar). Voor de wijziging kwam je na opslaan op een via een link bereikte pagina terecht op de laatste volledig geladen pagina; dat is nu weg, bewezen door `tests/e2e/entry/referrer.spec.ts`. De doorlopende test heeft geen herlaadstap meer. De runs in hoofdstuk 3 zijn van voor deze wijziging; het hele pakket is erna opnieuw gedraaid (zie de pull request van ADR 0046). Wat niet is geprobeerd: de overige formulieren die met `back()` antwoorden (Beheer, canvaskaart-acties, herauthenticatie) zijn niet apart in de app getest, ze delen dezelfde oorzaak en dezelfde oplossing.
 - **Controle door een tweede partij.** De taken T170, T171 en T172 zijn gebouwd en moeten nog onafhankelijk worden beoordeeld.
 - **Latere opleveringen.** Tekenen, de financiële laag en export zijn niet getest en niet gestubd.

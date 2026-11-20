@@ -26,7 +26,7 @@ class HeadersTest extends TestCase
         $response->assertOk();
         $response->assertHeader('Content-Security-Policy', self::POLICY);
         $response->assertHeader('X-Content-Type-Options', 'nosniff');
-        $response->assertHeader('Referrer-Policy', 'no-referrer');
+        $response->assertHeader('Referrer-Policy', 'same-origin');
     }
 
     public function test_an_authenticated_response_is_not_stored_by_the_browser(): void

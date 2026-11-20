@@ -1,11 +1,6 @@
-import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { tinker, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
-
-async function workaroundGapReferrerBack(page: Page): Promise<void> {
-    await page.goto(page.url());
-}
 
 test('an Administrator creates an Organisation and a Canvas, fills it through Invoeren and Snel invoeren, writes the Koers and views the result in Bekijken', async ({ page, guards }) => {
     const organisation = unique('Stichting');
@@ -39,7 +34,6 @@ test('an Administrator creates an Organisation and a Canvas, fills it through In
     const id = /\/canvases\/(\d+)\/entry/.exec(page.url())?.[1];
     await expectNoAxeViolations(page);
     await guards.assertNoCspViolation();
-    await workaroundGapReferrerBack(page);
 
     const areas = page.getByRole('navigation', { name: 'Areas' });
     await areas.getByRole('button', { name: /Primaire activiteiten/ }).click();
