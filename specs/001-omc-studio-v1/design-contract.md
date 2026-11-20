@@ -164,3 +164,8 @@ Foundation gaps of the later deliveries that this set does not cover, tracked he
 ## Formats seen in the design
 
 On the canvas and in the overlay amounts are whole euros ("€ 84.000") and percentages have one decimal ("2,8%"); the detail panel, tables, forms and Toewijzen show cents ("€ 54.000,00") and two decimals (decision 40). Each amount is rounded on its own and shows the same everywhere; the line "Totalen sluiten" shows its amounts in cents (decision 52). The financial overlay draws its figures inside the card at the card's place and size (decision 39). The Cost record form also shows Supplier, cost centre, description and remark (decision 42). Long names wrap and cards grow (decision 48).
+
+## Decisions of the product owner after the build, 2026-11-20
+
+- Bekijken at 1440 px stays fit to width (about 62%) with zoom buttons to 100%; nothing changes (product owner decision). The question is closed as decided.
+- The screens of delivery 3 are accepted in the current design language (T387).
