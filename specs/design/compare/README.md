@@ -2,7 +2,7 @@
 
 ## Result after D1.20
 
-Screenshots after D1.20 come from the merged release (`f506384`), with the same sample data as the first round, Chromium, viewport 1440 wide, full page. The boards are in `specs/design/`; the copies next to this file are the ones used for the first round.
+Screenshots after D1.20 come from the merged release (`f506384`), except the three Bekijken ones (`bekijken-after.png`, `bekijken-passend-after.png`, `bekijken-detail-after.png`), which were retaken from the branch that carries the breadcrumb and detail panel fixes (commit 1938656, merged with this file). They use the same sample data as the first round, Chromium, viewport 1440 wide, full page; `bekijken-after.png` is viewport sized because the canvas scrolls inside its own container. The boards are in `specs/design/`; the copies next to this file are the ones used for the first round.
 
 | Screen | Built (before) | After | Board |
 |---|---|---|---|
@@ -24,7 +24,7 @@ Screenshots after D1.20 come from the merged release (`f506384`), with the same 
 | Primary button and accent | navy `#1F3A5F` | ink `rgb(23, 27, 33)` = `#171B21`, 36 high, radius 6 |
 | Top bar | 80 pixels, two rows | 56 pixels, one row |
 | Control height | 34 pixels | 36 pixels (input and primary button) |
-| Icon button (arrows) | text buttons 33 by 62 | 28 high, radius 4, hairline `#DCDFE2` |
+| Icon button (arrows) | text buttons 33 by 62 | 28 by 28, radius 4, border `#848B95` when enabled (decision 45), hairline `#DCDFE2` only when disabled |
 | Tree row | 34 pixels, border `#848B95` | 38 pixels, border `#DCDFE2`, radius 6 |
 | Area card | radius 10, border `#848B95`, 56 high | radius 10, border `#DCDFE2`, 50 high |
 
@@ -37,8 +37,10 @@ Screenshots after D1.20 come from the merged release (`f506384`), with the same 
 | niet van toepassing | 2 |
 | open | 0 |
 
-What the screenshots show, honestly: the sign-in page, Overview, Invoeren, Bekijken and the user list now read as one visual language and Invoeren is close to board 1. The remaining visible differences are the ones recorded as "bewust afwijkend" (taller add line with a visible label, the "Alles opgeslagen" state only after a save, no Tekenen segment, the zoom toolbar in Bekijken, the Sluiten buttons) and one open point (the Bekijken detail panel layout, screen 4 point 9). The original findings and their text follow unchanged, each with its status line.
+What the screenshots show, honestly: the sign-in page, Overview, Invoeren, Bekijken and the user list now read as one visual language and Invoeren is close to board 1. The remaining visible differences are the ones recorded as "bewust afwijkend" (taller add line with a visible label, the "Alles opgeslagen" state only after a save, no Tekenen segment, the zoom toolbar in Bekijken, the Sluiten buttons). The original findings and their text follow unchanged, each with its status line.
 
+
+## First round, 2026-11-19
 
 Date: 2026-11-19. Built from release `1f6cc5b` (Invoeren, Bekijken and Modality merged; Quick entry and Direction editing are still open pull requests). Nothing was changed in this step.
 
@@ -59,7 +61,7 @@ Status: opgelost. The body background computes to rgb(242, 243, 241), that is `#
 3. Accent colour: the active mode, the active tab underline and the primary button use `#1F3A5F` (navy). The contract has ink `#171B21` for primary buttons, the active segment and the active tab, and `#2459D6` only for focus and selection. The navy appears in no board.
 Status: opgelost. Primary buttons, the active segment and the active tab are ink `#171B21`; the navy `#1F3A5F` is gone.
 4. Top bar: 80 pixels high in two rows (logo and breadcrumb on top, tabs below, hairline under the tabs). Contract and boards: one row, 56 pixels, with the logo mark, "OMC Studio", the breadcrumb with its "Voorbeelddata" pill, the tabs inline in the middle and the fiscal year selector and user on the right. The logo mark is missing. The user is a bordered button "Administrator"; the boards show plain text ("Beheerder") with no border. Tabs for Kostenposten, Toewijzen and Versies belong to later deliveries; their place in the bar is not prepared.
-Status: bewust afwijkend. The bar is one row of 56 pixels with the logo mark, "OMC Studio", the breadcrumb, the tabs and the role as plain text with a menu chevron. Deviations: the tabs Kostenposten, Toewijzen and Versies and the fiscal-year selector belong to delivery 2 (the fiscal-year slot exists and shows only when a fiscal year is passed), and the "Voorbeelddata" pill shows only on a sample canvas, which this data is not. In Bekijken the breadcrumb showed only the canvas name; the page now uses the shared canvas prop, so it reads "Voorbeeld BV / Voorbeeldcanvas" as in Invoeren.
+Status: bewust afwijkend. The bar is one row of 56 pixels with the logo mark, "OMC Studio", the breadcrumb, the tabs and the role as plain text with a menu chevron. Deviations: the tabs Kostenposten, Toewijzen and Versies and the fiscal-year selector belong to delivery 2 (the fiscal-year slot exists and shows only when a fiscal year is passed), and the "Voorbeelddata" pill is never shown in delivery 1, because no sample canvas exists yet (the slot is built, delivery 3 supplies the flag). In Bekijken the breadcrumb showed only the canvas name; the page now uses the shared canvas prop, so it reads "Voorbeeld BV / Voorbeeldcanvas" as in Invoeren.
 5. Controls: inputs and buttons measure 34 pixels high; the contract says 36 (32 in dense panels). Radius 6 on controls and 10 on Areas match.
 Status: opgelost. Inputs and buttons measure 36 pixels high, icon buttons 28 by 28. The edge colour of secondary buttons and inputs is `#848B95` on purpose (decision 45), which goes before the boards `#DCDFE2` and `#AEB4BC`.
 6. Icons: none are used. The boards use a search icon, a plus in "+ Domein", chevrons on the arrow buttons, warning triangles in callouts and a check next to "Alles opgeslagen".
@@ -119,7 +121,7 @@ Status: opgelost. Rows measure 38 pixels with the hairline border, the type labe
 9. Indent: 24 pixels per level (matches the contract).
 Status: opgelost. 24 pixels per level, as the contract says.
 10. Arrow buttons: built are text buttons "Omhoog" and "Omlaag", 33 high and about 62 wide, disabled ones grey text with a border; board: two 28 by 28 icon buttons with chevrons. The text labels are clearer to a screen reader but the shape and weight of the row differ strongly.
-Status: opgelost. Two 28 by 28 icon buttons with chevrons; the accessible names "<name> omhoog" and "<name> omlaag" are kept.
+Status: opgelost. Two 28 by 28 icon buttons with chevrons; the accessible names "<name> omhoog" and "<name> omlaag" are kept. The border of an enabled button is `#848B95` (decision 45: a control edge needs 3:1) where the board draws a hairline, which is a contract decision and not a defect.
 11. Modality badge: built is a 24-pixel circle with a letter; contract and board: a 16 by 16 square with radius 4 and an 11-pixel 700 letter. The colours match the contract (`#B4540A`, `#6B3FB5`, `#1E5FBF`).
 Status: opgelost. 16 by 16 square, radius 4, letter 11 pixels 700, in the rows and the modality chips.
 12. Add line: built is a bold label above ("Activiteit of cluster toevoegen aan X, Enter om op te slaan"), then a solid-bordered input with a checkbox "Cluster" at the right, 8 to 10 pixels apart. Board and contract: one dashed-border box (`#8A919B`) with that sentence as grey placeholder text inside it, and the choice "Activiteit | Cluster" next to it (decision 44). The dashed add line does not exist.
@@ -171,7 +173,7 @@ Status: bewust afwijkend. A docked panel of 360 pixels, white, radius 10, hairli
 4. Panel content: title "Mila de Vries", a "Sluiten" button at the top right, the fields "Naam", "E-mailadres", "Rol" (the Role renders as a plain input, no chevron), then one wrapping row of buttons "Opslaan", "Wachtwoord resetten", "Sessies beëindigen", "Verwijderen". Contract for the side-panel form: kind and path above the title, fields, "Opslaan" and "Annuleren", then the consequence text, then "Archiveren" and "Verwijderen" (danger). There is no "Annuleren", no consequence text, and "Opslaan" is secondary not primary.
 Status: bewust afwijkend. Kind above an 18-pixel title, fields (the Role is a select with a chevron), "Opslaan" primary and "Annuleren", the non-destructive actions, then below a divider the consequence text and the danger "Verwijderen". Deviations: on open the first field is selected; the consequence text is not shown on the user’s own row, where "Verwijderen" is disabled; the Organisations panel has no consequence text and no "Verwijderen" (deleting goes through the row action and the typed-name dialog).
 
-## Summary for the product owner
+## Summary of the first round, 2026-11-19
 
 - The colours of the canvas (Domain, Cluster and Activity fills), the modality colours, the radius of Areas and controls, the 24-pixel indent and the 2-pixel ink border of the selected Area card follow the contract.
 - Everything that gives the boards their look is missing or different: the page and panel backgrounds, the ink accent (navy is used instead), the one-row top bar with logo, the segmented control, the icon buttons, the primary "+ Domein" button, the dashed add lines, the warning callouts with icons, the docked detail panel, Inter as body font and Space Grotesk page titles.
@@ -189,6 +191,5 @@ Status: bewust afwijkend. Kind above an 18-pixel title, fields (the Role is a se
 8. Users list (screen 5 point 2): the E-mailadres column and its sort are removed because the name column carries the email. Is losing the sort by email acceptable?
 9. Zoom toolbar in Bekijken (screen 4 point 1): the board shows no zoom controls. Keep the toolbar as built, move it, or drop it?
 10. Direction labels (screen 4 point 2): "STRATEGISCHE DOELEN" is used in every place (band, hover text, detail panel). Confirm.
-11. Detail panel in Bekijken (screen 4 point 9): the board has no read-only panel. Should it follow the Invoeren panel exactly (kind and path above the title)?
-12. "Toon gearchiveerd" in Invoeren (`ArchivedToggle.vue`) and the add line still use a bare check box instead of the shared 24-pixel target (carry-over of T382). Fix before D1.19?
-13. Area list in Invoeren (screen 3 point 3): white cards on the grey page without a surrounding panel, as the board shows. The task text said "white panel". Keep the board form?
+11. "Toon gearchiveerd" in Invoeren (`ArchivedToggle.vue`) and the add line still use a bare check box instead of the shared 24-pixel target (carry-over of T382). Fix before D1.19?
+12. Area list in Invoeren (screen 3 point 3): white cards on the grey page without a surrounding panel, as the board shows. The task text said "white panel". Keep the board form?

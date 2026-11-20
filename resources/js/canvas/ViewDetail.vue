@@ -72,7 +72,7 @@ defineProps<{ content: DetailContent }>();
         <div data-view-detail>
             <p v-if="content.system || !detail.kicker" class="text-[12.5px] text-secondary">
                 <template v-if="!detail.kicker">{{ content.kind }}</template>
-                <span v-if="content.system" class="ml-1 font-semibold">{{ t('view.system') }}</span>
+                <span v-if="content.system" class="font-semibold">{{ t('view.system') }}</span>
             </p>
             <p v-if="content.modality" class="mt-2 flex items-center gap-2 text-[13px]" data-modality>
                 <span class="flex h-4 w-4 items-center justify-center rounded-[3px] text-[11px] font-bold leading-none text-white" :style="{ background: content.modality.colour }" aria-hidden="true">{{ content.modality.letter }}</span>
