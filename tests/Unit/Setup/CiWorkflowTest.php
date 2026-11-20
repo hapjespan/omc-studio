@@ -124,7 +124,23 @@ class CiWorkflowTest extends TestCase
         $commands = $this->commands('js');
 
         $this->assertLessThan(strpos($commands, 'npm run check'), strpos($commands, 'npm run build'));
-        $this->assertStringContainsString('GITHUB_STEP_SUMMARY', $commands);
+        $this->assertStringContainsString('npm run check', $commands);
+        $this->assertStringNotContainsString('| tee', $commands);
+    }
+
+    public function test_no_step_pipes_a_command_without_pipefail(): void
+    {
+        foreach ((array) $this->parse('.github/workflows/ci.yml')['jobs'] as $name => $job) {
+            foreach ((array) ((array) $job)['steps'] as $step) {
+                $step = (array) $step;
+                $run = (string) ($step['run'] ?? '');
+                $bare = (string) preg_replace('/\'[^\']*\'|"[^"]*"/', '', $run);
+                $piped = preg_match('/(?<!\|)\|(?!\|)/', $bare) === 1;
+                $safe = ($step['shell'] ?? '') === 'bash' || str_contains($run, 'pipefail');
+
+                $this->assertTrue(! $piped || $safe, sprintf('Job "%s" pipes without pipefail: %s', $name, trim($run)));
+            }
+        }
     }
 
     public function test_the_static_checks_run(): void

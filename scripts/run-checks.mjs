@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { appendFileSync } from 'node:fs';
 
 const SKIPPED = 3;
 const checks = [
@@ -15,6 +16,8 @@ const results = checks.map(([label, script]) => {
 
 const count = (status) => results.filter((result) => result.status === status).length;
 const skipped = results.filter((result) => result.status === 'skipped').map((result) => result.label);
-console.log(`checks: ${count('passed')} passed, ${count('skipped')} skipped${skipped.length ? ` (${skipped.join(', ')})` : ''}, ${count('failed')} failed`);
+const summary = `checks: ${count('passed')} passed, ${count('skipped')} skipped${skipped.length ? ` (${skipped.join(', ')})` : ''}, ${count('failed')} failed`;
+console.log(summary);
+if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
 
 process.exit(count('failed') > 0 ? 1 : 0);
