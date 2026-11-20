@@ -24,14 +24,14 @@ test('a Reader sees only Overzicht without a Canvas', async ({ page }) => {
 
 test('no tab of a later delivery appears', async ({ page }) => {
     await signInAs(page, 'administrator');
-    for (const name of ['Kostenposten', 'Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
+    for (const name of ['Toewijzen', 'Versies']) await expect(page.getByRole('link', { name })).toHaveCount(0);
 });
 
-test('Beheer lists Gebruikers, Organisaties and Logboek', async ({ page }) => {
+test('Beheer lists every admin entry', async ({ page }) => {
     await signInAs(page, 'administrator');
     await page.goto('/admin');
     await expect(page.getByRole('heading', { level: 1, name: 'Beheer' })).toBeVisible();
-    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Logboek']);
+    await expect(page.getByRole('main').getByRole('link')).toHaveText(['Gebruikers', 'Organisaties', 'Eigenaren', 'Applicaties', 'Logboek', 'Systeemmeldingen', 'Voorbeelddata', 'Volledige export en import']);
     await expectNoAxeViolations(page);
 });
 

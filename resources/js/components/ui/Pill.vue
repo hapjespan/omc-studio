@@ -13,7 +13,7 @@ const tones = {
 </script>
 
 <template>
-    <span :class="['inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11.5px] font-medium', tones[props.tone]]">
+    <span :class="['inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11.5px] font-medium', tones[props.tone]]">
         <Icon v-if="props.icon" :name="props.icon" :size="12" />
         <slot />
     </span>

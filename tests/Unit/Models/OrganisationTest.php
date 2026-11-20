@@ -47,7 +47,7 @@ class OrganisationTest extends TestCase
         $this->assertNull($organisation->fresh()->archived_at);
         $this->assertTrue(collect(Schema::getIndexes('organisations'))->contains(fn ($i) => $i['columns'] === ['archived_at']));
         $this->assertEqualsCanonicalizing(
-            ['id', 'name', 'name_normalised', 'slug', 'logo_path', 'archived_at', 'created_at', 'updated_at'],
+            ['id', 'name', 'name_normalised', 'slug', 'logo_path', 'is_sample', 'archived_at', 'created_at', 'updated_at'],
             Schema::getColumnListing('organisations'),
         );
     }

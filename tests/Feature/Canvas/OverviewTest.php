@@ -44,6 +44,16 @@ class OverviewTest extends TestCase
             ->has('organisations', 2));
     }
 
+    public function test_a_sample_organisation_is_flagged(): void
+    {
+        Organisation::factory()->create(['name' => 'Noord']);
+        Organisation::factory()->create(['name' => 'Zuid', 'is_sample' => true]);
+
+        $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
+            ->where('organisations.0.is_sample', false)
+            ->where('organisations.1.is_sample', true));
+    }
+
     public function test_archived_canvases_appear_with_the_toggle(): void
     {
         $organisation = Organisation::factory()->create();
@@ -77,7 +87,7 @@ class OverviewTest extends TestCase
         $canvas = Canvas::factory()->create();
         Element::factory()->create(['canvas_id' => $canvas->id]);
         $this->actingAs(User::factory()->administrator()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
-            ->where('organisations.0.canvases.0.counts', ['elements' => 1, 'statements' => 0]));
+            ->where('organisations.0.canvases.0.counts', ['elements' => 1, 'statements' => 0, 'allocation_sets' => 0, 'finalised_years' => 0, 'snapshots' => 0]));
 
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page
             ->where('canWrite', false)->where('templates', [])->where('organisations.0.canvases.0.counts', null));
@@ -92,7 +102,7 @@ class OverviewTest extends TestCase
             ->has('templateCards', 1)
             ->where('templateCards.0.name', 'Basis')
             ->where('templateCards.0.elements.0.name', 'Zorg')
-            ->where('templateCards.0.counts', ['elements' => 1, 'statements' => 0]));
+            ->where('templateCards.0.counts', ['elements' => 1, 'statements' => 0, 'allocation_sets' => 0, 'finalised_years' => 0, 'snapshots' => 0]));
 
         $this->actingAs(User::factory()->create())->get('/overview')->assertInertia(fn (Assert $page) => $page->where('templateCards', []));
     }

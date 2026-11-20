@@ -5,6 +5,7 @@ import { announce } from '../../components/feedback/status';
 import UndoMessage from '../../components/list/UndoMessage.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import type { TextMeasurer } from '../../layout';
+import type { TargetRow } from '../../allocation/types';
 import { routes } from '../../routes';
 import { t } from '../../i18n';
 import EntryTree from './EntryTree.vue';
@@ -23,8 +24,9 @@ import ListAreaEntry from './ListAreaEntry.vue';
 import QuickEntry from './QuickEntry.vue';
 import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
-import { buildRows, createdElement, elementPath, entryWarnings, filterByName, kindLabelKey, type EntryAreaInfo, type EntryElement } from './entry';
+import { buildRows, createdElement, elementPath, entryWarnings, filterByName, kindLabelKey, type ElementCost, type EntryAreaInfo, type EntryElement } from './entry';
 import SaveTemplateButton from './SaveTemplateButton.vue';
+import ImportStructure from './ImportStructure.vue';
 
 interface EntryArea {
     key: string;
@@ -33,7 +35,7 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[]; year: number | null; costs: Record<string, ElementCost>; targets: TargetRow[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
@@ -142,11 +144,10 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         <p role="status" class="inline-flex items-center gap-1 text-[13px] font-medium text-success"><template v-if="saved && area.kind !== 'text'"><Icon name="check" />{{ t('entry.saved') }}</template></p>
         <div class="ml-auto flex flex-wrap items-center gap-2">
             <QuickEntry v-if="area.kind !== 'text'" :key="area.key" :canvas-id="canvas.id" :area="area.key" :area-label="area.label" />
-            <AppButton disabled aria-describedby="import-reason">{{ t('entry_design.import') }}</AppButton>
-            <span id="import-reason" class="text-[12px] text-muted">{{ t('entry_design.import_reason') }}</span>
             <SaveTemplateButton />
         </div>
     </header>
+    <ImportStructure :canvas-id="canvas.id" />
     <div class="mt-4 flex items-start gap-4">
         <nav :aria-label="t('entry.areas')" class="w-[216px] shrink-0">
             <h2 class="mb-2 font-display text-[13px] font-semibold">{{ t('entry_design.areas_heading') }}</h2>
@@ -180,7 +181,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
                 <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
                 <p class="mt-4 text-[12.5px] text-secondary">{{ t('entry_design.order_help') }}</p>
             </template>
-                <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :list="listOf(selectedElement.area)" :icons="icons" :warnings="warnings" :gone="gone" @select="select" @saved="saved = true" />
+                <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :list="listOf(selectedElement.area)" :icons="icons" :warnings="warnings" :year="year" :cost="costs[selectedElement.id]" :targets="targets" :gone="gone" @select="select" @saved="saved = true" @changed="saved = false" />
         </section>
     </div>
 </template>

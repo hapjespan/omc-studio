@@ -15,7 +15,6 @@ test('Bekijken draws the Areas and Elements on the Artboard with the Direction b
     const domain = page.getByRole('button', { name: 'Onderwijs', exact: true });
     await expect(domain).toHaveCSS('background-color', 'rgb(246, 230, 204)');
     await expect(page.getByRole('button', { name: /^Les geven( |$)/ })).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-    const artboard = await page.locator('[data-artboard]').boundingBox();
-    expect(artboard?.width).toBeCloseTo(1680, 0);
+    expect(await page.locator('[data-artboard]').evaluate((element) => (element as HTMLElement).offsetWidth)).toBe(1680);
     await expectNoAxeViolations(page);
 });
