@@ -712,6 +712,9 @@
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T234": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T235": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
