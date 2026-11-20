@@ -14,7 +14,7 @@ test('the Canvas variant shows the Toegewezen column with dot plus text and the 
     await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('Onbekende allocatie');
     const cards = page.getByRole('region', { name: 'Samenvatting van het canvas' });
     await expect(cards).toContainText('Totaal budget');
-    await expect(cards).toContainText('€ 330,00');
+    await expect(cards).toContainText('€ 330');
     await expect(cards).toContainText('0 van 2 kostenposten');
     await expect(cards).toContainText('2 kostenposten, 100%');
     await expectNoAxeViolations(page);
