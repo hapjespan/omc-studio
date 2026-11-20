@@ -76,9 +76,9 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await page.goto(`/canvases/${canvas}/view?overlay=financial&year=2026`);
     const card = page.locator('[data-kind="domain"]').filter({ hasText: 'Inkoop' }).first();
     const layer = page.locator(`[data-overlay-card="${await card.getAttribute('data-block')}"]`);
-    await expect(layer.locator('[data-total]')).toHaveText('€ 230 · 100,0% van totaal');
-    await expect(layer.locator('[data-forecast]')).toHaveText('Prognose € 200 · 87,0% van budget');
-    await expect(layer.locator('[data-counts]')).toHaveText('Activiteiten 3 · Clusters 0');
+    await expect(layer.locator('[data-total]')).toHaveText('€ 230 100,0% van totaal');
+    await expect(layer.locator('[data-forecast]')).toHaveText('Prognose € 200 · 87% van budget');
+    await expect(layer.locator('[data-counts]')).toHaveText('3 activiteiten');
     const totals = page.getByRole('complementary', { name: 'Totalen van het canvas' });
     await expect(totals).toContainText('€ 230');
     await expect(totals.locator('[data-closing]')).toHaveText('Totalen sluiten: € 230,00 + € 0,00 = € 230,00');

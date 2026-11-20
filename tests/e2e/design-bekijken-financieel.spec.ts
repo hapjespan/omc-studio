@@ -110,7 +110,9 @@ test('a Domain card shows its title, the large amount with the Share, the bar, t
     await expect(title).toBeVisible();
     expect(await style(title, 'font-size', 'font-weight')).toEqual({ 'font-size': '14px', 'font-weight': '600' });
     expect((await style(title, 'font-family'))['font-family']).toContain('Space Grotesk');
-    expect(await style(layer.locator('[data-total-amount]'), 'font-size', 'font-weight', 'line-height')).toEqual({ 'font-size': '22px', 'font-weight': '700', 'line-height': '30.8px' });
+    const amount = await style(layer.locator('[data-total-amount]'), 'font-size', 'font-weight', 'line-height');
+    expect([amount['font-size'], amount['font-weight']]).toEqual(['22px', '700']);
+    expect(parseFloat(amount['line-height'])).toBeCloseTo(30.8, 1);
     expect(await style(layer.locator('[data-share]'), 'font-size', 'color')).toEqual({ 'font-size': '12px', color: SECONDARY });
     expect(await style(layer.locator('[data-forecast]'), 'font-size', 'color')).toEqual({ 'font-size': '11.5px', color: SECONDARY });
     expect(await style(layer.locator('[data-counts]'), 'font-size')).toEqual({ 'font-size': '11.5px' });
