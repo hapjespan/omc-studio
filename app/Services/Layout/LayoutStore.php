@@ -9,7 +9,6 @@ use App\Models\Element;
 use App\Models\Layout;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 
 class LayoutStore
@@ -18,7 +17,7 @@ class LayoutStore
 
     private const FORMAT_VERSION = 1;
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly LayoutAudit $audit, private readonly LayoutRows $rows) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly LayoutVersions $versions, private readonly LayoutAudit $audit, private readonly LayoutRows $rows) {}
 
     /** @param array<string, mixed> $payload */
     public function save(Canvas $canvas, array $payload): int
@@ -26,15 +25,9 @@ class LayoutStore
         return $this->writes->run([$canvas], function () use ($canvas, $payload): int {
             $this->assertWritable($canvas);
 
-            if ((int) $payload['structure_version'] !== (int) $canvas->structure_version) {
-                $this->conflict('structure_changed');
-            }
+            $this->versions->assertCurrent($canvas, $payload);
 
-            if ((int) $payload['layout_version'] !== (int) $canvas->layout_version) {
-                $this->conflict('layout_changed');
-            }
-
-            $elements = $this->elements($canvas);
+            $elements = $this->rows->elements($canvas);
 
             (new LayoutValidator($elements))->assertValid($payload);
 
@@ -135,29 +128,5 @@ class LayoutStore
             'format_version' => self::FORMAT_VERSION,
             'updated_at' => now(),
         ];
-    }
-
-    /** @return list<array{id: string, area: string, parent: ?string, kind: string, name: string}> */
-    private function elements(Canvas $canvas): array
-    {
-        $rows = Element::query()
-            ->where('elements.canvas_id', $canvas->getKey())
-            ->whereNull('elements.archived_at')
-            ->join('areas', 'areas.id', '=', 'elements.area_id')
-            ->orderBy('elements.id')
-            ->get(['elements.id', 'areas.key as area', 'elements.parent_id as parent', 'elements.kind', 'elements.name']);
-
-        return $rows->map(fn (Element $row): array => [
-            'id' => (string) $row->getKey(),
-            'area' => (string) $row->getAttribute('area'),
-            'parent' => $row->getAttribute('parent') === null ? null : (string) $row->getAttribute('parent'),
-            'kind' => $row->kind->value,
-            'name' => (string) $row->name,
-        ])->all();
-    }
-
-    private function conflict(string $code): never
-    {
-        throw new HttpResponseException(response()->json(['message' => (string) __('layout.conflict.'.$code), 'conflict' => $code], 409));
     }
 }

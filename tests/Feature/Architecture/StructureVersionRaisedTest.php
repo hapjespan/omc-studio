@@ -20,6 +20,7 @@ class StructureVersionRaisedTest extends TestCase
         'app/Services/Structure/ElementTree.php::update',
         'app/Services/Structure/ElementTree.php::carry',
         'app/Services/Structure/ElementDeletion.php::lift',
+        'app/Services/Layout/DrawingMove.php::order',
     ];
 
     public function test_every_class_that_writes_elements_raises_the_structure_version(): void

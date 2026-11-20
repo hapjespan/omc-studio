@@ -19,6 +19,7 @@ use App\Http\Controllers\CanvasEntryController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\DrawingController;
+use App\Http\Controllers\DrawingMoveController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\OrganisationLogoController;
@@ -154,4 +155,8 @@ Route::middleware(['auth', 'can:administer'])->group(function () {
 
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/canvases/{canvas}/layout/reset', [LayoutController::class, 'reset']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/drawing/moves', DrawingMoveController::class);
 });
