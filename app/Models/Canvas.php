@@ -32,6 +32,9 @@ class Canvas extends Model
         'kind' => CanvasKind::class,
         'is_blank_template' => 'boolean',
         'archived_at' => 'datetime',
+        'structure_version' => 'integer',
+        'layout_version' => 'integer',
+        'layout_saved_at' => 'datetime',
     ];
 
     public function acceptsEntryBy(?User $user): bool
@@ -55,5 +58,11 @@ class Canvas extends Model
     public function statements(): HasMany
     {
         return $this->hasMany(Statement::class);
+    }
+
+    /** @return HasMany<Layout, $this> */
+    public function layouts(): HasMany
+    {
+        return $this->hasMany(Layout::class);
     }
 }
