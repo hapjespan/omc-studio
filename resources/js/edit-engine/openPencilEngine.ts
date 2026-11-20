@@ -1,8 +1,12 @@
+import { getCanvasKit } from '@open-pencil/core/canvaskit';
 import { createDefaultEditorState, createEditor, type Editor } from '@open-pencil/core/editor';
 import type { SceneGraph } from '@open-pencil/scene-graph';
-import { reactive } from 'vue';
+import wasmUrl from 'canvaskit-wasm/bin/canvaskit.wasm?url';
+import { createApp, h, reactive, type App } from 'vue';
 import type { DrawnCanvas } from '../layout';
 import { bundledIcons, closeNetworkBoundary } from './boundary';
+import DrawingSurface from './DrawingSurface.vue';
+import { loadFace, registerFonts } from './fonts';
 import type { DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
 import { toPayload } from './payload';
 import { buildScene, readPlaces } from './scene';
@@ -12,17 +16,21 @@ export class OpenPencilEngine implements DrawingEngine {
     private graph: SceneGraph | null = null;
     private canvas: DrawnCanvas | null = null;
     private base: LayoutPayload | null = null;
+    private app: App | null = null;
     private readonly listeners = new Set<(change: FinishedAction) => void>();
     private readonly stops: (() => void)[] = [];
 
     async mount(element: HTMLElement, scene: DrawnCanvas, options: MountOptions): Promise<void> {
         closeNetworkBoundary();
+        await getCanvasKit({ locateFile: () => wasmUrl });
+        await registerFonts();
         const graph = buildScene(scene);
         const page = graph.getPages()[0];
         const editor = createEditor({
             graph,
             state: reactive(createDefaultEditorState(page.id)),
             icons: bundledIcons,
+            loadFont: (family, style) => loadFace(family, style),
             getViewportSize: () => ({ width: element.clientWidth, height: element.clientHeight }),
             skipInitialGraphSetup: true,
         });
@@ -31,6 +39,10 @@ export class OpenPencilEngine implements DrawingEngine {
         this.base = options.layout;
         this.editor = editor;
         this.watch(editor, graph, scene);
+        await new Promise<void>((resolve) => {
+            this.app = createApp({ render: () => h(DrawingSurface, { editor, onReady: resolve }) });
+            this.app.mount(element);
+        });
     }
 
     getLayout(): LayoutPayload {
@@ -70,6 +82,8 @@ export class OpenPencilEngine implements DrawingEngine {
     destroy(): void {
         for (const stop of this.stops.splice(0)) stop();
         this.listeners.clear();
+        this.app?.unmount();
+        this.app = null;
         this.editor?.dispose();
         this.editor = null;
         this.graph = null;

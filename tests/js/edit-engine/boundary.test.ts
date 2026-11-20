@@ -4,13 +4,13 @@ import { fontManager } from '@open-pencil/core/text';
 import { describe, expect, it, vi } from 'vitest';
 import { bundledIcons, closeNetworkBoundary } from '../../../resources/js/edit-engine/boundary';
 
-const ALLOWED_ENTRY_POINTS = ['@open-pencil/core/editor', '@open-pencil/core/icons', '@open-pencil/core/text', '@open-pencil/scene-graph', '@open-pencil/vue'];
+const ALLOWED_ENTRY_POINTS = ['@open-pencil/core/canvaskit', '@open-pencil/core/editor', '@open-pencil/core/icons', '@open-pencil/core/text', '@open-pencil/scene-graph', '@open-pencil/vue'];
 const UNWANTED_PACKAGES = ['@open-pencil/cloud', '@open-pencil/mcp', '@open-pencil/cli', '@open-pencil/harness'];
 const sample = "import { SceneGraph } from '@open-pencil/scene-graph';\nexport const graph = SceneGraph;\n";
 
 function adapterImports(): string[] {
     const directory = 'resources/js/edit-engine';
-    const found = readdirSync(directory).filter((name) => name.endsWith('.ts'));
+    const found = readdirSync(directory).filter((name) => /\.(ts|vue)$/.test(name));
     return found.flatMap((name) => [...readFileSync(`${directory}/${name}`, 'utf8').matchAll(/from '(@open-pencil\/[^']+)'/g)].map((match) => match[1]));
 }
 
@@ -59,7 +59,7 @@ describe('drawing library boundary', () => {
         const imports = adapterImports();
 
         expect(imports.length).toBeGreaterThan(0);
-        for (const specifier of imports) expect(ALLOWED_ENTRY_POINTS).toContain(specifier);
+        for (const specifier of imports.filter((entry) => !/^@open-pencil\/core\/assets\/[\w-]+\.ttf\?url$/.test(entry))) expect(ALLOWED_ENTRY_POINTS).toContain(specifier);
     });
 
     it('lets only the adapter import the drawing library', { timeout: 30000 }, async () => {

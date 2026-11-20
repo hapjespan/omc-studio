@@ -32,11 +32,13 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
+        "@expo-google-fonts/space-grotesk": "0.4.1",
         "@inertiajs/vue3": "^3.11.0",
         "@lucide/vue": "^1.75.0",
         "@open-pencil/core": "0.16.0",
         "@open-pencil/scene-graph": "0.16.0",
         "@open-pencil/vue": "0.16.0",
+        "canvaskit-wasm": "0.41.1",
         "reka-ui": "^2.11.0",
         "vue": "^3.5.45"
     }

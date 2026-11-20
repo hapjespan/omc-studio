@@ -1,4 +1,5 @@
 import { stackOrder } from './manual';
+import { elementPadding, MODALITY_BADGE } from './padding';
 import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
 import type { TreeNode } from './tree';
 import { wrapText } from './wrapText';
@@ -19,19 +20,13 @@ export const CARD_MIN_WIDTH = 260;
 export const CARD_GAP = 12;
 const CHILD_GAP = 6;
 const CLUSTER_INDENT = 8;
-const MODALITY_BADGE = 22;
-const padding: Record<ElementKind, { x: number; y: number }> = {
-    domain: { x: 12, y: 12 },
-    cluster: { x: 8, y: 8 },
-    activity: { x: 8, y: 6 },
-};
 const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 };
 
 export const columnCount = (width: number): number => Math.max(1, Math.floor((width + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
 
 function place(node: TreeNode, area: AreaKey, x: number, y: number, width: number, out: DrawnBlock[], context: FlowContext, own: ManualRect | null = null): DrawnBlock {
     const { element } = node;
-    const pad = padding[element.kind];
+    const pad = elementPadding[element.kind];
     const style = context.style(element, element.kind);
     const textWidth = width - 2 * pad.x - (element.modality ? MODALITY_BADGE : 0);
     const textLines = wrapText(element.name, textWidth, style.font, context.measurer);

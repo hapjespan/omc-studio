@@ -1,7 +1,9 @@
 import { SceneGraph } from '@open-pencil/scene-graph';
 import { ARTBOARD, type DrawnBlock, type DrawnCanvas } from '../layout';
+import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 
 export const ARTBOARD_ID = 'artboard';
+export const TEXT_SUFFIX = '#text';
 
 export interface Place {
     x: number;
@@ -62,6 +64,25 @@ export function buildScene(canvas: DrawnCanvas): SceneGraph {
                 cornerRadius: block.style.radius,
                 clipsContent: false,
             });
+            if (block.textLines.length > 0) {
+                const pad = blockPadding(block);
+                graph.createNodeWithId(block.id + TEXT_SUFFIX, 'TEXT', block.id, {
+                    name: block.id + TEXT_SUFFIX,
+                    x: pad.x,
+                    y: pad.y,
+                    width: place.width - 2 * pad.x - (block.modality ? MODALITY_BADGE : 0),
+                    height: block.textLines.length * block.style.lineHeight,
+                    text: block.textLines.join('\n'),
+                    fontFamily: block.style.font.family,
+                    fontSize: block.style.font.size,
+                    fontWeight: block.style.font.weight,
+                    italic: block.style.font.italic,
+                    lineHeight: block.style.lineHeight,
+                    textAutoResize: 'NONE',
+                    textAlignHorizontal: 'LEFT',
+                    fills: solid(block.style.textColour),
+                });
+            }
             add(block.id);
         }
     };

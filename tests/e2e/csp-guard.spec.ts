@@ -14,11 +14,11 @@ test('a page outside Tekenen keeps the narrow policy and raises no violation', a
     expect(policy).toContain(images);
 });
 
-test.fixme('Tekenen carries the WebAssembly relaxation and raises no violation, pending the Drawing page of T193', async ({ page }) => {
+test('Tekenen carries the WebAssembly relaxation and raises no violation', async ({ page }) => {
     const canvas = createCanvas();
     await signInAs(page, 'administrator');
     const response = await page.goto(`/canvases/${canvas}/drawing`);
-    await page.waitForLoadState('networkidle');
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
 
     const policy = response?.headers()['content-security-policy'] ?? '';
     expect(policy, 'the policy of Tekenen').toContain(relaxed);
