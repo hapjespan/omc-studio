@@ -576,5 +576,6 @@
     "layout.warning.adjusted": "Opmaak aangepast: :name",
     "view.overflow_hint": "Maak blokken kleiner of verplaats ze in Tekenen",
     "fields.file_choose": "Kies een bestand",
-    "fields.file_none": "Geen bestand gekozen"
+    "fields.file_none": "Geen bestand gekozen",
+    "drawing.tool_group": "Aanwijzer"
 }

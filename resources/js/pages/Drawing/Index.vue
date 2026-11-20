@@ -10,6 +10,7 @@ import type { ShellCanvas } from '../../shell/TopBar.vue';
 import type { DrawingEngine } from '../../edit-engine';
 import { storedPayload } from '../../edit-engine/automaticPayload';
 import { t } from '../../i18n';
+import Panel from '../../components/ui/Panel.vue';
 import DirectionBand from './DirectionBand.vue';
 import Header from './Header.vue';
 import LayersPanel from './LayersPanel.vue';
@@ -108,10 +109,9 @@ onBeforeUnmount(() => {
             <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Toolbar :tool="tool" :zoom="zoom" @tool="setTool" />
         </div>
-        <aside :aria-label="t('drawing.properties')">
-            <h2 class="text-[13px] font-semibold">{{ t('drawing.properties') }}</h2>
-            <p v-if="peeked" class="mt-2 whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p>
-            <p v-else class="mt-2 text-[13px] text-secondary">{{ selected.length ? t('drawing.selected_count', { count: selected.length }) : t('drawing.nothing_selected') }}</p>
-        </aside>
+        <Panel :heading="t('drawing.properties')" role="complementary" :aria-label="t('drawing.properties')">
+            <p v-if="peeked" class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p>
+            <p v-else class="text-[13px] text-secondary">{{ selected.length ? t('drawing.selected_count', { count: selected.length }) : t('drawing.nothing_selected') }}</p>
+        </Panel>
     </div>
 </template>
