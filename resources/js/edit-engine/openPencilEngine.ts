@@ -7,7 +7,9 @@ import type { DrawnCanvas } from '../layout';
 import { bundledIcons, closeNetworkBoundary } from './boundary';
 import DrawingSurface from './DrawingSurface.vue';
 import { loadFace, registerFonts } from './fonts';
-import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
+import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions, ShiftVerdictEvent } from './DrawingEngine';
+import { attachShiftMove, type ShiftMoveHandle } from './shiftGesture';
+import { buildMoveModel } from './shiftMove';
 import { toPayload } from './payload';
 import { align, distribute, equalSize } from './commands/align';
 import { snapChanges } from './commands/grid';
@@ -32,6 +34,7 @@ export class OpenPencilEngine implements DrawingEngine {
     private readonly reordered = new Set<string>();
     private readonly moved = new Set<string>();
     private onPushBack: ((ids: string[]) => void) | undefined;
+    private shiftMove: ShiftMoveHandle | null = null;
     private readonly listeners = new Set<(change: FinishedAction) => void>();
     private readonly stops: (() => void)[] = [];
 
@@ -55,7 +58,8 @@ export class OpenPencilEngine implements DrawingEngine {
         this.onPushBack = options.onPushBack;
         this.editor = editor;
         const locked = [DIRECTION_ID];
-        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid }).release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
+        const restrictions = restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid });
+        this.stops.push(restrictions.release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
         this.watch(editor, graph, scene);
         await new Promise<void>((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('The drawing surface did not become ready.')), READY_TIMEOUT);
@@ -71,6 +75,21 @@ export class OpenPencilEngine implements DrawingEngine {
             });
             this.app.mount(element);
         });
+        const surface = element.querySelector<HTMLCanvasElement>('canvas[data-drawing-surface]');
+        if (options.structure && surface) {
+            this.shiftMove = attachShiftMove({
+                editor,
+                graph,
+                restrictions,
+                canvas: surface,
+                model: buildMoveModel(scene, options.structure),
+                onIntent: (intent) => {
+                    for (const listener of this.listeners) listener(intent);
+                },
+                onRefusal: options.onMoveRefused,
+            });
+            this.stops.push(this.shiftMove.detach);
+        }
     }
 
     getLayout(): LayoutPayload {
@@ -90,6 +109,10 @@ export class OpenPencilEngine implements DrawingEngine {
     onChange(listener: (change: FinishedAction) => void): () => void {
         this.listeners.add(listener);
         return () => this.listeners.delete(listener);
+    }
+
+    onShiftVerdict(listener: (event: ShiftVerdictEvent | null) => void): () => void {
+        return this.shiftMove?.onVerdict(listener) ?? (() => undefined);
     }
 
     select(ids: string[]): void {
@@ -178,6 +201,7 @@ export class OpenPencilEngine implements DrawingEngine {
 
     destroy(): void {
         for (const stop of this.stops.splice(0)) stop();
+        this.shiftMove = null;
         this.listeners.clear();
         this.app?.unmount();
         this.app = null;
