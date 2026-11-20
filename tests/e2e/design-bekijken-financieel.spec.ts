@@ -30,7 +30,7 @@ const open = async (page: Page, canvas: number): Promise<void> => {
     await expect(page.locator('[data-financial-card]').first()).toBeAttached();
 };
 
-test('the header is one row with the title, modes, overlay switch, filter chips and an ink Exporteren, and the canvas starts near y 146', async ({ page }) => {
+test('at zoom 100%: the header is one row with the title, modes, overlay switch, filter chips and an ink Exporteren, and the canvas starts near y 146', async ({ page }) => {
     await open(page, seed());
 
     const title = page.getByRole('heading', { level: 1 });
@@ -49,7 +49,7 @@ test('the header is one row with the title, modes, overlay switch, filter chips 
 
     for (const name of ['Soort kosten', 'Eigenaar', 'Applicatie']) expect((await style(page.getByLabel(name), 'appearance'))['appearance']).toBe('none');
     const scroller = (await page.locator('[data-scroller]').boundingBox())!;
-    expect(scroller.y).toBeLessThan(260);
+    expect(scroller.y).toBeLessThan(180);
     await expectNoAxeViolations(page);
 });
 
@@ -69,7 +69,7 @@ test('the A3 Artboard fits next to the side panel at 1440 pixels without clippin
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test('the Direction band shows a dashed Logo box, uppercase labels and the goals as a numbered list with a bold title', async ({ page }) => {
+test('at zoom 100%: the Direction band shows a dashed Logo box, uppercase labels and the goals as a numbered list with a bold title', async ({ page }) => {
     await open(page, seed());
 
     expect((await style(page.locator('[data-direction-logo]'), 'border-top-style'))['border-top-style']).toBe('dashed');
@@ -82,7 +82,7 @@ test('the Direction band shows a dashed Logo box, uppercase labels and the goals
     await expect(goal).not.toContainText(':');
 });
 
-test('the Area headers sit top left in uppercase and the list Areas draw their items under their group titles', async ({ page }) => {
+test('at zoom 100%: the Area headers sit top left in uppercase and the list Areas draw their items under their group titles', async ({ page }) => {
     await open(page, seed());
 
     const header = page.locator('[data-block="primary_activities"] > span').first();
@@ -99,7 +99,7 @@ test('the Area headers sit top left in uppercase and the list Areas draw their i
     expect(item.y).toBeGreaterThanOrEqual(group.y + group.height - 1);
 });
 
-test('a Domain card shows its title, the large amount with the Share, the bar, the forecast line and the counts in the board typography', async ({ page }) => {
+test('at zoom 100%: a Domain card shows its title, the large amount with the Share, the bar, the forecast line and the counts in the board typography', async ({ page }) => {
     await open(page, seed());
 
     const card = page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' }).first();
@@ -123,7 +123,22 @@ test('a Domain card shows its title, the large amount with the Share, the bar, t
     expect((await style(page.locator('[data-empty]').first(), 'font-size', 'color'))['font-size']).toBe('12px');
 });
 
-test('the Area total reads the amount in strong ink and the percentage in secondary text', async ({ page }) => {
+test('the amount line of every card is drawn completely inside the card, also for a childless Domain', async ({ page }) => {
+    await open(page, seed());
+    const clipped = await page.locator('[data-overlay-card]').evaluateAll((layers) =>
+        layers.flatMap((layer) => {
+            const amount = layer.querySelector('[data-total-amount]');
+            if (!amount) return [];
+            const box = layer.getBoundingClientRect();
+            const line = amount.getBoundingClientRect();
+            return line.top < box.top - 0.5 || line.bottom > box.bottom + 0.5 || line.right > box.right + 0.5 ? [layer.getAttribute('data-overlay-card')] : [];
+        }),
+    );
+    expect(clipped).toEqual([]);
+    expect(await page.locator('[data-total-amount]').count()).toBeGreaterThan(1);
+});
+
+test('at zoom 100%: the Area total reads the amount in strong ink and the percentage in secondary text', async ({ page }) => {
     await open(page, seed());
     const total = page.locator('[data-area-total]').first();
     expect(await style(total.locator('strong'), 'color', 'font-weight')).toEqual({ color: INK, 'font-weight': '600' });

@@ -3,7 +3,6 @@ import { computed, onMounted, shallowRef } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
-import HeaderSlot from '../../canvas/HeaderSlot.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
 import type { CanvasFigures } from '../../canvas/overlay/figures';
@@ -14,6 +13,7 @@ import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import HeaderSlot from '../../shell/HeaderSlot.vue';
 
 const props = defineProps<{
     snapshot: { id: number; name: string; date: string; year: number };
@@ -38,8 +38,10 @@ const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLa
 
 <template>
     <Head :title="`${canvas.name} - ${snapshot.name}`" />
-    <HeaderSlot>
-        <h1 class="order-first mr-2 font-display text-[20px] font-semibold leading-[28px] tracking-[-0.01em]">{{ canvas.name }}</h1>
+    <HeaderSlot to="title">
+        <h1 class="mr-2 font-display text-[20px] font-semibold leading-[28px] tracking-[-0.01em]">{{ canvas.name }}</h1>
+    </HeaderSlot>
+    <HeaderSlot to="actions">
         <OverlaySwitch v-if="!damaged" :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
     </HeaderSlot>
     <SnapshotBanner :name="snapshot.name" :date="snapshot.date" :year="snapshot.year">

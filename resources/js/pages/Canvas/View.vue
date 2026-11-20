@@ -4,7 +4,6 @@ import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import ExportMenu from '../../canvas/ExportMenu.vue';
-import HeaderSlot from '../../canvas/HeaderSlot.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
 import type { CanvasFigures, OverlayFilters as Filters } from '../../canvas/overlay/figures';
@@ -16,6 +15,7 @@ import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import HeaderSlot from '../../shell/HeaderSlot.vue';
 
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
@@ -43,8 +43,10 @@ const plain = ref(false);
 
 <template>
     <Head :title="canvas.name" />
-    <HeaderSlot>
-        <h1 class="order-first mr-2 font-display text-[20px] font-semibold leading-[28px] tracking-[-0.01em]">{{ canvas.name }}</h1>
+    <HeaderSlot to="title">
+        <h1 class="mr-2 font-display text-[20px] font-semibold leading-[28px] tracking-[-0.01em]">{{ canvas.name }}</h1>
+    </HeaderSlot>
+    <HeaderSlot to="actions">
         <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
         <div class="ml-auto flex flex-wrap items-center gap-2">
             <OverlayFilters v-if="overlay === 'financial'" :filters="filters" :options="filterOptions" />

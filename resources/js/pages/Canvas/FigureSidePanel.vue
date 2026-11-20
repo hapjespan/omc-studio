@@ -66,12 +66,14 @@ export function allocatedBar(figures: CanvasFigures): { allocated: number; unkno
 </script>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import Callout from '../../components/ui/Callout.vue';
 import { routes } from '../../routes';
 
-defineProps<{ figures: CanvasFigures; costKinds: string[]; canvasId: number; year: number | null; canAssign: boolean; modalities: ModalityMark[] }>();
+const props = defineProps<{ figures: CanvasFigures; costKinds: string[]; canvasId: number; year: number | null; canAssign: boolean; modalities: ModalityMark[] }>();
+const bar = computed(() => allocatedBar(props.figures));
 const colourOf = (modalities: ModalityMark[], key: string | undefined): ModalityMark | undefined => modalities.find((mark) => mark.key === key);
 </script>
 
@@ -85,9 +87,9 @@ const colourOf = (modalities: ModalityMark[], key: string | undefined): Modality
                     <p class="font-display text-[30px] font-bold leading-[42px] tracking-[-0.02em]" data-canvas-total>{{ group.lines[0].value }}</p>
                     <p class="text-[12px] text-secondary">{{ group.lines[1].label }} {{ group.lines[1].value }}</p>
                 </div>
-                <div v-if="allocatedBar(figures)" class="flex h-2.5 gap-0.5 overflow-hidden rounded-[5px]" role="img" :aria-label="t('overlay.panel.bar_label', { allocated: formatBasisPoints(Math.round(allocatedBar(figures)!.allocated * 100)), unknown: formatBasisPoints(Math.round(allocatedBar(figures)!.unknown * 100)) })" data-allocated-bar>
-                    <div class="bg-ink" :style="{ width: `${allocatedBar(figures)!.allocated}%` }" />
-                    <div class="flex-1" style="background: #9a7811" />
+                <div v-if="bar" class="flex h-2.5 gap-0.5 overflow-hidden rounded-[5px]" role="img" :aria-label="t('overlay.panel.bar_label', { allocated: formatBasisPoints(Math.round(bar.allocated * 100)), unknown: formatBasisPoints(Math.round(bar.unknown * 100)) })" data-allocated-bar>
+                    <div class="bg-ink" :style="{ width: `${bar.allocated}%` }" />
+                    <div class="flex-1 bg-warning" />
                 </div>
                 <dl class="flex flex-col gap-1.5">
                     <div v-for="line in group.lines.slice(2)" :key="line.label" class="flex justify-between gap-2">

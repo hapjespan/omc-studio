@@ -23,8 +23,10 @@ test('Inzoomen and Uitzoomen step by 10 percent between 50 and 200 and Passend m
     await expect(page.getByRole('button', { name: 'Inzoomen' })).toBeFocused();
 
     await page.getByRole('button', { name: 'Passend maken' }).click();
-    await expect(zoom).toHaveText(`${opening}%`);
     const first = await zoom.textContent();
+    const scroller = page.locator('[data-scroller]');
+    expect(await scroller.evaluate((element) => [element.scrollWidth <= element.clientWidth + 1, element.scrollHeight <= element.clientHeight + 1])).toEqual([true, true]);
+    expect(Number(first?.replace('%', ''))).toBeLessThanOrEqual(opening);
     await page.getByRole('button', { name: 'Passend maken' }).click();
     await expect(zoom).toHaveText(first ?? '');
     expect(Number(first?.replace('%', ''))).toBeLessThan(200);

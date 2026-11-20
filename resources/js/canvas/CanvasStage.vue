@@ -10,7 +10,8 @@ import { useOverlay } from './overlay/useOverlay';
 import CanvasView from './CanvasView.vue';
 import type { ModalityMark } from './CanvasView.vue';
 import ViewDetail, { detailOf } from './ViewDetail.vue';
-import ZoomToolbar, { fitZoom } from './ZoomToolbar.vue';
+import { contentHeight } from './extent';
+import ZoomToolbar, { fitZoom, ZOOM_MIN } from './ZoomToolbar.vue';
 import { ARTBOARD } from '../layout';
 import type { DrawnBlock, DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout';
 import ElementFiguresPanel from '../pages/Canvas/ElementFigures.vue';
@@ -50,12 +51,14 @@ watch(() => detail.open, (open) => !open && (selectedId.value = null));
 const zoom = ref(100);
 const manual = ref(false);
 const scroller = ref<HTMLElement>();
-const fit = (): void => {
-    if (scroller.value?.clientWidth) zoom.value = fitZoom({ width: scroller.value.clientWidth, height: Number.POSITIVE_INFINITY }, { width: ARTBOARD.width, height: ARTBOARD.height });
+const SCROLLER_MARGIN = 128;
+const fitWidth = (): void => {
+    if (scroller.value?.clientWidth) zoom.value = Math.max(ZOOM_MIN, fitZoom({ width: scroller.value.clientWidth, height: Number.POSITIVE_INFINITY }, { width: ARTBOARD.width, height: ARTBOARD.height }));
 };
-const refit = (): void => {
-    manual.value = false;
-    fit();
+const fitWhole = (): void => {
+    if (!scroller.value?.clientWidth || !props.drawn) return;
+    manual.value = true;
+    zoom.value = fitZoom({ width: scroller.value.clientWidth, height: window.innerHeight - SCROLLER_MARGIN }, { width: ARTBOARD.width, height: contentHeight(props.drawn) });
 };
 const zoomTo = (value: number): void => {
     manual.value = true;
@@ -63,7 +66,7 @@ const zoomTo = (value: number): void => {
 };
 let observer: ResizeObserver | undefined;
 onMounted(() => {
-    observer = new ResizeObserver(() => !manual.value && fit());
+    observer = new ResizeObserver(() => !manual.value && fitWidth());
     if (scroller.value) observer.observe(scroller.value);
 });
 onBeforeUnmount(() => observer?.disconnect());
@@ -72,7 +75,7 @@ onBeforeUnmount(() => observer?.disconnect());
 <template>
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pb-3">
         <OverlayLegend :overlay="overlay" :modalities="modalities" />
-        <ZoomToolbar v-if="drawn" :zoom="zoom" class="ml-auto" @update:zoom="zoomTo" @fit="refit" />
+        <ZoomToolbar v-if="drawn" :zoom="zoom" class="ml-auto" @update:zoom="zoomTo" @fit="fitWhole" />
     </div>
     <div class="flex flex-wrap items-start gap-4 lg:flex-nowrap">
         <div ref="scroller" class="max-h-[calc(100vh-8rem)] min-w-0 flex-1 basis-full overflow-auto lg:basis-0" tabindex="-1" data-scroller>

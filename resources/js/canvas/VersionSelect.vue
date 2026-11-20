@@ -28,10 +28,7 @@ const open = (): void => {
 
 <template>
     <div class="flex items-center gap-2">
-        <ChipSelect id="version-select" v-model="chosen" :label="t('snap.version')">
-            <option value="">{{ t('snap.version_live') }}</option>
-            <option v-for="version in versions" :key="version.id" :value="String(version.id)">{{ label(version) }}</option>
-        </ChipSelect>
+        <ChipSelect id="version-select" v-model="chosen" :label="t('snap.version')" :options="[{ value: '', label: t('snap.version_live') }, ...versions.map((version) => ({ value: String(version.id), label: label(version) }))]" />
         <AppButton v-if="changed" @click="open">{{ t('snap.open') }}</AppButton>
     </div>
 </template>
