@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ElementKind;
+use App\Enums\StatementKind;
 use App\Http\Resources\AllocationPage;
 use App\Models\Area;
 use App\Models\Canvas;
@@ -44,6 +45,7 @@ class CanvasEntryController extends Controller
             'costs' => (object) $this->costs($canvas, $year),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
+            'statements' => $this->statements($canvas),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],
         ]);
     }
@@ -60,6 +62,18 @@ class CanvasEntryController extends Controller
         }
 
         return $lines;
+    }
+
+    /** @return array{mission: ?string, vision: ?string, goals: list<array<string, mixed>>} */
+    private function statements(Canvas $canvas): array
+    {
+        $rows = Statement::where('canvas_id', $canvas->id)->orderBy('position')->orderBy('id')->get();
+
+        return [
+            'mission' => $rows->firstWhere('kind', StatementKind::Mission)?->body,
+            'vision' => $rows->firstWhere('kind', StatementKind::Vision)?->body,
+            'goals' => $rows->where('kind', StatementKind::Goal)->map(fn (Statement $goal) => ['id' => $goal->id, 'title' => $goal->title, 'body' => $goal->body])->values()->all(),
+        ];
     }
 
     /** @return list<array<string, mixed>> */

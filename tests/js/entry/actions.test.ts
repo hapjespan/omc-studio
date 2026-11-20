@@ -21,7 +21,7 @@ describe('descendantNames', () => {
 
 describe('ElementActions', () => {
     it('shows Archiveren and Verwijderen as buttons', async () => {
-        const html = await renderToString(createSSRApp({ render: () => h(ElementActions, { canvasId: 1, element: rows[1], elements: rows }) }));
+        const html = (await renderToString(createSSRApp({ render: () => h(ElementActions, { canvasId: 1, element: rows[1], elements: rows }) }))).replace(/<!--.*?-->/g, '');
 
         expect(html).toContain('>Archiveren</button>');
         expect(html).toContain('>Verwijderen</button>');

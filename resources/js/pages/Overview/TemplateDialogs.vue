@@ -9,6 +9,7 @@ export interface TemplateTarget {
 </script>
 
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -70,8 +71,8 @@ defineExpose({ show });
             <TextField v-if="kind !== 'delete'" id="template_name" v-model="form.name" :label="t('fields.name')" :error="form.errors.name" autocomplete="off" />
             <TextField v-else id="template_confirmation" v-model="form.confirmation" :label="t('canvas_dialog.confirmation')" :hint="t('canvas_dialog.confirmation_hint', { name: target?.name ?? '' })" :error="form.errors.confirmation" autocomplete="off" />
             <div class="flex gap-2">
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="open = false">{{ t('canvas_dialog.cancel') }}</button>
-                <button type="submit" :disabled="!canSubmit" class="rounded-md border px-3 py-1.5 text-[13px] font-semibold disabled:opacity-60" :class="kind === 'delete' ? 'border-[#C0645A] text-[#A12A1E]' : 'border-[#848B95]'">{{ t(`canvas_dialog.${labels[kind]}`) }}</button>
+                <AppButton type="button" @click="open = false">{{ t('canvas_dialog.cancel') }}</AppButton>
+                <AppButton type="submit" :variant="kind === 'delete' ? 'danger' : 'secondary'" :disabled="!canSubmit">{{ t(`canvas_dialog.${labels[kind]}`) }}</AppButton>
             </div>
         </form>
     </Dialog>

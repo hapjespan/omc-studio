@@ -10,5 +10,5 @@ watch(() => props.count, (count) => count > 0 && announce(text()), { immediate: 
 </script>
 
 <template>
-    <p v-if="count > 0" class="mt-3 rounded-md border border-[#8A5200] bg-[#FFF3D6] px-3 py-2 text-[13px] text-[#8A5200]" data-overflow-notice>{{ text() }}</p>
+    <p v-if="count > 0" class="mt-3 rounded-md border border-warning bg-warning-soft px-3 py-2 text-[13px] text-warning" data-overflow-notice>{{ text() }}</p>
 </template>

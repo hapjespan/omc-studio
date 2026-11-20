@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
@@ -10,6 +11,6 @@ const dialogs = ref<InstanceType<typeof TemplateDialogs>>();
 </script>
 
 <template>
-    <button v-if="canvas.kind === 'canvas'" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="dialogs?.show('save', { id: canvas.id, name: canvas.name, counts: null })">{{ t('entry.save_template') }}</button>
+    <AppButton v-if="canvas.kind === 'canvas'" @click="dialogs?.show('save', { id: canvas.id, name: canvas.name, counts: null })">{{ t('entry.save_template') }}</AppButton>
     <TemplateDialogs ref="dialogs" @done="announce(t('templates.saved'))" />
 </template>

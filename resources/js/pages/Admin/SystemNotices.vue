@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppButton from '../../components/ui/AppButton.vue';
 import { nextTick, reactive, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -77,8 +78,8 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
         <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
         <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
         <div class="flex items-end gap-2">
-            <button type="submit" class="min-h-6 rounded-md bg-[#1F3A5F] px-3 py-2 text-[13px] font-semibold text-white">{{ t('audit_log.filter.apply') }}</button>
-            <button type="button" class="min-h-6 rounded-md border border-[#848B95] px-3 py-2 text-[13px]" @click="reset">{{ t('audit_log.filter.reset') }}</button>
+            <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
+            <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
         </div>
     </form>
     <p role="status" class="mt-4 text-[13px]" data-testid="notice-count">{{ plural('notices.count', total) }}</p>

@@ -7,7 +7,8 @@ import { message } from '../../../resources/js/components/feedback/status';
 import { SearchEcho } from '../../../resources/js/components/list/searchEcho';
 import ListView, { type ListState } from '../../../resources/js/components/list/ListView.vue';
 
-const render = (props: Record<string, unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props) }));
+const strip = (html: string): string => html.replace(/<!--.*?-->/g, '');
+const render = async (props: Record<string, unknown>): Promise<string> => strip(await renderToString(createSSRApp({ render: () => h(ListView, props) })));
 const idle: ListState = { search: '', sort: null, direction: 'asc', filters: {}, archived: false };
 const columns = [{ key: 'name', label: 'Naam', sortable: true }, { key: 'email', label: 'E-mail' }];
 const rows = [{ id: 1, name: 'Anna', email: 'a@example.test' }, { id: 2, name: 'Bram', email: 'b@example.test' }];
@@ -72,7 +73,7 @@ describe('ListView filters', () => {
 
 describe('ListView form flow', () => {
     const withForm = { form: () => h('p', 'formulier') };
-    const renderWith = (props: Record<string, unknown>, slots: Record<string, () => unknown>) => renderToString(createSSRApp({ render: () => h(ListView, props, slots) }));
+    const renderWith = async (props: Record<string, unknown>, slots: Record<string, () => unknown>): Promise<string> => strip(await renderToString(createSSRApp({ render: () => h(ListView, props, slots) })));
 
     it('offers Nieuw and opens the first cell as a button when a form is provided', async () => {
         const html = await renderWith({ title: 'Gebruikers', columns, rows, count: 2, query: idle }, withForm);
@@ -114,7 +115,7 @@ describe('ListView deletion', () => {
 
 describe('UndoMessage', () => {
     it('offers Ongedaan maken next to the message', async () => {
-        const html = await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd' }) }));
+        const html = strip(await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd' }) })));
 
         expect(html).toContain('role="status"');
         expect(html).toContain('Anna verwijderd');
@@ -122,7 +123,7 @@ describe('UndoMessage', () => {
     });
 
     it('names the broken rule instead and offers only to close', async () => {
-        const html = await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd', refusal: 'Ongedaan maken kan niet meer' }) }));
+        const html = strip(await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd', refusal: 'Ongedaan maken kan niet meer' }) })));
 
         expect(html).toContain('role="alert"');
         expect(html).toContain('Ongedaan maken kan niet meer');

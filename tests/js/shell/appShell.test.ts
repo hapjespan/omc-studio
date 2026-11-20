@@ -44,7 +44,7 @@ describe('AppShell', () => {
     it('shows the application name as a link to the overview and the role as a menu button', async () => {
         const html = await render();
 
-        expect(html).toMatch(/<a href="\/"[^>]*>OMC Studio<\/a>/);
+        expect(html).toMatch(/<a href="\/"[^>]*><svg[\s\S]*?<\/svg><span>OMC Studio<\/span><\/a>/);
         expect(html).toContain('Administrator');
         expect(html).not.toContain('Kruimelpad');
     });

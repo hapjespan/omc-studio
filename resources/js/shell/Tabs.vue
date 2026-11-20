@@ -11,9 +11,9 @@ const tabs = computed(() => visibleTabs(props.role, Boolean(props.canvas), props
 
 <template>
     <nav :aria-label="t('shell.tabs')">
-        <ul class="flex flex-wrap gap-x-4 text-[13px]">
+        <ul class="flex flex-wrap gap-x-5 text-[13px]">
             <li v-for="tab in tabs" :key="tab.key">
-                <Link :href="tab.href(canvas ?? null)" :aria-current="isActive(tab, url) ? 'page' : undefined" class="inline-block border-b-2 border-transparent py-2 aria-[current=page]:border-[#1F3A5F] aria-[current=page]:font-semibold">{{ t(tab.label) }}</Link>
+                <Link :href="tab.href(canvas ?? null)" :aria-current="isActive(tab, url) ? 'page' : undefined" class="inline-block border-b-2 border-transparent py-2 text-secondary aria-[current=page]:border-ink aria-[current=page]:font-semibold aria-[current=page]:text-ink">{{ t(tab.label) }}</Link>
             </li>
         </ul>
     </nav>

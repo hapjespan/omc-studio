@@ -66,7 +66,7 @@ defineProps<{ content: DetailContent }>();
 <template>
     <Teleport to="#detail-body">
         <div data-view-detail>
-            <p class="text-[12.5px] text-[#454C57]">
+            <p class="text-[12.5px] text-secondary">
                 {{ content.kind }}
                 <span v-if="content.system" class="ml-1 font-semibold">{{ t('view.system') }}</span>
             </p>
@@ -76,7 +76,7 @@ defineProps<{ content: DetailContent }>();
             </p>
             <dl class="mt-3 flex flex-col gap-3 text-[13px]">
                 <div v-for="field in content.fields" :key="field.label">
-                    <dt class="font-semibold text-[#454C57]">{{ field.label }}</dt>
+                    <dt class="font-semibold text-secondary">{{ field.label }}</dt>
                     <dd class="whitespace-pre-line">{{ field.value }}</dd>
                 </div>
             </dl>

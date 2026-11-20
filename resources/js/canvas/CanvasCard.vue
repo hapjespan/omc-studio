@@ -26,13 +26,13 @@ const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.la
 </script>
 
 <template>
-    <article class="flex flex-col gap-1 rounded-md border border-[#848B95] p-2">
+    <article class="flex flex-col gap-1 rounded-md border border-edge p-2">
         <Link :href="routes.canvas(canvas.id)" class="flex flex-col gap-1 font-semibold">
             <Miniature v-if="drawn" :canvas="drawn" :width="240" />
             <span v-else class="block h-[170px] w-[240px]" aria-hidden="true" />
             <span>{{ canvas.name }}</span>
         </Link>
-        <p class="text-[12.5px] text-[#454C57]">
+        <p class="text-[12.5px] text-secondary">
             <span v-if="canvas.archived" class="font-semibold">{{ t('overview.archived_badge') }}. </span>
             <span v-if="canvas.updated_at">{{ t('overview.updated', { date: formatDate(canvas.updated_at) }) }}</span>
         </p>

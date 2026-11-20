@@ -9,6 +9,8 @@ import UndoMessage from './UndoMessage.vue';
 import ListForm from './ListForm.vue';
 import { SearchEcho } from './searchEcho';
 import SortHeader from './SortHeader.vue';
+import AppButton from '../ui/AppButton.vue';
+import SearchField from '../ui/SearchField.vue';
 
 export type ListRow = { id: number | string; name: string; archived_at?: string | null; [key: string]: unknown };
 export type ListColumn = { key: string; label: string; sortable?: boolean };
@@ -27,7 +29,7 @@ const allSelected = computed(() => props.rows.length > 0 && selected.value.lengt
 const searchId = useId();
 const SEARCH_DELAY_MS = 250;
 const search = ref(props.query.search);
-const searchField = ref<HTMLInputElement>();
+const searchField = ref<InstanceType<typeof SearchField>>();
 const echo = new SearchEcho();
 let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -97,13 +99,10 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
 <template>
     <section :aria-label="title" class="flex flex-col gap-3">
         <div class="flex flex-wrap items-end gap-3">
-            <div class="flex flex-col gap-1">
-                <label :for="searchId" class="text-[13px] font-semibold">{{ t('list.search') }}</label>
-                <input :id="searchId" ref="searchField" v-model="search" type="search" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]" @input="onSearch" />
-            </div>
-            <button v-if="$slots.form && canCreate" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="editing = 'new'">{{ createLabel ?? t('list.new') }}</button>
+            <div class="w-56"><SearchField :id="searchId" ref="searchField" v-model="search" :label="t('list.search')" @input="onSearch" /></div>
+            <AppButton v-if="$slots.form && canCreate" @click="editing = 'new'">{{ createLabel ?? t('list.new') }}</AppButton>
             <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
-            <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-[#454C57]">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
+            <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-secondary">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
         </div>
         <UndoMessage v-if="undo && undoable" :key="undo.id" :message="undo.message" :refusal="undo.refusal" @undo="emit('undo')" @close="emit('dismissUndo')" />
         <BulkBar v-if="bulkActions?.length" :actions="bulkActions" :selected="selected.length" :result="bulkResult" @run="runBulk" />
@@ -122,22 +121,22 @@ defineExpose({ focusSearch: () => searchField.value?.focus() });
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in rows" :key="row.id" class="border-t border-[#D5D9DF]">
+                <tr v-for="row in rows" :key="row.id" class="border-t border-hairline">
                     <td v-if="bulkActions?.length" class="px-2 py-1.5"><input v-model="selected" type="checkbox" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></td>
                     <td v-for="(column, index) in columns" :key="column.key" class="px-2 py-1.5">
                         <button v-if="index === 0 && $slots.form" type="button" class="rounded-md px-1 py-0.5 text-left underline" @click="editing = row">{{ row[column.key] }}</button>
                         <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                         <template v-else>{{ row[column.key] }}</template>
-                        <span v-if="index === 0 && row.archived_at" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('list.archived') }}</span>
+                        <span v-if="index === 0 && row.archived_at" class="ml-2 rounded border border-edge px-1 text-[11.5px]">{{ t('list.archived') }}</span>
                     </td>
                     <td v-if="archivable" class="px-2 py-1.5">
-                        <button v-if="row.archived_at" type="button" :aria-label="`${t('list.restore')} ${row.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="emit('restore', row)">{{ t('list.restore') }}</button>
+                        <AppButton v-if="row.archived_at" size="small" :aria-label="`${t('list.restore')} ${row.name}`" @click="emit('restore', row)">{{ t('list.restore') }}</AppButton>
                     </td>
                     <td v-if="canDelete" class="px-2 py-1.5">
-                        <button type="button" :aria-label="`${t('list.delete')} ${row.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="deleting = row">{{ t('list.delete') }}</button>
+                        <AppButton size="small" :aria-label="`${t('list.delete')} ${row.name}`" @click="deleting = row">{{ t('list.delete') }}</AppButton>
                     </td>
                 </tr>
-                <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-2 py-3 text-[#454C57]">{{ t('list.empty') }}</td></tr>
+                <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-2 py-3 text-secondary">{{ t('list.empty') }}</td></tr>
             </tbody>
         </table>
         <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="onDelete(deleting)" />

@@ -33,7 +33,7 @@ const box = (): Record<string, string> => {
     <button
         type="button"
         class="absolute box-border block overflow-visible text-left"
-        :class="{ 'outline-2 outline-[#2459D6]': selected, 'pointer-events-none': inert }"
+        :class="{ 'outline-2 outline-accent': selected, 'pointer-events-none': inert }"
         :inert="inert || undefined"
         :data-block="block.id"
         :data-kind="block.kind"

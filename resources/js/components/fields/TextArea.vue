@@ -7,6 +7,6 @@ const model = defineModel<string>({ default: '' });
 
 <template>
     <Field :id="id" :label="label" :hint="hint" :error="error" v-slot="{ describedby, invalid }">
-        <textarea :id="id" v-model="model" :rows="rows ?? 4" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px] text-[#171B21]" />
+        <textarea :id="id" v-model="model" :rows="rows ?? 4" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-control border border-edge bg-white px-2.5 py-2 text-[13px] text-ink" />
     </Field>
 </template>

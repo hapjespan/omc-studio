@@ -7,6 +7,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Organisation;
 use App\Models\Owner;
+use App\Models\Statement;
 use App\Models\UndoRecord;
 use App\Models\User;
 use App\Services\Audit\AuditContext;
@@ -19,6 +20,8 @@ class UndoStore
     use WritableGuard;
 
     public const ELEMENT_DELETION = 'element_deletion';
+
+    public const GOAL_DELETION = 'goal_deletion';
 
     public const OWNER_DELETION = 'owner_deletion';
 
@@ -73,6 +76,7 @@ class UndoStore
 
         match ($record->kind) {
             self::ELEMENT_DELETION => $this->restoreElements($record),
+            self::GOAL_DELETION => $this->restoreGoal($record),
             self::OWNER_DELETION => $this->restoreListEntry($record, Owner::class),
             self::APPLICATION_DELETION => $this->restoreListEntry($record, Application::class),
             self::COST_RECORD_DELETION, self::YEARLY_FIGURES_DELETION => $this->costRecords->restore($record),
@@ -125,6 +129,33 @@ class UndoStore
             }
 
             $this->context->during('undone', fn () => (new $model)->forceFill($row)->save());
+
+            $record->delete();
+        });
+    }
+
+    private function restoreGoal(UndoRecord $record): void
+    {
+        /** @var array<string, mixed> $row */
+        $row = ((array) $record->payload)['statements'][0];
+
+        $canvas = Canvas::query()->whereKey($row['canvas_id'])->first();
+
+        if ($canvas === null) {
+            $this->refuse('undo_parent_gone');
+        }
+
+        $this->writes->run([$canvas], function () use ($canvas, $record, $row) {
+            $this->assertStructureWritable($canvas);
+            $this->context->during('undone', function () use ($canvas, $row) {
+                $later = Statement::where('canvas_id', $canvas->id)->where('kind', $row['kind'])->where('position', '>=', $row['position'])->get();
+
+                foreach ($later as $statement) {
+                    $statement->update(['position' => $statement->position + 1]);
+                }
+
+                (new Statement)->forceFill($row)->save();
+            });
 
             $record->delete();
         });

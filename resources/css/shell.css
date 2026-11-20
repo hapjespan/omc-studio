@@ -12,7 +12,12 @@
 
 .shell-left {
     grid-area: left;
-    width: 16rem;
+    width: var(--spacing-left-panel);
+    margin: 16px 0 16px 16px;
+}
+
+.shell-tabs {
+    margin-inline: auto;
 }
 
 .shell-main {
@@ -23,11 +28,12 @@
 
 .shell-detail {
     grid-area: detail;
-    width: min(28rem, 100vw);
+    width: min(var(--spacing-detail-panel), 100vw);
+    margin: 16px 16px 16px 0;
 }
 
 .shell-detail[hidden],
-.shell-menu-button {
+.shell-top .shell-menu-button {
     display: none;
 }
 
@@ -40,11 +46,19 @@
 
     .shell-left {
         width: auto;
+        margin: 16px;
+    }
+
+    .shell-tabs {
+        width: 100%;
+        margin-inline: 0;
     }
 
     .shell-detail {
         grid-area: main;
         width: auto;
+        margin: 0;
+        border-radius: 0;
         z-index: 1;
     }
 
@@ -52,8 +66,9 @@
         visibility: hidden;
     }
 
-    .shell-menu-button {
-        display: inline-block;
+    .shell-top .shell-menu-button {
+        display: inline-flex;
+        margin-left: auto;
     }
 
     .shell-tabs:not([data-open]) {

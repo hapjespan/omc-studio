@@ -1,4 +1,4 @@
-# 0044: PNG export of the Canvas with html-to-image, loaded on demand
+# 0045: PNG export of the Canvas with html-to-image, loaded on demand
 
 Date: 2026-11-19
 Status: accepted (integrator choice, phase 6, after the opus review of D3.5)
