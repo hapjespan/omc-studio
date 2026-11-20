@@ -37,7 +37,7 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
         <div class="mt-3 overflow-x-auto rounded-card border border-hairline">
             <table class="w-full border-collapse text-[13px]">
                 <caption class="sr-only">{{ t('import.lines') }}</caption>
-                <thead><tr><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_line') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_status') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_messages') }}</th></tr></thead>
+                <thead><tr><th scope="col" class="whitespace-nowrap px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_line') }}</th><th scope="col" class="whitespace-nowrap px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_status') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_messages') }}</th></tr></thead>
                 <tbody>
                     <tr v-for="row in report.lines" :key="row.line" class="border-t border-hairline align-top">
                         <th scope="row" class="whitespace-nowrap px-3 py-2.5 text-left font-normal">{{ row.line }}</th>

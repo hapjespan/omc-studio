@@ -145,7 +145,7 @@ test('CSV import on Toewijzen: panel, status pills and 36 pixel buttons in the r
     expect(await style(pill, 'border-top-left-radius')).not.toBe('0px');
     expect(await style(pill, 'font-size')).toBe('11.5px');
     expect(await height(pill)).toBeLessThanOrEqual(24);
-    expect(await height(table.getByRole('row').nth(1))).toBeLessThan(100);
+    expect(await height(table.getByRole('columnheader').first())).toBe(36);
     expect(await style(table.getByText(/./, { hasText: /kostenpost|code|onbekend/i }).last(), 'color')).toBe('rgb(161, 42, 30)');
     expect(await height(panel.getByRole('button', { name: 'Importeren', exact: true }))).toBe(36);
 });
