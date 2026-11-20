@@ -22,7 +22,7 @@ test('a faulty file disables Importeren and announces the error count, a clean f
 
     await page.getByLabel('CSV-bestand').setInputFiles(csv(`${code};Licenties;Project;;Ada;;;2026;12.50;;;;`));
     await page.getByRole('button', { name: 'Controleren' }).click();
-    await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: 1 fouten');
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: 1 fout');
     await expect(page.getByRole('heading', { level: 2, name: 'Regels' })).toBeVisible();
     await expect(page.getByRole('cell', { name: /is geen bedrag/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Importeren' })).toBeDisabled();

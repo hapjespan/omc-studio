@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
+import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import Callout from '../../components/ui/Callout.vue';
 import Dialog from '../../components/overlays/Dialog.vue';
@@ -21,7 +22,7 @@ function remove(): void {
     <Head :title="t('sample.page_title')" />
     <div class="flex max-w-3xl flex-col gap-4">
         <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('sample.page_title') }}</h1>
-        <p v-if="page.props.errors.rule" role="alert" class="rounded-control border border-danger-edge bg-white p-2.5 text-[12.5px] text-danger">{{ page.props.errors.rule }}</p>
+        <div v-if="page.props.errors.rule" role="alert"><ErrorSummary :errors="{ rule: page.props.errors.rule }" /></div>
         <Callout v-if="page.props.flash.status" tone="success"><span role="status">{{ page.props.flash.status }}</span></Callout>
         <div class="rounded-panel border border-hairline bg-white p-6">
             <template v-if="present">

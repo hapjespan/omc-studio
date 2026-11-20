@@ -34,5 +34,6 @@ test('deleting states what goes, removes the row and offers no undo', async ({ p
     await dialog.getByRole('button', { name: 'Verwijderen' }).click();
 
     await expect(page.getByRole('row', { name: /Tijdelijk/ })).toHaveCount(0);
+    await expect(page.getByRole('searchbox')).toBeFocused();
     await expect(page.getByRole('button', { name: 'Ongedaan maken' })).toHaveCount(0);
 });

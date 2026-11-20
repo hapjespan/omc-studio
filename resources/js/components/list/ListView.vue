@@ -11,6 +11,7 @@ import ListForm from './ListForm.vue';
 import { SearchEcho } from './searchEcho';
 import SortHeader from './SortHeader.vue';
 import AppButton from '../ui/AppButton.vue';
+import Pill from '../ui/Pill.vue';
 import SearchField from '../ui/SearchField.vue';
 
 export type ListRow = { id: number | string; name: string; archived_at?: string | null; [key: string]: unknown };
@@ -111,7 +112,10 @@ function runBulk(key: string): void {
 
 function onDelete(row: ListRow): void {
     emit('delete', row);
-    if (props.dock) editing.value = null;
+    if (props.dock) {
+        opener.value = null;
+        editing.value = null;
+    }
     focusSearchUnlessUndo();
 }
 
@@ -176,7 +180,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                             <button v-if="index === 0 && $slots.form" type="button" :class="['rounded-control text-left', dock ? 'font-semibold' : 'underline']" @click="open(row, $event.currentTarget as HTMLElement)">{{ row[column.key] }}</button>
                             <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                             <template v-else>{{ row[column.key] }}</template>
-                            <span v-if="index === 0 && row.archived_at" class="ml-2 rounded-badge border border-edge px-1 text-[11.5px]">{{ t('list.archived') }}</span>
+                            <Pill v-if="index === 0 && row.archived_at" class="ml-2">{{ t('list.archived') }}</Pill>
                             <p v-if="column.sub && row[column.sub]" class="text-[11.5px] text-muted">{{ row[column.sub] }}</p>
                         </td>
                         <td v-if="archivable" class="pl-3 pr-2 py-2.5">

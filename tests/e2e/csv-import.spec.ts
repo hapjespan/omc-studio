@@ -12,7 +12,7 @@ test('the structure import on Invoeren blocks Importeren on errors and imports a
 
     await page.getByLabel('CSV-bestand').setInputFiles(file('area;domein;cluster;activiteit;omschrijving;modaliteit\nonbekend;Nieuw;;;;\n'));
     await page.getByRole('button', { name: 'Controleren' }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: 1 fouten' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: 1 fout' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Importeren', exact: true })).toBeDisabled();
     await expectNoAxeViolations(page);
 

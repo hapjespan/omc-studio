@@ -21,7 +21,7 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
                 <caption class="sr-only">{{ t('import.summary') }}</caption>
                 <thead><tr><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_status') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-right">{{ t('import.col_count') }}</th></tr></thead>
                 <tbody>
-                    <tr v-for="key in totalKeys" :key="key" class="border-t border-hairline"><th scope="row" class="px-3 py-2.5 text-left font-normal">{{ t(`import.total_${key}`) }}</th><td :class="['px-3 py-2.5 text-right font-semibold', key === 'errors' && report.totals.errors ? 'text-danger' : '']">{{ report.totals[key] }}</td></tr>
+                    <tr v-for="key in totalKeys" :key="key" class="border-t border-hairline"><th scope="row" class="px-3 py-2.5 text-left font-normal">{{ t(`import.total_${key}`) }}</th><td :class="['px-3 py-2.5 text-right font-semibold', key === 'errors' ? (report.totals.errors ? 'text-danger' : 'text-success') : '']">{{ report.totals[key] }}</td></tr>
                 </tbody>
             </table>
         </div>
@@ -40,8 +40,8 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
                 <thead><tr><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_line') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_status') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_messages') }}</th></tr></thead>
                 <tbody>
                     <tr v-for="row in report.lines" :key="row.line" class="border-t border-hairline align-top">
-                        <th scope="row" class="px-3 py-2.5 text-left font-normal">{{ row.line }}</th>
-                        <td class="px-3 py-2.5"><Pill :tone="row.status === 'error' ? 'warning' : row.status === 'new' ? 'success' : 'neutral'">{{ t(`import.status_${row.status}`) }}</Pill></td>
+                        <th scope="row" class="whitespace-nowrap px-3 py-2.5 text-left font-normal">{{ row.line }}</th>
+                        <td class="whitespace-nowrap px-3 py-2.5"><Pill :tone="row.status === 'error' ? 'warning' : row.status === 'new' ? 'success' : 'neutral'">{{ t(`import.status_${row.status}`) }}</Pill></td>
                         <td class="px-3 py-2.5"><p v-for="message in row.messages" :key="message" class="text-danger">{{ message }}</p></td>
                     </tr>
                 </tbody>

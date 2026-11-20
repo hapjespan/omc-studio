@@ -9,7 +9,7 @@ import TextField from '../../components/fields/TextField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import AppButton from '../../components/ui/AppButton.vue';
 import { postFile } from '../../components/upload';
-import { t } from '../../i18n';
+import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 
 const props = defineProps<{ organisations: { id: number; name: string }[] }>();
@@ -63,7 +63,7 @@ async function check(): Promise<void> {
     if (!response.ok) return refused(response);
     report.value = await response.json();
     const count = report.value!.count;
-    announce(count === 0 ? t('jsonx.checked_clean') : t('jsonx.checked_errors', { count }));
+    announce(count === 0 ? t('jsonx.checked_clean') : plural('jsonx.checked_errors', count));
 }
 
 async function commit(): Promise<void> {
@@ -99,7 +99,7 @@ function pick(picked: File | null): void {
                     <AppButton :disabled="!canCommit" @click="commit">{{ t('import.commit') }}</AppButton>
                 </div>
             </form>
-            <CountsReport v-if="report" id="import-canvas" prefix="jsonx" :keys="totalKeys" :report="report" heading="h3" />
+            <CountsReport v-if="report" id="import-canvas" prefix="jsonx" :keys="totalKeys" :report="report" heading="h3" class="mt-6" />
         </section>
     </div>
 </template>

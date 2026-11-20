@@ -11,7 +11,7 @@ withDefaults(defineProps<{ prefix: string; id: string; keys: readonly string[]; 
 </script>
 
 <template>
-    <section role="region" :aria-labelledby="`${id}-summary`" class="mt-6">
+    <section role="region" :aria-labelledby="`${id}-summary`" >
         <component :is="heading" :id="`${id}-summary`" class="font-display text-[16px] font-semibold">{{ t(`${prefix}.summary`) }}</component>
         <div class="mt-3 overflow-x-auto rounded-card border border-hairline">
             <table class="w-full border-collapse text-[13px]">

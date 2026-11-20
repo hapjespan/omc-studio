@@ -3,7 +3,9 @@ import { computed, nextTick, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import ImportReport, { type ImportReportData } from '../../components/ImportReport.vue';
 import { announce } from '../../components/feedback/status';
-import { t } from '../../i18n';
+import FileField from '../../components/fields/FileField.vue';
+import AppButton from '../../components/ui/AppButton.vue';
+import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 
 const props = defineProps<{ organisation: { id: number; name: string }; columns: string[] }>();
@@ -43,7 +45,7 @@ async function check(): Promise<void> {
     if (!response.ok) return refused(response);
     report.value = await response.json();
     const errors = report.value!.totals.errors;
-    announce(errors === 0 ? t('import.checked_clean') : t('import.checked_errors', { count: errors }));
+    announce(errors === 0 ? t('import.checked_clean') : plural('import.checked_errors', errors));
 }
 
 async function commit(): Promise<void> {
@@ -55,8 +57,8 @@ async function commit(): Promise<void> {
     announce(t('import.done', { new: totals.new, updated: totals.updated, unchanged: totals.unchanged }));
 }
 
-function pick(event: Event): void {
-    file.value = (event.target as HTMLInputElement).files?.[0] ?? null;
+function pick(picked: File | null): void {
+    file.value = picked;
     report.value = null;
     refusal.value = '';
 }
@@ -64,18 +66,15 @@ function pick(event: Event): void {
 
 <template>
     <Head :title="t('import.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('import.title') }}</h1>
-    <form novalidate class="mt-3 flex max-w-xl flex-col gap-3" @submit.prevent="check">
-        <div class="flex flex-col gap-1">
-            <label for="import-file" class="text-[13px] font-semibold">{{ t('import.file') }}</label>
-            <p id="import-file-hint" class="text-[11.5px] text-[#5F6772]">{{ t('import.file_hint', { columns: columns.join(';') }) }}</p>
-            <input id="import-file" type="file" accept=".csv,text/csv,text/plain" :aria-describedby="refusal ? 'import-file-hint import-file-error' : 'import-file-hint'" :aria-invalid="refusal ? 'true' : undefined" @change="pick" />
-            <p v-if="refusal" id="import-file-error" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
-        </div>
-        <div class="flex gap-2">
-            <button type="submit" :disabled="!file || busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('import.check') }}</button>
-            <button type="button" :disabled="!canCommit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="commit">{{ t('import.commit') }}</button>
-        </div>
-    </form>
-    <ImportReport v-if="report" :report="report" />
+    <div class="flex max-w-3xl flex-col gap-4">
+        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('import.title') }}</h1>
+        <form novalidate class="flex flex-col gap-4 rounded-panel border border-hairline bg-white p-6" @submit.prevent="check">
+            <FileField id="import-file" :label="t('import.file')" accept=".csv,text/csv,text/plain" :hint="t('import.file_hint', { columns: columns.join(';') })" :error="refusal" @pick="pick" />
+            <div class="flex gap-2">
+                <AppButton type="submit" variant="primary" :disabled="!file || busy">{{ t('import.check') }}</AppButton>
+                <AppButton :disabled="!canCommit" @click="commit">{{ t('import.commit') }}</AppButton>
+            </div>
+        </form>
+        <div v-if="report" class="rounded-panel border border-hairline bg-white p-6"><ImportReport :report="report" /></div>
+    </div>
 </template>
