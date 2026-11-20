@@ -19,11 +19,12 @@ export interface CardCanvas {
     counts: { elements: number; statements: number } | null;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
+    layouts?: CanvasLayoutInput['layouts'];
 }
 
 const props = defineProps<{ canvas: CardCanvas; layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>; measurer: TextMeasurer | null; canWrite?: boolean; template?: boolean }>();
 const emit = defineEmits<{ action: [action: CardAction, canvas: CardCanvas] }>();
-const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements }, props.measurer) : null));
+const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements, layouts: props.canvas.layouts }, props.measurer) : null));
 </script>
 
 <template>

@@ -24,7 +24,8 @@ export function buildMiniature(canvas: DrawnCanvas, width: number): Miniature {
     return {
         width,
         height: round(ARTBOARD_HEIGHT),
-        rects: canvas.blocks
+        rects: [...canvas.blocks]
+            .sort((a, b) => a.z - b.z)
             .filter((block) => (block.kind === 'area' || block.kind === 'domain') && block.style.fill !== null)
             .map((block) => ({
                 id: block.id,
