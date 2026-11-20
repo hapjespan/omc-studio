@@ -80,3 +80,33 @@ No reviewer ran a browser or the suites; the throttle race, the false refusal en
 ## 6. Seed route (finding, fixed on its own branch)
 
 Recurring `php artisan tinker` seed failures in Playwright (observed on Chromium and WebKit, never reproducible alone) made full runs red for reasons unrelated to the code. Fixed by one seed route, `tests/e2e/support/seed.php` with `tests/e2e/support/seed.ts`: no interactive shell, one copy of the database environment instead of 23, a bounded retry and the PHP error text in the thrown message. The design reviewer's remaining proposal (named seed scenarios) is open.
+
+## 7. Status of the fixes (2026-11-21)
+
+Each finding below was fixed on its own branch cut from 6ec1d33, with a test that fails without the fix, and was checked by an independent reviewer that ran the new test against the parent code. The branches are not merged anywhere yet; they become pull requests to `release` once Tekenen is there, each on a branch cut from `origin/release`, merged on a green CI run. Merge order and stacks: B1 first (it also carries this report and the seed route), B4 before B6 (B6 is stacked on B4), B5 before M3 (M3 is stacked on B5).
+
+| ID | Status | Branch | Commit | Test that fails without the fix |
+|---|---|---|---|---|
+| B1 | opgelost | review/b1-indexes | d8a8d02 | tests/Feature/Architecture/IndexesTest (user_id indexes) |
+| B2 | opgelost | review/b2-comments | c05d2da | tests/Feature/Architecture/NoCodeCommentsTest (every tracked PHP file; .devcontainer left to B3) |
+| B3 | open, decision of the product owner | none | none | none |
+| B4 | opgelost | review/b4-english-keys | 29e64b4 | tests/Feature/Exchange/EnglishExchangeKeysTest |
+| B5 | opgelost | review/b5-throttle | a05961d | tests/Feature/Concurrency/ThrottleRaceTest (8 real processes), tests/Feature/Accounts/ThrottleTest |
+| B6 | opgelost | review/b6-csv-archive (stacked on B4) | bb55ee2 | CostRecordImportCommitTest and CostRecordImportPreviewTest (archived Organisation, archived record, record archived between scan and write) |
+| M1 | opgelost | review/m1-log-retention | c037a8b | tests/Feature/LogRetentionTest |
+| M2 | opgelost | review/m2-false-forbidden | b9866c3 | tests/Feature/Security/ForbiddenLogTest |
+| M3 | opgelost | review/m3-signin-subject (stacked on B5) | 8af831a | tests/Feature/Accounts/SignInServiceTest |
+| M4 | opgelost | review/m4-yearly-audit | 78bb4fa | tests/Feature/Audit/YearlyFigureAuditTest |
+| M5 | opgelost | review/m5-seen-by | 30e343f | tests/Feature/SystemNoticePageTest |
+| M6 | geblokkeerd | review/m6-common-passwords (no commit) | none | needs a list of at least 3,000 passwords of 12 or more characters from a legitimate source that may be bundled; none exists in the container and there is no network |
+| M7 | opgelost | review/m7-undo-archived | d1384f2 | tests/Feature/Finance/CostRecordDeleteTest |
+| M8 | open, decision of the product owner | none | none | none |
+| M9 | opgelost | review/m9-audit-labels | 6a4c097 | AuditLabelsTest, AllocationCsvImportTest |
+| M10 | opgelost | review/m10-undo-signout | 54d34d9 | undo tests at sign-out and restore |
+| M12 | open, decision of the product owner | none | none | none |
+| M23 | open, decision of the product owner | none | none | none |
+| Seed route (section 6) | opgelost | review/b1-indexes | 4c55733 | no tinker failure in the full Chromium and WebKit runs (it was four per run before) |
+
+Not in this round, still open: M11, M13 to M22, M24, M25 and every minor and nit of sections 2 and 3 that no row above names.
+
+Remarks the reviewers left on the fixed items: B5's "five wrong attempts count one lockout" test guards against a future double count and does not prove the fix; `clear()` is not under the lock, so parallel requests can count one extra lockout; M1 prunes when the channel first logs, so an idle installation keeps old files until the next write; M10 does not delete undo records at the forced sign-outs (absolute session expiry, forced password change), because ADR 0033 says only "at sign-out"; M4 does not backfill existing entries without an organisation; M7 copies the element check from the set undo instead of sharing it; the seed route run on WebKit still showed four failures that are timeouts of the page server under machine load and two content failures, which have not yet been rerun on a quiet machine.
