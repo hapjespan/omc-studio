@@ -52,17 +52,19 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
     out.push(block);
 
     let cursor = pad.y + textLines.length * style.lineHeight;
+    let hanging = 0;
     for (const child of node.children) {
         const childRect = context.rect?.(child.element.id) ?? null;
         if (childRect) {
-            place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect);
+            const placed = place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect);
+            hanging = Math.max(hanging, childRect.y + placed.drawnHeight);
             continue;
         }
         const indent = child.element.kind === 'cluster' ? CLUSTER_INDENT : 0;
         const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
-    block.drawnHeight = own?.height ?? cursor + pad.y;
+    block.drawnHeight = Math.max(own?.height ?? 0, cursor + pad.y, hanging === 0 ? 0 : hanging + pad.y);
 
     return block;
 }
@@ -85,8 +87,8 @@ export function flowDomains(domains: TreeNode[], area: AreaKey, innerWidth: numb
         const rect = context.rect?.(domain.element.id);
         if (!rect) continue;
         const top = rect.y - AREA_HEADER - AREA_PADDING;
-        place(domain, area, rect.x - AREA_PADDING, top, rect.width, blocks, context, rect);
-        height = Math.max(height, top + rect.height);
+        const placed = place(domain, area, rect.x - AREA_PADDING, top, rect.width, blocks, context, rect);
+        height = Math.max(height, top + placed.drawnHeight);
     }
 
     return { blocks, height };

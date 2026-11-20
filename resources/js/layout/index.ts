@@ -24,13 +24,13 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
         domainsByArea.set(area.key, domains);
         const flow = (area.kind === 'list' ? flowList : flowDomains)(domains, area.key, (rect(area.key)?.width ?? areaWidth(area.key)) - 2 * AREA_PADDING, context);
         flows.set(area.key, flow);
-        if (!rect(area.key)) required[area.key] = areaChrome() + flow.height;
+        required[area.key] = areaChrome() + flow.height;
     }
 
-    const frames = arrangeAreas(required);
+    const frames = arrangeAreas(Object.fromEntries(Object.entries(required).filter(([key]) => !rect(key))));
     for (const area of areas) {
         const own = rect(area.key);
-        if (own) frames[area.key] = { x: own.x, y: own.y, width: own.width, height: own.height };
+        if (own) frames[area.key] = { x: own.x, y: own.y, width: own.width, height: Math.max(own.height, required[area.key] ?? 0) };
     }
     const blocks: DrawnBlock[] = [];
     for (const area of areas) {

@@ -33,16 +33,17 @@ export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, 
             style,
         };
         blocks.push(block);
+        let hanging = 0;
         for (const child of node.children) {
             const childRect = context.rect?.(child.element.id) ?? null;
             if (childRect) {
-                draw(child, x + childRect.x, top + childRect.y, childRect.width, childRect);
+                hanging = Math.max(hanging, childRect.y + draw(child, x + childRect.x, top + childRect.y, childRect.width, childRect).drawnHeight);
                 continue;
             }
             const item = draw(child, x + ITEM_INDENT, top + block.drawnHeight + ITEM_GAP, width - ITEM_INDENT);
             block.drawnHeight += ITEM_GAP + item.drawnHeight;
         }
-        if (own) block.drawnHeight = own.height;
+        block.drawnHeight = Math.max(block.drawnHeight, own?.height ?? 0, hanging);
         return block;
     };
 
@@ -54,8 +55,7 @@ export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, 
         const rect = context.rect?.(group.element.id);
         if (!rect) continue;
         const top = rect.y - AREA_HEADER - AREA_PADDING;
-        draw(group, rect.x - AREA_PADDING, top, rect.width, rect);
-        height = Math.max(height, top + rect.height);
+        height = Math.max(height, top + draw(group, rect.x - AREA_PADDING, top, rect.width, rect).drawnHeight);
     }
 
     return { blocks, height };
