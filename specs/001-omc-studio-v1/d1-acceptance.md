@@ -256,25 +256,27 @@ Bord 2 laat de financiele overlay zien; voor oplevering 1 telt alleen de indelin
 9. Knoppen in het detailpaneel: de gevolgtekst ("Geen kosten toegewezen in 2026. Verwijderen kan direct.") wacht op de kosten van oplevering 2; de zin over Tekenen is gewone tekst, geen link, omdat Tekenen er nog niet is (en dat botst met US11 scenario 7, "from DT").
 10. Overzicht, canvaskaart: geen statusregel, want oplevering 1 heeft geen statusgegevens.
 11. Bekijken: de zoomknoppen ("Uitzoomen", "Inzoomen", "Passend maken") zijn een toevoeging die het bord niet toont; het bord toont daar de overlaybediening van latere opleveringen.
-12. Gebruikerslijst: zoeken met pictogram, aantal resultaten en "Nieuw"; geen filterchips en geen rijselectie (de spec kent geen bulkacties); de kolom E-mailadres en het sorteren erop zijn vervallen omdat de naamkolom het e-mailadres draagt; het zoekveld heeft geen zichtbaar label.
+12. Gebruikerslijst: zoeken met pictogram, aantal resultaten en "Nieuw"; geen filterchips en geen rijselectie (de spec kent geen bulkacties); de kolom E-mailadres is er weer, met sorteren (besluit van 2026-11-20: een bestaande functie verdwijnt niet door een ontwerpronde); het zoekveld heeft geen zichtbaar label.
 13. Zijpaneel van de beheerlijsten: gedokt van 360 pixels, zonder donkere sluier, maar het paneel vangt nog steeds de focus en blokkeert de muis erachter (WB8).
 14. Paneelinhoud: de eerste veldwaarde is bij openen geselecteerd; de gevolgtekst staat niet bij je eigen rij, waar "Verwijderen" uit staat; het organisatiepaneel heeft geen gevolgtekst en geen "Verwijderen" (dat gaat via de rij-actie en de dialoog met de getypte naam).
 15. Bekijken: "STRATEGISCHE DOELEN" als label op elke plek (band, hovertekst, detailpaneel) en de doelen als genummerde lijst met vette titel.
 
-**Open vragen aan de producteigenaar** (uit de vergelijking):
+**Vragen over het ontwerp en hun besluiten** (uit de vergelijking, besluiten van 2026-11-20):
 
-1. Voeg-regel: wint de zin als voorbeeldtekst in de gestippelde regel (bord) of het zichtbare label (spec)?
-2. Zoekveld: is een label voor schermlezers met voorbeeldtekst genoeg (WB5)?
-3. "+ Domein": een knop die een veld toont, of liever een dialoog of een direct lege rij?
-4. "Alles opgeslagen": altijd tonen of alleen na een opslag?
-5. De zin over Tekenen in het detailpaneel: tonen voordat Tekenen bestaat, en later als link?
-6. De gevolgtekst bij verwijderen komt in oplevering 2: is de afwezigheid nu akkoord?
-7. Zijpaneel van de beheerlijsten: moet het echt niet-modaal worden (klikken op een andere rij terwijl het open is)? Dat verandert de focusval-test (WB8).
-8. Gebruikerslijst: is het verlies van sorteren op e-mailadres akkoord?
-9. Zoomknoppen in Bekijken: laten, verplaatsen of weghalen?
-10. "STRATEGISCHE DOELEN": bevestig dit label.
-11. "Toon gearchiveerd" in Invoeren kreeg het gedeelde 24-pixeldoel in de commit "fix: sort the user list on e-mail again and put the archived toggle of Invoeren on the shared 24 pixel target". Is daarmee de vraag over het kale selectievakje beantwoord?
-12. Areakaarten: witte kaarten zonder omringend paneel, zoals op het bord. Zo laten?
+| Nr | Vraag | Besluit |
+|---|---|---|
+| 1 | Voeg-regel: de zin als voorbeeldtekst in de gestippelde regel (bord) of een zichtbaar label (spec)? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, een zichtbaar label in het gestippelde kader. |
+| 2 | Zoekveld: is een label voor schermlezers met voorbeeldtekst genoeg (WB5)? | Akkoord (technisch besluit van de orchestrator): zoekveld met pictogram, voorbeeldtekst en een toegankelijke naam. |
+| 3 | "+ Domein": een knop die een veld toont, een dialoog of een lege rij? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, de knop toont het veld. |
+| 4 | "Alles opgeslagen": altijd tonen of alleen na een opslag? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, alleen na een opslag in deze sessie. |
+| 5 | De zin over Tekenen in het detailpaneel? | Technisch besluit: gewone tekst tot Tekenen bestaat, daarna een link. |
+| 6 | De gevolgtekst over kosten komt in oplevering 2: is de afwezigheid nu akkoord? | Akkoord (technisch besluit): de tekst komt met oplevering 2. |
+| 7 | Zijpaneel van de beheerlijsten: echt niet-modaal maken? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, het paneel houdt de focusval (WB8). |
+| 8 | Gebruikerslijst: verlies van sorteren op e-mailadres? | Opgelost (technisch besluit): de kolom E-mailadres is terug en sorteerbaar; bewijs: de test "the user list sorts on the E-mailadres column". |
+| 9 | Zoomknoppen in Bekijken: laten, verplaatsen of weghalen? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, de zoomknoppen blijven. |
+| 10 | "STRATEGISCHE DOELEN" als label op elke plek. | Aanname, blijft open voor de producteigenaar: het label blijft staan tot hij anders zegt (tasks.md, [ASSUMPTION D1.20-2]). |
+| 11 | "Toon gearchiveerd" en het selectievakje in de toevoegregel op het gedeelde 24-pixeldoel? | Opgelost (technisch besluit): "Toon gearchiveerd" heeft het gedeelde doel (test: "Toon gearchiveerd" is a 16 pixel box inside a 24 pixel target); de toevoegregel heeft geen selectievakje meer maar een keuzegroep "Activiteit | Cluster" met een groot doel. |
+| 12 | Areakaarten: witte kaarten zonder omringend paneel, zoals het bord? | Technisch besluit: zo laten. |
 
 ## 6. Wat niet is geverifieerd
 
