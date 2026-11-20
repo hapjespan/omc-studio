@@ -2,7 +2,7 @@
 
 ## 1. Kort
 
-Dit document hoort bij oplevering 1 van OMC Studio: Invoeren en Bekijken van een canvas, de beheerschermen (gebruikers, organisaties, logboek), sjablonen, de Koers van een canvas (missie, visie, strategische doelen) en de modaliteit per activiteit. Tekenen, de financiele laag en export zitten er niet in.
+Dit document hoort bij oplevering 1 van OMC Studio: Invoeren en Bekijken van een canvas, de beheerschermen (gebruikers, organisaties, logboek), sjablonen, de Koers van een canvas (missie, visie, strategische doelen) en de modaliteit per activiteit. Tekenen, de financiële laag en export zitten er niet in.
 
 Je leest het per acceptatiecriterium uit `specs/kickoff.md`, sectie 15. Bij elk criterium staan drie delen:
 
@@ -12,7 +12,7 @@ Je leest het per acceptatiecriterium uit `specs/kickoff.md`, sectie 15. Bij elk 
 
 Waar het gebouwde anders is dan het criterium letterlijk zegt, staat dat er in gewone woorden bij, met de beslissing in de specificatie.
 
-Alle runs in dit document zijn gedaan op 2026-11-20 in de ontwikkelcontainer (PHP-server op loopback, SQLite, Chromium). Dat is niet de uitgeleverde Docker-opzet op jouw laptop; zie hoofdstuk 6.
+Alle runs in dit document zijn gedaan op 2026-11-20 in de ontwikkelcontainer (PHP-server op loopback, SQLite, Chromium). Dat is niet de uitgeleverde Docker-opzet op jouw laptop; zie hoofdstuk 6. Alleen Chromium is in deze run gedraaid: de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request.
 
 **De acceptatie zelf is niet afgevinkt.** Jij beoordeelt dit document en de applicatie op de laptop (K-6). Taak T172 in `tasks.md` betekent alleen dat dit bewijs is opgeschreven.
 
@@ -86,7 +86,7 @@ Elke actie verschijnt direct in de lijst zonder dat de pagina opnieuw laadt. Na 
 - `tests/e2e/entry/keyboard-only.spec.ts`, "the independent test of Invoeren runs with the keyboard only".
 - Beeld: [invoeren-after.png](../design/compare/invoeren-after.png).
 
-**Let op: bekende fout `[GAP referrer back()]`.** Zie hoofdstuk 6. Op een net aangemaakt canvas springt het scherm na het eerste "Domein" terug naar "Overzicht" tot je de pagina herlaadt.
+**Let op: bekende fout `[GAP referrer back()]`, nog open.** Dit criterium zegt "zonder de pagina te verlaten", en dat klopt nu niet overal. Zie hoofdstuk 6 voor de precieze omvang: na het openen van een canvas via een link, ook een bestaand canvas vanuit "Overzicht", springt het scherm na het opslaan van bijvoorbeeld het eerste "Domein" terug naar "Overzicht" tot je de pagina herlaadt.
 
 ### Criterium 4: "Een activiteit kan niet buiten een domein bestaan; de API weigert dit met een leesbare melding."
 
@@ -165,18 +165,25 @@ Elke verwijdering vraagt om bevestiging en noemt wat er mee verdwijnt. Na een ve
 
 ### Criterium 6b: "De laatste Beheerder en een organisatie met canvassen zijn niet te verwijderen; de melding legt uit waarom."
 
-**Doe dit**
+**Doe dit, deel 1: organisatie met canvassen**
 
-1. Probeer als enige beheerder jezelf te verwijderen of je rol te wijzigen.
-2. Probeer in "Beheer", "Organisaties" een organisatie met een canvas te verwijderen: "Verwijderen", typ de naam, "Verwijderen".
+1. Ga naar "Beheer", "Organisaties" en kies "Verwijderen" bij een organisatie die een canvas heeft.
+2. Typ de naam ter bevestiging en kies "Verwijderen".
 
 **Je hoort te zien**
 
-"Er moet minstens één beheerder blijven" en "Deze organisatie heeft nog canvassen of kostenposten. Archiveer haar, of verwijder die eerst".
+"Deze organisatie heeft nog canvassen of kostenposten. Archiveer haar, of verwijder die eerst". De organisatie blijft staan.
+
+**Doe dit, deel 2: de laatste beheerder**
+
+Zo zie je het in de schermen. Als enige beheerder open je in "Beheer", "Gebruikers" je eigen rij: het veld "Rol" staat uit, "Verwijderen" staat uit, en de uitleg zegt "Je kunt je eigen account niet verwijderen of je eigen rol wijzigen". Die melding komt voor de melding over de laatste beheerder, omdat de server eerst controleert of je jezelf wijzigt. Je kunt dus als enige beheerder je eigen rol niet eens proberen te wijzigen.
+
+De melding "Er moet minstens één beheerder blijven" is er voor het moment dat twee beheerders elkaar op hetzelfde moment van beheerder naar lezer zetten of verwijderen: de ene lukt, de andere wordt geweigerd, zodat er altijd een beheerder overblijft. Met twee beheerders, A en B, in twee browsers: laat A rol van B op "Lezer" zetten en B tegelijk rol van A. Dat is met de hand bijna niet gelijktijdig te krijgen: is de eerste klaar, dan is de tweede geen beheerder meer en krijgt hij gewoon "Geen toegang" in plaats van deze melding. **De melding is dus alleen via de schermen te zien bij echt gelijktijdig klikken; de tests dwingen dat af met twee processen tegelijk.** Voor de losse gevallen roepen twee tests de controle rechtstreeks aan met een lezer als uitvoerder (`test_demoting_the_last_administrator_is_refused`, `test_deleting_the_last_administrator_is_refused`), omdat een echt verzoek van een lezer al op rechten wordt geweigerd.
 
 **Bewijs**
 
-- `tests/Feature/Concurrency/LastAdministratorTest.php`: `test_two_administrators_demoting_each_other_end_with_one_success_and_one_refusal` (twee processen tegelijk), `test_deleting_the_last_administrator_is_refused`, `test_demoting_the_last_administrator_is_refused`.
+- `tests/Feature/Concurrency/LastAdministratorTest.php`: `test_two_administrators_demoting_each_other_end_with_one_success_and_one_refusal` (twee processen tegelijk, een succes en een weigering met "Er moet minstens één beheerder blijven"), `test_demoting_the_last_administrator_is_refused`, `test_deleting_the_last_administrator_is_refused`, `test_changing_your_own_role_is_refused` en `test_deleting_your_own_account_is_refused` (de eigen-account-melding), `test_demoting_an_administrator_while_another_one_remains_is_allowed`.
+- `tests/Feature/Accounts/UserControllerTest.php`, `test_a_direct_request_on_the_own_account_is_refused`: het rechtstreekse verzoek op je eigen account krijgt dezelfde melding als op het scherm.
 - `tests/Feature/Organisations/OrganisationDeletionTest.php`, `test_deletion_is_refused_while_the_organisation_still_holds_a_canvas`.
 - `tests/e2e/admin/organisations.spec.ts`, "deleting is refused while a Canvas exists, then archive, restore and a typed-name deletion work".
 - Beeld: [organisatie-verwijderen-geweigerd.png](d1-evidence/organisatie-verwijderen-geweigerd.png).
@@ -189,15 +196,15 @@ Alleen wat op 2026-11-20 is gedraaid staat als resultaat; de rest staat als "nie
 |---|---|---|
 | SC-001 schone start binnen 3 minuten | niet gedraaid: Docker ontbreekt in de ontwikkelcontainer; alleen de start-e2e is gedraaid (groen) en het eerdere hostbewijs van 2026-11-19 (2 s tot eerste antwoord, warme cache) | `auth/first-start.spec.ts`, `wp1-evidence.md` |
 | SC-002 acht area's direct | geslaagd | `npx playwright test tests/e2e/d1 --project=chromium`: 1 groen; `AreasImmutableTest` in `composer test` |
-| SC-003 domein, activiteiten, cluster, "Hangt onder", muis en toetsenbord, zonder de pagina te verlaten | geslaagd, met de afwijking van criterium 3 (geen slepen) en de fout `[GAP referrer back()]` op het eerste domein van een nieuw canvas | `d1/full-flow.spec.ts`, `entry/parent-select.spec.ts`, `entry/keyboard-only.spec.ts` (Chromium, 99 specs in een run, 98 groen en 1 groen bij herhaling, zie hoofdstuk 6) |
+| SC-003 domein, activiteiten, cluster, "Hangt onder", muis en toetsenbord, zonder de pagina te verlaten | niet geslaagd zonder herladen, open fout `[GAP referrer back()]`: wie een canvas via een link opent (bijvoorbeeld de kaart in "Overzicht") en dan een formulier opslaat, kan op een andere pagina uitkomen; na een herlaad werkt het (zie hoofdstuk 6). Daarnaast de afwijking van criterium 3 (geen slepen). Geslaagd na herladen op Chromium | `d1/full-flow.spec.ts` (met de herlaadstap `workaroundGapReferrerBack`), `entry/parent-select.spec.ts`, `entry/keyboard-only.spec.ts` (Chromium, 99 tests in een run, 98 groen en 1 groen bij herhaling, zie hoofdstuk 6) |
 | SC-004 activiteit buiten een domein altijd geweigerd, via de schermen en rechtstreeks | geslaagd | `CreateElementTest`, `RefusalMatrixTest` in `composer test` |
 | SC-005 3 domeinen met 15 activiteiten binnen een minuut | geslaagd in de geautomatiseerde run; een geoefend mens niet gemeten | `entry/quick-entry-timing.spec.ts` |
 | SC-006 geen area te wijzigen | geslaagd | `AreasImmutableTest` in `composer test` |
 | SC-007 elke soort aan te maken, te wijzigen, te verwijderen met bevestiging en logboekregel | geslaagd voor de soorten van oplevering 1 | criterium 6a |
 | SC-008 laatste beheerder en organisatie met canvassen beschermd, ook bij gelijktijdig handelen | geslaagd | `LastAdministratorTest`, `OrganisationDeletionTest` in `composer test` |
-| SC-020 500 elementen, elk scherm binnen 1 seconde (p95) | geslaagd op Chromium in deze run (Invoeren openen, een element toevoegen en Bekijken met 500 elementen, 3 specs); de kostenposten-helft hoort bij oplevering 2; zie hoofdstuk 6 voor de omstandigheden | `entry/performance.spec.ts`, `view/performance.spec.ts` |
-| SC-021 WCAG 2.2 AA-scan en toetsenbord | geslaagd op Chromium: de axe-scan staat in elke stap van de doorlopende test en in de specs van Invoeren, Bekijken en beheer; toetsenbord in `entry/keyboard-only.spec.ts` en `view/keyboard.spec.ts` | `support/guards.ts`, `d1/full-flow.spec.ts` |
-| SC-022 geen verzoek naar buiten tijdens een volledige run | geslaagd op Chromium: de bewaker voor verzoeken buiten de eigen oorsprong en voor CSP-overtredingen staat in elke spec, ook in de doorlopende test | `support/guards.ts`, `d1/full-flow.spec.ts` |
+| SC-020 500 elementen, elk scherm binnen 1 seconde (p95) | geslaagd op Chromium in deze run (Invoeren openen, een element toevoegen en Bekijken met 500 elementen, 4 tests); de kostenposten-helft hoort bij oplevering 2; zie hoofdstuk 6 voor de omstandigheden | `entry/performance.spec.ts`, `view/performance.spec.ts` |
+| SC-021 WCAG 2.2 AA-scan en toetsenbord | geslaagd op Chromium: de axe-scan staat in elke stap van de doorlopende test en in de specs van Invoeren, Bekijken en beheer; toetsenbord in `entry/keyboard-only.spec.ts` en `view/keyboard.spec.ts` | `support/guards.ts`, `d1/full-flow.spec.ts`; de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request |
+| SC-022 geen verzoek naar buiten tijdens een volledige run | geslaagd op Chromium: de bewaker voor verzoeken buiten de eigen oorsprong en voor CSP-overtredingen staat in elke spec, ook in de doorlopende test, die de CSP controleert voor elke volledige paginalading | `support/guards.ts`, `d1/full-flow.spec.ts`; de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request |
 
 Runs van 2026-11-20 op deze tak:
 
@@ -218,7 +225,7 @@ Runs van 2026-11-20 op deze tak:
 | V4 alleen POST, PUT, PATCH en DELETE met token voor wijzigingen | `tests/Feature/Security/RouteEnumerationTest.php` |
 | V5 bestanden (logo: type, grootte, hercoderen) | `tests/Feature/Organisations/LogoUploadTest.php` |
 | V6 authenticatie (wachtwoordregels, blokkade, tweede factor) | `tests/Feature/Accounts/SignInServiceTest.php`, `PasswordChangeTest.php`, `SecondFactorEnableTest.php`, `TotpReplayTest.php` |
-| V7 sessies (nieuw id, 120 minuten inactief, 12 uur absoluut, beeindiging) | `SessionLifetimeTest.php`, `SessionTerminatorTest.php`, `tests/Feature/Security/SessionHandlerTest.php`, `tests/e2e/auth/session-timer.spec.ts` |
+| V7 sessies (nieuw id, 120 minuten inactief, 12 uur absoluut, beëindiging) | `SessionLifetimeTest.php`, `SessionTerminatorTest.php`, `tests/Feature/Security/SessionHandlerTest.php`, `tests/e2e/auth/session-timer.spec.ts` |
 | V8 autorisatie (Lezer geweigerd op elke schrijfroute) | `RouteEnumerationTest.php`, `tests/Feature/Security/WritableGuardTest.php` |
 | V11 cryptografie (TOTP-geheim versleuteld, willekeurige eenmalige wachtwoorden) | `OneTimePasswordTest.php`, `SecondFactorAccountTest.php` |
 | V13 configuratie (debug uit, geen standaardwachtwoord, `.env` buiten git) | `tests/Feature/Setup/DeliveredStackFilesTest.php` |
@@ -241,7 +248,7 @@ Het ontwerp van de producteigenaar staat als borden in `specs/design/`. Na taak 
 | Bekijken, detailpaneel | [bekijken-detail-after.png](../design/compare/bekijken-detail-after.png) | geen |
 | Gebruikerslijst met paneel | [gebruikers-after.png](../design/compare/gebruikers-after.png) | [bord 4](../design/board-4-kostenposten.png) (dichtstbijzijnde) |
 
-Bord 2 laat de financiele overlay zien; voor oplevering 1 telt alleen de indeling van het canvas.
+Bord 2 laat de financiële overlay zien; voor oplevering 1 telt alleen de indeling van het canvas.
 
 **Bewust afwijkend** (met reden):
 
@@ -266,7 +273,7 @@ Bord 2 laat de financiele overlay zien; voor oplevering 1 telt alleen de indelin
 | Nr | Vraag | Besluit |
 |---|---|---|
 | 1 | Voeg-regel: de zin als voorbeeldtekst in de gestippelde regel (bord) of een zichtbaar label (spec)? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, een zichtbaar label in het gestippelde kader. |
-| 2 | Zoekveld: is een label voor schermlezers met voorbeeldtekst genoeg (WB5)? | Akkoord (technisch besluit van de orchestrator): zoekveld met pictogram, voorbeeldtekst en een toegankelijke naam. |
+| 2 | Zoekveld: is een label voor schermlezers met voorbeeldtekst genoeg (WB5)? | Akkoord (technisch besluit van het bouwteam): zoekveld met pictogram, voorbeeldtekst en een toegankelijke naam. |
 | 3 | "+ Domein": een knop die een veld toont, een dialoog of een lege rij? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, de knop toont het veld. |
 | 4 | "Alles opgeslagen": altijd tonen of alleen na een opslag? | Bevestigd voor nu door de producteigenaar: zoals gebouwd, alleen na een opslag in deze sessie. |
 | 5 | De zin over Tekenen in het detailpaneel? | Technisch besluit: gewone tekst tot Tekenen bestaat, daarna een link. |
@@ -283,16 +290,21 @@ Bord 2 laat de financiele overlay zien; voor oplevering 1 telt alleen de indelin
 - **De twee commando's op een schone machine.** Docker ontbreekt in de ontwikkelcontainer. De start-e2e en de bestandstests lopen wel, maar `docker compose up -d` is op 2026-11-20 niet uitgevoerd. De drie minuten op jouw laptop zijn niet gemeten.
 - **GitHub Actions was geblokkeerd** vanaf 2026-11-19 (zie `docs/ci-blocked-merges.md`). Alle pull requests sindsdien zijn op lokaal bewijs gemerged. Er is dus geen CI-run op de punt van `release`; die moet eerst draaien zodra Actions weer werkt.
 - **PostgreSQL.** Alle runs in dit document zijn op SQLite. De PostgreSQL-helft van de PHP-suite is eerder alleen lokaal in een tijdelijk schema gedraaid (beschreven in `docs/ci-blocked-merges.md`), niet op de CI-job `tests-postgresql`, en niet in deze run.
-- **Firefox en WebKit.** In deze run alleen Chromium met een werker. De drie engines draaien bij het samenvoegen door de integrator. De WebKit-run gebruikt `SESSION_SECURE_COOKIE=false` (ADR 0024, `evidence-d1-3.md`).
+- **Firefox en WebKit.** In deze run alleen Chromium met een werker; de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request. De WebKit-run gebruikt `SESSION_SECURE_COOKIE=false` (ADR 0024, `evidence-d1-3.md`).
 - **Prestaties.** SC-020 is gemeten op een machine met 11 kernen en SQLite, terwijl de CI-runner 2 vCPU heeft. De prestatiespecs zijn in deze run niet alleen gedraaid maar tussen andere zware runs van de container, terwijl de spec ze apart wil (ADR 0044). De krapste waarde van eerdere runs was Invoeren openen op Firefox en WebKit (p95 996 ms, 1063 ms onder belasting; `docs/ci-blocked-merges.md`). Dit is niet opnieuw gemeten.
 - **Geoefend mens binnen een minuut** (SC-005): gemeten met een geautomatiseerde invoer, niet door een persoon.
 - **Eenmalige mislukking.** In de brede Chromium-run mislukte `tests/e2e/entry/reorder.spec.ts` bij het zaaien met `php artisan tinker` (het commando stopte met een foutcode); bij herhaling groen. De oorzaak is niet onderzocht.
-- **Bekende fout `[GAP referrer back()]`** (zie `tasks.md`, "Assumptions awaiting the product owner"). Dit is op de vrijgegeven code opnieuw vastgesteld, met precies deze stappen:
-  1. Log in als beheerder en laad "Overzicht" volledig (adresbalk, Enter).
-  2. Kies "Nieuw canvas", vul een naam, kies een organisatie en kies "Aanmaken". Je komt op de pagina Invoeren van het nieuwe canvas.
-  3. Kies de area "Primaire activiteiten", kies "Domein", typ een naam en druk op Enter.
-  4. Verwacht: het domein staat als rij in de lijst en je blijft op Invoeren.
-  5. Gekregen: de pagina staat op "Overzicht". Herlaad je Invoeren (opnieuw openen van het canvas) dan blijft het werken. De oorzaak is `Referrer-Policy: no-referrer` (FR-090): de server stuurt na het opslaan terug naar de vorige pagina, en dat is de laatste volledig geladen pagina, hier "Overzicht".
-  De doorlopende test herlaadt daarom de pagina na het aanmaken van het canvas, in een stap met de naam `workaroundGapReferrerBack`. Jij beslist: `Referrer-Policy: same-origin` (geen lek naar buiten, nog steeds geen uitgaand verzoek) of een expliciet terugkeerpad per formulier.
-- **Controle door een tweede partij.** De taken T170, T171 en T172 zijn door een model gebouwd en moeten onafhankelijk worden beoordeeld.
-- **Latere opleveringen.** Tekenen, de financiele laag en export zijn niet getest en niet gestubd.
+- **Bekende fout `[GAP referrer back()]`, open** (zie `tasks.md`, "Assumptions awaiting the product owner"). Oorzaak: de server stuurt na een opslag terug met `back()` (onder andere `ElementController`), en `Referrer-Policy: no-referrer` (FR-090, `SecurityHeaders`) zorgt dat de browser bij een link-navigatie (Inertia) de vorige pagina niet doorgeeft. De server valt dan terug op de laatste volledig geladen pagina.
+
+  Op 2026-11-20 in Chromium op de vrijgegeven code, op de eigen server, waargenomen:
+  1. Nieuw canvas: "Overzicht" volledig laden, "Nieuw canvas", "Aanmaken", area "Primaire activiteiten", "Domein", naam, Enter. Verwacht: de rij staat in de lijst. Gekregen: de pagina staat op "Overzicht" en de rij is niet te zien.
+  2. Bestaand canvas vanuit "Overzicht" via zijn kaart geopend (zonder herladen), area "Primaire activiteiten", "Domein", naam, Enter. Gekregen: "Overzicht".
+  3. Zelfde weg, area "Koers", "Missie" invullen en "Opslaan". Gekregen: "Overzicht".
+  4. Vanuit Bekijken via de keuzeschakelaar naar "Invoeren", een activiteit kiezen, "Naam" wijzigen en "Opslaan" in het paneel. Gekregen: de pagina van Bekijken (de laatste volledig geladen pagina).
+  5. Na een volledige herlaad van de Invoeren-pagina (adresbalk, Enter) werkt hetzelfde formulier wel en blijf je op Invoeren (Koers opslaan gaf `/canvases/<id>/entry`).
+
+  Omvang: elk formulier dat met `back()` antwoordt, op een pagina die je via een link in de applicatie hebt bereikt. Dat zijn volgens de code alle schrijfacties in Invoeren (elementen, "Snel invoeren", Koers, "Ongedaan maken"), de acties op een canvaskaart en sjabloon, en de formulieren in "Beheer" (organisaties en gebruikers) en de herauthenticatie. Waargenomen in de app zijn alleen de vier gevallen hierboven; de overige zijn uit de code afgeleid en niet in de app geprobeerd. Of de wijziging zelf in deze gevallen is opgeslagen, is in deze probe niet gecontroleerd.
+
+  De doorlopende test herlaadt de pagina na het aanmaken van het canvas, in een functie met de naam `workaroundGapReferrerBack`. Jij beslist: `Referrer-Policy: same-origin` (geen lek naar buiten, nog steeds geen uitgaand verzoek) of een expliciet terugkeerpad per formulier. Zolang dat open is, is SC-003 niet geslaagd zonder herladen.
+- **Controle door een tweede partij.** De taken T170, T171 en T172 zijn gebouwd en moeten nog onafhankelijk worden beoordeeld.
+- **Latere opleveringen.** Tekenen, de financiële laag en export zijn niet getest en niet gestubd.
