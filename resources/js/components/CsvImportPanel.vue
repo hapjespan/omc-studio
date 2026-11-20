@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
 import { announce } from './feedback/status';
+import FileField from './fields/FileField.vue';
+import AppButton from './ui/AppButton.vue';
 import ImportReport, { type ImportReportData } from './ImportReport.vue';
 import { postFile, refusalOf } from './upload';
 import { t } from '../i18n';
@@ -56,8 +58,8 @@ async function commit(): Promise<void> {
     emit('done');
 }
 
-function pick(event: Event): void {
-    file.value = (event.target as HTMLInputElement).files?.[0] ?? null;
+function pick(picked: File | null): void {
+    file.value = picked;
     report.value = null;
     refusal.value = '';
 }
@@ -65,19 +67,14 @@ function pick(event: Event): void {
 
 <template>
     <div class="mt-3">
-        <button type="button" :aria-expanded="open" :aria-controls="`${id}-panel`" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="open = !open">{{ heading }}</button>
-        <section v-show="open" :id="`${id}-panel`" role="region" :aria-labelledby="`${id}-heading`" class="mt-2 max-w-xl">
-            <h2 :id="`${id}-heading`" class="text-[16px] font-semibold">{{ heading }}</h2>
-            <form novalidate class="mt-2 flex flex-col gap-3" @submit.prevent="check">
-                <div class="flex flex-col gap-1">
-                    <label :for="`${id}-file`" class="text-[13px] font-semibold">{{ t('import.file') }}</label>
-                    <p :id="`${id}-hint`" class="text-[11.5px] text-[#5F6772]">{{ hint }}</p>
-                    <input :id="`${id}-file`" :key="inputKey" type="file" accept=".csv,text/csv,text/plain" :aria-describedby="refusal ? `${id}-hint ${id}-error` : `${id}-hint`" :aria-invalid="refusal ? 'true' : undefined" @change="pick" />
-                    <p v-if="refusal" :id="`${id}-error`" class="text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
-                </div>
+        <AppButton :aria-expanded="open" :aria-controls="`${id}-panel`" @click="open = !open">{{ heading }}</AppButton>
+        <section v-show="open" :id="`${id}-panel`" role="region" :aria-labelledby="`${id}-heading`" class="mt-3 max-w-xl rounded-panel border border-hairline bg-white p-6">
+            <h2 :id="`${id}-heading`" class="font-display text-[16px] font-semibold">{{ heading }}</h2>
+            <form novalidate class="mt-4 flex flex-col gap-4" @submit.prevent="check">
+                <FileField :key="inputKey" :id="`${id}-file`" :label="t('import.file')" accept=".csv,text/csv,text/plain" :hint="hint" :error="refusal" @pick="pick" />
                 <div class="flex gap-2">
-                    <button type="submit" :disabled="!file || busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('import.check') }}</button>
-                    <button type="button" :disabled="!canCommit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="commit">{{ t('import.commit') }}</button>
+                    <AppButton type="submit" variant="primary" :disabled="!file || busy">{{ t('import.check') }}</AppButton>
+                    <AppButton :disabled="!canCommit" @click="commit">{{ t('import.commit') }}</AppButton>
                 </div>
             </form>
             <ImportReport v-if="report" :report="report" heading="h3" />
