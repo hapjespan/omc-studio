@@ -8,6 +8,9 @@ import ListView, { type ListColumn, type ListRow, type ListState } from '../../c
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import SnapshotForm from './SnapshotForm.vue';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; canWrite: boolean; years: number[] }>();
 

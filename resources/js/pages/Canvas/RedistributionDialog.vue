@@ -60,19 +60,18 @@ function confirm(): void {
         },
     });
 }
-const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
 </script>
 
 <template>
     <Dialog v-model:open="open" :dirty="Object.keys(choices).length > 0" :title="t('redistribute.title', { name: element.name })" :description="t('redistribute.description')">
-        <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-[#A12A1E]">{{ refusal }}</p>
+        <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-danger">{{ refusal }}</p>
         <p v-if="!loaded && !refusal" role="status" class="text-[13px]">{{ t('redistribute.loading') }}</p>
         <div v-if="stale" role="status" class="text-[13px]">
             <p>{{ t('redistribute.empty') }}</p>
-            <button type="button" :class="[button, 'mt-2']" @click="reload">{{ t('redistribute.reload') }}</button>
+            <AppButton class="mt-2" @click="reload">{{ t('redistribute.reload') }}</AppButton>
         </div>
         <form class="flex flex-col gap-4" novalidate @submit.prevent="confirm">
-            <fieldset v-for="item in years" :key="item.year" class="rounded-md border border-[#848B95] p-3">
+            <fieldset v-for="item in years" :key="item.year" class="rounded-control border border-edge p-3">
                 <legend class="px-1 text-[13px] font-semibold">{{ t('redistribute.year', { year: item.year, records: plural('redistribute.records', item.records), percentage: formatPercentage(item.basis_points) }) }}</legend>
                 <label class="flex items-center gap-2 text-[13px]"><input type="radio" class="h-6 w-6" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'move'" @change="mode(item.year, 'move')" />{{ t('redistribute.move') }}</label>
                 <label class="mt-1 flex items-center gap-2 text-[13px]"><input type="radio" class="h-6 w-6" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'unknown'" @change="mode(item.year, 'unknown')" />{{ t('redistribute.unknown') }}</label>
@@ -84,8 +83,8 @@ const button = 'rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]';
                 </div>
             </fieldset>
             <div class="flex gap-2">
-                <button type="button" :class="button" @click="open = false">{{ t('list.cancel') }}</button>
-                <button type="submit" :disabled="!ready" :class="[button, 'border-[#C0645A] text-[#A12A1E] disabled:opacity-60']">{{ t('redistribute.confirm') }}</button>
+                <AppButton @click="open = false">{{ t('list.cancel') }}</AppButton>
+                <AppButton type="submit" variant="danger" :disabled="!ready">{{ t('redistribute.confirm') }}</AppButton>
             </div>
         </form>
     </Dialog>

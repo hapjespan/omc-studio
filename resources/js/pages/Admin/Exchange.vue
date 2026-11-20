@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Panel from '../../components/ui/Panel.vue';
 import { computed, nextTick, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import CountsReport, { type CountsReportData } from '../../components/CountsReport.vue';
@@ -7,6 +8,9 @@ import FileField from '../../components/fields/FileField.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 const totalKeys = ['organisations', 'canvases', 'cost_records', 'templates'] as const;
 const file = ref<File | null>(null);
@@ -68,12 +72,12 @@ function pick(picked: File | null): void {
     <Head :title="t('fullx.title')" />
     <div class="flex max-w-3xl flex-col gap-4">
         <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('fullx.title') }}</h1>
-        <section role="region" aria-labelledby="full-export" class="rounded-panel border border-hairline bg-white p-6">
+        <Panel :padding="24" role="region" aria-labelledby="full-export">
             <h2 id="full-export" class="font-display text-[16px] font-semibold">{{ t('fullx.export_heading') }}</h2>
             <p class="mt-1 text-[13px] text-secondary">{{ t('fullx.export_hint') }}</p>
             <a :href="routes.fullExport()" download class="mt-4 inline-flex min-h-control items-center justify-center rounded-control border border-edge bg-white px-3 py-1 text-[13px] font-medium text-ink">{{ t('fullx.export') }}</a>
-        </section>
-        <section role="region" aria-labelledby="full-import" class="rounded-panel border border-hairline bg-white p-6">
+        </Panel>
+        <Panel :padding="24" role="region" aria-labelledby="full-import">
             <h2 id="full-import" class="font-display text-[16px] font-semibold">{{ t('fullx.import_heading') }}</h2>
             <form novalidate class="mt-4 flex flex-col gap-4" @submit.prevent="check">
                 <FileField id="full-file" :label="t('fullx.file')" accept=".json,application/json" :hint="t('fullx.file_hint')" :error="refusal" @pick="pick" />
@@ -82,7 +86,7 @@ function pick(picked: File | null): void {
                     <AppButton :disabled="!canCommit" @click="commit">{{ t('fullx.commit') }}</AppButton>
                 </div>
             </form>
-        </section>
-        <div v-if="report" class="rounded-panel border border-hairline bg-white p-6"><CountsReport id="full" prefix="fullx" :keys="totalKeys" :report="report" /></div>
+        </Panel>
+        <Panel :padding="24" v-if="report"><CountsReport id="full" prefix="fullx" :keys="totalKeys" :report="report" /></Panel>
     </div>
 </template>

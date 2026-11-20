@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import OrganisationEntries, { type EntriesProps } from '../../components/list/OrganisationEntries.vue';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 defineProps<EntriesProps>();
 </script>

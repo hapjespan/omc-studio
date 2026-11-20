@@ -14,7 +14,7 @@ import { router } from '@inertiajs/vue3';
 import AppButton from '../components/ui/AppButton.vue';
 import { t } from '../i18n';
 import { routes } from '../routes';
-import ChipSelect from './ChipSelect.vue';
+import ChipSelect from '../components/ui/ChipSelect.vue';
 
 const props = defineProps<{ canvasId: number; versions: VersionOption[]; current: number | null }>();
 const initial = props.current === null ? '' : String(props.current);

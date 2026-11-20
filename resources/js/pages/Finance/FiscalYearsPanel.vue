@@ -5,6 +5,7 @@ import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import TextField from '../../components/fields/TextField.vue';
 import ConfirmDelete from '../../components/list/ConfirmDelete.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import Dialog from '../../components/overlays/Dialog.vue';
 import SidePanel from '../../components/overlays/SidePanel.vue';
 import { t } from '../../i18n';
@@ -39,18 +40,18 @@ const remove = (): void => {
         <div role="alert"><ErrorSummary :errors="errors" /></div>
         <form v-if="writable" novalidate class="mt-3 flex flex-col gap-3" @submit.prevent="add">
             <TextField id="fiscal-year-new" v-model="year" :label="t('fiscal_years.year_label')" :error="errors.year" />
-            <div><button type="submit" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('fiscal_years.add') }}</button></div>
+            <div><AppButton type="submit" variant="primary">{{ t('fiscal_years.add') }}</AppButton></div>
         </form>
         <ul class="mt-4 flex flex-col gap-2">
             <li v-for="item in years" :key="item.id" class="flex items-center gap-3 text-[13px]">
                 <span>{{ item.year }}</span>
-                <button v-if="writable" type="button" :aria-label="`${t('list.delete')} ${item.year}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="removing = item">{{ t('list.delete') }}</button>
+                <AppButton v-if="writable" size="small" :aria-label="`${t('list.delete')} ${item.year}`" @click="removing = item">{{ t('list.delete') }}</AppButton>
                 <ul v-if="canvases?.length" :aria-label="`${t('fiscal_years.canvases')} ${item.year}`" class="flex flex-col gap-1">
                     <li v-for="canvas in canvases" :key="canvas.id" class="flex items-center gap-2">
                         <span>{{ canvas.name }}:</span>
                         <template v-if="stateOf(canvas.id, item.year)">
                             <span>{{ t('fiscal_years.canvas_final', { date: stateOf(canvas.id, item.year)?.at ?? '', name: stateOf(canvas.id, item.year)?.by ?? '' }) }}</span>
-                            <button v-if="writable" type="button" :aria-label="`${t('fiscal_years.reopen')} ${item.year} ${canvas.name}`" class="rounded-md border border-[#848B95] px-2 py-1 text-[12.5px]" @click="reopening = { canvas, year: item.year }">{{ t('fiscal_years.reopen') }}</button>
+                            <AppButton v-if="writable" size="small" :aria-label="`${t('fiscal_years.reopen')} ${item.year} ${canvas.name}`" @click="reopening = { canvas, year: item.year }">{{ t('fiscal_years.reopen') }}</AppButton>
                         </template>
                         <span v-else>{{ t('fiscal_years.canvas_open') }}</span>
                     </li>
@@ -60,8 +61,8 @@ const remove = (): void => {
         <ConfirmDelete v-if="removing" v-model:open="confirmOpen" :name="String(removing.year)" :consequence="null" @confirm="remove" />
         <Dialog v-if="reopening" v-model:open="reopenOpen" :title="t('fiscal_years.reopen_title', { year: reopening.year, canvas: reopening.canvas.name })" :description="t('fiscal_years.reopen_description')">
             <div class="mt-3 flex gap-2">
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="reopenOpen = false">{{ t('list.cancel') }}</button>
-                <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="reopen">{{ t('fiscal_years.reopen_confirm') }}</button>
+                <AppButton @click="reopenOpen = false">{{ t('list.cancel') }}</AppButton>
+                <AppButton variant="primary" @click="reopen">{{ t('fiscal_years.reopen_confirm') }}</AppButton>
             </div>
         </Dialog>
     </SidePanel>

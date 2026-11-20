@@ -10,6 +10,9 @@ import Pill from '../../components/ui/Pill.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 interface Notice {
     id: number;

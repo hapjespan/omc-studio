@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Panel from '../../components/ui/Panel.vue';
 import { computed, nextTick, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import CountsReport, { type CountsReportData } from '../../components/CountsReport.vue';
@@ -87,7 +88,7 @@ function pick(picked: File | null): void {
 <template>
     <div class="mt-3">
         <AppButton :aria-expanded="open" aria-controls="import-canvas-panel" @click="open = !open">{{ t('jsonx.import_open') }}</AppButton>
-        <section v-show="open" id="import-canvas-panel" ref="panel" role="region" aria-labelledby="import-canvas-heading" class="mt-3 max-w-xl rounded-panel border border-hairline bg-white p-6">
+        <Panel :padding="24" class="mt-3 max-w-xl" v-show="open" id="import-canvas-panel" ref="panel" role="region" aria-labelledby="import-canvas-heading">
             <h2 id="import-canvas-heading" class="font-display text-[16px] font-semibold">{{ t('jsonx.import_open') }}</h2>
             <form novalidate class="mt-4 flex flex-col gap-4" @submit.prevent="check">
                 <FileField :key="inputKey" id="import-canvas-file" :label="t('jsonx.file')" accept=".json,application/json" :hint="t('jsonx.file_hint')" :error="refusal" @pick="pick" />
@@ -100,6 +101,6 @@ function pick(picked: File | null): void {
                 </div>
             </form>
             <CountsReport v-if="report" id="import-canvas" prefix="jsonx" :keys="totalKeys" :report="report" heading="h3" class="mt-6" />
-        </section>
+        </Panel>
     </div>
 </template>

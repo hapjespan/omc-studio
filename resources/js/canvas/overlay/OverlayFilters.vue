@@ -22,7 +22,7 @@ export function activeFilters(filters: OverlayFilters, options: FilterOptions): 
 <script setup lang="ts">
 import { computed, reactive } from 'vue';
 import AppButton from '../../components/ui/AppButton.vue';
-import ChipSelect from '../ChipSelect.vue';
+import ChipSelect from '../../components/ui/ChipSelect.vue';
 import { visitOverlay } from './query';
 
 const props = defineProps<{ filters: OverlayFilters; options: FilterOptions }>();

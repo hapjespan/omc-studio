@@ -17,6 +17,9 @@ import AllocationSummary from './AllocationSummary.vue';
 import ImportAllocations from './ImportAllocations.vue';
 import CostRecordStatusList from './CostRecordStatusList.vue';
 import TargetTree from './TargetTree.vue';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 const props = defineProps<{ canvas: { id: number; name: string; archived: boolean }; year: number | null; finalised: boolean; costRecords: CostRecordRow[]; chosen: string | null; set: { elementId: string; basisPoints: number; position: number }[]; targets: TargetRow[]; canvasTotalCents: number | null; figuresAvailable: boolean; areaTotals: Record<string, number> | null }>();
 

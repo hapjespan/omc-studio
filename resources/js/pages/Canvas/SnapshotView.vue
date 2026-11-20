@@ -14,6 +14,9 @@ import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import HeaderSlot from '../../shell/HeaderSlot.vue';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 const props = defineProps<{
     snapshot: { id: number; name: string; date: string; year: number };

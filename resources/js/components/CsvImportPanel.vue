@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Panel from './ui/Panel.vue';
 import { computed, nextTick, ref } from 'vue';
 import { announce } from './feedback/status';
 import FileField from './fields/FileField.vue';
@@ -68,7 +69,7 @@ function pick(picked: File | null): void {
 <template>
     <div class="mt-3">
         <AppButton :aria-expanded="open" :aria-controls="`${id}-panel`" @click="open = !open">{{ heading }}</AppButton>
-        <section v-show="open" :id="`${id}-panel`" role="region" :aria-labelledby="`${id}-heading`" class="mt-3 max-w-xl rounded-panel border border-hairline bg-white p-6">
+        <Panel :padding="24" class="mt-3 max-w-xl" v-show="open" :id="`${id}-panel`" role="region" :aria-labelledby="`${id}-heading`">
             <h2 :id="`${id}-heading`" class="font-display text-[16px] font-semibold">{{ heading }}</h2>
             <form novalidate class="mt-4 flex flex-col gap-4" @submit.prevent="check">
                 <FileField :key="inputKey" :id="`${id}-file`" :label="t('import.file')" accept=".csv,text/csv,text/plain" :hint="hint" :error="refusal" @pick="pick" />
@@ -78,6 +79,6 @@ function pick(picked: File | null): void {
                 </div>
             </form>
             <ImportReport v-if="report" :report="report" heading="h3" />
-        </section>
+        </Panel>
     </div>
 </template>

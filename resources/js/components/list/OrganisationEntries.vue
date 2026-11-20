@@ -9,6 +9,7 @@ export type EntriesProps = { rows: EntryRow[]; count: number; query: ListState; 
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../fields/ErrorSummary.vue';
+import AppButton from '../ui/AppButton.vue';
 import SelectField from '../fields/SelectField.vue';
 import TextField from '../fields/TextField.vue';
 import { focusFirstInvalid } from '../fields/focusFirstInvalid';
@@ -105,7 +106,7 @@ function submit(row: Row | null, close: () => void): void {
     <h1 class="text-[20px] font-semibold">{{ title }}</h1>
     <nav :aria-label="t('lists.choose_organisation')" class="mt-2">
         <ul class="flex flex-wrap gap-2 text-[13px]">
-            <li v-for="option in organisations" :key="option.id"><Link :href="routes.organisationEntries(option.id, kind)" :aria-current="option.id === organisation.id ? 'page' : undefined" class="rounded-md border border-[#848B95] px-2 py-1" :class="{ 'font-semibold underline': option.id === organisation.id }">{{ option.name }}<template v-if="option.archived_at"> ({{ t('list.archived') }})</template></Link></li>
+            <li v-for="option in organisations" :key="option.id"><Link :href="routes.organisationEntries(option.id, kind)" :aria-current="option.id === organisation.id ? 'page' : undefined" class="rounded-control border border-edge px-2.5 py-1" :class="{ 'font-semibold underline': option.id === organisation.id }">{{ option.name }}<template v-if="option.archived_at"> ({{ t('list.archived') }})</template></Link></li>
         </ul>
     </nav>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
@@ -117,7 +118,7 @@ function submit(row: Row | null, close: () => void): void {
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :hint="owners ? t('lists.owners.name_hint') : undefined" :error="errors.name" @update:model-value="setDirty(JSON.stringify(draft) !== initial)" />
                     <TextField v-if="!owners" id="supplier" v-model="draft.supplier" :label="`${t('fields.supplier')} (${t('form.optional')})`" :error="errors.supplier" @update:model-value="setDirty(JSON.stringify(draft) !== initial)" />
                     <div class="flex gap-2">
-                        <button v-if="!readonly" type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('organisations.save') }}</button>
+                        <AppButton v-if="!readonly" type="submit" variant="primary" :disabled="busy">{{ t('organisations.save') }}</AppButton>
                     </div>
                 </form>
             </template>
@@ -126,8 +127,8 @@ function submit(row: Row | null, close: () => void): void {
     <Dialog v-if="replacing" v-model:open="replaceOpen" :title="t('lists.replace_title', { name: replacing.name })" :description="t(`lists.${kind}.in_use`, { count: replacing.cost_records_count })">
         <SelectField id="replace-with" v-model="replacement" :label="t('lists.replace_with')" :options="choices" :error="errors.rule || errors.replace_with" />
         <div class="mt-3 flex gap-2">
-            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="replaceOpen = false">{{ t('list.cancel') }}</button>
-            <button type="button" :disabled="replacement === ''" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E] disabled:opacity-60" @click="replace">{{ t('lists.replace_confirm') }}</button>
+            <AppButton @click="replaceOpen = false">{{ t('list.cancel') }}</AppButton>
+            <AppButton variant="danger" :disabled="replacement === ''" @click="replace">{{ t('lists.replace_confirm') }}</AppButton>
         </div>
     </Dialog>
 </template>

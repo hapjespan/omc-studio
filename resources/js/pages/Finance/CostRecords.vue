@@ -17,6 +17,9 @@ import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
 import { formatAmount } from '../../format';
 import { exportCsv } from '../../canvas/csvDownload';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 export type Option = { id: number; name: string };
 

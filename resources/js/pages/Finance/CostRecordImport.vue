@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Panel from '../../components/ui/Panel.vue';
 import { computed, nextTick, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import ImportReport, { type ImportReportData } from '../../components/ImportReport.vue';
@@ -7,6 +8,9 @@ import FileField from '../../components/fields/FileField.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 const props = defineProps<{ organisation: { id: number; name: string }; columns: string[] }>();
 
@@ -75,6 +79,6 @@ function pick(picked: File | null): void {
                 <AppButton :disabled="!canCommit" @click="commit">{{ t('import.commit') }}</AppButton>
             </div>
         </form>
-        <div v-if="report" class="rounded-panel border border-hairline bg-white p-6"><ImportReport :report="report" /></div>
+        <Panel :padding="24" v-if="report"><ImportReport :report="report" /></Panel>
     </div>
 </template>
