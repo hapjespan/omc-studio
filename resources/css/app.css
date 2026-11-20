@@ -44,6 +44,11 @@
     --spacing-detail-panel: 360px;
 }
 
+@utility selected-ring {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+
 @layer base {
     html {
         line-height: 1.4;

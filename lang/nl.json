@@ -503,5 +503,14 @@
     "quick_entry.error_count": ":count regels bevatten een fout, zie de lijst onder het voorbeeld",
     "quick_entry.kind.domain": "domein",
     "quick_entry.kind.cluster": "cluster",
-    "quick_entry.kind.activity": "activiteit"
+    "quick_entry.kind.activity": "activiteit",
+    "entry_design.areas_heading": "Area’s",
+    "entry_design.areas_help": "De acht area's liggen vast. Je vult ze met domeinen, clusters en activiteiten.",
+    "entry_design.kind_choice": "Soort toe te voegen element",
+    "entry_design.import": "Importeren uit CSV",
+    "entry_design.import_reason": "Beschikbaar in een latere versie",
+    "entry_design.rationale": "Onderbouwing modaliteit",
+    "entry_design.parent_hint": "Verplaatsen naar een ander domein of cluster doe je hier.",
+    "entry_design.order_help": "Volgorde wijzig je met de pijlen. Nieuwe elementen krijgen vanzelf een plek op het canvas.",
+    "entry_design.drawing_hint": "Plek, grootte en kleur op het canvas regel je in Tekenen."
 }

@@ -7,6 +7,7 @@ import { detail, discardDetail } from './detail';
 import DetailPanel from './DetailPanel.vue';
 import LeftPanel from './LeftPanel.vue';
 import MenuButton from './MenuButton.vue';
+import { modeSwitchPlacement } from './modes';
 import ModeSwitch from './ModeSwitch.vue';
 import ReauthDialog from './ReauthDialog.vue';
 import { reauth, scheduleReauth } from './session';
@@ -44,7 +45,7 @@ watch(
         </header>
         <LeftPanel class="shell-left" />
         <main id="main" tabindex="-1" class="shell-main p-4">
-            <ModeSwitch v-if="page.props.canvas" :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" class="mb-4" />
+            <ModeSwitch v-if="page.props.canvas && !modeSwitchPlacement.inPage" :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" class="mb-4" />
             <slot />
             <StatusRegion />
         </main>

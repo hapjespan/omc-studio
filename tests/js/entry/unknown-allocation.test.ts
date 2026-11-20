@@ -27,7 +27,7 @@ describe('the Unknown allocation Domain in the tree', () => {
 
     it('explains itself in the panel instead of offering fields', async () => {
         const context: { teleports?: Record<string, string> } = {};
-        await renderToString(createSSRApp({ render: () => h(ElementPanel, { canvasId: 1, element: rows[0], elements: rows, areas: [], path: 'x', list: false, icons: [] }) }), context);
+        await renderToString(createSSRApp({ render: () => h(ElementPanel, { canvasId: 1, element: rows[0], elements: rows, areas: [], warnings: [], list: false, icons: [] }) }), context);
         const html = context.teleports?.['#detail-body'] ?? '';
 
         expect(html).toContain('Hier staan kostenposten die in dit canvas nog niet zijn ingedeeld');

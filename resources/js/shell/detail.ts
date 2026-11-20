@@ -1,9 +1,10 @@
 import { nextTick, reactive } from 'vue';
 
-export const detail = reactive({ open: false, title: '', dirty: false, confirming: false, opener: null as HTMLElement | null, restore: null as HTMLElement | null });
+export const detail = reactive({ open: false, title: '', kicker: '', dirty: false, confirming: false, opener: null as HTMLElement | null, restore: null as HTMLElement | null });
 
-export function openDetail(title: string, opener: HTMLElement | null = document.activeElement as HTMLElement | null): void {
+export function openDetail(title: string, opener: HTMLElement | null = document.activeElement as HTMLElement | null, kicker = ''): void {
     detail.title = title;
+    detail.kicker = kicker;
     detail.opener = opener;
     detail.confirming = false;
     detail.open = true;

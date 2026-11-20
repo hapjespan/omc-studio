@@ -6,6 +6,8 @@ import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import ConfirmDelete from '../../components/list/ConfirmDelete.vue';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
+import AppButton from '../../components/ui/AppButton.vue';
+import IconButton from '../../components/ui/IconButton.vue';
 import UndoMessage from '../../components/list/UndoMessage.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
@@ -117,8 +119,6 @@ function undoDeletion(): void {
         onError: (found) => (current.refusal = found.rule ?? ''),
     });
 }
-
-const buttonClass = 'rounded-md border border-edge px-2 py-1.5 text-[12.5px] font-semibold disabled:opacity-60';
 </script>
 
 <template>
@@ -129,20 +129,20 @@ const buttonClass = 'rounded-md border border-edge px-2 py-1.5 text-[12.5px] fon
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
             <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ texts[kind].length }} / {{ LIMIT }}</p>
             <p v-if="!statements[kind]" class="text-[12.5px] text-secondary">{{ t(`direction_entry.empty_${kind}`) }}</p>
-            <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.save') }}</button>
+            <AppButton type="submit" variant="primary" class="self-start">{{ t('direction_entry.save') }}</AppButton>
         </form>
         <section :aria-label="t('direction_entry.goals')" class="flex flex-col gap-2">
             <h3 class="text-[13px] font-semibold">{{ t('direction_entry.goals') }}</h3>
             <p v-if="!statements.goals.length" class="text-[12.5px] text-secondary">{{ t('direction_entry.empty_goals') }}</p>
             <ol v-else class="flex flex-col gap-2">
-                <li v-for="(goal, index) in statements.goals" :key="goal.id" class="flex flex-wrap items-start gap-2 rounded-md border border-edge p-2">
+                <li v-for="(goal, index) in statements.goals" :key="goal.id" class="flex flex-wrap items-start gap-2 rounded-control border border-hairline bg-white p-2.5">
                     <div class="min-w-0 flex-1">
                         <p class="text-[13px] font-semibold">{{ goal.title }}</p>
                         <p class="text-[12.5px] text-secondary">{{ goal.body }}</p>
                     </div>
-                    <button :id="`goal-up-${goal.id}`" type="button" :disabled="index === 0" :aria-label="t('direction_entry.up_named', { name: goal.title })" :class="buttonClass" @click="move(goal, 'up')">{{ t('direction_entry.up') }}</button>
-                    <button :id="`goal-down-${goal.id}`" type="button" :disabled="index === statements.goals.length - 1" :aria-label="t('direction_entry.down_named', { name: goal.title })" :class="buttonClass" @click="move(goal, 'down')">{{ t('direction_entry.down') }}</button>
-                    <button type="button" :aria-label="t('direction_entry.delete_named', { name: goal.title })" :class="buttonClass" @click="deleting = goal; confirming = true">{{ t('direction_entry.delete') }}</button>
+                    <IconButton :id="`goal-up-${goal.id}`" icon="chevron-up" :disabled="index === 0" :label="t('direction_entry.up_named', { name: goal.title })" @click="move(goal, 'up')" />
+                    <IconButton :id="`goal-down-${goal.id}`" icon="chevron-down" :disabled="index === statements.goals.length - 1" :label="t('direction_entry.down_named', { name: goal.title })" @click="move(goal, 'down')" />
+                    <AppButton variant="danger" size="small" :aria-label="t('direction_entry.delete_named', { name: goal.title })" @click="deleting = goal; confirming = true">{{ t('direction_entry.delete') }}</AppButton>
                 </li>
             </ol>
             <form novalidate class="flex flex-col gap-2" @submit.prevent="addGoal">
@@ -150,7 +150,7 @@ const buttonClass = 'rounded-md border border-edge px-2 py-1.5 text-[12.5px] fon
                 <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ goalForm.title.length }} / {{ TITLE_LIMIT }}</p>
                 <TextArea id="goal-body" v-model="goalForm.body" :label="t('direction_entry.goal_body')" :error="goalForm.errors.body" :rows="3" />
                 <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ goalForm.body.length }} / {{ LIMIT }}</p>
-                <button type="submit" :class="[buttonClass, 'self-start']">{{ t('direction_entry.add_goal') }}</button>
+                <AppButton type="submit" class="self-start">{{ t('direction_entry.add_goal') }}</AppButton>
             </form>
         </section>
         <ConfirmDelete v-model:open="confirming" :name="deleting?.title ?? ''" :consequence="null" @confirm="deleting && remove(deleting)" />
