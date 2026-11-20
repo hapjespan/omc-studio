@@ -64,7 +64,7 @@ test('Import of Cost records: the form, a faulty report and a clean report', asy
     const file = (line: string) => ({ name: 'import.csv', mimeType: 'text/csv', buffer: Buffer.from(`${HEADER}\n${line}\n`) });
     await page.getByLabel('CSV-bestand').setInputFiles(file(`${unique('K')};Licenties;Project;;Ada;;;2026;12.50;;;;`));
     await page.getByRole('button', { name: 'Controleren' }).click();
-    await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: 1 fouten');
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Controle klaar: 1 fout');
     await expectNoAxeViolations(page);
 
     await page.getByLabel('CSV-bestand').setInputFiles(file(`${unique('K')};Licenties;Project;;Ada;;;2026;12,50;;;;`));

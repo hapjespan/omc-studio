@@ -69,59 +69,59 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
 <template>
     <Head :title="t('notices.title')" />
     <div class="flex flex-col gap-4">
-    <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('notices.title') }}</h1>
-    <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
-    <form class="grid grid-cols-1 gap-4 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
-        <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
-            <NativeSelect :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
-                <option value="">{{ t('audit_log.filter.all') }}</option>
-                <option v-for="option in select.options()" :key="option.value" :value="option.value">{{ option.label }}</option>
-            </NativeSelect>
-        </Field>
-        <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
-        <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
-        <div class="flex items-end gap-2">
-            <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
-            <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
-        </div>
-    </form>
-    <p role="status" class="text-[12.5px] text-secondary" data-testid="notice-count">{{ plural('notices.count', total) }}</p>
-    <ol class="flex flex-col gap-3">
-        <li v-for="notice in notices" :key="notice.id" class="rounded-panel border border-hairline bg-white p-4 text-[13px]">
-            <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
-                <dt class="font-semibold text-secondary">{{ t('notices.column.time') }}</dt>
-                <dd><time>{{ notice.date }} {{ notice.last_time }}</time></dd>
-                <dt class="font-semibold text-secondary">{{ t('notices.column.kind') }}</dt>
-                <dd>{{ t(`notices.kind.${notice.kind}`) }}</dd>
-                <template v-if="notice.canvas">
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.canvas') }}</dt>
-                    <dd>{{ notice.canvas }}</dd>
-                </template>
-                <template v-if="notice.details.snapshot">
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.snapshot') }}</dt>
-                    <dd>{{ notice.details.snapshot }}</dd>
-                </template>
-                <template v-if="notice.details.year">
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.year') }}</dt>
-                    <dd>{{ notice.details.year }}</dd>
-                </template>
-                <template v-if="notice.kind === 'closing_check_failed'">
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.filter') }}</dt>
-                    <dd>{{ notice.details.filter }}</dd>
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.check') }}</dt>
-                    <dd>{{ notice.details.check }}</dd>
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.difference') }}</dt>
-                    <dd>{{ t('notices.cents', { cents: notice.details.differenceCents ?? 0 }) }}</dd>
-                </template>
-                <template v-if="showCount(notice)">
-                    <dt class="font-semibold text-secondary">{{ t('notices.column.count') }}</dt>
-                    <dd>{{ t('notices.times', { count: notice.count, time: notice.last_time }) }}</dd>
-                </template>
-            </dl>
-            <p v-if="notice.seen" :id="`notice-seen-${notice.id}`" tabindex="-1" class="mt-3"><Pill tone="success" icon="check">{{ t('notices.seen') }}</Pill></p>
-            <AppButton v-else class="mt-3" size="small" :aria-label="t('notices.mark_seen_for', { kind: t(`notices.kind.${notice.kind}`), date: notice.date, time: notice.last_time })" @click="markSeen(notice)">{{ t('notices.mark_seen') }}</AppButton>
-        </li>
-    </ol>
-    <p v-if="!notices.length" class="rounded-panel border border-hairline bg-white p-6 text-[13px] text-muted">{{ t('notices.empty') }}</p>
+        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('notices.title') }}</h1>
+        <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
+        <form class="grid grid-cols-1 gap-4 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
+            <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
+                <NativeSelect :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
+                    <option value="">{{ t('audit_log.filter.all') }}</option>
+                    <option v-for="option in select.options()" :key="option.value" :value="option.value">{{ option.label }}</option>
+                </NativeSelect>
+            </Field>
+            <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
+            <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
+            <div class="flex items-end gap-2">
+                <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
+                <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
+            </div>
+        </form>
+        <p role="status" class="text-[12.5px] text-secondary" data-testid="notice-count">{{ plural('notices.count', total) }}</p>
+        <ol class="flex flex-col gap-3">
+            <li v-for="notice in notices" :key="notice.id" class="rounded-panel border border-hairline bg-white p-4 text-[13px]">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
+                    <dt class="font-semibold text-secondary">{{ t('notices.column.time') }}</dt>
+                    <dd><time>{{ notice.date }} {{ notice.last_time }}</time></dd>
+                    <dt class="font-semibold text-secondary">{{ t('notices.column.kind') }}</dt>
+                    <dd>{{ t(`notices.kind.${notice.kind}`) }}</dd>
+                    <template v-if="notice.canvas">
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.canvas') }}</dt>
+                        <dd>{{ notice.canvas }}</dd>
+                    </template>
+                    <template v-if="notice.details.snapshot">
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.snapshot') }}</dt>
+                        <dd>{{ notice.details.snapshot }}</dd>
+                    </template>
+                    <template v-if="notice.details.year">
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.year') }}</dt>
+                        <dd>{{ notice.details.year }}</dd>
+                    </template>
+                    <template v-if="notice.kind === 'closing_check_failed'">
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.filter') }}</dt>
+                        <dd>{{ notice.details.filter }}</dd>
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.check') }}</dt>
+                        <dd>{{ notice.details.check }}</dd>
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.difference') }}</dt>
+                        <dd>{{ t('notices.cents', { cents: notice.details.differenceCents ?? 0 }) }}</dd>
+                    </template>
+                    <template v-if="showCount(notice)">
+                        <dt class="font-semibold text-secondary">{{ t('notices.column.count') }}</dt>
+                        <dd>{{ t('notices.times', { count: notice.count, time: notice.last_time }) }}</dd>
+                    </template>
+                </dl>
+                <p v-if="notice.seen" :id="`notice-seen-${notice.id}`" tabindex="-1" class="mt-3"><Pill tone="success" icon="check">{{ t('notices.seen') }}</Pill></p>
+                <AppButton v-else class="mt-3" size="small" :aria-label="t('notices.mark_seen_for', { kind: t(`notices.kind.${notice.kind}`), date: notice.date, time: notice.last_time })" @click="markSeen(notice)">{{ t('notices.mark_seen') }}</AppButton>
+            </li>
+        </ol>
+        <p v-if="!notices.length" class="rounded-panel border border-hairline bg-white p-6 text-[13px] text-muted">{{ t('notices.empty') }}</p>
     </div>
 </template>

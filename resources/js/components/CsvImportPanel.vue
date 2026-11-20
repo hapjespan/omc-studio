@@ -5,7 +5,7 @@ import FileField from './fields/FileField.vue';
 import AppButton from './ui/AppButton.vue';
 import ImportReport, { type ImportReportData } from './ImportReport.vue';
 import { postFile, refusalOf } from './upload';
-import { t } from '../i18n';
+import { plural, t } from '../i18n';
 
 const props = defineProps<{ id: string; heading: string; hint: string; previewUrl: string; commitUrl: string }>();
 const emit = defineEmits<{ done: [] }>();
@@ -43,7 +43,7 @@ async function check(): Promise<void> {
     if (!response.ok) return refused(response);
     report.value = await response.json();
     const errors = report.value!.totals.errors;
-    announce(errors === 0 ? t('import.checked_clean') : t('import.checked_errors', { count: errors }));
+    announce(errors === 0 ? t('import.checked_clean') : plural('import.checked_errors', errors));
 }
 
 async function commit(): Promise<void> {

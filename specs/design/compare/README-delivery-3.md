@@ -7,17 +7,19 @@ Status words: closed (with the commit), open (with the reason), deviating (with 
 Foundation gaps for the first session:
 - G-1 No panel component: the white panel (`rounded-panel border border-hairline bg-white`) is a class string, as on Kostenposten.
 - G-2 `AppButton` renders a button only; "Alles exporteren" must stay a link with `download` (test and accessibility), so its classes repeat the AppButton secondary look. An `href` mode would remove this copy.
-- G-3 No file field. `components/fields/FileField.vue` was added next to the other fields (label, hint, error through `Field`, 36 pixel box, 28 pixel native file button). Proposed for the foundation.
+- G-3 No file field (the native button label stays English, "Choose File"). `components/fields/FileField.vue` was added next to the other fields (label, hint, error through `Field`, 36 pixel box, 28 pixel native file button). Proposed for the foundation.
 - G-4 `Pill` has no danger tone; the import status "fout" uses the warning tone.
 - G-5 The shell status region repeats the announced message as visible text under the main content (seen under the Exchange panel); same as F-4 of Toewijzen.
-- G-6 `Finance/CostRecordImport.vue` (delivery 2, not in this task) still has the old buttons, bare file input and plain headings; it shares `ImportReport` and now gets its report styling but not its form.
+- G-6 `Finance/CostRecordImport.vue` now uses FileField, AppButton and a panel (review follow-up).
+- G-7 `Callout` has no danger tone; the figures message of `SnapshotView` and `View` keeps a hand-written danger box (the Sample data rule error uses `ErrorSummary`).
+- G-8 The three report tables (`ImportReport`, `CountsReport` and the Toewijzen lines) share their markup by convention only; one shared report-table component is a foundation task.
 
 ## Findings before the build (all screens)
 
 - D3-01 Buttons. Built `rounded-md border-[#848B95] px-3 py-1.5 text-[13px] font-semibold`: 32 pixels high, weight 600, hex literals, radius 6. Contract: 36 pixels (control), weight 500, tokens. Differed on height, weight and token use.
 - D3-02 File inputs. Native control in the browser default font (16px serif-like "Choose File"), no box, no border. Contract: field 36 high, 13px Inter, border `#848B95`.
 - D3-03 Panels. None; every form and report sat directly on the grey page. Contract: white panel, 1px `#DCDFE2`, radius 10, padding 16 to 24.
-- D3-04 Report tables (counts, errors, lines). Unstyled `<table>`: no padding, header 13px 600 black, no row separators. Contract and Kostenposten: header 11.5/600 secondary `#454C57`, cells 10px 12px, hairline row separators inside a bordered card.
+- D3-04 Report tables (counts, errors, lines). Unstyled `<table>`: no padding, header 13px 600 black, no row separators. Contract and Kostenposten: header 11.5/600 secondary `#454C57`, cells 10px 12px (list tables: 10px, 8px right, 12px left), hairline row separators inside a bordered card.
 - D3-05 Status text of the report lines ("nieuw", "fout") plain text. Contract: dot or pill, never colour alone.
 - D3-06 Page titles `text-[20px] font-semibold` without the 0.2px tracking and not in a header row; page content started at `mt-3` instead of the 16/24 grid.
 - D3-07 Versies. List form opened as a full-height overlay sheet (ListForm) instead of the docked panel; create button in the toolbar next to search; raw `<select>` for Boekjaar with the browser arrow; "Geïmporteerd" mark and the view link were never shown to administrators because the first column is the edit button; row "Verwijderen" button per row.
@@ -28,7 +30,7 @@ Foundation gaps for the first session:
 ## Versies (`Versions/Index.vue`, `SnapshotForm.vue`)
 
 - D3-07 closed: table in the shared `ListView` white panel (white, 1px rgb(220,223,226), radius 10px), title 20px/600 Space Grotesk in a header row with the primary "Momentopname maken" button (36px, ink fill, radius 6px, plus icon), form as the docked `ListDock` panel (360px wide, white, radius 10px, padding 16px) with `TextField`, `NativeSelect`, `TextArea`, primary "Opslaan" and "Annuleren" at 36px; archive and delete moved into the panel under the consequence text (Kostenposten pattern), so the row "Verwijderen" button is gone and `snapshot-form.spec.ts` opens the row first (markup change, intent kept: states what goes, removes the row, no undo). Columns "Geïmporteerd" (Pill, 11.5px) and "Openen" (link for every role, name in the accessible name) added; empty remark and maker read "geen" in muted.
-- Table header 11.5px/600 `#454C57`, cells 10px 12px 13px, name 600: measured.
+- Table header 11.5px/600 `#454C57`, cells 10px 12px (list tables: 10px, 8px right, 12px left) 13px, name 600: measured.
 - Status: closed (see commit list).
 
 ## Volledige export en import (`Admin/Exchange.vue`)
@@ -38,7 +40,7 @@ Foundation gaps for the first session:
 
 ## Importeren (`Overview/ImportCanvas.vue`, `CsvImportPanel.vue`, `ImportReport.vue`, `CountsReport.vue`)
 
-- D3-01 to D3-05 closed: the entry is a 36px `AppButton`; the panel is white (radius 10px, padding 24px, max width 576px); fields are the foundation `TextField`, `SelectField` and `FileField`; the reports are tables inside a bordered card (radius 8px, header 11.5/600 `#454C57`, cells 10px 12px, hairline separators); `CountsReport` serves both JSON screens, the error total is green at 0 and red above; line statuses are `Pill`s (gap G-4). The Overview page itself is not part of this task.
+- D3-01 to D3-05 closed: the entry is a 36px `AppButton`; the panel is white (radius 10px, padding 24px, max width 576px); fields are the foundation `TextField`, `SelectField` and `FileField`; the reports are tables inside a bordered card (radius 8px, header 11.5/600 `#454C57`, cells 10px 12px (list tables: 10px, 8px right, 12px left), hairline separators); `CountsReport` serves both JSON screens, the error total is green at 0 and red above; line statuses are `Pill`s (gap G-4). The Overview page itself is not part of this task.
 - The structure and allocation CSV panels share `CsvImportPanel`; measured on Toewijzen.
 
 ## Voorbeelddata (`Admin/SampleData.vue`)
@@ -60,4 +62,4 @@ Foundation gaps for the first session:
 ## Update after the merge with the Bekijken work
 
 - `Canvas/SnapshotView.vue` already uses the shell page-header targets (`HeaderSlot` title and actions), `OverlaySwitch`, `VersionSelect` with `ChipSelect` and the restyled `SnapshotBanner`: closed, nothing left to change there.
-- `canvas/ExportMenu.vue`: popover edge `#DCDFE2` with the contract shadow `0 1px 3px rgba(0,0,0,.12)`, menu items 32px high with radius 4, overlay switch with a 24px target and a 16px ink checkbox: closed (commit "style: export menu popover").
+- `canvas/ExportMenu.vue`: popover edge `#DCDFE2` with the contract shadow `0 1px 3px rgba(0,0,0,.12)`, menu items 32px high with radius 4, overlay switch with a 28px target (label height) and a 16px ink checkbox: closed (commit "style: export menu popover").

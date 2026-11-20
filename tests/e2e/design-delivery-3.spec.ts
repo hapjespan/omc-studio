@@ -144,6 +144,8 @@ test('CSV import on Toewijzen: panel, status pills and 36 pixel buttons in the r
     const pill = table.getByText('fout');
     expect(await style(pill, 'border-top-left-radius')).not.toBe('0px');
     expect(await style(pill, 'font-size')).toBe('11.5px');
+    expect(await height(pill)).toBeLessThanOrEqual(24);
+    expect(await height(table.getByRole('row').nth(1))).toBeLessThan(100);
     expect(await style(table.getByText(/./, { hasText: /kostenpost|code|onbekend/i }).last(), 'color')).toBe('rgb(161, 42, 30)');
     expect(await height(panel.getByRole('button', { name: 'Importeren', exact: true }))).toBe(36);
 });
@@ -193,4 +195,23 @@ test('Momentopname banner: surface card with the hairline border, radius 8 and S
     expect(await style(banner, 'border-top-color')).toBe('rgb(220, 223, 226)');
     expect(await style(banner, 'border-top-left-radius')).toBe('8px');
     expect(await style(banner.locator('p').first(), 'font-family')).toContain('Space Grotesk');
+    expect(await style(banner.locator('p').first(), 'font-size')).toBe('14px');
+});
+
+test('Exporteren menu: hairline popover with the contract shadow, 32 pixel items and a 28 pixel overlay switch', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${canvas.id}/view?overlay=financial`);
+
+    const toggle = page.getByLabel('Met overlay');
+    await expect(toggle).toBeVisible();
+    expect(await height(toggle.locator('..'))).toBe(28);
+    await page.getByRole('button', { name: 'Exporteren' }).click();
+    const menu = page.getByRole('menu', { name: 'Exporteren' });
+    await expect(menu).toBeVisible();
+    expect(await style(menu, 'border-top-color')).toBe('rgb(220, 223, 226)');
+    expect(await style(menu, 'box-shadow')).toContain('rgba(0, 0, 0, 0.12) 0px 1px 3px');
+    const item = menu.getByRole('menuitem').first();
+    expect(await height(item)).toBe(32);
+    expect(await style(item, 'border-top-left-radius')).toBe('4px');
 });

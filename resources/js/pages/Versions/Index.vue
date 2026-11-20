@@ -29,7 +29,7 @@ const columns: ListColumn[] = [
     { key: 'open', label: t('snap.open') },
 ];
 
-const shownRows = computed(() => props.rows.map((row) => ({ ...row, remark: row.remark ?? '', maker: row.maker ?? '', open: t('snap.open') })));
+const shownRows = computed(() => props.rows.map((row) => ({ ...row, remark: row.remark ?? '', maker: row.maker ?? '' })));
 
 const consequence = (row: ListRow): string => t('snap.delete_consequence', { name: row.name });
 const focusList = async (): Promise<void> => {
@@ -58,7 +58,7 @@ function load(query: ListState): void {
                     <template v-if="column.key === 'importedText'"><Pill v-if="row.imported">{{ t('snap.imported') }}</Pill></template>
                     <Link v-else-if="column.key === 'open'" :href="routes.snapshotView(row.id)" class="rounded-control font-medium text-accent underline">{{ t('snap.open') }}<span class="sr-only"> {{ row.name }}</span></Link>
                     <span v-else-if="column.key === 'name'" class="font-semibold">{{ row.name }}</span>
-                    <span v-else-if="column.key === 'remark' || column.key === 'maker'" :class="row[column.key] ? '' : 'text-muted'">{{ row[column.key] || t('cost_records.none_text') }}</span>
+                    <span v-else-if="column.key === 'remark' || column.key === 'maker'" :class="row[column.key] ? '' : 'text-muted'">{{ row[column.key] || t('snap.none') }}</span>
                     <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-if="canWrite" #form="{ row, close, requestClose, setDirty, requestDelete }">
@@ -73,6 +73,6 @@ function load(query: ListState): void {
                 </template>
             </ListView>
         </div>
-        <aside ref="dock" :aria-label="t('snap.title')" class="w-full empty:hidden lg:w-detail-panel" />
+        <aside ref="dock" :aria-label="t('snap.panel')" class="w-full empty:hidden lg:w-detail-panel" />
     </div>
 </template>

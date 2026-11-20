@@ -5,7 +5,7 @@ import CountsReport, { type CountsReportData } from '../../components/CountsRepo
 import { announce } from '../../components/feedback/status';
 import FileField from '../../components/fields/FileField.vue';
 import AppButton from '../../components/ui/AppButton.vue';
-import { t } from '../../i18n';
+import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 
 const totalKeys = ['organisations', 'canvases', 'cost_records', 'templates'] as const;
@@ -46,7 +46,7 @@ async function check(): Promise<void> {
     if (!response.ok) return refused(response);
     report.value = await response.json();
     const count = report.value!.count;
-    announce(count === 0 ? t('fullx.checked_clean') : t('fullx.checked_errors', { count }));
+    announce(count === 0 ? t('fullx.checked_clean') : plural('fullx.checked_errors', count));
 }
 
 async function commit(): Promise<void> {
@@ -83,6 +83,6 @@ function pick(picked: File | null): void {
                 </div>
             </form>
         </section>
-        <div v-if="report" class="rounded-panel border border-hairline bg-white p-6"><CountsReport id="full" prefix="fullx" :keys="totalKeys" :report="report" class="!mt-0" /></div>
+        <div v-if="report" class="rounded-panel border border-hairline bg-white p-6"><CountsReport id="full" prefix="fullx" :keys="totalKeys" :report="report" /></div>
     </div>
 </template>
