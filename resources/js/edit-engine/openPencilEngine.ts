@@ -11,7 +11,7 @@ import type { DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, Moun
 import { toPayload } from './payload';
 import { restrict } from './restrictions';
 import { buildScene, readPlaces } from './scene';
-import { keepSelectable } from './selection';
+import { keepSelectable, watchSelection } from './selection';
 
 const DIRECTION_ID = 'direction';
 
@@ -58,6 +58,10 @@ export class OpenPencilEngine implements DrawingEngine {
 
     getSelection(): string[] {
         return [...this.mounted().editor.state.selectedIds];
+    }
+
+    onSelectionChange(listener: (ids: string[]) => void): () => void {
+        return watchSelection(this.mounted().editor, listener);
     }
 
     onChange(listener: (change: FinishedAction) => void): () => void {

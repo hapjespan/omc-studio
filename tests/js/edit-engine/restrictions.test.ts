@@ -129,3 +129,19 @@ describe('selection of the drawing', () => {
         expect([...editor.state.selectedIds]).toEqual([]);
     });
 });
+
+describe('selection events of the drawing', () => {
+    it('reports the selection that remains after the filter', async () => {
+        const { watchSelection } = await import('../../../resources/js/edit-engine/selection');
+        const { editor } = load();
+        keepSelectable(editor, ['direction']);
+        const seen: string[][] = [];
+        watchSelection(editor, (ids) => seen.push(ids));
+        editor.select(['act-3']);
+        editor.select(['act-3', 'act-1']);
+        expect(seen.at(-1)).toEqual(expect.arrayContaining(['act-3', 'act-1']));
+        expect([...editor.state.selectedIds].sort()).toEqual(['act-1', 'act-3']);
+        editor.select(['direction', 'act-3']);
+        expect([...editor.state.selectedIds]).toEqual(['act-3']);
+    });
+});

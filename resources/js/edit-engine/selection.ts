@@ -1,5 +1,7 @@
 import type { Editor } from '@open-pencil/core/editor';
 
+export const watchSelection = (editor: Editor, listener: (ids: string[]) => void): (() => void) => editor.onEditorEvent('selection:changed', (ids) => listener([...ids]));
+
 export function keepSelectable(editor: Editor, lockedIds: string[]): () => void {
     const locked = new Set(lockedIds);
     const original = editor.select.bind(editor);

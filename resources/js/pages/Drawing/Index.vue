@@ -30,6 +30,7 @@ const tool = ref<'select' | 'pan'>('select');
 const zoom = ref(1);
 const selected = ref<string[]>([]);
 let timer = 0;
+let stopSelection = (): void => undefined;
 const setTool = (next: 'select' | 'pan'): void => {
     tool.value = next;
     engine.value?.setTool(next);
@@ -43,7 +44,7 @@ const showHint = (): void => {
     window.clearTimeout(hintTimer);
     hintTimer = window.setTimeout(() => (hint.value = ''), 6000);
 };
-const pick = (id: string): void => engine.value?.select([id]);
+const pick = (id: string, toggle: boolean): void => engine.value?.select(toggle ? (selected.value.includes(id) ? selected.value.filter((entry) => entry !== id) : [...selected.value, id]) : [id]);
 
 onMounted(async () => {
     try {
@@ -54,9 +55,9 @@ onMounted(async () => {
         await created.mount(host.value as HTMLElement, computed, { layout: automaticPayload(props.elements.map(({ id }) => id)), onTextAttempt: showHint });
         created.zoomToFit();
         engine.value = created;
+        stopSelection = created.onSelectionChange((ids) => (selected.value = ids));
         timer = window.setInterval(() => {
             zoom.value = created.getZoom();
-            selected.value = created.getSelection();
         }, 200);
         state.value = 'ready';
     } catch {
@@ -65,6 +66,7 @@ onMounted(async () => {
 });
 onBeforeUnmount(() => {
     window.clearInterval(timer);
+    stopSelection();
     window.clearTimeout(hintTimer);
     engine.value?.destroy();
 });

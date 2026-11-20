@@ -57,6 +57,7 @@ export interface DrawingEngine {
     mount(element: HTMLElement, scene: DrawnCanvas, options: MountOptions): Promise<void>;
     getLayout(): LayoutPayload;
     getSelection(): string[];
+    onSelectionChange(listener: (ids: string[]) => void): () => void;
     onChange(listener: (change: FinishedAction) => void): () => void;
     select(ids: string[]): void;
     apply(command: DrawingCommand): void;
