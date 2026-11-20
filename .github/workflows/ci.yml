@@ -172,7 +172,7 @@ jobs:
             [ "$n" -ge 3 ] && exit 1
             sleep 20
           done
-      - run: xvfb-run -a npx playwright test --grep '@performance' --workers=1 --retries=0
+      - run: npx playwright test --grep '@performance' --workers=1 --retries=0
 
   audit:
     name: Dependency audits

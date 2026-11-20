@@ -522,10 +522,8 @@
     "organisations.kind": "Organisatie",
     "layout.warning.overlap": "Overlapt: :name en :other",
     "drawing.layers": "Lagen",
-    "drawing.layers_empty": "Geen elementen",
     "drawing.undo": "Ongedaan maken",
     "drawing.redo": "Opnieuw",
-    "drawing.save_saved": "Alles opgeslagen",
     "drawing.engine_note": "Tekenvlak: OpenPencil, lokaal meegeleverd",
     "drawing.auto_all": "Alles automatisch opmaken",
     "drawing.fit": "Passend maken",
@@ -541,5 +539,6 @@
     "drawing.loading": "Tekenvlak laden",
     "drawing.failed": "Het tekenvlak kon niet worden geladen",
     "drawing.text_hint": "Tekst wijzig je in Invoeren",
-    "drawing.direction_cut": "Koerstekst past niet in de koersbalk"
+    "drawing.direction_cut": "Koerstekst past niet in de koersbalk",
+    "drawing.selected_count": ":count geselecteerd"
 }

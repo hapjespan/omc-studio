@@ -1,9 +1,12 @@
 import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import { loadDrawingWithFullPages } from './shell/fullLoad';
 import AppShell from './shell/AppShell.vue';
 
 let appName = '';
+
+loadDrawingWithFullPages();
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

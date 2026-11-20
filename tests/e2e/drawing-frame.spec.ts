@@ -22,7 +22,6 @@ test('Tekenen shows Lagen, the Artboard, properties, toolbar and header', async 
     await expect(toolbar.getByText(/^Zoom \d+%$/)).toBeVisible();
     for (const name of ['Ongedaan maken', 'Opnieuw', 'Alles automatisch opmaken', 'Passend maken']) await expect(page.getByRole('button', { name })).toBeVisible();
     await expect(page.getByText('Tekenvlak: OpenPencil, lokaal meegeleverd')).toBeVisible();
-    await expect(page.getByText('Alles opgeslagen')).toBeVisible();
 
     for (const absent of ['Tekst', 'Pen', 'Vorm', 'Afbeelding', 'Component', 'Samenwerken']) await expect(toolbar.getByRole('button', { name: absent })).toHaveCount(0);
     await expectNoAxeViolations(page);
@@ -45,4 +44,19 @@ test('Tekenen selection in Lagen reaches the drawing', async ({ page }) => {
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
     await page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true }).click();
     await expect(page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the mode switch loads Tekenen as a full page under its own policy and leaves it again', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${canvas.id}/entry`);
+    await page.getByRole('link', { name: 'Tekenen' }).click();
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await page.getByRole('link', { name: 'Bekijken' }).click();
+    await page.waitForURL(/\/view$/);
+    const policy = await page.evaluate(async () => (await fetch(location.href)).headers.get('content-security-policy'));
+    expect(policy).not.toContain('wasm-unsafe-eval');
+    await page.getByRole('link', { name: 'Tekenen' }).click();
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await expect(page.getByRole('group', { name: 'Modus' })).toHaveCount(1);
 });

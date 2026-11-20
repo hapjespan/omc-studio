@@ -114,6 +114,11 @@ class CiWorkflowTest extends TestCase
         $this->assertStringContainsString('node scripts/check-audit.mjs', $commands);
     }
 
+    public function test_the_end_to_end_job_runs_under_a_virtual_display_for_the_drawing_engine(): void
+    {
+        $this->assertStringContainsString('xvfb-run -a npx playwright test', $this->commands('e2e'));
+    }
+
     public function test_the_static_checks_run(): void
     {
         $this->assertStringContainsString('npm run check', $this->commands('js'));

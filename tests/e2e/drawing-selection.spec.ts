@@ -39,6 +39,7 @@ test('the Direction band is not a row in Lagen and a click on it selects nothing
     const layers = await open(page);
     await expect(layers.getByRole('button', { name: 'Koers' })).toHaveCount(0);
     const box = (await page.locator('[data-drawing-surface]').boundingBox())!;
-    await page.mouse.click(box.x + box.width / 2, box.y + 12);
+    for (const offset of [8, 24, 40, 56, 72]) await page.mouse.click(box.x + box.width / 2, box.y + offset);
     await expect(pressed(layers)).toHaveCount(0);
+    await expect(page.getByText('Niets geselecteerd')).toBeVisible();
 });

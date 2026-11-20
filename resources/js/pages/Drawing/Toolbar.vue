@@ -12,6 +12,6 @@ defineEmits<{ tool: [tool: 'select' | 'pan'] }>();
         <AppButton size="dense" :aria-pressed="tool === 'pan'" :variant="tool === 'pan' ? 'primary' : 'secondary'" @click="$emit('tool', 'pan')">{{ t('drawing.tool_pan') }}</AppButton>
         <AppButton size="dense" disabled>{{ t('drawing.tool_align') }}</AppButton>
         <AppButton size="dense" disabled>{{ t('drawing.tool_distribute') }}</AppButton>
-        <span class="px-2 text-[13px] text-secondary" role="status">{{ t('drawing.zoom', { percent: Math.round(zoom * 100) }) }}</span>
+        <span class="px-2 text-[13px] text-secondary">{{ t('drawing.zoom', { percent: Math.round(zoom * 100) }) }}</span>
     </div>
 </template>

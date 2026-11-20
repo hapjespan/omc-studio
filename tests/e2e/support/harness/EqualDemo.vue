@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import CanvasView from '../../../../resources/js/canvas/CanvasView.vue';
 import { createDrawingEngine } from '../../../../resources/js/edit-engine';
-import { automaticPayload } from '../../../../resources/js/edit-engine/payload';
+import { automaticPayload } from '../../../../resources/js/edit-engine/automaticPayload';
 import { loadCanvasFonts } from '../../../../resources/js/layout/browserMeasurer';
 import type { BlockStyle, DrawnBlock, DrawnCanvas } from '../../../../resources/js/layout/types';
 

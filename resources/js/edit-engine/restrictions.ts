@@ -34,7 +34,7 @@ export function clampToParent(node: Box, parent: Pick<SceneNode, 'width' | 'heig
     return next;
 }
 
-export function restrict(editor: Editor, graph: SceneGraph, lockedIds: string[], onText: () => void = () => undefined): Restrictions {
+export function restrict(editor: Editor, graph: SceneGraph, lockedIds: string[], onText: () => void = () => undefined, frozenIds: string[] = []): Restrictions {
     const refusals: Refusal[] = [];
     const originals = new Map<string, Method>();
     const target = graph as unknown as Record<string, Method>;
@@ -43,6 +43,7 @@ export function restrict(editor: Editor, graph: SceneGraph, lockedIds: string[],
         if (node.id.endsWith(TEXT_SUFFIX)) locked.add(node.id);
     }
     for (const id of locked) graph.updateNode(id, { locked: true });
+    for (const id of frozenIds) locked.add(id);
 
     const patch = (name: string, replacement: Method) => {
         originals.set(name, target[name]);

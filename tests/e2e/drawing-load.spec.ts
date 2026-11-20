@@ -24,7 +24,13 @@ test('the Tekenen bundle is not part of the other pages', async ({ page }) => {
     await signInAs(page, 'reader');
     const requested: string[] = [];
     page.on('request', (request) => requested.push(request.url()));
+    const scripts: string[] = [];
+    page.on('response', async (response) => {
+        if (response.url().endsWith('.js')) scripts.push(await response.text());
+    });
     await page.goto('/overview');
     await page.waitForLoadState('networkidle');
     expect(requested.filter((url) => /edit-engine|canvaskit/.test(url))).toEqual([]);
+    expect(scripts.length).toBeGreaterThan(0);
+    expect(scripts.filter((source) => source.includes('reparentNode') || source.includes('createEditor'))).toEqual([]);
 });

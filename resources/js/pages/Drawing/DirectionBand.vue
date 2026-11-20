@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import Callout from '../../components/ui/Callout.vue';
 import { directionText } from '../../canvas/HoverContent.vue';
 import { t } from '../../i18n';
@@ -6,6 +7,7 @@ import type { DrawnCanvas, LayoutStatement } from '../../layout';
 
 defineProps<{ drawn: DrawnCanvas; statements: LayoutStatement[] }>();
 const emit = defineEmits<{ peek: [text: string | null] }>();
+const closed = ref<string | null>(null);
 const full = (statements: LayoutStatement[], key: 'mission' | 'vision' | 'goals'): string => directionText(statements, key).join('\n');
 </script>
 
@@ -21,14 +23,15 @@ const full = (statements: LayoutStatement[], key: 'mission' | 'vision' | 'goals'
                     :aria-label="column.truncated ? (column.label ?? undefined) : undefined"
                     :data-direction="column.key"
                     :data-truncated="column.truncated"
-                    @pointerenter="column.truncated && emit('peek', full(statements, column.key as 'mission'))"
+                    @keydown.escape="closed = column.key"
+                    @pointerenter="closed = null; column.truncated && emit('peek', full(statements, column.key as 'mission'))"
                     @pointerleave="column.truncated && emit('peek', null)"
-                    @focus="column.truncated && emit('peek', full(statements, column.key as 'mission'))"
+                    @focus="closed = null; column.truncated && emit('peek', full(statements, column.key as 'mission'))"
                     @blur="column.truncated && emit('peek', null)"
                 >
                     <p class="text-[11px] font-semibold uppercase text-secondary">{{ column.label }}</p>
                     <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre">{{ line }}</p>
-                    <p v-if="column.truncated" class="absolute left-0 top-full z-10 mt-1 hidden max-w-[420px] whitespace-pre-line rounded-md border border-edge bg-white px-3 py-2 shadow group-focus-within:block group-hover:block" role="note" data-direction-full>{{ full(statements, column.key as 'mission') }}</p>
+                    <p v-if="column.truncated" class="absolute left-0 top-full z-10 mt-1 hidden max-w-[420px] whitespace-pre-line rounded-md border border-edge bg-white px-3 py-2 shadow group-focus-within:block group-hover:block" :class="{ '!hidden': closed === column.key }" role="note" data-direction-full>{{ full(statements, column.key as 'mission') }}</p>
                 </div>
             </template>
         </div>

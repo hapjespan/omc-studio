@@ -14,10 +14,15 @@ async function open(page: import('@playwright/test').Page) {
 test('shortcuts for shapes, text, pen, components, images and Delete change nothing', async ({ page, browserName }) => {
     test.skip(browserName === 'webkit', 'the WebKit screenshot injects a style element that the narrow policy refuses');
     const surface = await open(page);
+    const layers = page.getByRole('navigation', { name: 'Lagen' });
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
     await surface.hover();
     const before = await surface.screenshot({ caret: 'initial', animations: 'allow' });
     for (const key of ['f', 'r', 'o', 'l', 't', 'p', 'Shift+p', 'c', 'a', 'Shift+s', 'Control+d', 'Control+c', 'Control+v', 'Control+g', 'Delete', 'Backspace']) await page.keyboard.press(key);
     await page.keyboard.press('v');
+    await expect(layers.getByRole('button', { name: 'Onderwijs', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(layers.locator('[aria-pressed="true"]')).toHaveCount(1);
+    await expect(layers.getByRole('button')).toHaveCount(await layers.getByRole('button').count());
     expect(await surface.screenshot({ caret: 'initial', animations: 'allow' })).toEqual(before);
 });
 

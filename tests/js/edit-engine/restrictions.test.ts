@@ -130,6 +130,24 @@ describe('selection of the drawing', () => {
     });
 });
 
+describe('the Artboard', () => {
+    it('cannot be selected, moved, resized or renamed while its blocks stay editable', () => {
+        const { graph, editor } = load();
+        keepSelectable(editor, ['direction', 'artboard']);
+        restrict(editor, graph, [], () => undefined, ['artboard']);
+        const before = graph.getNode('artboard')!;
+        const box = [before.x, before.y, before.width, before.height, before.name];
+        graph.updateNode('artboard', { x: 50, width: 100, name: 'other' });
+        editor.select(['artboard']);
+        expect([...editor.state.selectedIds]).toEqual([]);
+        expect([before.x, before.y, before.width, before.height, before.name]).toEqual(box);
+        editor.select(['act-3']);
+        expect([...editor.state.selectedIds]).toEqual(['act-3']);
+        graph.updateNode('act-3', { x: 10 });
+        expect(graph.getNode('act-3')!.x).toBe(10);
+    });
+});
+
 describe('selection events of the drawing', () => {
     it('reports the selection that remains after the filter', async () => {
         const { watchSelection } = await import('../../../resources/js/edit-engine/selection');

@@ -29,11 +29,3 @@ export function toPayload(base: LayoutPayload, canvas: DrawnCanvas, places: Map<
 
     return { structure_version: base.structure_version, layout_version: base.layout_version, format_version: base.format_version, areas, elements };
 }
-
-export const automaticPayload = (ids: string[]): LayoutPayload => ({
-    structure_version: 0,
-    layout_version: 0,
-    format_version: 1,
-    areas: {},
-    elements: Object.fromEntries(ids.map((id) => [id, { mode: 'automatic' as const }])),
-});

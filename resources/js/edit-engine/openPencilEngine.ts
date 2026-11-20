@@ -10,10 +10,11 @@ import { loadFace, registerFonts } from './fonts';
 import type { DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
 import { toPayload } from './payload';
 import { restrict } from './restrictions';
-import { buildScene, readPlaces } from './scene';
+import { ARTBOARD_ID, buildScene, readPlaces } from './scene';
 import { keepSelectable, watchSelection } from './selection';
 
 const DIRECTION_ID = 'direction';
+const READY_TIMEOUT = 20000;
 
 export class OpenPencilEngine implements DrawingEngine {
     private editor: Editor | null = null;
@@ -43,10 +44,20 @@ export class OpenPencilEngine implements DrawingEngine {
         this.base = options.layout;
         this.editor = editor;
         const locked = [DIRECTION_ID];
-        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt).release, keepSelectable(editor, locked));
+        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID]).release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
         this.watch(editor, graph, scene);
-        await new Promise<void>((resolve) => {
-            this.app = createApp({ render: () => h(DrawingSurface, { editor, onReady: resolve }) });
+        await new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error('The drawing surface did not become ready.')), READY_TIMEOUT);
+            this.app = createApp({
+                render: () =>
+                    h(DrawingSurface, {
+                        editor,
+                        onReady: () => {
+                            clearTimeout(timer);
+                            resolve();
+                        },
+                    }),
+            });
             this.app.mount(element);
         });
     }
