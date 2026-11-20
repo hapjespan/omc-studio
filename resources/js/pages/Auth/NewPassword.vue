@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthPanel from './AuthPanel.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { nextTick } from 'vue';
 import { useForm } from '@inertiajs/vue3';
@@ -19,8 +20,7 @@ function submit(): void {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-sm flex-col gap-4 p-6">
-        <h1 class="text-[20px] font-semibold text-ink">{{ t('auth.new_password_title') }}</h1>
+    <AuthPanel :title="t('auth.new_password_title')">
         <p class="text-[13px] text-ink">{{ t('auth.new_password_intro') }}</p>
         <ErrorSummary :errors="form.errors" />
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
@@ -28,5 +28,5 @@ function submit(): void {
             <TextField id="password_confirmation" v-model="form.password_confirmation" :label="t('fields.password_confirmation')" type="password" autocomplete="new-password" :error="form.errors.password_confirmation" />
             <AppButton variant="primary" type="submit" :disabled="form.processing">{{ t('auth.new_password_submit') }}</AppButton>
         </form>
-    </main>
+    </AuthPanel>
 </template>

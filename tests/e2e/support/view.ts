@@ -26,3 +26,10 @@ export function seedBulkCanvas(domains: number, activitiesPerDomain: number): Vi
 
     return { id: Number(/ID=(\d+)/.exec(run(code))?.[1]), name };
 }
+
+export function seedListCanvas(): ViewCanvas {
+    const name = `Lijst ${randomUUID().slice(0, 8)}`;
+    const code = `${prelude(name)} $g = $e('actors', 'domain', 'Klanten'); $e('actors', 'activity', 'Ouders', $g); $e('actors', 'activity', 'Kinderen', $g); App\\Models\\Statement::create(['canvas_id' => $c->id, 'kind' => 'goal', 'title' => 'Eén kindprofiel.', 'body' => 'Van opvang tot school', 'position' => 1]); echo 'ID=' . $c->id;`;
+
+    return { id: Number(/ID=(\d+)/.exec(run(code))?.[1]), name };
+}

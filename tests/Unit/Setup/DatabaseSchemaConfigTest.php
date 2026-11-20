@@ -17,6 +17,10 @@ class DatabaseSchemaConfigTest extends TestCase
 
     public function test_the_postgres_search_path_follows_db_schema_for_a_throwaway_schema(): void
     {
+        if (getenv('DB_SCHEMA') !== false) {
+            $this->markTestSkipped('DB_SCHEMA is set for a throwaway schema run');
+        }
+
         putenv('DB_SCHEMA=ci_scratch');
 
         try {

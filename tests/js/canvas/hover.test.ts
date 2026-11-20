@@ -52,7 +52,7 @@ describe('directionText', () => {
     ];
 
     it('returns the full statements of a column in order', () => {
-        expect(directionText(statements, 'goals')).toEqual(['Minder', 'Groei: Meer']);
+        expect(directionText(statements, 'goals')).toEqual(['1. Minder', '2. Groei Meer']);
         expect(directionText(statements, 'vision')).toEqual(['Ver']);
         expect(directionText(statements, 'logo')).toEqual([]);
         expect(DIRECTION_PREFIX).toBe('direction:');

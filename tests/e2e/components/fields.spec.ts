@@ -1,7 +1,8 @@
 import { expect, test } from '../support/guards';
 import { expectNoAxeViolations } from '../support/guards';
+import { HARNESS_URL } from '../support/ports';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: HARNESS_URL });
 
 test('a refused save shows the messages next to the fields and moves focus', async ({ page }) => {
     await page.goto('/?demo=Fields');

@@ -26,7 +26,7 @@ function set(name: string, value: string): void {
 
 <template>
     <div class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-end gap-3">
+        <div class="flex flex-wrap items-center gap-3">
             <div v-for="filter in filters" :key="filter.name" class="flex flex-col gap-1">
                 <label :for="`${prefix}-${filter.name}`" class="text-[13px] font-semibold">{{ filter.label }}</label>
                 <select :id="`${prefix}-${filter.name}`" :value="active[filter.name] ?? ''" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px]" @change="set(filter.name, ($event.target as HTMLSelectElement).value)">

@@ -21,8 +21,7 @@ watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | 
 const errors = computed(() => page.props.errors as Record<string, string>);
 const listError = computed(() => (errors.value.rule ? { rule: errors.value.rule } : {}));
 const columns = [
-    { key: 'name', label: t('fields.name'), sortable: true },
-    { key: 'email', label: t('fields.email'), sortable: true },
+    { key: 'name', label: t('fields.name'), sortable: true, secondary: 'email' },
     { key: 'roleLabel', label: t('users.role') },
 ];
 const roleOptions = [
@@ -109,31 +108,35 @@ async function copyPassword(): Promise<void> {
 
 <template>
     <Head :title="t('users.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('users.title') }}</h1>
+    <h1 class="font-display text-[22px] font-semibold">{{ t('users.title') }}</h1>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
-    <section v-if="oneTimePassword" role="region" aria-labelledby="one-time-password-title" class="mt-3 flex flex-col gap-2 rounded-md border border-edge p-3">
+    <section v-if="oneTimePassword" role="region" aria-labelledby="one-time-password-title" class="mt-3 flex flex-col gap-2 rounded-panel border border-hairline bg-white p-4">
         <h2 id="one-time-password-title" class="text-[14px] font-semibold">{{ t('users.one_time_password_title') }}</h2>
         <p class="text-[12.5px] text-secondary">{{ t('users.one_time_password_hint') }}</p>
         <code data-testid="one-time-password" class="select-all font-mono text-[13px]">{{ oneTimePassword }}</code>
         <div><AppButton type="button" @click="copyPassword">{{ t('users.copy') }}</AppButton></div>
     </section>
     <div class="mt-3">
-        <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :create-title="t('users.new')" @change="load">
-            <template #form="{ row, close, setDirty }">
+        <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :kind="t('users.kind')" :create-title="t('users.new')" @change="load">
+            <template #form="{ row, close, setDirty, requestClose }">
                 <form :key="row?.id ?? 'new'" novalidate class="flex flex-col gap-3" @vue:mounted="open(row, setDirty)" @submit.prevent="submit(row, close)">
                     <div role="alert"><ErrorSummary :errors="errors" /></div>
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="setDirty(changed())" />
                     <TextField id="email" v-model="draft.email" :label="t('fields.email')" type="email" autocomplete="email" :error="errors.email" @update:model-value="setDirty(changed())" />
                     <TextField v-if="reauthenticating(row)" id="current_password" v-model="draft.currentPassword" :label="t('fields.current_password')" type="password" autocomplete="current-password" :error="errors.current_password" />
                     <SelectField id="role" v-model="draft.role" :label="t('users.role')" :options="roleOptions" :disabled="isSelf(row)" :hint="isSelf(row) ? t('users.own_account') : undefined" :error="errors.role" @update:model-value="setDirty(changed())" />
-                    <div class="flex flex-wrap gap-2">
-                        <AppButton type="submit" :disabled="busy">{{ t('users.save') }}</AppButton>
-                        <template v-if="row && !isSelf(row)">
-                            <AppButton type="button" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</AppButton>
-                            <AppButton v-if="hasSecondFactor(row)" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</AppButton>
-                            <AppButton type="button" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</AppButton>
-                        </template>
-                        <AppButton variant="danger" v-if="row" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" @click="confirmingDelete = true">{{ t('list.delete') }}</AppButton>
+                    <div class="flex gap-2">
+                        <AppButton variant="primary" type="submit" :disabled="busy">{{ t('users.save') }}</AppButton>
+                        <AppButton type="button" @click="requestClose">{{ t('list.cancel') }}</AppButton>
+                    </div>
+                    <div v-if="row && !isSelf(row)" class="flex flex-wrap gap-2">
+                        <AppButton type="button" @click="resetPassword(row, close)">{{ t('users.reset_password') }}</AppButton>
+                        <AppButton v-if="hasSecondFactor(row)" @click="confirmingFactor = true">{{ t('users.reset_second_factor') }}</AppButton>
+                        <AppButton type="button" @click="confirmingSessions = true">{{ t('users.end_sessions') }}</AppButton>
+                    </div>
+                    <div v-if="row" class="flex flex-col gap-3 border-t border-hairline pt-3">
+                        <p v-if="!isSelf(row)" class="text-[12.5px] text-secondary">{{ t('users.delete_consequence') }}</p>
+                        <div><AppButton variant="danger" :disabled="isSelf(row)" :aria-describedby="isSelf(row) ? 'role-hint' : undefined" @click="confirmingDelete = true">{{ t('list.delete') }}</AppButton></div>
                     </div>
                     <ConfirmDelete v-if="row" v-model:open="confirmingDelete" :name="String(row.name)" :consequence="t('users.delete_consequence')" @confirm="remove(row, close)" />
                     <Dialog v-if="row" v-model:open="confirmingFactor" :title="t('users.reset_second_factor_title', { name: String(row.name) })" :description="t('users.reset_second_factor_consequence')">

@@ -1,5 +1,6 @@
 export const ICON_PATHS = {
     search: 'M11.2 11.2 14.2 14.2M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z',
+    minus: 'M3.5 8h9',
     plus: 'M8 3.5v9M3.5 8h9',
     check: 'm3.3 8.4 3.1 3.1 6.3-6.6',
     'chevron-up': 'm4.2 9.8 3.8-3.8 3.8 3.8',

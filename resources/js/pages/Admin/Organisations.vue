@@ -57,11 +57,11 @@ function archive(row: ListRow, close: () => void): void {
 
 <template>
     <Head :title="t('organisations.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('organisations.title') }}</h1>
+    <h1 class="font-display text-[22px] font-semibold">{{ t('organisations.title') }}</h1>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">
-        <ListView ref="list" :title="t('organisations.title')" :columns="columns" :rows="rows" :count="count" :query="query" can-delete archivable require-name :undoable="false" :consequence="consequence" :create-title="t('organisations.new')" @change="load" @delete="remove" @restore="restore">
-            <template #form="{ row, close, setDirty }">
+        <ListView ref="list" :title="t('organisations.title')" :columns="columns" :rows="rows" :count="count" :query="query" can-delete archivable require-name :undoable="false" :kind="t('organisations.kind')" :consequence="consequence" :create-title="t('organisations.new')" @change="load" @delete="remove" @restore="restore">
+            <template #form="{ row, close, setDirty, requestClose }">
                 <form :key="row?.id ?? 'new'" novalidate class="flex flex-col gap-3" enctype="multipart/form-data" @vue:mounted="open(row, setDirty)" @submit.prevent="submit(row, close)">
                     <div role="alert"><ErrorSummary :errors="errors" /></div>
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="setDirty(draft.name !== initial)" />
@@ -70,8 +70,11 @@ function archive(row: ListRow, close: () => void): void {
                         <input id="logo" type="file" accept="image/png,image/jpeg" :aria-describedby="describedby" :aria-invalid="invalid || undefined" @change="draft.logo = ($event.target as HTMLInputElement).files?.[0] ?? null; setDirty(true)" />
                     </Field>
                     <div class="flex gap-2">
-                        <AppButton type="submit" :disabled="busy">{{ t('organisations.save') }}</AppButton>
-                        <AppButton v-if="row && !row.archived_at" @click="archive(row, close)">{{ t('organisations.archive') }}</AppButton>
+                        <AppButton variant="primary" type="submit" :disabled="busy">{{ t('organisations.save') }}</AppButton>
+                        <AppButton type="button" @click="requestClose">{{ t('list.cancel') }}</AppButton>
+                    </div>
+                    <div v-if="row && !row.archived_at" class="border-t border-hairline pt-3">
+                        <AppButton @click="archive(row, close)">{{ t('organisations.archive') }}</AppButton>
                     </div>
                 </form>
             </template>

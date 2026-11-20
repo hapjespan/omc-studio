@@ -66,14 +66,14 @@ function downloadCodes(): void {
 </script>
 
 <template>
-    <section role="region" aria-labelledby="second_factor_title" class="flex flex-col gap-4">
+    <section role="region" aria-labelledby="second_factor_title" class="flex flex-col gap-4 rounded-panel border border-hairline bg-white p-5">
         <h2 id="second_factor_title" class="text-[16px] font-semibold text-ink">{{ t('second_factor.title') }}</h2>
         <p class="text-[13px] text-secondary">{{ active ? t('second_factor.active') : t('second_factor.inactive') }}</p>
 
         <div v-if="codes?.length" class="flex flex-col gap-2">
             <h3 id="second_factor_codes_title" tabindex="-1" class="text-[14px] font-semibold text-ink">{{ t('second_factor.codes_title') }}</h3>
             <p class="text-[13px] text-secondary">{{ t('second_factor.codes_intro') }}</p>
-            <ul data-testid="recovery-codes" class="flex flex-col gap-1 rounded-md bg-accent-soft px-3 py-2 font-mono text-[13px] text-ink">
+            <ul data-testid="recovery-codes" class="flex flex-col gap-1 rounded-control bg-accent-soft px-3 py-2 font-mono text-[13px] text-ink">
                 <li v-for="code in codes" :key="code">{{ code }}</li>
             </ul>
             <div class="flex gap-2">
