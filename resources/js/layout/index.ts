@@ -1,6 +1,7 @@
 import { areaChrome, AREA_HEADER, AREA_LETTER_SPACING, AREA_PADDING, arrangeAreas, areaWidth, ARTBOARD_HEIGHT, ARTBOARD_WIDTH } from './arrangeAreas';
 import { DIRECTION_HEIGHT, layoutDirection } from './direction';
 import { flowDomains, type Flow, type FlowContext } from './flowDomains';
+import { adjustedWarnings } from './placement';
 import { flowList } from './listAreas';
 import { resolveStyle } from './resolveStyle';
 import { manualRect, stackOrder } from './manual';
@@ -60,7 +61,7 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
     const cut: LayoutWarning[] = direction.filter((column) => column.truncated).map((column) => ({ kind: 'directionTextCut', column: column.key }));
     const { warnings, beyondArtboardCount } = computeWarnings(domainsByArea, blocks, new Map([...input.areas.map((area): [string, string] => [area.key, area.label]), ...input.elements.map((element): [string, string] => [element.id, element.name])]));
 
-    return { blocks, direction, warnings: [...cut, ...warnings], beyondArtboardCount };
+    return { blocks, direction, warnings: [...cut, ...warnings, ...adjustedWarnings(input.elements, blocks, rect)], beyondArtboardCount };
 }
 
 export type * from './types';

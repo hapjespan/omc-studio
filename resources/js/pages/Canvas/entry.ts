@@ -103,7 +103,7 @@ export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], 
     const layoutAreas = areas.map(({ key, kind, label }, index) => ({ key, kind: kind as AreaKind, label, position: index + 1 }));
     const { warnings } = computeCanvasLayout({ areas: layoutAreas, elements: elements.filter(({ archived }) => !archived), statements: [], directionLabels: { mission: '', vision: '', goals: '' }, layouts }, measurer);
     const list = areas.find(({ key }) => key === area)?.kind === 'list';
-    const keys = { emptyCluster: 'entry.warning.empty_cluster', domainWithoutActivities: list ? 'entry.warning.group_without_items' : 'entry.warning.domain_without_activities', beyondArtboard: 'entry.warning.beyond_artboard', overlap: 'layout.warning.overlap' };
+    const keys = { emptyCluster: 'entry.warning.empty_cluster', domainWithoutActivities: list ? 'entry.warning.group_without_items' : 'entry.warning.domain_without_activities', beyondArtboard: 'entry.warning.beyond_artboard', overlap: 'layout.warning.overlap', adjusted: 'layout.warning.adjusted' };
     const known = new Set(elements.map(({ id }) => id));
 
     return warnings
