@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { CanvasLayoutInput, DrawnCanvas } from '../../layout';
+import type { CanvasLayoutInput, DrawnCanvas, TextMeasurer } from '../../layout';
 import { modeSwitchPlacement } from '../../shell/modes';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
 import type { DrawingEngine } from '../../edit-engine';
-import { storedPayload } from '../../edit-engine/automaticPayload';
+import { mergeLayout, payloadLayouts, storedPayload } from '../../edit-engine/automaticPayload';
+import type { LayoutPayload } from '../../edit-engine';
 import { t } from '../../i18n';
 import { commandForKey } from '../../edit-engine/keyboard';
 import type { BoxValues, DrawingCommand } from '../../edit-engine';
 import Announcer from './Announcer.vue';
+import ConflictDialog from './ConflictDialog.vue';
+import { SaveQueue, type SaveFailure, type SaveStatus } from './SaveQueue';
 import DirectionBand from './DirectionBand.vue';
 import Header from './Header.vue';
 import LayersPanel from './LayersPanel.vue';
@@ -43,6 +46,7 @@ const hint = ref('');
 const notice = ref('');
 const box = ref<BoxValues | null>(null);
 const grid = ref(false);
+const saveStatus = ref<SaveStatus>('idle');
 const seen = ref<string[]>([]);
 const fresh = computed(() => props.newElements.filter((id) => !seen.value.includes(id)));
 const canUndo = ref(false);
@@ -51,6 +55,8 @@ const tool = ref<'select' | 'pan'>('select');
 const zoom = ref(1);
 const selected = ref<string[]>([]);
 let created: DrawingEngine | null = null;
+let queue: SaveQueue | null = null;
+let measurer: TextMeasurer | null = null;
 let unmounted = false;
 let timer = 0;
 let hintTimer = 0;
@@ -109,23 +115,32 @@ function release(): void {
     engine.value = null;
 }
 
-onMounted(async () => {
+const onFailure = (failure: SaveFailure): void => {
+    notice.value = failure.kind === 'refused' ? failure.messages.join(' ') : t('drawing.save_failed');
+};
+
+async function start(payload: LayoutPayload): Promise<void> {
+    release();
+    state.value = 'loading';
     try {
-        const computed = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, await createBrowserMeasurer());
+        const computed = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: payloadLayouts(payload) }, measurer ?? (measurer = await createBrowserMeasurer()));
         drawn.value = computed;
         const { createDrawingEngine } = await import('../../edit-engine');
         created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, computed, { layout: storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions), onTextAttempt: showHint, onPushBack: (ids) => (notice.value = t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
+        await created.mount(host.value as HTMLElement, computed, { layout: payload, onTextAttempt: showHint, onPushBack: (ids) => (notice.value = t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
         if (unmounted) return release();
         created.zoomToFit();
         engine.value = created;
-        stopSelection = created.onSelectionChange((ids) => {
+        const live = created;
+        stopSelection = live.onSelectionChange((ids) => {
             selected.value = ids;
             seen.value = [...seen.value, ...ids];
             refreshBox();
         });
-        stopChange = created.onChange(refreshBox);
-        const live = created;
+        stopChange = live.onChange(() => {
+            refreshBox();
+            queue?.changed();
+        });
         timer = window.setInterval(() => {
             zoom.value = live.getZoom();
             canUndo.value = live.canUndo();
@@ -136,6 +151,26 @@ onMounted(async () => {
         release();
         state.value = 'failed';
     }
+}
+
+const onStatus = (next: SaveStatus): void => {
+    saveStatus.value = next;
+    if (next === 'layoutChanged') void refresh(false, t('drawing.layout_changed'));
+};
+
+async function refresh(keepOwn: boolean, message = ''): Promise<void> {
+    const own = keepOwn && engine.value ? engine.value.getLayout() : null;
+    await new Promise<void>((resolve) => router.reload({ only: ['layout', 'elements', 'statements', 'layouts', 'versions', 'newElements'], onFinish: () => resolve() }));
+    const fresh = storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions);
+    await start(own ? mergeLayout(own, fresh) : fresh);
+    queue?.resolveStructureChange(props.versions.structure, props.versions.layout);
+    if (own) queue?.changed();
+    notice.value = message;
+}
+
+onMounted(async () => {
+    queue = new SaveQueue({ canvas: props.canvas.id, versions: props.versions, getLayout: () => engine.value?.getLayout() as LayoutPayload, onStatus, onFailure });
+    await start(storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions));
 });
 onBeforeUnmount(() => {
     unmounted = true;
@@ -150,7 +185,8 @@ onBeforeUnmount(() => {
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
     </header>
-    <Header class="mt-3" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" />
+    <Header class="mt-3" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" />
+    <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>
     <DirectionBand v-if="drawn" class="mt-3" :drawn="drawn" :statements="statements" @peek="peeked = $event" />

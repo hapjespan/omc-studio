@@ -597,5 +597,14 @@
     "drawing.bring_forward": "Naar voren",
     "drawing.send_backward": "Naar achteren",
     "drawing.grid": "Raster",
-    "drawing.new": "nieuw"
+    "drawing.new": "nieuw",
+    "drawing.saving": "Opslaan…",
+    "drawing.saved": "Opmaak opgeslagen",
+    "drawing.save_failed": "Opmaak niet opgeslagen",
+    "drawing.retry": "Opnieuw proberen",
+    "drawing.layout_changed": "Iemand anders heeft de opmaak gewijzigd. De tekening is opnieuw geladen",
+    "drawing.conflict_title": "De structuur is gewijzigd",
+    "drawing.conflict_body": "Iemand heeft elementen toegevoegd, verwijderd of verplaatst sinds je Tekenen opende.",
+    "drawing.conflict_apply": "Opmaak toepassen op wat nog bestaat",
+    "drawing.conflict_reload": "Opnieuw laden"
 }
