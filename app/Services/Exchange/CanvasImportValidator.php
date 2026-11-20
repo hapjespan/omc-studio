@@ -9,10 +9,10 @@ use App\Models\Modality;
 use App\Models\Organisation;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
-use App\Rules\HexColour;
 use App\Rules\IntegerRange;
 use App\Services\Exchange\Concerns\ChecksFields;
 use App\Services\Exchange\Concerns\ChecksStructure;
+use App\Services\Layout\LayoutValidator;
 use App\Services\Structure\ElementFields;
 use JsonException;
 
@@ -35,8 +35,6 @@ class CanvasImportValidator
     private const FTE = 999_999;
 
     private const YEARS = [2000, 2100];
-
-    private const COLOURS = ['fill', 'border_colour', 'text_colour'];
 
     public function __construct(private readonly ElementFields $fields, private readonly CanvasImportConflicts $conflicts) {}
 
@@ -284,7 +282,7 @@ class CanvasImportValidator
         $this->structure($elements);
         $this->unknownAllocation($elements, $this->sets($canvas['allocation_sets'] ?? null, $elements));
         $this->finalisedYears($canvas['finalised_years'] ?? null);
-        $this->layout($canvas['layout'] ?? null);
+        $this->layout($canvas['layout'] ?? null, $elements);
     }
 
     private function statements(mixed $node): void
@@ -335,36 +333,42 @@ class CanvasImportValidator
         $missing !== [] && $this->fail($location, 'jsonx.finalised_incomplete', ['year' => $year, 'records' => implode(', ', array_slice($missing, 0, 5))]);
     }
 
-    private function layout(mixed $node): void
+    /** @param array<string, array<string, mixed>> $elements */
+    private function layout(mixed $node, array $elements): void
     {
         if ($node === null) {
             return;
         }
 
-        if (! is_array($node)) {
+        if (! is_array($node) || array_is_list($node) && $node !== []) {
             $this->fail('canvas.layout', 'jsonx.not_object');
 
             return;
         }
 
-        $this->colours($node, 'canvas.layout');
-    }
+        foreach (['areas', 'elements'] as $key) {
+            if (! is_array($node[$key] ?? null)) {
+                $this->fail('canvas.layout.'.$key, 'jsonx.not_object');
 
-    /** @param array<mixed, mixed> $node */
-    private function colours(array $node, string $parent): void
-    {
-        foreach ($node as $key => $value) {
-            $location = is_int($key) ? $parent.'['.$key.']' : $parent.'.'.$key;
-
-            if (is_array($value)) {
-                $this->colours($value, $location);
-
-                continue;
+                return;
             }
+        }
 
-            if ($value !== null && is_string($key) && in_array($key, self::COLOURS, true)) {
-                $this->rule(new HexColour($location), $location, $value);
+        foreach (array_diff(array_keys($node), ['areas', 'elements']) as $key) {
+            $this->fail('canvas.layout.'.$key, 'jsonx.unknown_value');
+        }
+
+        $active = [];
+
+        foreach ($elements as $id => $element) {
+            if (! $element['archived'] && $element['area'] !== null && $element['kind'] !== null && $element['name'] !== null) {
+                $active[] = ['id' => (string) $id, 'area' => $element['area'], 'parent' => $element['parent'], 'kind' => $element['kind'], 'name' => $element['name']];
             }
+        }
+
+        foreach ((new LayoutValidator($active))->refusals($node) as $refusal) {
+            $at = $refusal['element'] !== null ? 'canvas.layout.elements.'.$refusal['element'] : 'canvas.layout.areas';
+            $this->record($refusal['rule'] === 'style' && $refusal['element'] !== null ? $at.'.style' : $at, $refusal['message']);
         }
     }
 }

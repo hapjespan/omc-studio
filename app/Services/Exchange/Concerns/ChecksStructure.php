@@ -87,6 +87,7 @@ trait ChecksStructure
 
             $index[$id] = [
                 'at' => $at,
+                'name' => $name,
                 'area' => $area,
                 'kind' => $kind,
                 'parent' => $parent,
