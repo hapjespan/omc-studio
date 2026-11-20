@@ -27,6 +27,7 @@ export interface LayoutPayload {
 export interface MountOptions {
     layout: LayoutPayload;
     onTextAttempt?: () => void;
+    onPushBack?: (ids: string[]) => void;
 }
 
 export interface MoveIntent {
@@ -38,7 +39,18 @@ export interface MoveIntent {
 
 export type FinishedAction = { kind: 'layout'; ids: string[] } | MoveIntent;
 
+export interface BoxValues {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
 export type DrawingCommand =
+    | { kind: 'setBox'; id: string; box: Partial<BoxValues> }
+    | { kind: 'nudge'; dx: number; dy: number }
+    | { kind: 'resizeBy'; dw: number; dh: number }
+    | { kind: 'setGrid'; on: boolean }
     | { kind: 'align'; axis: 'horizontal' | 'vertical'; to: 'start' | 'centre' | 'end' }
     | { kind: 'distribute'; axis: 'horizontal' | 'vertical' }
     | { kind: 'equalWidth' }
@@ -57,6 +69,9 @@ export interface DrawingEngine {
     mount(element: HTMLElement, scene: DrawnCanvas, options: MountOptions): Promise<void>;
     getLayout(): LayoutPayload;
     getSelection(): string[];
+    getBox(id: string): BoxValues | null;
+    canUndo(): boolean;
+    canRedo(): boolean;
     onSelectionChange(listener: (ids: string[]) => void): () => void;
     onChange(listener: (change: FinishedAction) => void): () => void;
     select(ids: string[]): void;

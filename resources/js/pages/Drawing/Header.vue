@@ -2,14 +2,15 @@
 import AppButton from '../../components/ui/AppButton.vue';
 import { t } from '../../i18n';
 
+defineProps<{ canUndo: boolean; canRedo: boolean }>();
 defineEmits<{ undo: []; redo: []; fit: [] }>();
 </script>
 
 <template>
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <div class="flex items-center gap-2">
-            <AppButton size="dense" @click="$emit('undo')">{{ t('drawing.undo') }}</AppButton>
-            <AppButton size="dense" @click="$emit('redo')">{{ t('drawing.redo') }}</AppButton>
+            <AppButton size="dense" :disabled="!canUndo" @click="$emit('undo')">{{ t('drawing.undo') }}</AppButton>
+            <AppButton size="dense" :disabled="!canRedo" @click="$emit('redo')">{{ t('drawing.redo') }}</AppButton>
         </div>
         <p class="text-[13px] text-secondary">{{ t('drawing.engine_note') }}</p>
         <div class="ml-auto flex items-center gap-2">

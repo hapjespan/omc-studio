@@ -72,3 +72,16 @@ test('Tekenen opens a Canvas with a stored Layout', async ({ page }) => {
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
     await expect(page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true })).toBeVisible();
 });
+
+test('rows of Elements added since the last save carry the text pill nieuw until they are selected', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Canvas::whereKey(${canvas.id})->update(['layout_saved_at' => now()->subDay()]);`], { env });
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${canvas.id}/drawing`);
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    const row = page.locator('li', { has: page.getByRole('button', { name: 'Onderwijs', exact: true }) }).first();
+    await expect(row.getByText('nieuw').first()).toBeVisible();
+    await page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    await expect(row.locator('> div').getByText('nieuw')).toHaveCount(0);
+});
