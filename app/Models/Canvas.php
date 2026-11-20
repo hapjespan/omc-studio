@@ -45,6 +45,17 @@ class Canvas extends Model
         $this->syncOriginalAttribute('structure_version');
     }
 
+    public function raiseLayoutVersion(): void
+    {
+        $savedAt = now();
+
+        static::query()->whereKey($this->getKey())->increment('layout_version', 1, ['layout_saved_at' => $savedAt]);
+
+        $this->layout_version = (int) $this->layout_version + 1;
+        $this->layout_saved_at = $savedAt;
+        $this->syncOriginalAttributes(['layout_version', 'layout_saved_at']);
+    }
+
     public function acceptsEntryBy(?User $user): bool
     {
         return $user?->role === Role::Administrator && ($this->kind === CanvasKind::Template || $this->archived_at === null);
