@@ -12,12 +12,16 @@ use App\Models\Modality;
 use App\Models\Statement;
 use App\Models\YearlyFigure;
 use App\Services\Finance\CalculationInputBuilder;
+use App\Services\Layout\Artboard;
+use App\Services\Layout\LayoutSnapshot;
 
 class SnapshotContent
 {
-    public const SCHEMA_VERSION = 1;
+    public const SCHEMA_VERSION = 2;
 
-    public function __construct(private readonly CalculationInputBuilder $builder, private readonly FigureCalculator $calculator) {}
+    public const SUPPORTED_VERSIONS = [1, self::SCHEMA_VERSION];
+
+    public function __construct(private readonly CalculationInputBuilder $builder, private readonly FigureCalculator $calculator, private readonly LayoutSnapshot $layouts) {}
 
     /** @return array<string, mixed> */
     public function build(Canvas $canvas, FiscalYear $year): array
@@ -31,7 +35,22 @@ class SnapshotContent
             'cost_records' => $this->costRecords($canvas, $year),
             'allocation_sets' => $this->sets($canvas, $year),
             'figures' => get_object_vars($this->calculator->calculate($this->builder->build($canvas, $year->year))),
+            'layout' => $this->layout($canvas),
+            'artboard' => Artboard::size(),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $content
+     * @return array<string, mixed>|null
+     */
+    public function upgraded(array $content): ?array
+    {
+        if (($content['schema_version'] ?? null) === 1) {
+            $content = [...$content, 'schema_version' => 2, 'layout' => [], 'artboard' => Artboard::size()];
+        }
+
+        return ($content['schema_version'] ?? null) === self::SCHEMA_VERSION ? $content : null;
     }
 
     /** @param array<string, mixed> $content */
@@ -43,6 +62,12 @@ class SnapshotContent
     public function checksum(string $encoded): string
     {
         return hash('sha256', $encoded);
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private function layout(Canvas $canvas): array
+    {
+        return array_map(fn (array $row) => [...$row, 'style' => (array) $row['style']], $this->layouts->for($canvas));
     }
 
     /** @return list<array<string, mixed>> */

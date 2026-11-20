@@ -7,7 +7,10 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Layout;
 use App\Models\Organisation;
+use App\Models\Snapshot;
 use App\Models\User;
+use App\Services\Snapshot\SnapshotContent;
+use App\Services\Snapshot\Snapshots;
 use Illuminate\Http\UploadedFile;
 
 class FullLayoutRoundTripTest extends CanvasExchangeTestCase
@@ -89,5 +92,30 @@ class FullLayoutRoundTripTest extends CanvasExchangeTestCase
 
         $this->assertSame(0, Layout::count());
         $this->assertGreaterThan(0, Canvas::where('kind', 'canvas')->count());
+    }
+
+    public function test_a_snapshot_of_the_first_schema_keeps_its_stored_bytes_and_checksum_through_a_full_round_trip(): void
+    {
+        $this->richCanvas();
+        $this->actingAs(User::factory()->administrator()->create());
+
+        $content = app(SnapshotContent::class);
+        $built = $content->build($this->canvas, $this->fiscalYear(2026));
+        unset($built['layout'], $built['artboard']);
+        $built['schema_version'] = 1;
+        $encoded = $content->encode($built);
+        Snapshot::create(['canvas_id' => $this->canvas->id, 'name' => 'Oude versie', 'fiscal_year' => 2026, 'remark' => null, 'created_by' => null, 'created_at' => now(), 'imported' => false, 'schema_version' => 1, 'content' => $encoded, 'checksum' => $content->checksum($encoded)]);
+
+        $full = (string) $this->get('/admin/export/full')->assertOk()->getContent();
+        $this->wipe();
+        $this->post('/admin/import/full', ['file' => UploadedFile::fake()->createWithContent('full.json', $full)], ['Accept' => 'application/json'])->assertOk();
+
+        $stored = Snapshot::where('name', 'Oude versie')->firstOrFail();
+        $this->assertSame($encoded, $stored->content);
+        $this->assertSame($content->checksum($encoded), $stored->checksum);
+        $this->assertSame(1, $stored->schema_version);
+        $read = app(Snapshots::class)->read($stored);
+        $this->assertSame(2, $read['schema_version']);
+        $this->assertSame([], $read['layout']);
     }
 }

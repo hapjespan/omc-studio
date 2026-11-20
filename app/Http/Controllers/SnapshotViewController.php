@@ -31,7 +31,7 @@ class SnapshotViewController extends Controller
         $content = $this->snapshots->read($snapshot);
         $figures = $content === null ? null : $this->figures($snapshot, $content);
         $damaged = $content === null || $figures === null;
-        $content = $damaged ? ['elements' => [], 'statements' => [], 'cost_records' => []] : $content;
+        $content = $damaged ? ['elements' => [], 'statements' => [], 'cost_records' => [], 'layout' => []] : $content;
         $overlay = in_array($request->query('overlay'), self::OVERLAYS, true) ? $request->query('overlay') : 'none';
         $element = $request->query('element');
         $modalities = Modality::orderBy('position')->get();
@@ -45,6 +45,7 @@ class SnapshotViewController extends Controller
                 'year' => $snapshot->fiscal_year,
             ],
             'versions' => SnapshotVersions::for($canvas, $snapshot),
+            'layouts' => $content['layout'],
             'overlay' => $overlay,
             'year' => $snapshot->fiscal_year,
             'costKinds' => array_map(fn (CostKind $kind) => $kind->value, CostKind::cases()),

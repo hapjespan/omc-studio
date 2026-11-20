@@ -13,10 +13,6 @@ class LayoutValidator
 
     private const MIN_HEIGHT = 24;
 
-    private const ARTBOARD_WIDTH = 1680;
-
-    private const ARTBOARD_HEIGHT = 1188;
-
     private const DIRECTION_HEIGHT = 180;
 
     private const MINIMUM_CONTRAST = 4.5;
@@ -183,7 +179,7 @@ class LayoutValidator
                 $refused[] = $this->refusal('direction_layout', null, []);
             } elseif (! in_array($key, Area::KEYS, true)) {
                 $refused[] = $this->refusal('unknown_area', null, ['key' => $key]);
-            } elseif ($area['x'] < 0 || $area['y'] < self::DIRECTION_HEIGHT || $area['x'] + $area['width'] > self::ARTBOARD_WIDTH || $area['y'] + $area['height'] > self::ARTBOARD_HEIGHT) {
+            } elseif ($area['x'] < 0 || $area['y'] < self::DIRECTION_HEIGHT || $area['x'] + $area['width'] > Artboard::WIDTH || $area['y'] + $area['height'] > Artboard::HEIGHT) {
                 $refused[] = $this->refusal('area_outside', null, ['name' => $this->areaName($key)]);
             }
         }
