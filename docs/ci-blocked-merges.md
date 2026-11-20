@@ -1,6 +1,6 @@
 # Pull requests merged while GitHub Actions was blocked
 
-From 2026-11-19 the GitHub account refused to start Actions jobs ("recent account payments have failed or your spending limit needs to be increased"). By decision of the orchestrator a pull request was merged on complete local evidence instead (composer verify, composer test, npm run verify, npm run check, npm run build, the full Playwright suite on chromium, firefox and webkit with two workers, the performance specs alone with one worker), recorded in its description under "Local evidence (CI blocked)".
+From 2026-11-19 the GitHub account refused to start Actions jobs ("recent account payments have failed or your spending limit needs to be increased"). By decision of the build team a pull request was merged on complete local evidence instead (composer verify, composer test, npm run verify, npm run check, npm run build, the full Playwright suite on chromium, firefox and webkit with two workers, the performance specs alone with one worker), recorded in its description under "Local evidence (CI blocked)".
 
 When Actions works again, the first CI run on the tip of `release` comes before any other work; a red run goes before everything else.
 
