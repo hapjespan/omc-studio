@@ -78,7 +78,7 @@ class FinalisationTest extends AllocationTestCase
         $this->assertSame($this->canvas->id, $row->canvas_id);
         $this->assertSame($this->administrator->id, $row->finalised_by);
         $this->assertEqualsWithDelta(now()->timestamp, $row->finalised_at->timestamp, 5);
-        $this->assertDatabaseHas('audit_entries', ['subject_type' => 'finalised_year', 'subject_id' => (string) $row->id, 'action' => 'created', 'actor_id' => $this->administrator->id]);
+        $this->assertDatabaseHas('audit_entries', ['subject_type' => 'finalised_year', 'subject_id' => (string) $row->id, 'action' => 'finalised', 'actor_id' => $this->administrator->id]);
     }
 
     public function test_a_year_that_is_already_finalised_is_refused(): void

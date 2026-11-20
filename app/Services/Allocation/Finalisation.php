@@ -49,12 +49,12 @@ class Finalisation
                 $this->refuseWith((string) __('rule.closing_check_failed'));
             }
 
-            return FinalisedYear::create([
+            return $this->context->during('finalised', fn () => FinalisedYear::create([
                 'canvas_id' => $canvas->getKey(),
                 'fiscal_year_id' => $year->getKey(),
                 'finalised_at' => now(),
                 'finalised_by' => Auth::id(),
-            ]);
+            ]));
         });
     }
 

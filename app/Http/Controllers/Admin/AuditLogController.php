@@ -21,7 +21,7 @@ class AuditLogController extends Controller
 
     private const FILTERS = ['organisation_id', 'canvas_id', 'subject_type', 'actor_id', 'from', 'to'];
 
-    private const KINDS = ['user', 'organisation', 'canvas', 'element', 'statement'];
+    private const KINDS = ['user', 'organisation', 'canvas', 'element', 'statement', 'area', 'application', 'owner', 'cost_record', 'allocation_set', 'finalised_year', 'fiscal_year', 'yearly_figure', 'snapshot'];
 
     public function __invoke(Request $request, AuditLogQuery $query): Response
     {
