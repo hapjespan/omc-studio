@@ -17,7 +17,8 @@ const typography = (area: AreaKey, level: StyleLevel): Pick<BlockStyle, 'font' |
     return { font: font('Inter', 13, level === 'cluster' ? 600 : 400), lineHeight: 18, radius: 6 };
 };
 
-export function resolveStyle(area: AreaKey, level: StyleLevel, override: ElementStyle = {}): BlockStyle {
+export function resolveStyle(area: AreaKey, level: StyleLevel, stored: ElementStyle = {}): BlockStyle {
+    const override: ElementStyle = Array.isArray(stored) ? {} : stored;
     const levels = defaultColours.areas[area];
     const base = level === 'area' ? (area === 'direction' ? levels.domain : defaultColours.white) : levels[level];
     const fill = override.fill ?? base;
