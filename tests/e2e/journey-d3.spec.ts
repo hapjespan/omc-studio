@@ -4,6 +4,8 @@ import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { expandTarget, seedOrganisation, tinker } from './support/finance';
 import { signInAs } from './support/shell';
+import { ARTBOARD_WIDTH, PNG_SCALE } from './support/artboard';
+import { pixelAt } from './support/png';
 
 test.beforeEach(() => test.setTimeout(180000));
 
@@ -44,6 +46,15 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
         await line.press('Enter');
         await expect(page.getByTestId('entry-row').filter({ hasText: name })).toBeVisible();
     }
+    await expectNoAxeViolations(page);
+
+    await page.goto(`/canvases/${canvas}/drawing`);
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Inkoop', exact: true }).click();
+    const fill = page.getByLabel('Vulling van Inkoop', { exact: true });
+    await fill.fill('#CCE5FF');
+    await fill.press('Enter');
+    await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
     await expectNoAxeViolations(page);
 
     await page.goto(`/organisations/${organisation}/cost-records?year=2026`);
@@ -107,6 +118,8 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: geen fouten' })).toBeVisible();
     await page.getByRole('button', { name: 'Importeren', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Canvas is geïmporteerd' })).toBeVisible();
+    await page.goto('/overview');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expectNoAxeViolations(page);
 
     await page.goto(`/canvases/${canvas}/view?overlay=financial&year=2026`);
@@ -120,4 +133,14 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     expect(bytes.readUInt32BE(16)).toBeGreaterThan(0);
     await expect(page.getByTestId('export-note')).toHaveText('PNG is gemaakt');
     await expectNoAxeViolations(page);
+    await page.goto(`/canvases/${canvas}/view`);
+    await page.getByRole('button', { name: 'Exporteren' }).click();
+    const styledDownload = page.waitForEvent('download');
+    await page.getByRole('menuitem', { name: 'Exporteren als PNG' }).click();
+    const styledBytes = readFileSync(((await (await styledDownload).path()) as string));
+    const artboard = (await page.locator('[data-artboard]').boundingBox())!;
+    const inkoop = (await page.locator('[data-kind="domain"]').filter({ hasText: 'Inkoop' }).first().boundingBox())!;
+    const scale = artboard.width / ARTBOARD_WIDTH;
+    const pixel = await pixelAt(page, styledBytes, Math.round(((inkoop.x + inkoop.width - artboard.x) / scale - 10) * PNG_SCALE), Math.round(((inkoop.y + inkoop.height - artboard.y) / scale - 10) * PNG_SCALE));
+    for (const [index, channel] of [0xcc, 0xe5, 0xff].entries()) expect(Math.abs(pixel[index] - channel)).toBeLessThanOrEqual(2);
 });

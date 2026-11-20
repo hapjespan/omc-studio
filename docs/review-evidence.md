@@ -1,6 +1,6 @@
 # Evidence index for the phase 7 review
 
-Where each requirement, success criterion and risk is proven: a test, a file or a measurement. Written for T369 and T370 on the branch of delivery 3.9. A cell that says "waits for DT.6" depends on colours, fonts and style of Tekenen (T220 to T225), which a different session builds; those cells and tasks stay open until that work is merged. Test paths are relative to the repository root. "e2e" means Playwright on Chromium, Firefox and WebKit.
+Where each requirement, success criterion and risk is proven: a test, a file or a measurement. Written for T369 and T370 on the branch of delivery 3.9. DT.6 (colours, fonts and style of Tekenen, T220 to T225) is merged into this branch, so the style and colour cells are filled in. Test paths are relative to the repository root. "e2e" means Playwright on Chromium, Firefox and WebKit.
 
 Measurement machine for every figure in this file: linux 7.0.14-linuxkit arm64 (a container in a virtual machine), 11 cores, 8 GiB, headless Chromium, Firefox (headed under Xvfb with WebGL forced) and WebKit of Playwright 1.65.1, PHP 8.4.28, SQLite. These are not ordinary laptop figures (K-6).
 
@@ -32,10 +32,10 @@ Measurement machine for every figure in this file: linux 7.0.14-linuxkit arm64 (
 | SC-022 no request leaves the machine | the `guards` fixture of `tests/e2e/support/guards.ts` (outside request and CSP violation asserted after every spec that uses it), `tests/e2e/export-network.spec.ts`, `tests/e2e/drawing-load.spec.ts`, `scripts/check-assets.mjs` over the final build (CI job `js`) | met |
 | SC-023 property test of FR-095 | `tests/Unit/Calculation/FigurePropertyTest.php`, `tests/Unit/Calculation/ClosingCheckTest.php` | met |
 | SC-024 acceptance session of the product owner | none possible by a machine | unmet by design: the product owner runs it, recorded for him in section 8 |
-| SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts`, `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | place and size met; the colour part waits for DT.6 |
+| SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts`, `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | met: `tests/e2e/drawing-colour-acceptance.spec.ts` (move, resize and fill, reload, same place and size within 1 pixel in Bekijken, same fill, structure names unchanged), `tests/e2e/drawing-style.spec.ts` |
 | SC-026 added Element appears without handwork | `tests/Feature/Layout/NewPillTest.php`, `tests/js/layout/placement.test.ts`, `tests/e2e/drawing-frame.spec.ts` | partly met; no single browser journey from Invoeren to Tekenen |
 | SC-027 no outside request in a Tekenen session | `tests/e2e/drawing-load.spec.ts`, `tests/e2e/csp-guard.spec.ts`, the guards fixture on every drawing spec | met |
-| SC-028 Alles automatisch opmaken equals a new Canvas | `tests/e2e/drawing-reset.spec.ts` (every Area and Element X, Y, B, H) | place and size met; style compare waits for DT.6 |
+| SC-028 Alles automatisch opmaken equals a new Canvas | `tests/e2e/drawing-reset.spec.ts` (every Area and Element X, Y, B, H) | met for place, size and style: `tests/e2e/drawing-colour-acceptance.spec.ts` compares the computed style of a changed Domain after Alles automatisch opmaken with that Domain on a new Canvas of the same content |
 | SC-029 Tekenen usable within 3 seconds | `tests/e2e/drawing-performance.spec.ts`; section 7 | met on this machine |
 
 ## 2. Security requirements, OWASP ASVS 5.0 level 2 (docs/constraints.md section 6)
@@ -132,14 +132,18 @@ The full table with advice and cost of reversal is at the top of `specs/001-omc-
 | P-4 JSON import, 47.9 MB, 21002 cost records | full import commit 1.66 s, peak 307 MB (limit 60 s); the canvas import of about 50 MB passes its 60 s limit | `tests/Feature/Exchange/FullImportLargeFileTest.php`, `tests/Feature/Exchange/CanvasImportLargeFileTest.php` |
 | P-6 PNG and print, measured once on 500 Elements and 1000 Cost records with the overlay | PNG 3533 ms Chromium, 3506 ms Firefox, 8019 ms WebKit (3.3 to 4.6 MB); print to PDF 321 ms in Chromium (only Chromium produces a print file) | `tests/e2e/performance-d3.spec.ts`, recorded for the product owner |
 
-## 8. Waits for DT.6, unmet and open
+## 8. Unmet and open
+
+DT.6 is merged; nothing waits for it any more. The style, font and colour requirements are proven as follows.
+
+| Requirement | Evidence |
+|---|---|
+| FR-104 style holds only the listed properties, US36 | `tests/e2e/drawing-style.spec.ts`, `tests/e2e/drawing-text-style.spec.ts`, `tests/e2e/drawing-apply-style.spec.ts`, `tests/js/edit-engine/style.test.ts`, `tests/js/edit-engine/stylePayload.test.ts`, `tests/js/edit-engine/pasteStyle.test.ts`, `tests/js/edit-engine/applyStyle.test.ts` |
+| FR-105 contrast of text on the effective fill | `tests/Unit/Layout/TextContrastTest.php`, `tests/e2e/drawing-contrast.spec.ts`, `tests/js/edit-engine/autoText.test.ts` |
+| FR-112 only the two shipped fonts | `tests/e2e/drawing-text-style.spec.ts`, `tests/e2e/drawing-equal.spec.ts` |
 
 | Item | Reason |
 |---|---|
-| SC-025 colour part | waits for DT.6 (colours, T220 to T225) |
-| SC-028 style comparison | waits for DT.6 (style) |
-| PNG of a styled Canvas in the end-to-end journey (the journey of T366 exports the PNG of an unstyled Canvas) | waits for DT.6 |
-| Rows for style, font and colour requirements (FR-104, FR-105, US36) | waits for DT.6 |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
 | SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
@@ -153,7 +157,7 @@ Run on this branch after the last change: the PHP suites `tests/Feature/Exchange
 | SC-007 | `tests/e2e/d1/full-flow.spec.ts`, `tests/e2e/d2-flow.spec.ts`, `tests/e2e/journey-d3.spec.ts`, `tests/e2e/versions.spec.ts`, `tests/e2e/import-canvas.spec.ts` | none for delivery 3 |
 | SC-017 | `tests/Feature/Exchange/FullRoundTripTest.php`, `tests/Feature/Exchange/FullLayoutRoundTripTest.php`, `tests/e2e/full-exchange.spec.ts` | none |
 | SC-018 | `tests/Feature/Snapshot/SnapshotViewTest.php`, `tests/e2e/snapshot-view.spec.ts`, `tests/e2e/snapshot-overlay.spec.ts` | none |
-| SC-019 | `tests/e2e/export-png.spec.ts`, `tests/e2e/print.spec.ts`, `tests/e2e/export-menu.spec.ts` | the PNG of a styled Canvas waits for DT.6 |
+| SC-019 | `tests/e2e/export-png.spec.ts`, `tests/e2e/print.spec.ts`, `tests/e2e/export-menu.spec.ts` | `tests/e2e/png-style.spec.ts` and the styled PNG step of `tests/e2e/journey-d3.spec.ts` (a pixel of the fill in the downloaded file) |
 | SC-020 | `tests/Feature/Performance/ExchangeVolumeTest.php`, `tests/e2e/performance-d3.spec.ts` (figures in section 7) | an ordinary laptop is the product owner's run (K-6) |
 | SC-021 | `tests/e2e/journey-d3.spec.ts`, `tests/e2e/d2-axe.spec.ts`, `tests/e2e/versions.spec.ts` | none |
 | SC-022 | `tests/e2e/export-network.spec.ts`, `tests/e2e/journey-d3.spec.ts` (guards fixture) | none |
