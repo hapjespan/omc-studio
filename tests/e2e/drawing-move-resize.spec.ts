@@ -36,11 +36,14 @@ test('typed X, Y, B and H move and resize the block like dragging, with labelled
     await expect(leaf).toHaveValue('40');
 });
 
-test('dragging a block changes its X in the panel', async ({ page }) => {
+test.describe('pointer', () => {
+    test.use({ viewport: { width: 1440, height: 1100 } });
+
+    test('dragging a block changes its X in the panel', async ({ page }) => {
     const layers = await open(page);
     const surface = page.locator('[data-drawing-surface]');
     const box = (await surface.boundingBox())!;
-    const x = page.getByLabel(/^X van /);
+    const x = page.getByLabel(/X van /);
     let point: { x: number; y: number } | null = null;
     for (let row = 0; row < 14 && !point; row++) {
         for (let column = 0; column < 14 && !point; column++) {
@@ -55,5 +58,6 @@ test('dragging a block changes its X in the panel', async ({ page }) => {
     await page.mouse.down();
     await page.mouse.move(point!.x + 30, point!.y, { steps: 6 });
     await page.mouse.up();
-    await expect.poll(async () => Number(await page.getByLabel(/^X van /).inputValue())).not.toBe(before);
+    await expect.poll(async () => Number(await page.getByLabel(/X van /).inputValue())).not.toBe(before);
+});
 });

@@ -69,7 +69,7 @@ function addDirectionText(graph: SceneGraph, canvas: DrawnCanvas, block: DrawnBl
 export function buildScene(canvas: DrawnCanvas): SceneGraph {
     const graph = new SceneGraph();
     const page = graph.getPages()[0] ?? graph.addPage('Artboard');
-    graph.createNodeWithId(ARTBOARD_ID, 'FRAME', page.id, { name: ARTBOARD_ID, x: 0, y: 0, width: ARTBOARD.width, height: ARTBOARD.height, fills: solid('#ffffff'), clipsContent: true });
+    graph.createNodeWithId(ARTBOARD_ID, 'FRAME', page.id, { name: '', x: 0, y: 0, width: ARTBOARD.width, height: ARTBOARD.height, fills: solid('#ffffff'), clipsContent: true });
 
     const byId = new Map(canvas.blocks.map((block) => [block.id, block]));
     const places = placesOf(canvas);
