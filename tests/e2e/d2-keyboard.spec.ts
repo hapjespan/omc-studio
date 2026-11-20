@@ -94,7 +94,9 @@ test('Toewijzen: choose a record, add Targets, enter percentages and save by key
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026`);
 
     await activate(page, page.getByRole('button', { name: /Licentie/ }));
+    await expect(page.getByRole('heading', { level: 2, name: 'Licentie' })).toBeVisible();
     await activate(page, page.getByRole('button', { name: 'Uitklappen: Inkoop' }));
+    await expect(page.getByRole('button', { name: 'Inklappen: Inkoop' })).toHaveAttribute('aria-expanded', 'true');
     await activate(page, page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }));
     await activate(page, page.getByRole('button', { name: 'Toevoegen aan verdeling: Bestellen' }));
     await activate(page, page.getByRole('button', { name: 'Toevoegen aan verdeling: Betalen' }));
