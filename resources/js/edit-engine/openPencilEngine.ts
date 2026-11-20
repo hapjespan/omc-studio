@@ -7,7 +7,10 @@ import type { DrawnCanvas } from '../layout';
 import { bundledIcons, closeNetworkBoundary } from './boundary';
 import DrawingSurface from './DrawingSurface.vue';
 import { loadFace, registerFonts } from './fonts';
-import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
+import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, LayoutRect, MountOptions, ShiftVerdictEvent } from './DrawingEngine';
+import { MoveHistory } from './moveHistory';
+import { attachShiftMove, type ShiftMoveHandle } from './shiftGesture';
+import { buildMoveModel } from './shiftMove';
 import { toPayload } from './payload';
 import { align, distribute, equalSize } from './commands/align';
 import { snapChanges } from './commands/grid';
@@ -32,6 +35,8 @@ export class OpenPencilEngine implements DrawingEngine {
     private readonly reordered = new Set<string>();
     private readonly moved = new Set<string>();
     private onPushBack: ((ids: string[]) => void) | undefined;
+    private shiftMove: ShiftMoveHandle | null = null;
+    private history: MoveHistory | null = null;
     private readonly listeners = new Set<(change: FinishedAction) => void>();
     private readonly stops: (() => void)[] = [];
 
@@ -55,7 +60,8 @@ export class OpenPencilEngine implements DrawingEngine {
         this.onPushBack = options.onPushBack;
         this.editor = editor;
         const locked = [DIRECTION_ID];
-        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid }).release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
+        const restrictions = restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid });
+        this.stops.push(restrictions.release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
         this.watch(editor, graph, scene);
         await new Promise<void>((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('The drawing surface did not become ready.')), READY_TIMEOUT);
@@ -71,6 +77,20 @@ export class OpenPencilEngine implements DrawingEngine {
             });
             this.app.mount(element);
         });
+        const surface = element.querySelector<HTMLCanvasElement>('canvas[data-drawing-surface]');
+        if (options.structure && surface) {
+            this.shiftMove = attachShiftMove({
+                editor,
+                graph,
+                restrictions,
+                canvas: surface,
+                model: buildMoveModel(scene, options.structure),
+                onIntent: (move) => this.history?.dragged(move),
+                onRefusal: options.onMoveRefused,
+            });
+            this.history = new MoveHistory(editor, this.shiftMove.placement, (id) => this.manualLayout(id), (intent) => this.tell(intent));
+            this.stops.push(this.shiftMove.detach);
+        }
     }
 
     getLayout(): LayoutPayload {
@@ -90,6 +110,10 @@ export class OpenPencilEngine implements DrawingEngine {
     onChange(listener: (change: FinishedAction) => void): () => void {
         this.listeners.add(listener);
         return () => this.listeners.delete(listener);
+    }
+
+    onShiftVerdict(listener: (event: ShiftVerdictEvent | null) => void): () => void {
+        return this.shiftMove?.onVerdict(listener) ?? (() => undefined);
     }
 
     select(ids: string[]): void {
@@ -121,6 +145,16 @@ export class OpenPencilEngine implements DrawingEngine {
                 return this.reorder(selection, forward);
             case 'sendBackward':
                 return this.reorder(selection, backward);
+            case 'previewMove':
+                return this.moves().previewMove(command.elementId, command.targetId);
+            case 'commitMove':
+                return this.moves().commitMove(command.elementId, command.targetId, command.layout, command.mode);
+            case 'revertMove':
+                return this.moves().revertMove(command.elementId);
+            case 'cancelMoveHistory':
+                return this.moves().cancel(command.direction);
+            case 'clearHistory':
+                return this.moves().clear();
             default:
                 throw new Error(`The drawing command ${command.kind} is not built yet.`);
         }
@@ -136,6 +170,20 @@ export class OpenPencilEngine implements DrawingEngine {
 
     canRedo(): boolean {
         return this.mounted().editor.undo.canRedo;
+    }
+
+    private moves(): MoveHistory {
+        if (!this.history) throw new Error('The drawing engine was mounted without the structure the move needs.');
+        return this.history;
+    }
+
+    private manualLayout(id: string): LayoutRect | null {
+        const entry = this.getLayout().elements[id];
+        return entry?.mode === 'manual' ? { x: entry.x, y: entry.y, width: entry.width, height: entry.height, z: entry.z, ...(entry.style ? { style: entry.style } : {}) } : null;
+    }
+
+    private tell(change: FinishedAction): void {
+        for (const listener of this.listeners) listener(change);
     }
 
     private reorder(selection: { editor: Editor; ids: string[] }, command: (selection: { editor: Editor; ids: string[] }) => void): void {
@@ -178,6 +226,8 @@ export class OpenPencilEngine implements DrawingEngine {
 
     destroy(): void {
         for (const stop of this.stops.splice(0)) stop();
+        this.shiftMove = null;
+        this.history = null;
         this.listeners.clear();
         this.app?.unmount();
         this.app = null;
@@ -210,7 +260,7 @@ export class OpenPencilEngine implements DrawingEngine {
                 if (touched.size === 0) return;
                 const ids = [...touched];
                 touched.clear();
-                for (const listener of this.listeners) listener({ kind: 'layout', ids });
+                this.tell({ kind: 'layout', ids });
             }),
         );
     }

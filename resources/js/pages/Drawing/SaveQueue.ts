@@ -16,6 +16,12 @@ export type SaveResult =
 
 export type LayoutSender = (canvas: string | number, payload: LayoutPayload) => Promise<SaveResult>;
 
+export class MoveConflict extends Error {
+    constructor(readonly conflict: 'structure_changed' | 'layout_changed') {
+        super(conflict);
+    }
+}
+
 export type MoveTask = (versions: LayoutVersions) => Promise<LayoutVersions>;
 
 export type SaveFailure = { kind: 'refused'; messages: string[] } | { kind: 'unreachable' };
@@ -126,9 +132,10 @@ export class SaveQueue {
     private async runMove(task: MoveTask): Promise<void> {
         try {
             this.current = await task(this.versions);
-        } catch {
+        } catch (error) {
             this.running = false;
-            this.fail({ kind: 'unreachable' });
+            if (error instanceof MoveConflict) this.halt(error.conflict === 'structure_changed' ? 'structureChanged' : 'layoutChanged');
+            else this.fail({ kind: 'unreachable' });
             return;
         }
 

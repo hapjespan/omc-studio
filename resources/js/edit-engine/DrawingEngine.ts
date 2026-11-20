@@ -1,4 +1,4 @@
-import type { DrawnCanvas } from '../layout';
+import type { DrawnCanvas, LayoutArea, LayoutElement } from '../layout';
 
 export type LayoutStyle = Record<string, string | number | boolean>;
 
@@ -8,6 +8,7 @@ export interface LayoutRect {
     width: number;
     height: number;
     z: number;
+    style?: LayoutStyle;
 }
 
 export interface SavedArea extends LayoutRect {
@@ -24,17 +25,51 @@ export interface LayoutPayload {
     elements: Record<string, SavedElement>;
 }
 
+export interface CanvasStructure {
+    areas: LayoutArea[];
+    elements: LayoutElement[];
+}
+
+export type RefusalReason = 'other_kind' | 'unknown_allocation' | 'name_taken' | 'cluster_needs_domain' | 'no_clusters_in_list';
+
+export type MoveVerdict =
+    | { valid: true; targetId: string; targetName: string; narrowed: boolean }
+    | { valid: false; targetId: string; targetName: string; reason: RefusalReason };
+
+export interface ShiftVerdictEvent {
+    verdict: MoveVerdict;
+    x: number;
+    y: number;
+}
+
 export interface MountOptions {
     layout: LayoutPayload;
+    structure?: CanvasStructure;
     onTextAttempt?: () => void;
     onPushBack?: (ids: string[]) => void;
+    onMoveRefused?: (reason: RefusalReason, targetName: string) => void;
 }
+
+export interface PlacedMove {
+    kind: 'move';
+    elementId: string;
+    targetId: string;
+    layout: LayoutRect;
+    narrowed: boolean;
+}
+
+export type MoveOrigin = 'drag' | 'panel' | 'undo' | 'redo';
+
+export type MoveCommitMode = 'new' | 'undo' | 'redo';
 
 export interface MoveIntent {
     kind: 'move';
     elementId: string;
     targetId: string;
-    layout: LayoutRect;
+    layout: LayoutRect | null;
+    position?: number;
+    narrowed?: boolean;
+    origin: MoveOrigin;
 }
 
 export type FinishedAction = { kind: 'layout'; ids: string[] } | MoveIntent;
@@ -62,8 +97,10 @@ export type DrawingCommand =
     | { kind: 'applyStyleToSiblings' }
     | { kind: 'resetToAutomatic'; scope: 'element' | 'domain' }
     | { kind: 'previewMove'; elementId: string; targetId: string }
-    | { kind: 'commitMove'; elementId: string; targetId: string; layout: LayoutRect }
-    | { kind: 'revertMove'; elementId: string };
+    | { kind: 'commitMove'; elementId: string; targetId: string; layout: LayoutRect | null; mode: MoveCommitMode }
+    | { kind: 'revertMove'; elementId: string }
+    | { kind: 'cancelMoveHistory'; direction: 'undo' | 'redo' }
+    | { kind: 'clearHistory' };
 
 export interface DrawingEngine {
     mount(element: HTMLElement, scene: DrawnCanvas, options: MountOptions): Promise<void>;
@@ -74,6 +111,7 @@ export interface DrawingEngine {
     canRedo(): boolean;
     onSelectionChange(listener: (ids: string[]) => void): () => void;
     onChange(listener: (change: FinishedAction) => void): () => void;
+    onShiftVerdict(listener: (event: ShiftVerdictEvent | null) => void): () => void;
     select(ids: string[]): void;
     apply(command: DrawingCommand): void;
     undo(): void;

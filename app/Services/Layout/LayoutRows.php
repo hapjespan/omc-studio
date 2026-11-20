@@ -21,6 +21,25 @@ class LayoutRows
         return $ids;
     }
 
+    /** @return list<array{id: string, area: string, parent: ?string, kind: string, name: string}> */
+    public function elements(Canvas $canvas): array
+    {
+        $rows = Element::query()
+            ->where('elements.canvas_id', $canvas->getKey())
+            ->whereNull('elements.archived_at')
+            ->join('areas', 'areas.id', '=', 'elements.area_id')
+            ->orderBy('elements.id')
+            ->get(['elements.id', 'areas.key as area', 'elements.parent_id as parent', 'elements.kind', 'elements.name']);
+
+        return $rows->map(fn (Element $row): array => [
+            'id' => (string) $row->getKey(),
+            'area' => (string) $row->getAttribute('area'),
+            'parent' => $row->getAttribute('parent') === null ? null : (string) $row->getAttribute('parent'),
+            'kind' => $row->kind->value,
+            'name' => (string) $row->name,
+        ])->all();
+    }
+
     public function clear(Canvas $canvas): void
     {
         if (Layout::query()->where('canvas_id', $canvas->getKey())->delete() > 0) {

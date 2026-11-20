@@ -42,6 +42,8 @@ Refusals of a later delivery are not listed. A new `rule.*` message must get a t
 | `rule.element_name_taken` | Naam: er staat al een element met deze naam op deze plek | ElementNamesTest |
 | `rule.icon_list_only` | Een icoon kan alleen bij elementen in een lijstarea | UpdateElementTest |
 | `rule.icon_unknown` | Dit icoon staat niet in de lijst | D1RefusalMessagesTest |
+| `rule.drawing_move_domain` | Een domein verplaats je met Hangt onder in Invoeren | DrawingMoveTargetsTest |
+| `rule.drawing_move_same_parent` | Dit blok hangt hier al onder | DrawingMoveTargetsTest |
 | `rule.move_other_kind` | Verplaatsen kan alleen naar een area van dezelfde soort | MoveElementTest |
 | `rule.name_required` | Naam: vul een naam in | D1RefusalMessagesTest |
 | `rule.no_clusters_in_area` | In deze area bestaan geen clusters | RefusalMatrixTest |
