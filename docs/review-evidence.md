@@ -143,3 +143,17 @@ The full table with advice and cost of reversal is at the top of `specs/001-omc-
 | SC-024 acceptance session | unmet by design, the product owner runs it |
 | SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
+
+## 9. Acceptance list of kickoff chapter 17 against delivery 3 (T370)
+
+Run on this branch after the last change: the PHP suites `tests/Feature/Exchange`, `tests/Feature/Snapshot`, `tests/Feature/Performance`, `tests/Unit/Snapshot` and `tests/Unit/Calculation` (286 tests passed), and in Chromium the end-to-end specs `snapshot-view`, `snapshot-overlay`, `export-png`, `export-menu`, `export-network`, `full-exchange`, `import-canvas`, `versions`, `print` and `d2-axe` (38 passed); `tests/e2e/journey-d3.spec.ts` on Chromium, Firefox and WebKit (3 passed).
+
+| Criterion | Passing test ids | Unmet or open |
+|---|---|---|
+| SC-007 | `tests/e2e/d1/full-flow.spec.ts`, `tests/e2e/d2-flow.spec.ts`, `tests/e2e/journey-d3.spec.ts`, `tests/e2e/versions.spec.ts`, `tests/e2e/import-canvas.spec.ts` | none for delivery 3 |
+| SC-017 | `tests/Feature/Exchange/FullRoundTripTest.php`, `tests/Feature/Exchange/FullLayoutRoundTripTest.php`, `tests/e2e/full-exchange.spec.ts` | none |
+| SC-018 | `tests/Feature/Snapshot/SnapshotViewTest.php`, `tests/e2e/snapshot-view.spec.ts`, `tests/e2e/snapshot-overlay.spec.ts` | none |
+| SC-019 | `tests/e2e/export-png.spec.ts`, `tests/e2e/print.spec.ts`, `tests/e2e/export-menu.spec.ts` | the PNG of a styled Canvas waits for DT.6 |
+| SC-020 | `tests/Feature/Performance/ExchangeVolumeTest.php`, `tests/e2e/performance-d3.spec.ts` (figures in section 7) | an ordinary laptop is the product owner's run (K-6) |
+| SC-021 | `tests/e2e/journey-d3.spec.ts`, `tests/e2e/d2-axe.spec.ts`, `tests/e2e/versions.spec.ts` | none |
+| SC-022 | `tests/e2e/export-network.spec.ts`, `tests/e2e/journey-d3.spec.ts` (guards fixture) | none |

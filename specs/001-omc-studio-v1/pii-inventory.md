@@ -31,6 +31,17 @@ There are no processors: the application runs on one machine, makes no outgoing 
 - Element layout (DT): place, size and style of Elements; no personal data. Its Audit log entries name the actor, covered by the Audit log row above.
 - No intermediate state is kept in the browser: Tekenen saves automatically (ADR 0021).
 
+## Delivery 3 and Tekenen: checked for new personal fields (T369)
+
+No new personal field. Checked per addition against the elements above:
+
+- Snapshots hold the structure, the amounts and the Layout of one Canvas and year; the only person reference is "Gemaakt door", already listed above and pseudonymised at user deletion.
+- Exports (JSON of a Canvas, the full export, the CSV files, PNG and print) hold Organisation, structure and cost data and Layout, never users, second-factor data or the Audit log (SD-12); `tests/Feature/Exchange/FullExportTest.php` proves it.
+- Sample data is synthetic: an Organisation with the neutral name "Voorbeeld" and invented names, removable from the beheerscherm.
+- Layout (place, size, colour, font) and the Artboard carry no personal data; their Audit log entries name the actor, covered by the Audit log row above.
+- The drawing library runs in the browser, stores nothing there and sends nothing out (ADR 0016, SC-027).
+- Imports read free text from a file; the residual risk below about free-text fields covers it.
+
 ## Residual risk
 
 - Free-text fields (Supplier, Owner, descriptions, remarks, Rationales, Statements) could receive a person's name by mistake, or name a sole trader as Supplier. Mitigation: the Owner hint, and the Audit log shows who entered it so it can be corrected. No automatic detection.
