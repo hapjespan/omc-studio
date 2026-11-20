@@ -62,10 +62,10 @@ class SystemNoticeController extends Controller
         ]);
     }
 
-    public function seen(Request $request, SystemNotice $notice): RedirectResponse
+    public function seen(SystemNotice $notice): RedirectResponse
     {
         if ($notice->seen_at === null) {
-            $notice->forceFill(['seen_at' => now(), 'seen_by' => $request->user()->getKey()])->save();
+            $notice->forceFill(['seen_at' => now()])->save();
         }
 
         return back();

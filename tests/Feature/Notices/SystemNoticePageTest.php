@@ -7,6 +7,7 @@ use App\Models\Owner;
 use App\Models\SystemNotice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -72,7 +73,8 @@ class SystemNoticePageTest extends TestCase
         $this->post("/admin/system-notices/{$notice->id}/seen", ['kind' => 'x', 'details' => ['year' => 1]])->assertRedirect();
         $notice->refresh();
         $this->assertNotNull($notice->seen_at);
-        $this->assertSame($admin->id, $notice->seen_by);
+        $this->assertFalse(Schema::hasColumn('system_notices', 'seen_by'));
+        $this->assertArrayNotHasKey('seen_by', $notice->getAttributes());
         $this->assertSame('closing_check_failed', $notice->kind);
         $this->assertSame(['year' => 2026], $notice->details);
 
