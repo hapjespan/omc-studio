@@ -33,7 +33,7 @@ Dit document hoort bij de financiële laag (oplevering 2), export, import en ver
 
 **Voorbeelddata** (Beheer). *Doe dit:* zet de voorbeelddata aan en weer uit met "Voorbeelddata verwijderen". *Je hoort te zien:* alleen de voorbeeldgegevens verdwijnen.
 
-**Back-up en terugzetten.** Zie de README: `make backup` en `make restore FOLDER=<map>`. Niet geprobeerd in de voorproef.
+**Back-up en terugzetten.** Zie de README (`make backup`, `make restore FOLDER=<map>`); niet geprobeerd in de voorproef.
 
 ## Tekenen
 
@@ -47,8 +47,12 @@ Kies in een canvas "Tekenen". Links "Lagen", rechts "Eigenschappen".
 
 **Alles automatisch opmaken.** *Doe dit:* kies "Alles automatisch opmaken" en bevestig met "Terugzetten", of gebruik bij één blok "Terug naar automatische plek". *Je hoort te zien:* plek, grootte en stijl staan terug op de opmaak van een nieuw canvas ("Opmaak teruggezet naar automatisch"). Wijzigt een tweede beheerder tegelijk de opmaak, dan krijg je "Iemand anders heeft de opmaak gewijzigd. De tekening is opnieuw geladen" en gaat er niets stilletjes verloren.
 
+## Bewijs voor de eerder open punten
+
+- **Slepen en kleur (SC-025).** `tests/e2e/drawing-colour-drag.spec.ts`: een domein met de muis verslepen en kleuren; na herladen staan plek en vulling vast, en Bekijken wijkt hooguit 1 pixel af. Groen op Chromium, Firefox en WebKit.
+- **Nieuw element in één reis (SC-026).** `tests/e2e/dt-new-element-journey.spec.ts`: een activiteit toevoegen onder een handmatig geplaatst domein in Invoeren, naar Tekenen (rij met "nieuw", geplaatst onder het laagste handmatige kind, zonder overlap), naar Bekijken (zelfde plek binnen 1 pixel). Groen op drie engines.
+- **Eerste gebruik van Tekenen met 500 elementen (SC-029).** `tests/e2e/drawing-performance.spec.ts`, grens 3 seconden voor de traagste 5% van 20 metingen. Rustige run: Chromium 1690 ms, Firefox 1806 ms, WebKit 1130 ms. Tijdens een andere zware testrun gaf dezelfde spec 4448 ms (Chromium) en 3052 ms (Firefox) door uitschieters; de grens is niet aangepast.
+
 ## Wat nog openstaat
 
-- Kleur en grootte zijn in de tests via de velden gewijzigd; slepen met de muis is voor plek getest, voor kleur niet (`dt-results.md`, SC-025).
-- Een nieuw toegevoegd element dat in één doorlopende reis in Tekenen verschijnt, staat nog niet in één test (SC-026).
-- Eerste gebruik van Tekenen met 500 elementen duurt gemiddeld 1,1 tot 1,4 seconden (traagste 5% tot 2,1 seconden) op de testmachine, onder de grens van 3 seconden (SC-029).
+Een nieuw **domein** naast een handmatig geplaatst domein in dezelfde Area begint bovenaan de Area en overlapt dan het handmatige domein (er komt een waarschuwing). De specificatie zegt "onder het laagste handmatige kind" voor een parent; of een Area daaronder valt, moet de PO beslissen.
