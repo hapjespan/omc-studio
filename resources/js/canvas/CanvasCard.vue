@@ -6,6 +6,7 @@ import { t } from '../i18n';
 import { computeCanvasLayout } from '../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../layout';
 import { routes } from '../routes';
+import Pill from '../components/ui/Pill.vue';
 import CardMenu from './CardMenu.vue';
 import type { CardAction } from './CardMenu.vue';
 import Miniature from './Miniature.vue';
@@ -26,15 +27,15 @@ const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.la
 </script>
 
 <template>
-    <article class="flex flex-col gap-1 rounded-md border border-edge p-2">
-        <Link :href="routes.canvas(canvas.id)" class="flex flex-col gap-1 font-semibold">
-            <Miniature v-if="drawn" :canvas="drawn" :width="240" />
-            <span v-else class="block h-[170px] w-[240px]" aria-hidden="true" />
+    <article class="flex max-w-full flex-col gap-1 rounded-card border border-hairline bg-white p-2 hover:border-edge">
+        <Link :href="routes.canvas(canvas.id)" class="flex flex-col gap-1 font-display font-semibold">
+            <Miniature v-if="drawn" :canvas="drawn" :width="240" class="h-auto max-w-full" />
+            <span v-else class="block h-[170px] w-[240px] max-w-full" aria-hidden="true" />
             <span>{{ canvas.name }}</span>
         </Link>
         <p class="text-[12.5px] text-secondary">
-            <span v-if="canvas.archived" class="font-semibold">{{ t('overview.archived_badge') }}. </span>
-            <span v-if="canvas.updated_at">{{ t('overview.updated', { date: formatDate(canvas.updated_at) }) }}</span>
+            <Pill v-if="canvas.archived">{{ t('overview.archived_badge') }}</Pill>
+            <span v-if="canvas.updated_at" :class="canvas.archived && 'ml-1'">{{ t('overview.updated', { date: formatDate(canvas.updated_at) }) }}</span>
         </p>
         <CardMenu v-if="canWrite" :name="canvas.name" :archived="canvas.archived" :template="template" @select="emit('action', $event, canvas)" />
     </article>

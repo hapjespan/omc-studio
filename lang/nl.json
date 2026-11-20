@@ -514,5 +514,9 @@
     "entry_design.order_help": "Volgorde wijzig je met de pijlen. Nieuwe elementen krijgen vanzelf een plek op het canvas.",
     "entry_design.drawing_hint": "Plek, grootte en kleur op het canvas regel je in Tekenen.",
     "view.direction.logo": "Logo",
-    "view.direction.goals": "Strategische doelen"
+    "view.direction.goals": "Strategische doelen",
+    "list.kind_new": ":kind toevoegen",
+    "list.kind_edit": ":kind bewerken",
+    "users.kind": "Gebruiker",
+    "organisations.kind": "Organisatie"
 }

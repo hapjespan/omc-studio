@@ -76,9 +76,9 @@ const value = (text: string | null): string => (text === null || text === '' ? t
 
 <template>
     <Head :title="t('audit_log.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('audit_log.title') }}</h1>
+    <h1 class="font-display text-[22px] font-semibold">{{ t('audit_log.title') }}</h1>
     <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
-    <form class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
+    <form class="mt-4 grid grid-cols-1 gap-3 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
         <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
             <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink">
                 <option value="">{{ t('audit_log.filter.all') }}</option>
@@ -92,9 +92,9 @@ const value = (text: string | null): string => (text === null || text === '' ? t
             <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
         </div>
     </form>
-    <p role="status" class="mt-4 text-[13px]" data-testid="audit-count">{{ t('audit_log.count', { count: total }) }}</p>
+    <p role="status" class="mt-4 text-[12.5px] text-secondary" data-testid="audit-count">{{ t('audit_log.count', { count: total }) }}</p>
     <ol class="mt-2 flex flex-col gap-3">
-        <li v-for="entry in entries" :key="entry.id" class="rounded-md border border-edge p-3 text-[13px]">
+        <li v-for="entry in entries" :key="entry.id" class="rounded-panel border border-hairline bg-white p-4 text-[13px]">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
                 <dt class="font-semibold">{{ t('audit_log.column.time') }}</dt>
                 <dd><time>{{ entry.occurred_at }}</time></dd>
@@ -107,7 +107,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
                 <dt class="font-semibold">{{ t('audit_log.column.canvas') }}</dt>
                 <dd>{{ entry.canvas ?? t('audit_log.empty_value') }}</dd>
             </dl>
-            <ul v-if="entry.changes.length" class="mt-2 flex flex-col gap-1 border-t border-edge pt-2">
+            <ul v-if="entry.changes.length" class="mt-2 flex flex-col gap-1 border-t border-hairline pt-2">
                 <li v-for="change in entry.changes" :key="change.field">
                     <span class="font-semibold">{{ label('audit_log.field', change.field) }}</span>:
                     {{ t('audit_log.old') }} <q class="break-words">{{ value(change.old) }}</q>, {{ t('audit_log.new') }} <q class="break-words">{{ value(change.new) }}</q>

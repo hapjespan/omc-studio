@@ -59,16 +59,16 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
 
 <template>
     <Head :title="t('shell.overview')" />
-    <h1 ref="heading" tabindex="-1" class="text-[20px] font-semibold">{{ t('shell.overview') }}</h1>
-    <div class="mt-3 flex items-center gap-4">
-        <AppButton v-if="canWrite" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</AppButton>
+    <div class="flex flex-wrap items-center gap-4">
+        <h1 ref="heading" tabindex="-1" class="mr-auto font-display text-[22px] font-semibold">{{ t('shell.overview') }}</h1>
         <ArchiveToggle :model-value="showArchived" @update:model-value="toggle" />
+        <AppButton v-if="canWrite" variant="primary" icon="plus" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</AppButton>
     </div>
-    <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-6">
+    <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-4 rounded-panel border border-hairline bg-surface p-4">
         <h2 :id="`organisation-${organisation.id}`" class="font-display text-base font-semibold">{{ organisation.name }}</h2>
         <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-secondary">{{ t('overview.empty_organisation') }}</p>
-        <ul v-else class="mt-2 flex flex-wrap gap-4">
-            <li v-for="canvas in organisation.canvases" :key="canvas.id">
+        <ul v-else class="mt-3 flex flex-wrap gap-4">
+            <li v-for="canvas in organisation.canvases" :key="canvas.id" class="max-w-full">
                 <CanvasCard :canvas="canvas" :layout="layout" :measurer="measurer" :can-write="canWrite" @action="(action, picked) => openDialog(action, picked, organisation.id)" />
             </li>
         </ul>

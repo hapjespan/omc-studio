@@ -113,6 +113,27 @@ describe('ListView deletion', () => {
     });
 });
 
+describe('ListView table language', () => {
+    it('shows the secondary value under the name and right-aligns numeric columns', async () => {
+        const html = await render({ title: 'Gebruikers', columns: [{ key: 'name', label: 'Naam', secondary: 'email' }, { key: 'total', label: 'Totaal', align: 'right' }], rows: [{ ...rows[0], total: 5 }], count: 1, query: idle });
+
+        expect(html).toMatch(/<span class="block[^"]*">a@example.test<\/span>/);
+        expect(html).toMatch(/<th[^>]*text-right[^>]*>Totaal<\/th>/);
+    });
+
+    it('right-aligns a sortable header and shows the kind above the panel title', async () => {
+        const html = await render({ title: 'Gebruikers', columns: [{ key: 'name', label: 'Naam' }, { key: 'total', label: 'Totaal', align: 'right', sortable: true }], rows, count: 2, query: idle, kind: 'Gebruiker' });
+
+        expect(html).toMatch(/<th[^>]*text-right[^>]*><button/);
+    });
+
+    it('draws a 16 pixel checkbox inside a 24 pixel target', async () => {
+        const html = await render({ title: 'Gebruikers', columns, rows, count: 2, query: idle, bulkActions: [{ key: 'archive', label: 'Archiveren' }], archivable: true });
+
+        expect(html.match(/<label class="[^"]*size-6[^"]*"><input[^>]*class="size-4"/g)?.length).toBe(4);
+    });
+});
+
 describe('UndoMessage', () => {
     it('offers Ongedaan maken next to the message', async () => {
         const html = strip(await renderToString(createSSRApp({ render: () => h(UndoMessage, { message: 'Anna verwijderd' }) })));
@@ -184,7 +205,7 @@ describe('ListView archive handling', () => {
     it('reflects the shown state in the toggle', async () => {
         const html = await render({ title: 'Gebruikers', columns, rows: archivedRows, count: 3, query: { ...idle, archived: true }, archivable: true });
 
-        expect(html).toMatch(/<input id="[^"]+" checked type="checkbox"/);
+        expect(html).toMatch(/<input checked type="checkbox"/);
     });
 
     it('marks an archived row with text and offers Terugzetten for that row only', async () => {
