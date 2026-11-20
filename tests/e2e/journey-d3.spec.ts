@@ -78,6 +78,9 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     const card = page.locator('[data-kind="domain"]').filter({ hasText: 'Inkoop' }).first();
     const layer = page.locator(`[data-overlay-card="${await card.getAttribute('data-block')}"]`);
     await expect(layer.locator('[data-total]')).toHaveText('€ 230 100,0% van totaal');
+    const shown = await page.evaluate(() => JSON.parse(document.querySelector('script[data-page="app"]')?.textContent ?? '{}').props.figures.elements);
+    const budgets = Object.values<{ total: { budget: number } }>(shown).map((element) => element.total.budget);
+    expect(budgets.filter((cents) => cents > 0 && cents < 23000).sort((a, b) => a - b)).toEqual([7666, 7666, 7668]);
     await expect(page.getByRole('complementary', { name: 'Totalen van het canvas' }).locator('[data-closing]')).toHaveText('Totalen sluiten: € 230,00 + € 0,00 = € 230,00');
     await expectNoAxeViolations(page);
 
@@ -104,6 +107,7 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: geen fouten' })).toBeVisible();
     await page.getByRole('button', { name: 'Importeren', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Canvas is geïmporteerd' })).toBeVisible();
+    await expectNoAxeViolations(page);
 
     await page.goto(`/canvases/${canvas}/view?overlay=financial&year=2026`);
     await page.getByRole('button', { name: 'Exporteren' }).focus();

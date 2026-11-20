@@ -35,7 +35,7 @@ class ReadmeLengthTest extends TestCase
         foreach (['## Starten', '## Eerste keer inloggen', '## Wachtwoord kwijt', '## Back-up en terugzetten', '## Importeren', '## Als de browser niet wil inloggen', '## Veelgestelde vragen'] as $heading) {
             $this->assertStringContainsString($heading, $readme);
         }
-        foreach (['cp env.example .env', 'docker compose up -d', 'docker compose logs app', 'app:reset-admin-password', 'make backup', 'make restore', 'SESSION_SECURE_COOKIE=false', 'internet', 'sleutel'] as $needle) {
+        foreach (['cp env.example .env', 'docker compose up -d', 'docker compose logs app', '-u www-data app php artisan app:reset-admin-password', 'docker compose cp', 'storage/backups/', 'veiligheidskopie', 'Volledige export en import', 'make backup', 'make restore', 'SESSION_SECURE_COOKIE=false', 'internet', 'sleutel'] as $needle) {
             $this->assertStringContainsString($needle, $readme);
         }
     }

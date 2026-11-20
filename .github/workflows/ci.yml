@@ -95,6 +95,8 @@ jobs:
       - run: npm run verify
       - run: npm run build
       - run: npm run check
+        env:
+          ALLOWED_SKIPS: forbidden names
 
   scope:
     name: Scope of the change

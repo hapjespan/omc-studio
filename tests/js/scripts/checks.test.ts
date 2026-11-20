@@ -61,10 +61,40 @@ describe('check-assets over the final build', () => {
 });
 
 describe('run-checks', () => {
-    it('reports a skipped check as skipped, not as passed', () => {
-        const result = spawnSync('node', ['scripts/run-checks.mjs'], { encoding: 'utf8', env: { ...process.env, FORBIDDEN_NAMES_FILE: '/nonexistent/list' } });
-        expect(result.stdout).toContain('overgeslagen: lijst verboden namen ontbreekt');
-        expect(result.stdout).toMatch(/checks: \d+ passed, 1 skipped \(forbidden names\), \d+ failed/);
+    const script = (name: string, code: number) => {
+        const root = tree({ [name]: `process.exit(${code});` });
+        return join(root, name);
+    };
+    const runner = (list: [string, string][], allowed = '') =>
+        spawnSync('node', ['scripts/run-checks.mjs'], { encoding: 'utf8', env: { ...process.env, RUN_CHECKS_LIST: JSON.stringify(list), ALLOWED_SKIPS: allowed } });
+
+    it('passes when every check passes', () => {
+        const result = runner([['one', script('a.mjs', 0)], ['two', script('b.mjs', 0)]]);
+        expect(result.status).toBe(0);
+        expect(result.stdout).toContain('checks: 2 passed, 0 skipped, 0 skipped without permission, 0 failed');
+    });
+
+    it('fails when a check fails', () => {
+        const result = runner([['one', script('a.mjs', 0)], ['two', script('b.mjs', 1)]]);
+        expect(result.status).toBe(1);
+        expect(result.stdout).toContain('1 failed');
+    });
+
+    it('fails on a skip that nobody allowed, naming it', () => {
+        const result = runner([['forbidden names', script('a.mjs', 3)]]);
+        expect(result.status).toBe(1);
+        expect(result.stdout).toContain('1 skipped without permission (forbidden names)');
+    });
+
+    it('reports an allowed skip as skipped and not as passed', () => {
+        const result = runner([['forbidden names', script('a.mjs', 3)]], 'forbidden names');
+        expect(result.status).toBe(0);
+        expect(result.stdout).toContain('0 passed, 1 skipped (forbidden names)');
+    });
+
+    it('does not let a failure hide behind an allowed skip', () => {
+        const result = runner([['forbidden names', script('a.mjs', 3)], ['two', script('b.mjs', 2)]], 'forbidden names');
+        expect(result.status).toBe(1);
     });
 });
 

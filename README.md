@@ -22,7 +22,7 @@ Het eerste wachtwoord staat eenmalig in het logboek van de toepassing. Lees het 
 Een nieuw eenmalig wachtwoord maakt u zo:
 
 ```
-docker compose exec app php artisan app:reset-admin-password admin@localhost
+docker compose exec -u www-data app php artisan app:reset-admin-password admin@localhost
 ```
 
 Voeg `--second-factor` toe als ook de tweede stap van het inloggen kwijt is. Het commando toont het nieuwe wachtwoord en beëindigt alle sessies van die gebruiker.
@@ -34,11 +34,13 @@ make backup
 make restore FOLDER=<map>
 ```
 
-`make backup` kopieert de database, de bestanden en de sleutel van de toepassing naar een map met datum en tijd en toont die map. Bewaar de map veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import. `make restore` zet precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
+`make backup` maakt in het opslagvolume van de toepassing een map `storage/backups/<datum_tijd>` met de database, de geüploade bestanden en de sleutel van de toepassing, en toont die map. Die map staat dus nog in dezelfde container: kopieer hem naar een andere plek met `docker compose cp app:/var/www/html/storage/backups/<datum_tijd> .`. Bewaar de kopie veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import.
+
+Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
 
 ## Importeren
 
-Op het Overzicht kiest u Importeren uit JSON voor een canvas of voor alles. Kostenposten, structuur en verdelingen kunnen met een CSV-bestand van hoogstens 5 MB; een JSON-bestand mag tot 50 MB zijn. U ziet eerst een controle per regel. Importeren kan pas als er geen fouten meer zijn, en gebeurt dan helemaal of niet.
+Op het Overzicht kiest u Importeren uit JSON voor een canvas. Een volledige import van alles staat op de beheerpagina Volledige export en import en werkt alleen in een lege applicatie; de voorbeelddata (Voorbeelddata) moet dan eerst weg. Kostenposten, structuur en verdelingen kunnen met een CSV-bestand van hoogstens 5 MB; een JSON-bestand mag tot 50 MB zijn. U ziet eerst een controle per regel. Importeren kan pas als er geen fouten meer zijn, en gebeurt dan helemaal of niet.
 
 ## Als de browser niet wil inloggen
 

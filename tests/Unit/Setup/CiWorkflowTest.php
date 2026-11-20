@@ -126,6 +126,9 @@ class CiWorkflowTest extends TestCase
         $this->assertLessThan(strpos($commands, 'npm run check'), strpos($commands, 'npm run build'));
         $this->assertStringContainsString('npm run check', $commands);
         $this->assertStringNotContainsString('| tee', $commands);
+
+        $step = collect((array) $this->job('js')['steps'])->first(fn ($step): bool => (((array) $step)['run'] ?? '') === 'npm run check');
+        $this->assertSame('forbidden names', ((array) ((array) $step)['env'])['ALLOWED_SKIPS']);
     }
 
     public function test_no_step_pipes_a_command_without_pipefail(): void
