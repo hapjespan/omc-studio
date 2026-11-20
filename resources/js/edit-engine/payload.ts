@@ -19,7 +19,7 @@ export function toPayload(base: LayoutPayload, canvas: DrawnCanvas, places: Map<
         if (!place) continue;
         if (block.kind === 'area') {
             const stored = base.areas[block.id];
-            if (block.areaKey === 'direction' || (!stored && same(place, built.get(block.id)) && !orders.has(block.id))) continue;
+            if (block.areaKey === 'direction' || (!stored && same(place, built.get(block.id)) && !orders.has(block.id) && !styleOf(block.id, null).style)) continue;
             areas[block.id] = { x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? Math.min(block.drawnHeight, ARTBOARD_HEIGHT - place.y), z: orders.get(block.id) ?? stored?.z ?? 0, ...styleOf(block.id, stored) };
             continue;
         }

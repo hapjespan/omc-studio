@@ -16,7 +16,7 @@ const typography = (area: AreaKey, level: StyleLevel): Pick<BlockStyle, 'font' |
     return { font: font('Inter', 13, level === 'cluster' ? 600 : 400), lineHeight: 18, radius: 6 };
 };
 
-export function resolveStyle(area: AreaKey, level: StyleLevel, override: ElementStyle = {}): BlockStyle {
+export function resolveStyle(area: AreaKey, level: StyleLevel, override: ElementStyle = {}, behind: string = defaultColours.white): BlockStyle {
     const levels = defaultColours.areas[area];
     const base = level === 'area' ? (area === 'direction' ? levels.domain : defaultColours.white) : levels[level];
     const fill = override.fill ?? base;
@@ -25,8 +25,8 @@ export function resolveStyle(area: AreaKey, level: StyleLevel, override: Element
     const borderColour = override.border_colour ?? defaultBorder ?? HAIRLINE;
     const borderWidth = override.border_width ?? (defaultBorder === null ? 0 : 1);
     const border = borderWidth === 0 ? null : (override.border_colour ?? defaultBorder ?? HAIRLINE);
-    const seen = fill === null ? null : fillOpacity < 100 ? effectiveFill(fill, fillOpacity, defaultColours.white) : fill;
-    const textColour = override.text_colour ?? (seen === null ? defaultColours.ink : autoTextColour(seen));
+    const seen = fill === null ? behind : fillOpacity < 100 ? effectiveFill(fill, fillOpacity, behind) : fill;
+    const textColour = override.text_colour ?? autoTextColour(seen);
     const typed = typography(area, level);
     const family = override.font === undefined ? typed.font.family : override.font === 'inter' ? 'Inter' : 'Space Grotesk';
     const size = override.font_size ?? typed.font.size;
@@ -48,3 +48,5 @@ export function resolveStyle(area: AreaKey, level: StyleLevel, override: Element
         radius: override.corner_radius ?? typed.radius,
     };
 }
+
+export const styleBackdrop = (style: Pick<BlockStyle, 'fill' | 'fillOpacity'>, behind: string): string => (style.fill === null ? behind : style.fillOpacity < 100 ? effectiveFill(style.fill, style.fillOpacity, behind) : style.fill);

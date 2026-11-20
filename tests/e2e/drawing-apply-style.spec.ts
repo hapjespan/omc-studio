@@ -13,6 +13,15 @@ function seedDomains() {
 }
 
 
+const boxes = async (page: Page, layers: ReturnType<Page['locator']>, names: string[]) => {
+    const result: string[][] = [];
+    for (const name of names) {
+        await layers.getByRole('button', { name, exact: true }).click();
+        result.push(await Promise.all(['X', 'Y', 'B (breedte)', 'H (hoogte)'].map((label) => page.getByLabel(`${label} van ${name}`).inputValue())));
+    }
+    return result;
+};
+
 const sizes = (page: Page, names: string[]) => Promise.all(names.map(async (name) => page.getByLabel(`B (breedte) van ${name}`).inputValue()));
 
 test('the style of a Domain goes to every Domain of its Area after confirmation, places and sizes unchanged', async ({ page }) => {
@@ -25,6 +34,8 @@ test('the style of a Domain goes to every Domain of its Area after confirmation,
     await expect(page.getByRole('button', { name: 'Stijl naar alle activiteiten in dit domein' })).toHaveCount(0);
     await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
     const width = await sizes(page, ['Onderwijs']);
+    const siblings = await boxes(page, layers, ['Tweede', 'Derde']);
+    await layer('Onderwijs').click();
 
     await page.getByRole('button', { name: 'Stijl naar alle domeinen hier' }).click();
     const dialog = page.getByRole('dialog', { name: 'Stijl van Onderwijs toepassen?' });
@@ -45,6 +56,7 @@ test('the style of a Domain goes to every Domain of its Area after confirmation,
     }
     await layer('Beheer').click();
     await expect(page.getByLabel('Vulling van Beheer', { exact: true })).not.toHaveValue('#223344');
+    expect(await boxes(page, layers, ['Tweede', 'Derde'])).toEqual(siblings);
     await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
     await page.reload();
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });

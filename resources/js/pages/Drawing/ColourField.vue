@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import TextField from '../../components/fields/TextField.vue';
-import { HEX_PATTERN } from '../../colour';
+import { defaultColours, HEX_PATTERN } from '../../colour';
 
 const props = defineProps<{ id: string; caption: string; label: string; swatchLabel: string; value: string; invalidMessage: string; error?: string }>();
 const emit = defineEmits<{ commit: [hex: string]; invalid: [text: string] }>();
@@ -10,7 +10,7 @@ const draft = ref(props.value);
 const shape = ref('');
 const field = ref<HTMLElement>();
 const shown = computed(() => props.error || shape.value);
-const swatch = computed(() => (HEX_PATTERN.test(draft.value) ? draft.value : props.value || '#FFFFFF'));
+const swatch = computed(() => (HEX_PATTERN.test(draft.value) ? draft.value : props.value || defaultColours.white));
 
 watch(
     () => props.value,

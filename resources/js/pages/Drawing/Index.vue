@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
-import { backdropOf } from '../../layout/backdrop';
+import { backdropOf, behindOf } from '../../layout/backdrop';
 import { resolveStyle } from '../../layout/resolveStyle';
 import { applyScope } from '../../layout/styleScope';
 import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
@@ -96,7 +96,7 @@ const refreshBox = (): void => {
     const block = single.value ? blocks.get(single.value) : undefined;
     const live = engine.value;
     const styleOf = (id: string): BlockStyle => resolveStyle(blocks.get(id)!.areaKey, blocks.get(id)!.kind, (live?.getStyle(id) ?? {}) as ElementStyle);
-    target.value = block && block.areaKey !== 'direction' && live ? { kind: block.kind, resolved: styleOf(block.id), backdrop: backdropOf(block, blocks, styleOf) } : null;
+    target.value = block && block.areaKey !== 'direction' && live ? { kind: block.kind, resolved: resolveStyle(block.areaKey, block.kind, (live.getStyle(block.id) ?? {}) as ElementStyle, behindOf(block, blocks, styleOf)), backdrop: backdropOf(block, blocks, styleOf) } : null;
 };
 const copyStyle = (): void => {
     copied.value = single.value ? (engine.value?.copyStyle(single.value) ?? null) : null;
@@ -104,11 +104,12 @@ const copyStyle = (): void => {
 };
 const setStyle = (patch: StylePatch, mode: 'patch' | 'paste' | 'apply' = 'patch'): void => {
     applying.value = false;
+    const count = scope.value?.ids.length ?? 0;
     const result = mode === 'paste' && copied.value ? engine.value?.pasteStyle(copied.value) : mode === 'apply' && single.value ? engine.value?.applyStyleToSiblings(single.value) : engine.value?.setStyle(patch);
     refreshBox();
     if (!result || result.ids.length === 0) return;
     const named = (ids: string[]) => ids.map((id) => names.value.get(id) ?? id).join(', ');
-    if (mode === 'apply' && single.value) return say(t('drawing_style.applied', { name: names.value.get(single.value) ?? single.value, count: result.ids.length }));
+    if (mode === 'apply' && single.value) return say(t('drawing_style.applied', { name: names.value.get(single.value) ?? single.value, count }) + (result.autoText.length > 0 ? `. ${t('drawing_style.auto_text', { names: named(result.autoText) })}` : ''));
     say(result.autoText.length > 0 ? t('drawing_style.auto_text', { names: named(result.autoText) }) : t('drawing_style.changed', { name: named(result.ids) }));
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {

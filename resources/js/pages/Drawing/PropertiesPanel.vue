@@ -48,6 +48,6 @@ function commit(key: (typeof keys)[number]): void {
         </form>
         <StylePanel v-if="id && target" :id="id" :name="name" :target="target" :copied="copied ?? null" :scope="scope ?? null" @style="emit('style', $event)" @copy="emit('copyStyle')" @paste="emit('pasteStyle')" @apply="emit('applyStyle')" />
         <TextStylePanel v-if="id && target && target.kind !== 'area'" :id="id" :name="name" :target="target" @style="emit('style', $event)" />
-        <p v-else-if="!$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>
+        <p v-if="!id && !$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>
     </Panel>
 </template>

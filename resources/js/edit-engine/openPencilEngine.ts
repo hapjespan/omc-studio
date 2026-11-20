@@ -140,21 +140,18 @@ export class OpenPencilEngine implements DrawingEngine {
     setStyle(patch: StylePatch): StyleChange {
         const { editor, canvas } = this.mounted();
         const result = this.guarded(() => setStyle({ editor, ids: [...editor.state.selectedIds] }, canvas, patch, { measurer: this.measurer }));
-        for (const id of result.ids) this.sized.add(id);
         return result;
     }
 
     pasteStyle(copied: CopiedStyle): StyleChange {
         const { editor, canvas } = this.mounted();
         const result = this.guarded(() => pasteStyle({ editor, ids: [...editor.state.selectedIds] }, canvas, copied, { measurer: this.measurer }));
-        for (const id of result.ids) this.sized.add(id);
         return result;
     }
 
     applyStyleToSiblings(id: string): StyleChange {
         const { editor, canvas } = this.mounted();
         const result = this.guarded(() => applyStyleToSiblings({ editor, ids: [] }, canvas, id, { measurer: this.measurer }));
-        for (const changed of result.ids) this.sized.add(changed);
         return result;
     }
 

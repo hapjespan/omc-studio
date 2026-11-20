@@ -75,10 +75,10 @@ const pickFont = (value: string): void => emit('style', value === 'space_grotesk
         <NativeSelect id="style-font" :label="t('drawing_style.font_of', { name })" :model-value="family()" :options="fonts" @update:model-value="pickFont" />
         <TextField id="style-font-size" v-model="size" type="number" :label="t('drawing_style.font_size_of', { name })" :error="sizeError || undefined" @change="commitSize" />
         <SegmentedControl :label="t('drawing_style.weight_of', { name })" :items="weights" :active="target.resolved.font.weight >= 600 ? 'bold' : 'normal'" @select="emit('style', { font_weight: $event })" />
-        <label class="inline-flex items-center gap-1 text-[13px]">
+        <span class="inline-flex items-center gap-1 text-[13px]">
             <CheckBox :model-value="target.resolved.font.italic" :disabled="!supportsItalic(target.resolved.font.family)" :aria-label="t('drawing_style.italic_of', { name })" @update:model-value="emit('style', { italic: Boolean($event) })" />
-            <span aria-hidden="true">{{ t('drawing_style.italic') }}</span>
-        </label>
+            {{ t('drawing_style.italic') }}
+        </span>
         <ColourField
             id="style-text-colour"
             ref="colour"

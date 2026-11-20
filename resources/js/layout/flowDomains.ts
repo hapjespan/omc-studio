@@ -1,3 +1,5 @@
+import { defaultColours } from '../colour';
+import { styleBackdrop } from './resolveStyle';
 import { stackOrder } from './manual';
 import { elementPadding, MODALITY_BADGE } from './padding';
 import { automaticStart } from './placement';
@@ -8,7 +10,8 @@ import type { AreaKey, BlockStyle, DrawnBlock, ElementKind, LayoutElement, Manua
 
 export interface FlowContext {
     measurer: TextMeasurer;
-    style: (element: LayoutElement, level: ElementKind) => BlockStyle;
+    style: (element: LayoutElement, level: ElementKind, behind: string) => BlockStyle;
+    behind?: string;
     rect?: (id: string) => ManualRect | null;
 }
 
@@ -25,10 +28,11 @@ const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 
 
 export const columnCount = (width: number): number => Math.max(1, Math.floor((width + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
 
-function place(node: TreeNode, area: AreaKey, x: number, y: number, width: number, out: DrawnBlock[], context: FlowContext, own: ManualRect | null = null): DrawnBlock {
+function place(node: TreeNode, area: AreaKey, x: number, y: number, width: number, out: DrawnBlock[], context: FlowContext, own: ManualRect | null = null, behind: string = context.behind ?? defaultColours.white): DrawnBlock {
     const { element } = node;
     const pad = elementPadding[element.kind];
-    const style = context.style(element, element.kind);
+    const style = context.style(element, element.kind, behind);
+    const backdrop = styleBackdrop(style, behind);
     const textWidth = width - 2 * pad.x - (element.modality ? MODALITY_BADGE : 0);
     const textLines = wrapText(element.name, textWidth, style.font, context.measurer);
     const block: DrawnBlock = {
@@ -53,14 +57,14 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
     for (const child of node.children) {
         const childRect = context.rect?.(child.element.id) ?? null;
         if (!childRect) continue;
-        const placed = place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect);
+        const placed = place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect, backdrop);
         hanging = Math.max(hanging, childRect.y + placed.drawnHeight);
     }
     cursor = automaticStart(cursor, hanging);
     for (const child of node.children) {
         if (context.rect?.(child.element.id)) continue;
         const indent = child.element.kind === 'cluster' ? CLUSTER_INDENT : 0;
-        const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context);
+        const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context, null, backdrop);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
     block.drawnHeight = Math.max(own?.height ?? 0, cursor + pad.y);

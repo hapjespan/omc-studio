@@ -68,3 +68,28 @@ test('a style is copied and pasted onto the same kind only', async ({ page }) =>
     await expect(page.getByLabel('Vulling van Beheer', { exact: true })).toHaveValue('#112233');
     await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
 });
+
+test('an Area fill and border survive a reload and are drawn in Bekijken and the properties panel names no empty selection', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    const layers = await openDrawing(page, canvas);
+    await layers.getByRole('button', { name: 'Primaire activiteiten', exact: true }).click();
+    await expect(page.getByText('Niets geselecteerd')).toHaveCount(0);
+    const fill = page.getByLabel('Vulling van Primaire activiteiten', { exact: true });
+    await fill.fill('#334455');
+    await fill.press('Enter');
+    const width = page.getByLabel('Randbreedte van Primaire activiteiten (0 tot 8)');
+    await width.fill('4');
+    await width.press('Enter');
+    await page.getByLabel('Randkleur van Primaire activiteiten').fill('#AA0000');
+    await page.getByLabel('Randkleur van Primaire activiteiten').press('Enter');
+    await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
+    await page.reload();
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Primaire activiteiten', exact: true }).click();
+    await expect(page.getByLabel('Vulling van Primaire activiteiten', { exact: true })).toHaveValue('#334455');
+    await page.goto(`/canvases/${canvas.id}/view`);
+    const area = page.locator('[data-block="primary_activities"]');
+    await expect(area).toHaveCSS('background-color', 'rgb(51, 68, 85)');
+    await expect(area).toHaveCSS('border-top-width', '4px');
+    await expect(area).toHaveCSS('border-top-color', 'rgb(170, 0, 0)');
+});

@@ -15,8 +15,10 @@ interface Placed {
     textLines: string[];
 }
 
-test('the text of Tekenen sits within 1 pixel (plus 0.05 of measurement quantisation) of Bekijken for Inter and Space Grotesk at every weight', async ({ page }) => {
-    await page.goto('/?demo=Equal&view=html');
+for (const variant of ['', 'align']) {
+test(`the text of Tekenen sits within 1 pixel (plus 0.05 of measurement quantisation) of Bekijken for Inter and Space Grotesk at every weight${variant ? ', aligned left, centre and right, with and without a Modality' : ''}`, async ({ page }) => {
+    const query = variant ? `&variant=${variant}` : '';
+    await page.goto(`/?demo=Equal&view=html${query}`);
     await page.waitForFunction(() => document.querySelector('main')?.getAttribute('data-ready') === 'true');
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(500);
@@ -26,7 +28,7 @@ test('the text of Tekenen sits within 1 pixel (plus 0.05 of measurement quantisa
         return { x: box.left, y: box.top };
     });
 
-    await page.goto('/?demo=Equal');
+    await page.goto(`/?demo=Equal${query}`);
     await page.waitForFunction(() => document.querySelector('main')?.getAttribute('data-ready') === 'true');
     await page.waitForTimeout(1500);
     const drawing = await page.screenshot();
@@ -56,3 +58,4 @@ test('the text of Tekenen sits within 1 pixel (plus 0.05 of measurement quantisa
     test.info().annotations.push({ type: 'max vertical offset', description: rows.map((row) => `${row.id}:${row.lines.map((line) => (line.centroid[0] - line.centroid[1]).toFixed(2)).join('/')}`).join(' ') + ' max ' + Math.max(...rows.flatMap((row) => row.lines.map((line) => Math.abs(line.centroid[0] - line.centroid[1])))).toFixed(3) });
     expect(problems).toEqual([]);
 });
+}

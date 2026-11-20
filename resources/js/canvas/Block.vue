@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { withOpacity } from '../colour';
 import { AREA_LETTER_SPACING } from '../layout/arrangeAreas';
-import { blockPadding } from '../layout/padding';
+import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -25,7 +25,7 @@ const box = (): Record<string, string> => {
         fontStyle: block.style.font.italic ? 'italic' : 'normal',
         borderRadius: `${block.style.radius}px`,
         color: block.style.textColour,
-        padding: `${y}px ${x}px`,
+        padding: `${y}px ${x + (block.modality ? MODALITY_BADGE : 0)}px ${y}px ${x}px`,
         fontFamily: `"${block.style.font.family}"`,
         fontSize: `${block.style.font.size}px`,
         fontWeight: String(block.style.font.weight),

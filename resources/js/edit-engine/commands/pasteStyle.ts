@@ -22,7 +22,7 @@ export function pasteStyle(selection: Selection, canvas: DrawnCanvas, copied: Co
     let result: StyleChange = { ids: [], autoText: [] };
     selection.editor.undo.runBatch('Paste style', () => {
         for (const id of ids) {
-            const next = setStyle({ ...selection, ids: [id] }, canvas, replacementPatch(storedStyle(selection.editor.graph, id), copied.style), hooks);
+            const next = setStyle({ ...selection, ids: [id] }, canvas, replacementPatch(storedStyle(selection.editor.graph, id), copied.style), { ...hooks, checkText: true });
             result = { ids: [...result.ids, ...next.ids], autoText: [...result.autoText, ...next.autoText] };
         }
     });

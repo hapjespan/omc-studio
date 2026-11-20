@@ -1,7 +1,8 @@
 import type { SceneGraph } from '@open-pencil/scene-graph';
 import type { DrawnBlock, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
 import { contrastRatio, MINIMUM_CONTRAST } from '../../colour';
-import { backdropOf } from '../../layout/backdrop';
+import { backdropOf, behindOf } from '../../layout/backdrop';
+import { blockPadding } from '../../layout/padding';
 import { resolveStyle } from '../../layout/resolveStyle';
 import { wrapText } from '../../layout/wrapText';
 import type { LayoutStyle } from '../DrawingEngine';
@@ -17,6 +18,7 @@ export interface StyleChange {
 
 export interface StyleHooks {
     measurer?: TextMeasurer;
+    checkText?: boolean;
 }
 
 const DATA = { pluginId: 'omc-studio', key: 'style' };
@@ -37,11 +39,11 @@ export function mergeStyle(current: LayoutStyle, patch: StylePatch): LayoutStyle
 
 export const styleData = (style: LayoutStyle) => (Object.keys(style).length === 0 ? [] : [{ ...DATA, value: JSON.stringify(style) }]);
 
-export function paintBlock(selection: Selection, block: DrawnBlock, style: LayoutStyle, measurer?: TextMeasurer): void {
+export function paintBlock(selection: Selection, block: DrawnBlock, style: LayoutStyle, behind: string, measurer?: TextMeasurer): void {
     const { editor } = selection;
     const frame = editor.graph.getNode(block.id);
     if (!frame) return;
-    const resolved = resolveStyle(block.areaKey, block.kind === 'area' ? 'area' : block.kind, style as ElementStyle);
+    const resolved = resolveStyle(block.areaKey, block.kind === 'area' ? 'area' : block.kind, style as ElementStyle, behind);
     editor.updateNodeWithUndo(
         block.id,
         {
@@ -56,10 +58,13 @@ export function paintBlock(selection: Selection, block: DrawnBlock, style: Layou
     const drawn = { ...block, style: resolved };
     const width = textBox(drawn, frame.width, frame.height).width;
     const lines = measurer ? wrapText(block.textLines.join(' '), width, resolved.font, measurer) : block.textLines;
+    const pad = blockPadding(block);
+    const height = Math.max(frame.height, 2 * pad.y + lines.length * resolved.lineHeight);
+    if (height > frame.height) editor.updateNodeWithUndo(block.id, { height }, 'Style');
     editor.updateNodeWithUndo(
         block.id + TEXT_SUFFIX,
         {
-            ...textBox({ ...drawn, textLines: lines }, frame.width, frame.height),
+            ...textBox({ ...drawn, textLines: lines }, frame.width, height),
             text: lines.join('\n'),
             fontFamily: resolved.font.family,
             fontSize: resolved.font.size,
@@ -96,8 +101,10 @@ export function setStyle(selection: Selection, canvas: DrawnCanvas, patch: Style
     for (const id of targets) styles.set(id, mergeStyle(styles.get(id) as LayoutStyle, patch));
     const resolved = (id: string) => resolveStyle((blocks.get(id) as DrawnBlock).areaKey, (blocks.get(id) as DrawnBlock).kind, styles.get(id) as ElementStyle);
     const autoText: string[] = [];
-    if ('fill' in patch || 'fill_opacity' in patch) {
-        for (const id of descendants(blocks, new Set(targets))) {
+    const repaint = 'fill' in patch || 'fill_opacity' in patch || hooks.checkText === true;
+    const affected = repaint ? descendants(blocks, new Set(targets)) : new Set(targets);
+    if (repaint) {
+        for (const id of affected) {
             const own = styles.get(id)?.text_colour;
             if (typeof own === 'string' && contrastRatio(own, backdropOf(blocks.get(id) as DrawnBlock, blocks, resolved)) < MINIMUM_CONTRAST) {
                 styles.set(id, mergeStyle(styles.get(id) as LayoutStyle, { text_colour: null }));
@@ -105,9 +112,8 @@ export function setStyle(selection: Selection, canvas: DrawnCanvas, patch: Style
             }
         }
     }
-    const ids = [...new Set([...targets, ...autoText])];
     selection.editor.undo.runBatch('Style', () => {
-        for (const id of ids) paintBlock(selection, blocks.get(id) as DrawnBlock, styles.get(id) as LayoutStyle, hooks.measurer);
+        for (const id of affected) paintBlock(selection, blocks.get(id) as DrawnBlock, styles.get(id) as LayoutStyle, behindOf(blocks.get(id) as DrawnBlock, blocks, resolved), hooks.measurer);
     });
-    return { ids, autoText };
+    return { ids: [...new Set([...targets, ...autoText])], autoText };
 }

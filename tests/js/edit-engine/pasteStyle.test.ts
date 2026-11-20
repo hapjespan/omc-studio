@@ -49,4 +49,15 @@ describe('copy and paste style', () => {
         expect(result.ids).toEqual([]);
         expect(storedStyle(graph, 'a')).toEqual({});
     });
+
+    it('returns pasted own text to automatic when the target has no fill of its own and sits on a dark Area', () => {
+        const items = [element('g', 'actors', 'domain', 'Groep'), element('i1', 'actors', 'activity', 'Een', 'g', 1), element('i2', 'actors', 'activity', 'Twee', 'g', 2)];
+        const opened = open(items, { actors: manual(0, 200, 400, 300, 0), g: manual(8, 40, 300, 200), i1: manual(8, 30, 100, 24), i2: manual(8, 60, 100, 24) });
+        const apply = (ids: string[], patch: Parameters<typeof setStyle>[2]) => opened.restrictions.privileged(() => setStyle(opened.selection(ids), opened.canvas, patch, { measurer: fakeMeasurer }));
+        apply(['actors'], { fill: '#000000' });
+        apply(['i1'], { text_colour: '#222222' });
+        const result = opened.restrictions.privileged(() => pasteStyle(opened.selection(['i2']), opened.canvas, copyStyle(opened.graph, opened.canvas, 'i1')!, { measurer: fakeMeasurer }));
+        expect(result.autoText).toEqual(['i2']);
+        expect(storedStyle(opened.graph, 'i2').text_colour).toBeUndefined();
+    });
 });
