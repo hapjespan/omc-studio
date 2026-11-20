@@ -48,6 +48,12 @@ describe('check-audit', () => {
         expect(result.stderr).toContain('GHSA-aaaa-bbbb-cccc');
     });
 
+    it('fails on a report that holds an error instead of findings', () => {
+        const path = join(mkdtempSync(join(tmpdir(), 'audit-')), 'audit.json');
+        writeFileSync(path, JSON.stringify({ error: { code: 'ENOTFOUND' } }));
+        expect(spawnSync('node', ['scripts/check-audit.mjs', path], { encoding: 'utf8' }).status).toBe(1);
+    });
+
     it('fails when the report is unreadable', () => {
         expect(spawnSync('node', ['scripts/check-audit.mjs', 'missing.json'], { encoding: 'utf8' }).status).toBe(1);
     });

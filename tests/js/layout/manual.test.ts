@@ -23,7 +23,7 @@ describe('Manual layout', () => {
     it('draws a Domain at its stored place relative to its Area, in Artboard pixels', () => {
         const canvas = run(tree, { primary_activities: manual(560, 400, 1100, 380, 0), d: manual(16, 48, 286, 204) });
         const domain = find(canvas, 'd');
-        expect([domain.x, domain.y, domain.width, domain.drawnHeight, domain.z]).toEqual([576, 448, 286, 204, 2]);
+        expect([domain.x, domain.y, domain.width, domain.drawnHeight, domain.z]).toEqual([576, 448, 286, 204, 1002]);
     });
 
     it('places a Manual Domain relative to an automatic Area too', () => {
@@ -41,11 +41,11 @@ describe('Manual layout', () => {
         expect(activity.width).toBe(300 - 24);
     });
 
-    it('places a Manual child relative to its parent and keeps its z', () => {
+    it('places a Manual child relative to its parent and keeps its z within its depth', () => {
         const canvas = run(tree, { d: manual(30, 60, 300, 200), a: manual(10, 40, 120, 30, 7) });
         const parent = find(canvas, 'd');
         const child = find(canvas, 'a');
-        expect([child.x, child.y, child.width, child.drawnHeight, child.z]).toEqual([parent.x + 10, parent.y + 40, 120, 30, 7]);
+        expect([child.x, child.y, child.width, child.drawnHeight, child.z]).toEqual([parent.x + 10, parent.y + 40, 120, 30, 3007]);
     });
 
     it('leaves the other Domains in automatic flow', () => {
@@ -66,5 +66,19 @@ describe('Manual layout', () => {
         const area = find(canvas, 'actors');
         expect([find(canvas, 'g').x, find(canvas, 'g').y]).toEqual([area.x + 10, area.y + 50]);
         expect(find(canvas, 'i').x).toBeGreaterThan(find(canvas, 'g').x);
+    });
+});
+
+describe('Stacking', () => {
+    it('keeps a child above its parent and a parent above its Area whatever the sibling order values', () => {
+        const canvas = run(tree, { primary_activities: manual(560, 400, 1100, 380, 3), d: manual(16, 48, 286, 204, 1), a: manual(8, 30, 100, 30, 0) });
+        const [area, parent, child] = ['primary_activities', 'd', 'a'].map((id) => find(canvas, id).z);
+        expect(parent).toBeGreaterThan(area);
+        expect(child).toBeGreaterThan(parent);
+    });
+
+    it('orders siblings by their stored value', () => {
+        const canvas = run(tree, { d: manual(16, 48, 100, 100, 0), e: manual(40, 60, 100, 100, 1) });
+        expect(find(canvas, 'e').z).toBeGreaterThan(find(canvas, 'd').z);
     });
 });

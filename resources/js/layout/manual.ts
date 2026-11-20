@@ -5,3 +5,5 @@ export function manualRect(layout: ElementLayout | undefined): ManualRect | null
     const { x, y, width, height, z } = layout;
     return x === undefined || y === undefined || width === undefined || height === undefined || z === undefined ? null : { x, y, width, height, z };
 }
+
+export const stackOrder = (depth: number, own: ManualRect | null): number => depth * 1000 + (own?.z ?? 0);

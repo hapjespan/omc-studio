@@ -18,7 +18,13 @@ const isIdentifier = (url) => identifiers.some((identifier) => url.startsWith(id
 
 let failed = false;
 function scan(dir, allowVendored) {
-    if (!existsSync(dir)) return;
+    if (!existsSync(dir)) {
+        if (allowVendored) {
+            console.error(`no build at ${dir}`);
+            failed = true;
+        }
+        return;
+    }
     for (const file of allFiles(dir)) {
         const urls = readFileSync(file, 'utf8').match(/https?:\/\/[^\s"'`)\\]+/g) ?? [];
         for (const url of urls) {

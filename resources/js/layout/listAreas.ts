@@ -1,3 +1,4 @@
+import { stackOrder } from './manual';
 import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
 import type { Flow, FlowContext } from './flowDomains';
 import type { TreeNode } from './tree';
@@ -26,7 +27,7 @@ export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, 
             y: top,
             width,
             drawnHeight: textLines.length * style.lineHeight,
-            z: own?.z ?? depth[element.kind],
+            z: stackOrder(depth[element.kind], own),
             textLines,
             modality: null,
             system: false,

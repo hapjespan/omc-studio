@@ -1,3 +1,4 @@
+import { stackOrder } from './manual';
 import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
 import type { TreeNode } from './tree';
 import { wrapText } from './wrapText';
@@ -43,7 +44,7 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
         y,
         width,
         drawnHeight: 0,
-        z: own?.z ?? depth[element.kind],
+        z: stackOrder(depth[element.kind], own),
         textLines,
         modality: element.modality,
         system: !!element.unknownAllocation,

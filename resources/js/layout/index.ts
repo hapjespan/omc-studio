@@ -3,7 +3,7 @@ import { DIRECTION_HEIGHT, layoutDirection } from './direction';
 import { flowDomains, type Flow, type FlowContext } from './flowDomains';
 import { flowList } from './listAreas';
 import { resolveStyle } from './resolveStyle';
-import { manualRect } from './manual';
+import { manualRect, stackOrder } from './manual';
 import { buildDomains, type TreeNode } from './tree';
 import { computeWarnings } from './warnings';
 import { wrapText } from './wrapText';
@@ -45,7 +45,7 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
             y: frame.y,
             width: frame.width,
             drawnHeight: frame.height,
-            z: rect(area.key)?.z ?? 0,
+            z: stackOrder(0, rect(area.key)),
             textLines: area.key === 'direction' ? [] : wrapText(area.label.toUpperCase(), frame.width - 2 * AREA_PADDING - area.label.length * AREA_LETTER_SPACING * style.font.size, style.font, measurer),
             modality: null,
             system: false,

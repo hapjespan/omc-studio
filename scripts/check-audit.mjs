@@ -15,14 +15,16 @@ function load() {
 
 let vulnerabilities;
 try {
-    vulnerabilities = JSON.parse(load()).vulnerabilities;
+    const report = JSON.parse(load());
+    if (report.error || typeof report.vulnerabilities !== 'object' || report.vulnerabilities === null) throw new Error('no vulnerabilities object in the report');
+    vulnerabilities = report.vulnerabilities;
 } catch (error) {
     console.error(`audit report unreadable: ${error.message}`);
     process.exit(1);
 }
 
 const problems = [];
-for (const [name, finding] of Object.entries(vulnerabilities ?? {})) {
+for (const [name, finding] of Object.entries(vulnerabilities)) {
     if (!['high', 'critical'].includes(finding.severity)) continue;
     if (!(name in accepted)) {
         problems.push(`${finding.severity} finding outside the accepted set: ${name}`);

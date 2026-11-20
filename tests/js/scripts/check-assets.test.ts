@@ -52,6 +52,11 @@ describe('check-assets with vendored strings', () => {
         expect(result.stderr).toContain('Thing.ts');
     });
 
+    it('fails when there is no build to check', () => {
+        const root = scratch();
+        expect(run(join(root, 'missing'), 'scripts/vendored-urls.txt', join(root, 'src')).status).toBe(1);
+    });
+
     it('lets application code hold the XML namespace identifiers', () => {
         const root = scratch();
         write(root, 'build/vendor.js', '');
