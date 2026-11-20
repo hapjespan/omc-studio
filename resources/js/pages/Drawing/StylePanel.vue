@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
-import { canPaste, type CopiedStyle } from '../../edit-engine/commands/pasteStyle';
+import { canPaste, type CopiedStyle } from '../../layout/styleScope';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import { t } from '../../i18n';
 import type { BlockStyle } from '../../layout';
@@ -28,7 +28,6 @@ type RangeKey = keyof typeof RANGES;
 const current = (): Record<RangeKey, string> => ({ fill_opacity: String(props.target.resolved.fillOpacity), border_width: String(props.target.resolved.borderWidth), corner_radius: String(props.target.resolved.radius) });
 const numbers = ref(current());
 const errors = ref<Partial<Record<RangeKey, string>>>({});
-const fields = ref<Record<string, { focus: () => void } | null>>({});
 
 watch(
     () => props.target,
@@ -85,7 +84,7 @@ const borderStyles = [
             :invalid-message="t('layout.style.border_colour', { name })"
             @commit="colour('border_colour', $event)"
         />
-        <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-3">
             <TextField id="style-border-width" v-model="numbers.border_width" type="number" :label="t('drawing_style.border_width_of', { name })" :error="errors.border_width" @change="commitNumber('border_width')" />
             <NativeSelect id="style-border-style" :label="t('drawing_style.border_style_of', { name })" :model-value="target.resolved.borderStyle" :options="borderStyles" @update:model-value="emit('style', { border_style: $event })" />
         </div>

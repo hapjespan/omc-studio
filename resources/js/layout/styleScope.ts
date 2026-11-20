@@ -1,0 +1,30 @@
+import type { BlockKind, DrawnBlock, DrawnCanvas } from './types';
+
+export interface CopiedStyle {
+    kind: BlockKind;
+    style: Record<string, string | number | boolean>;
+}
+
+export const canPaste = (copied: CopiedStyle | null, kind: BlockKind): boolean => copied !== null && copied.kind === kind;
+
+export interface ApplyScope {
+    scope: 'domains' | 'activities';
+    ids: string[];
+}
+
+const parentOf = (block: DrawnBlock, blocks: Map<string, DrawnBlock>): DrawnBlock | undefined => blocks.get(block.parentId ?? '');
+
+function domainOf(block: DrawnBlock, blocks: Map<string, DrawnBlock>): DrawnBlock | undefined {
+    for (let current = parentOf(block, blocks); current; current = parentOf(current, blocks)) if (current.kind === 'domain') return current;
+    return undefined;
+}
+
+export function applyScope(canvas: DrawnCanvas, id: string): ApplyScope | null {
+    const blocks = new Map(canvas.blocks.map((block) => [block.id, block]));
+    const block = blocks.get(id);
+    if (!block || block.system) return null;
+    if (block.kind === 'domain') return { scope: 'domains', ids: canvas.blocks.filter((other) => other.kind === 'domain' && other.areaKey === block.areaKey && other.id !== id && !other.system).map((other) => other.id) };
+    if (block.kind !== 'activity') return null;
+    const domain = domainOf(block, blocks);
+    return domain ? { scope: 'activities', ids: canvas.blocks.filter((other) => other.kind === 'activity' && other.id !== id && domainOf(other, blocks)?.id === domain.id).map((other) => other.id) } : null;
+}

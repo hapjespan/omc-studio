@@ -4,7 +4,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { backdropOf } from '../../layout/backdrop';
 import { resolveStyle } from '../../layout/resolveStyle';
-import { applyScope } from '../../edit-engine/commands/applyStyle';
+import { applyScope } from '../../layout/styleScope';
 import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import type { StyleTarget } from './StylePanel.vue';

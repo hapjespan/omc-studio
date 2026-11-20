@@ -1,15 +1,11 @@
 import type { SceneGraph } from '@open-pencil/scene-graph';
-import type { BlockKind, DrawnCanvas } from '../../layout';
+import type { DrawnCanvas } from '../../layout';
+import type { CopiedStyle } from '../../layout/styleScope';
 import type { LayoutStyle } from '../DrawingEngine';
 import type { Selection } from '../transform';
 import { setStyle, storedStyle, type StyleChange, type StyleHooks, type StylePatch } from './style';
 
-export interface CopiedStyle {
-    kind: BlockKind;
-    style: LayoutStyle;
-}
-
-export const canPaste = (copied: CopiedStyle | null, kind: BlockKind): boolean => copied !== null && copied.kind === kind;
+export { canPaste, type CopiedStyle } from '../../layout/styleScope';
 
 export function copyStyle(graph: SceneGraph, canvas: DrawnCanvas, id: string): CopiedStyle | null {
     const block = canvas.blocks.find((candidate) => candidate.id === id);

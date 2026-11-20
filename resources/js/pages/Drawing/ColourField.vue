@@ -22,7 +22,7 @@ watch(
 
 function commit(): void {
     const typed = draft.value.trim();
-    if (typed === props.value) return (shape.value = '');
+    if (typed === props.value) return void (shape.value = '');
     if (!HEX_PATTERN.test(typed)) {
         shape.value = props.invalidMessage;
         emit('invalid', typed);

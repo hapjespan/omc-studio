@@ -15,7 +15,13 @@ const ready = ref(false);
 
 const style = (family: BlockStyle['font']['family'], weight: number): BlockStyle => ({
     fill: '#F6E6CC',
+    fillOpacity: 100,
     border: null,
+    borderColour: '#DCDFE2',
+    borderWidth: 0,
+    borderStyle: 'solid',
+    alignHorizontal: 'left',
+    alignVertical: 'top',
     textColour: '#171B21',
     labelColour: '#171B21',
     font: { family, size: 14, weight, italic: false },
