@@ -23,8 +23,10 @@ export async function signInAs(page: Page, role: 'administrator' | 'reader'): Pr
     await page.getByRole('heading', { level: 1 }).waitFor();
 }
 
-export function createCanvas(): number {
-    const code = "$c = App\\Models\\Canvas::factory()->create(); echo 'ID=' . $c->id;";
+export function createCanvas(names?: { organisation: string; canvas: string }): number {
+    const code = names
+        ? `$o = App\\Models\\Organisation::factory()->create(['name' => '${names.organisation}']); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => $o->id, 'name' => '${names.canvas}']); echo 'ID=' . $c->id;`
+        : "$c = App\\Models\\Canvas::factory()->create(); echo 'ID=' . $c->id;";
     const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
 
     return Number(/ID=(\d+)/.exec(output)?.[1]);
