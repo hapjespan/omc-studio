@@ -20,7 +20,7 @@ const page = usePage();
 const errors = computed(() => ((page.props.errors as Record<string, unknown>).figures ?? {}) as Record<string, string>);
 const figures = computed(() => props.row.figures as Record<string, string>);
 const draft = reactive({ ...figures.value });
-const initial = JSON.stringify(draft);
+let initial = JSON.stringify(draft);
 const busy = ref(false);
 const deleting = ref(false);
 const archived = computed(() => Boolean(props.row.archived_at));
@@ -41,7 +41,7 @@ const optionalHint = (label: string, example: string): string => `${label} (${t(
 watch(() => props.row.id, () => Object.assign(draft, figures.value));
 
 function save(): void {
-    router.put(routes.costRecordYear(props.row.id, props.year), { ...draft }, { errorBag: 'figures', preserveScroll: true, preserveState: true, onStart: () => (busy.value = true), onFinish: () => (busy.value = false), onError: () => nextTick(focusFirstInvalid) });
+    router.put(routes.costRecordYear(props.row.id, props.year), { ...draft }, { errorBag: 'figures', preserveScroll: true, preserveState: true, onStart: () => (busy.value = true), onFinish: () => (busy.value = false), onSuccess: () => { initial = JSON.stringify(draft); emit('dirty', false); }, onError: () => nextTick(focusFirstInvalid) });
 }
 
 const undo = useUndoFlash('figures');

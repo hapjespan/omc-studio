@@ -66,6 +66,7 @@ test('Kostenposten of the Canvas: search, open a record, carry over and finalise
     await activate(page, page.getByRole('button', { name: 'Licentie', exact: true }));
     await expect(page.getByRole('dialog', { name: 'Licentie' })).toBeVisible();
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('button', { name: 'Licentie', exact: true })).toBeFocused();
 
     const ready = seedAllocation(unique(), {});
     await page.goto(`/canvases/${ready.canvas}/cost-records?year=2026`);

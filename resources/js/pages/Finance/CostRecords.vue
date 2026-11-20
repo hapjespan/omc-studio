@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import AppButton from '../../components/ui/AppButton.vue';
@@ -44,6 +44,24 @@ const yearsOpen = ref(false);
 const carryOpen = ref(false);
 const yearFinalised = computed(() => Boolean(props.canvas && props.finalised?.some((entry) => entry.canvas_id === props.canvas?.id && entry.year === props.year)));
 const dock = ref<HTMLElement | null>(null);
+let skipGuard = false;
+const removeGuard = router.on('before', (event) => {
+    const visit = event.detail.visit;
+    if (skipGuard || visit.method !== 'get' || visit.url.pathname !== window.location.pathname || visit.url.searchParams.get('year') === String(props.year)) return;
+    const target = `${visit.url.pathname}${visit.url.search}`;
+    list.value?.guard(
+        () => {
+            skipGuard = true;
+            router.get(target, {}, { preserveScroll: true, preserveState: false, onFinish: () => (skipGuard = false) });
+        },
+        () => {
+            const select = document.getElementById('year-selector') as HTMLSelectElement | null;
+            if (select) select.value = String(props.year);
+        },
+    );
+    return false;
+});
+onBeforeUnmount(removeGuard);
 const keep = { preserveScroll: true, preserveState: true };
 
 const columns: ListColumn[] = [
@@ -110,7 +128,7 @@ function load(query: ListState, year: number | null = props.year): void {
                     <AppButton v-if="canvas" @click="exportFile(routes.allocationsCsvExport(canvas.id), 'allocations.csv')">{{ t('csvx.export_allocations') }}</AppButton>
                     <AppButton v-if="canvas && cards && year !== null" @click="carryOpen = true">{{ t('carry_over.title') }}</AppButton>
                     <AppButton v-if="!organisation.archived" @click="router.get(routes.costRecordImport(organisation.id))">{{ t('cost_records.import_csv') }}</AppButton>
-                    <AppButton v-if="!organisation.archived" variant="primary" icon="plus" @click="list?.create()">{{ t('list.new') }}</AppButton>
+                    <AppButton v-if="!organisation.archived" variant="primary" icon="plus" @click="list?.create($event.currentTarget as HTMLElement)">{{ t('list.new') }}</AppButton>
                 </div>
             </div>
             <p v-if="exportNote" class="text-[12.5px]" data-testid="export-note">{{ exportNote }}</p>
@@ -125,13 +143,13 @@ function load(query: ListState, year: number | null = props.year): void {
                 <template #cell="{ row, column }">
                     <span v-if="column.key === 'allocationText'" :class="['inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] font-semibold', row.allocation === 'allocated' ? 'text-success' : 'text-warning']"><span aria-hidden="true" :class="['inline-block h-[7px] w-[7px] rounded-full', row.allocation === 'allocated' ? 'bg-success' : 'border-[1.5px] border-warning']" />{{ row[column.key] }}</span>
                     <span v-else-if="column.key === 'budgetText'" class="whitespace-nowrap font-semibold">{{ row[column.key] }}</span>
-                    <span v-else-if="column.key === 'forecastText'" class="whitespace-nowrap">{{ row[column.key] }}<span v-if="delta(row)" :class="['ml-1.5 text-[11.5px]', delta(row).startsWith('+') ? 'text-warning' : 'text-success']">{{ delta(row) }}</span></span>
+                    <span v-else-if="column.key === 'forecastText'" class="whitespace-nowrap">{{ row[column.key] }}<span v-if="delta(row)" :class="['ml-1.5 text-[11.5px]', delta(row).startsWith('+') ? 'text-warning' : 'text-success']"><span class="sr-only">{{ t('cost_records.delta') }} </span>{{ delta(row) }}</span></span>
                     <span v-else-if="column.key === 'ownerText' || column.key === 'applicationText' || column.key === 'kindText'" :class="['whitespace-nowrap', row[column.key] ? '' : 'text-muted']">{{ row[column.key] || t('cost_records.none_text') }}</span>
                     <template v-else>{{ row[column.key] }}</template>
                 </template>
-                <template #form="{ row, close, setDirty, requestDelete }">
-                    <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
-                    <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty" />
+                <template #form="{ row, close, requestClose, setDirty, requestDelete }">
+                    <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @cancel="requestClose" @dirty="setDirty($event, 'record')" />
+                    <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty($event, 'figures')" />
                     <div v-if="row" class="mt-4 border-t border-hairline pt-4">
                         <p class="text-[12.5px] text-secondary">{{ consequence(row) ?? t('list.delete_none') }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
@@ -142,6 +160,6 @@ function load(query: ListState, year: number | null = props.year): void {
                 </template>
             </ListView>
         </div>
-        <aside ref="dock" :aria-label="t('cost_records.title')" class="w-full empty:hidden lg:w-[352px]" />
+        <aside ref="dock" :aria-label="t('cost_records.panel')" class="w-full empty:hidden lg:w-detail-panel" />
     </div>
 </template>

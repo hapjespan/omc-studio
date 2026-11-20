@@ -1101,5 +1101,7 @@
     "cost_records.search_placeholder": "Zoek op naam of code",
     "cost_records.edit_eyebrow": "Kostenpost bewerken",
     "cost_records.import_csv": "Importeren uit CSV",
-    "cost_records.none_text": "geen"
+    "cost_records.none_text": "geen",
+    "cost_records.panel": "Kostenpost bewerken",
+    "cost_records.delta": "Prognose ten opzichte van budget:"
 }

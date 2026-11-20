@@ -2,20 +2,20 @@
 import { computed, nextTick, reactive, ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
+import NativeSelect from '../../components/fields/NativeSelect.vue';
 import Field from '../../components/fields/Field.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import type { ListRow } from '../../components/list/ListView.vue';
 import AppButton from '../../components/ui/AppButton.vue';
-import Icon from '../../components/ui/Icon.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
 type Option = { id: number; name: string };
 
 const props = defineProps<{ row: ListRow | null; organisationId: number; owners: Option[]; applications: Option[]; costKinds: string[] }>();
-const emit = defineEmits<{ close: []; dirty: [value: boolean] }>();
+const emit = defineEmits<{ close: []; cancel: []; dirty: [value: boolean] }>();
 
 const page = usePage();
 const errors = computed(() => Object.fromEntries(Object.entries(page.props.errors as Record<string, unknown>).filter(([key]) => key !== 'figures')) as Record<string, string>);
@@ -43,32 +43,23 @@ function submit(): void {
             <div class="grid items-end gap-3 sm:grid-cols-2">
                 <TextField id="code" v-model="draft.code" :label="`${t('fields.code')} (${t('form.optional')})`" :error="errors.code" @update:model-value="touch" />
                 <Field id="cost_kind" :label="t('fields.cost_kind')" :error="errors.cost_kind" v-slot="{ describedby, invalid }">
-                    <div class="relative flex">
-                        <select id="cost_kind" v-model="draft.cost_kind" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink w-full appearance-none pr-8">
+                    <NativeSelect id="cost_kind" v-model="draft.cost_kind" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
                             <option value="" disabled>{{ t('form.choose') }}</option>
                             <option v-for="kind in costKinds" :key="kind" :value="kind">{{ t(`cost_kind.${kind}`) }}</option>
-                        </select>
-                        <Icon name="chevron-down" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink" />
-                    </div>
+                        </NativeSelect>
                 </Field>
             </div>
             <Field id="owner_id" :label="t('fields.owner')" :hint="t('cost_records.owner_hint')" :error="errors.owner_id" v-slot="{ describedby, invalid }">
-                <div class="relative flex">
-                    <select id="owner_id" v-model="draft.owner_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink w-full appearance-none pr-8">
+                <NativeSelect id="owner_id" v-model="draft.owner_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
                         <option value="" disabled>{{ t('form.choose') }}</option>
                         <option v-for="owner in owners" :key="owner.id" :value="String(owner.id)">{{ owner.name }}</option>
-                    </select>
-                    <Icon name="chevron-down" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink" />
-                </div>
+                    </NativeSelect>
             </Field>
             <Field id="application_id" :label="`${t('fields.application')} (${t('form.optional')})`" :error="errors.application_id" v-slot="{ describedby, invalid }">
-                <div class="relative flex">
-                    <select id="application_id" v-model="draft.application_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink w-full appearance-none pr-8">
+                <NativeSelect id="application_id" v-model="draft.application_id" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
                         <option value="">{{ t('form.none') }}</option>
                         <option v-for="application in applications" :key="application.id" :value="String(application.id)">{{ application.name }}</option>
-                    </select>
-                    <Icon name="chevron-down" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink" />
-                </div>
+                    </NativeSelect>
             </Field>
             <div class="grid items-end gap-3 sm:grid-cols-2">
                 <TextField id="supplier" v-model="draft.supplier" :label="`${t('fields.supplier')} (${t('form.optional')})`" :error="errors.supplier" @update:model-value="touch" />
@@ -78,7 +69,7 @@ function submit(): void {
         </fieldset>
         <div v-if="!archived" class="flex gap-2">
             <AppButton type="submit" variant="primary" :disabled="busy">{{ t('cost_records.save') }}</AppButton>
-            <AppButton @click="emit('close')">{{ t('list.cancel') }}</AppButton>
+            <AppButton @click="emit('cancel')">{{ t('list.cancel') }}</AppButton>
         </div>
     </form>
 </template>

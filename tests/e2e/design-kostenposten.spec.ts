@@ -23,6 +23,7 @@ async function style(locator: Locator, ...properties: string[]): Promise<Record<
 
 async function seed(page: Page): Promise<{ canvas: number; organisation: number }> {
     const data = seedAllocation(unique(), { Licentie: 23000, Beheer: 10000 });
+    tinker(`App\\Models\\FiscalYear::factory()->create(['organisation_id' => ${data.organisation}, 'year' => 2027]);`);
     tinker(`App\\Models\\YearlyFigure::whereHas('costRecord', fn ($q) => $q->where('name', 'Licentie')->where('organisation_id', ${data.organisation}))->update(['forecast_cents' => 25000]); App\\Models\\CostRecord::where('name', 'Licentie')->where('organisation_id', ${data.organisation})->update(['code' => 'KP-001']);`);
     await page.setViewportSize({ width: 1440, height: 900 });
     await signInAs(page, 'administrator');
@@ -49,7 +50,7 @@ test('the Canvas variant has four cards in one row with the board typography and
     expect(await style(first, 'border-top-color', 'border-top-left-radius', 'background-color', 'padding-left')).toMatchObject({ 'border-top-color': HAIRLINE, 'border-top-left-radius': '10px', 'background-color': 'rgb(255, 255, 255)', 'padding-left': '16px' });
     expect(await style(first.locator('p').nth(0), 'font-size', 'font-weight', 'color')).toMatchObject({ 'font-size': '11.5px', 'font-weight': '400', color: MUTED });
     const amount = first.locator('p').nth(1);
-    await expect(amount).toHaveText('€ 330');
+    await expect(amount).toHaveText('€ 330,00');
     expect(await style(amount, 'font-size', 'font-weight', 'letter-spacing')).toMatchObject({ 'font-size': '22px', 'font-weight': '700', 'letter-spacing': '-0.22px' });
     expect((await style(amount, 'font-family'))['font-family']).toContain('Space Grotesk');
     expect(await style(first.locator('p').nth(2), 'font-size', 'color')).toMatchObject({ 'font-size': '12px', color: SECONDARY });
@@ -67,7 +68,7 @@ test('the toolbar is one row and the table has the board columns, the delta and 
     const search = page.getByRole('searchbox', { name: 'Zoeken' });
     await expect(search).toHaveAttribute('placeholder', 'Zoek op naam of code');
     const selects = ['Soort', 'Eigenaar', 'Applicatie', 'Toewijzing'].map((name) => page.getByLabel(name, { exact: true }));
-    const tops = await Promise.all([search, ...selects].map(async (field) => Math.round((await field.locator('xpath=ancestor-or-self::*[self::div][1]').boundingBox())!.y)));
+    const tops = await Promise.all([search, ...selects].map(async (field) => Math.round((await field.boundingBox())!.y)));
     expect(Math.max(...tops) - Math.min(...tops), 'search and filters share a row').toBeLessThanOrEqual(1);
     expect(await style(search, 'height', 'border-top-left-radius')).toMatchObject({ height: '36px', 'border-top-left-radius': '6px' });
 
@@ -108,7 +109,7 @@ test('the form is a docked panel beside a table that stays usable, with two-colu
     const table = (await page.getByRole('table', { name: 'Kostenposten' }).boundingBox())!;
     const box = (await panel.boundingBox())!;
     expect(box.x, 'panel right of the table').toBeGreaterThanOrEqual(table.x + table.width);
-    expect(Math.round(box.width)).toBe(352);
+    expect(Math.round(box.width)).toBe(360);
     expect(await style(panel, 'background-color', 'border-top-left-radius', 'border-top-color', 'padding-left')).toMatchObject({ 'background-color': 'rgb(255, 255, 255)', 'border-top-left-radius': '10px', 'border-top-color': HAIRLINE, 'padding-left': '16px' });
     await expect(page.getByRole('searchbox', { name: 'Zoeken' })).toBeEnabled();
     await page.getByRole('searchbox', { name: 'Zoeken' }).fill('Beheer');
@@ -145,4 +146,72 @@ test('the selected row carries the ink bar and the new button is ink with a plus
     const row = page.getByRole('row', { name: /Licentie/ });
     expect(await style(row, 'background-color', 'box-shadow')).toMatchObject({ 'background-color': 'rgb(246, 247, 245)' });
     expect((await style(row, 'box-shadow'))['box-shadow']).toContain('rgb(23, 27, 33)');
+});
+
+test('unsaved edits are never dropped silently: switching rows, Nieuw, Annuleren and a year change ask first', async ({ page }) => {
+    const { canvas } = await seed(page);
+    await page.goto(`/canvases/${canvas}/cost-records?year=2026`);
+
+    await page.getByRole('button', { name: 'Licentie', exact: true }).click();
+    const panel = page.getByRole('dialog', { name: 'Licentie' });
+    await panel.getByLabel('Naam').fill('Licentie nieuw');
+    const ask = page.getByRole('alertdialog', { name: 'Wijzigingen weggooien?' });
+
+    await page.getByRole('button', { name: 'Beheer', exact: true }).click();
+    await expect(ask).toBeVisible();
+    await expect(ask.getByRole('button', { name: 'Verder bewerken' })).toBeFocused();
+    await ask.getByRole('button', { name: 'Verder bewerken' }).click();
+    await expect(panel.getByLabel('Naam')).toHaveValue('Licentie nieuw');
+    await page.getByRole('button', { name: 'Beheer', exact: true }).click();
+    await ask.getByRole('button', { name: 'Weggooien' }).click();
+    const beheer = page.getByRole('dialog', { name: 'Beheer' });
+    await expect(beheer.getByLabel('Naam')).toHaveValue('Beheer');
+
+    await beheer.getByLabel('Naam').fill('Beheer nieuw');
+    await page.getByRole('button', { name: 'Nieuw', exact: true }).click();
+    await expect(ask).toBeVisible();
+    await ask.getByRole('button', { name: 'Weggooien' }).click();
+    await expect(page.getByRole('dialog', { name: 'Nieuwe kostenpost' })).toBeVisible();
+
+    await page.getByRole('dialog', { name: 'Nieuwe kostenpost' }).getByLabel('Naam').fill('Concept');
+    await page.getByRole('dialog', { name: 'Nieuwe kostenpost' }).getByRole('button', { name: 'Annuleren' }).click();
+    await expect(ask).toBeVisible();
+    await ask.getByRole('button', { name: 'Weggooien' }).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Licentie', exact: true }).click();
+    await page.getByRole('dialog', { name: 'Licentie' }).getByLabel(/^Budget/).fill('999,00');
+    await page.getByLabel('Boekjaar').selectOption('2027');
+    await expect(ask).toBeVisible();
+    await ask.getByRole('button', { name: 'Verder bewerken' }).click();
+    await expect(page.getByLabel('Boekjaar')).toHaveValue('2026');
+    expect(page.url()).toContain('year=2026');
+    await page.getByLabel('Boekjaar').selectOption('2027');
+    await ask.getByRole('button', { name: 'Weggooien' }).click();
+    await expect(page).toHaveURL(/year=2027/);
+});
+
+test('Escape returns focus to the row that opened the panel, also after switching rows', async ({ page }) => {
+    const { canvas } = await seed(page);
+    await page.goto(`/canvases/${canvas}/cost-records?year=2026`);
+
+    const licentie = page.getByRole('button', { name: 'Licentie', exact: true });
+    await licentie.click();
+    await page.getByRole('button', { name: 'Beheer', exact: true }).click();
+    const panel = page.getByRole('dialog', { name: 'Beheer' });
+    await panel.getByLabel('Naam').press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(licentie).toBeFocused();
+});
+
+test('a bulk deletion of the row in the panel closes the panel', async ({ page }) => {
+    const { canvas } = await seed(page);
+    await page.goto(`/canvases/${canvas}/cost-records?year=2026`);
+
+    await page.getByRole('button', { name: 'Licentie', exact: true }).click();
+    const panel = page.getByRole('dialog', { name: 'Licentie' });
+    await expect(panel).toBeVisible();
+    await page.getByRole('checkbox', { name: 'Selecteer Licentie' }).check();
+    await page.getByRole('button', { name: 'Verwijderen', exact: true }).first().click();
+    await expect(panel).toBeHidden();
 });

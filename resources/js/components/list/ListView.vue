@@ -23,6 +23,9 @@ const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; u
 
 const editing = ref<ListRow | 'new' | null>(null);
 const formOpen = computed({ get: () => editing.value !== null, set: (open) => { if (!open) editing.value = null; } });
+const dirtyKeys = ref<string[]>([]);
+const pending = ref<{ action: () => void; onKeep?: () => void } | null>(null);
+const opener = ref<HTMLElement | null>(null);
 const deleting = ref<ListRow | null>(null);
 const deleteOpen = computed({ get: () => deleting.value !== null, set: (open) => { if (!open) deleting.value = null; } });
 const selected = ref<(number | string)[]>([]);
@@ -34,6 +37,13 @@ const searchField = ref<InstanceType<typeof SearchField>>();
 const echo = new SearchEcho();
 let timer: ReturnType<typeof setTimeout> | undefined;
 
+watch(editing, async (now, before) => {
+    dirtyKeys.value = [];
+    pending.value = null;
+    if (!props.dock || now !== null || before === null) return;
+    await nextTick();
+    if (opener.value?.isConnected) opener.value.focus();
+});
 watch(() => props.rows, (rows) => (selected.value = selected.value.filter((id) => rows.some((row) => row.id === id))));
 watch(() => props.query.search, (value) => {
     if (echo.adopts(value)) search.value = value;
@@ -45,6 +55,39 @@ watch(() => props.undo, async (now, before) => {
         searchField.value?.focus();
     }
 });
+
+function setDirty(value: boolean, key = 'form'): void {
+    dirtyKeys.value = value ? [...new Set([...dirtyKeys.value, key])] : dirtyKeys.value.filter((candidate) => candidate !== key);
+}
+
+function guard(action: () => void, onKeep?: () => void): void {
+    if (!props.dock || dirtyKeys.value.length === 0) return action();
+    pending.value = { action, onKeep };
+}
+
+function discard(): void {
+    const action = pending.value?.action;
+    dirtyKeys.value = [];
+    pending.value = null;
+    action?.();
+}
+
+function keepEditing(): void {
+    pending.value?.onKeep?.();
+    pending.value = null;
+}
+
+function open(target: ListRow | 'new', from?: HTMLElement | null): void {
+    if (target !== 'new' && editing.value !== null && editing.value !== 'new' && editing.value.id === target.id) return;
+    guard(() => {
+        if (editing.value === null) opener.value = from ?? (document.activeElement as HTMLElement | null);
+        editing.value = target;
+    });
+}
+
+function requestClose(): void {
+    guard(() => (editing.value = null));
+}
 
 function change(patch: Partial<ListState>): void {
     emit('change', { ...props.query, ...patch });
@@ -60,6 +103,7 @@ async function focusSearchUnlessUndo(): Promise<void> {
 }
 
 function runBulk(key: string): void {
+    if (editing.value !== null && editing.value !== 'new' && selected.value.includes(editing.value.id)) editing.value = null;
     emit('bulk', key, props.rows.filter((row) => selected.value.includes(row.id)));
     selected.value = [];
     focusSearchUnlessUndo();
@@ -95,14 +139,14 @@ function directionOf(key: string): 'asc' | 'desc' | null {
     return props.query.sort === key ? props.query.direction : null;
 }
 
-defineExpose({ focusSearch: () => searchField.value?.focus(), create: () => (editing.value = 'new') });
+defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HTMLElement | null) => open('new', from), guard });
 </script>
 
 <template>
     <section :aria-label="title" class="flex flex-col gap-3">
         <div class="flex flex-wrap items-start gap-3">
             <div class="w-[253px] max-w-full"><SearchField :id="searchId" ref="searchField" v-model="search" :label="t('list.search')" :placeholder="searchPlaceholder ?? t('list.search')" @input="onSearch" /></div>
-            <AppButton v-if="$slots.form && canCreate && !dock" @click="editing = 'new'">{{ createLabel ?? t('list.new') }}</AppButton>
+            <AppButton v-if="$slots.form && canCreate && !dock" @click="open('new', $event.currentTarget as HTMLElement)">{{ createLabel ?? t('list.new') }}</AppButton>
             <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="onFilters" />
             <div class="ml-auto flex h-control items-center gap-3">
                 <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
@@ -129,7 +173,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: () => (edi
                     <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline', dock && editing && editing !== 'new' && editing.id === row.id ? 'bg-surface shadow-[inset_2px_0_0_var(--color-ink)]' : '']">
                         <td v-if="bulkActions?.length" class="pl-3 pr-2 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input v-model="selected" type="checkbox" class="size-4 accent-ink" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></label></td>
                         <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock ? 'min-w-40' : '', column.align === 'right' ? 'text-right' : '']">
-                            <button v-if="index === 0 && $slots.form" type="button" :class="['rounded-control text-left', dock ? 'font-semibold' : 'underline']" @click="editing = row">{{ row[column.key] }}</button>
+                            <button v-if="index === 0 && $slots.form" type="button" :class="['rounded-control text-left', dock ? 'font-semibold' : 'underline']" @click="open(row, $event.currentTarget as HTMLElement)">{{ row[column.key] }}</button>
                             <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                             <template v-else>{{ row[column.key] }}</template>
                             <span v-if="index === 0 && row.archived_at" class="ml-2 rounded-badge border border-edge px-1 text-[11.5px]">{{ t('list.archived') }}</span>
@@ -148,14 +192,12 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: () => (edi
         </div>
         <ConfirmDelete v-if="deleting" v-model:open="deleteOpen" :name="deleting.name" :consequence="consequence?.(deleting) ?? null" :require-name="requireName" @confirm="onDelete(deleting)" />
         <Teleport v-if="$slots.form && dock && editing !== null" :to="dock">
-            <ListDock :key="editing === 'new' ? 'new' : editing.id" :title="editing === 'new' ? (createTitle ?? t('list.new')) : editing.name" :eyebrow="eyebrow?.(editing === 'new' ? null : editing)" @close="editing = null">
-                <template #default="{ close, setDirty }">
-                    <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :set-dirty="setDirty" :request-delete="() => (deleting = editing === 'new' ? null : editing)" />
-                </template>
+            <ListDock :key="editing === 'new' ? 'new' : editing.id" :title="editing === 'new' ? (createTitle ?? t('list.new')) : editing.name" :eyebrow="eyebrow?.(editing === 'new' ? null : editing)" :confirming="pending !== null" @request-close="requestClose" @discard="discard" @keep="keepEditing">
+                <slot name="form" :row="editing === 'new' ? null : editing" :close="() => (editing = null)" :request-close="requestClose" :set-dirty="setDirty" :request-delete="() => (deleting = editing === 'new' ? null : editing)" />
             </ListDock>
         </Teleport>
-        <ListForm v-else-if="$slots.form && !dock" v-model:open="formOpen" :title="editing === 'new' || editing === null ? (createTitle ?? t('list.new')) : editing.name" v-slot="{ close, setDirty }">
-            <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :set-dirty="setDirty" :request-delete="() => undefined" />
+        <ListForm v-else-if="$slots.form && !dock" v-model:open="formOpen" :title="editing === 'new' || editing === null ? (createTitle ?? t('list.new')) : editing.name" v-slot="{ close, setDirty: markDirty }">
+            <slot name="form" :row="editing === 'new' ? null : editing" :close="close" :request-close="close" :set-dirty="(value: boolean, _key?: string) => markDirty(value)" :request-delete="() => undefined" />
         </ListForm>
     </section>
 </template>
