@@ -38,7 +38,7 @@ const page = usePage<{ pendingNotices: number | null }>();
         <slot name="menu" />
         <slot name="tabs" />
         <div class="ml-auto flex min-w-0 max-w-full flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
-            <NoticeWarning v-if="role === 'administrator'" :count="page.props.pendingNotices" />
+            <NoticeWarning v-if="role === 'administrator'" :count="page.props?.pendingNotices ?? null" />
             <slot name="fiscal-year">
                 <span v-if="fiscalYear" class="inline-flex h-dense items-center gap-1 rounded-control border border-edge px-2.5"><span class="font-medium text-ink">{{ fiscalYear.label }}</span><span v-if="fiscalYear.state" class="text-muted">{{ fiscalYear.state }}</span></span>
             </slot>

@@ -32,7 +32,7 @@ function run(): void {
         <form novalidate class="flex flex-col gap-3" @submit.prevent="run">
             <NativeSelect id="carry-over-source" v-model="source" :label="t('carry_over.source')" :options="options" />
             <NativeSelect id="carry-over-target" v-model="target" :label="t('carry_over.target')" :options="options" />
-            <label class="flex items-center gap-2 text-[13px]"><CheckBox v-model="withFigures" />{{ t('carry_over.with_figures') }}</label>
+            <div class="flex items-center gap-2 text-[13px]"><CheckBox id="carry-over-figures" v-model="withFigures" /><label for="carry-over-figures">{{ t('carry_over.with_figures') }}</label></div>
             <div><AppButton type="submit" variant="primary">{{ t('carry_over.run') }}</AppButton></div>
         </form>
         <section role="region" v-if="report" aria-labelledby="carry-over-result" class="mt-4 text-[13px]">

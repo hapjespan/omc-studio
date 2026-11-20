@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import Dialog from '../../components/overlays/Dialog.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import { refusalOf } from '../../components/upload';
 import { formatPercentage } from '../../allocation/helpers';
 import { indexTargets, type TargetRow } from '../../allocation/types';

@@ -103,7 +103,7 @@ function run(key: string): void {
 <template>
     <div class="contents print:hidden">
         <label v-if="overlay !== 'none'" class="inline-flex min-h-mark items-center gap-2 text-[12.5px] text-secondary"><input v-model="withOverlay" type="checkbox" role="switch" class="size-4 accent-ink" data-with-overlay>{{ t('print.with_overlay') }}</label>
-        <ActionMenu :label="t('jsonx.export_menu')" :items="items" @select="run" />
+        <ActionMenu variant="primary" :chevron="false" :label="t('jsonx.export_menu')" :items="items" @select="run" />
         <p v-if="note" class="basis-full text-right text-[12.5px]" data-testid="export-note">{{ note }}</p>
         <AppButton v-if="pending" ref="proceed" @click="printAnyway">{{ t('print.print_anyway') }}</AppButton>
     </div>

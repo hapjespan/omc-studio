@@ -7,7 +7,7 @@ import { t } from '../i18n';
 type YearOption = { year: number; state: 'open' | 'final' | null };
 
 const page = usePage<{ fiscalYears?: { selected: number | null; options: YearOption[] } }>();
-const years = computed(() => page.props.fiscalYears ?? null);
+const years = computed(() => page.props?.fiscalYears ?? null);
 const label = (option: YearOption): string => (option.state ? `${option.year} (${t(`shell.year.${option.state}`)})` : String(option.year));
 const options = computed(() => (years.value?.options ?? []).map((option) => ({ value: String(option.year), label: label(option) })));
 const chosen = computed({

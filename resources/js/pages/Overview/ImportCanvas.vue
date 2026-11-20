@@ -27,7 +27,7 @@ const busy = ref(false);
 const inputKey = ref(0);
 const canvasError = ref('');
 const organisationError = ref('');
-const panel = ref<HTMLElement>();
+const panel = ref<InstanceType<typeof Panel>>();
 const options = computed(() => [{ value: 'new', label: t('jsonx.target_new') }, ...props.organisations.map(({ id, name }) => ({ value: String(id), label: name }))]);
 const canCheck = computed(() => file.value !== null && canvasName.value.trim() !== '' && (target.value !== 'new' || organisationName.value.trim() !== '') && !busy.value);
 const canCommit = computed(() => report.value !== null && report.value.count === 0 && !busy.value);
@@ -56,7 +56,7 @@ async function refused(response: Response): Promise<void> {
     report.value = null;
     announce([refusal.value, organisationError.value, canvasError.value].filter(Boolean).join(' '));
     await nextTick();
-    focusFirstInvalid(panel.value);
+    focusFirstInvalid(panel.value?.$el);
 }
 
 async function check(): Promise<void> {

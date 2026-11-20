@@ -11,8 +11,7 @@ const canvas = {
     name: 'Voorbeeldcanvasmetheellangenaamzonderspaties-Voorbeeldcanvasmetheellangenaamzonderspaties',
     kind: 'canvas',
     archived: false,
-    sample: true,
-    organisation: { id: 1, name: 'Stichting-Kinderopvang-en-Onderwijs-Stichting-Kinderopvang-en-Onderwijs' },
+    organisation: { id: 1, name: 'Stichting-Kinderopvang-en-Onderwijs-Stichting-Kinderopvang-en-Onderwijs', is_sample: true },
 };
 </script>
 

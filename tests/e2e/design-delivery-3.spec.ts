@@ -89,7 +89,7 @@ test('Volledige export en import: title, two white panels, 36 pixel controls and
     expect(await style(link, 'font-weight')).toBe('500');
     const file = page.getByLabel('Bestand met volledige export');
     expect(await height(file)).toBeGreaterThanOrEqual(36);
-    expect(await style(file, 'border-top-color')).toBe('rgb(132, 139, 149)');
+    expect(await style(file.locator('xpath=following-sibling::div'), 'border-top-color')).toBe('rgb(132, 139, 149)');
     const check = page.getByRole('button', { name: 'Controleren' });
     expect(await height(check)).toBe(36);
     expect(await style(check, 'background-color')).toBe('rgb(230, 232, 230)');

@@ -78,7 +78,7 @@ test('at zoom 100%: the Direction band shows a dashed Logo box, uppercase labels
     await expect(page.locator('[data-direction="goals"] p').first()).toHaveText('Strategische doelen');
     const goal = page.locator('[data-direction="goals"] p').nth(1);
     await expect(goal).toContainText('1. Een kindprofiel. Van opvang tot groep 8.');
-    expect((await style(goal.locator('strong'), 'font-weight'))['font-weight']).toBe('700');
+    expect((await style(goal.locator('strong'), 'font-weight'))['font-weight']).toBe('600');
     await expect(goal).not.toContainText(':');
 });
 
