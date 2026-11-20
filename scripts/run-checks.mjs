@@ -1,0 +1,20 @@
+import { spawnSync } from 'node:child_process';
+
+const SKIPPED = 3;
+const checks = [
+    ['audit', 'scripts/check-audit.mjs'],
+    ['assets', 'scripts/check-assets.mjs'],
+    ['forbidden names', 'scripts/check-forbidden-names.mjs'],
+    ['imports', 'scripts/check-imports.mjs'],
+];
+
+const results = checks.map(([label, script]) => {
+    const run = spawnSync('node', [script], { stdio: 'inherit' });
+    return { label, status: run.status === 0 ? 'passed' : run.status === SKIPPED ? 'skipped' : 'failed' };
+});
+
+const count = (status) => results.filter((result) => result.status === status).length;
+const skipped = results.filter((result) => result.status === 'skipped').map((result) => result.label);
+console.log(`checks: ${count('passed')} passed, ${count('skipped')} skipped${skipped.length ? ` (${skipped.join(', ')})` : ''}, ${count('failed')} failed`);
+
+process.exit(count('failed') > 0 ? 1 : 0);

@@ -119,6 +119,14 @@ class CiWorkflowTest extends TestCase
         $this->assertStringContainsString('xvfb-run -a npx playwright test', $this->commands('e2e'));
     }
 
+    public function test_the_static_checks_run_over_the_final_build_and_report_a_skip(): void
+    {
+        $commands = $this->commands('js');
+
+        $this->assertLessThan(strpos($commands, 'npm run check'), strpos($commands, 'npm run build'));
+        $this->assertStringContainsString('GITHUB_STEP_SUMMARY', $commands);
+    }
+
     public function test_the_static_checks_run(): void
     {
         $this->assertStringContainsString('npm run check', $this->commands('js'));

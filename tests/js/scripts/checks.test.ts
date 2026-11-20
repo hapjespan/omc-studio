@@ -40,6 +40,34 @@ describe('check-assets', () => {
     });
 });
 
+describe('check-assets over the final build', () => {
+    const chunks = (extra: Record<string, string>) => tree({ 'assets/app-AbC.js': 'export {};', 'assets/edit-engine-XyZ.js': 'export {};', 'assets/html-to-image-123.js': 'export {};', ...extra });
+
+    it('passes a build whose Tekenen bundle and html-to-image chunk hold no outside URL', () => {
+        expect(run('check-assets.mjs', [chunks({})]).status).toBe(0);
+    });
+
+    it('fails an injected outside URL in the Tekenen bundle', () => {
+        const result = run('check-assets.mjs', [chunks({ 'assets/edit-engine-XyZ.js': 'fetch("https://cdn.example.org/x");' })]);
+        expect(result.status).toBe(1);
+        expect(result.stderr).toContain('edit-engine-XyZ.js');
+    });
+
+    it('fails an injected outside URL in the html-to-image chunk', () => {
+        const result = run('check-assets.mjs', [chunks({ 'assets/html-to-image-123.js': 'img.src = "https://cdn.example.org/y.png";' })]);
+        expect(result.status).toBe(1);
+        expect(result.stderr).toContain('html-to-image-123.js');
+    });
+});
+
+describe('run-checks', () => {
+    it('reports a skipped check as skipped, not as passed', () => {
+        const result = spawnSync('node', ['scripts/run-checks.mjs'], { encoding: 'utf8', env: { ...process.env, FORBIDDEN_NAMES_FILE: '/nonexistent/list' } });
+        expect(result.stdout).toContain('overgeslagen: lijst verboden namen ontbreekt');
+        expect(result.stdout).toMatch(/checks: \d+ passed, 1 skipped \(forbidden names\), \d+ failed/);
+    });
+});
+
 describe('check-forbidden-names', () => {
     it('fails on a hit, ignoring case', () => {
         const root = tree({ 'a.txt': 'Hello ACME Corp' });
@@ -51,16 +79,27 @@ describe('check-forbidden-names', () => {
         expect(run('check-forbidden-names.mjs', [root, list('acme\n')]).status).toBe(0);
     });
 
-    it('prints a visible skip when the list is empty', () => {
+    it('prints a visible skip with an exit code of its own when the list is empty', () => {
         const root = tree({ 'a.txt': 'hello' });
-        expect(run('check-forbidden-names.mjs', [root, list('\n')]).stdout).toContain('overgeslagen');
+        const result = run('check-forbidden-names.mjs', [root, list('\n')]);
+        expect(result.stdout).toContain('overgeslagen');
+        expect(result.status).toBe(3);
     });
 
-    it('prints a visible skip when the list is missing', () => {
+    it('prints a visible skip that does not count as passed when the list is missing', () => {
         const root = tree({ 'a.txt': 'hello' });
         const result = run('check-forbidden-names.mjs', [root, join(root, 'absent.txt')]);
         expect(result.stdout).toContain('overgeslagen: lijst verboden namen ontbreekt');
         expect(result.stdout).not.toContain('passed');
+        expect(result.status).toBe(3);
+    });
+
+    it('finds a name in a path and in a file, whatever the case', () => {
+        const root = tree({ 'Docs/Acme-notes.md': 'nothing', 'src/b.ts': 'const x = "ACME";' });
+        const result = run('check-forbidden-names.mjs', [root, list('Acme\n')]);
+        expect(result.status).toBe(1);
+        expect(result.stderr).toContain('Acme-notes.md');
+        expect(result.stderr).toContain('b.ts');
     });
 });
 

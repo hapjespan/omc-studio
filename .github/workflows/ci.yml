@@ -94,7 +94,7 @@ jobs:
       - run: npm ci
       - run: npm run verify
       - run: npm run build
-      - run: npm run check
+      - run: npm run check 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
 
   scope:
     name: Scope of the change
