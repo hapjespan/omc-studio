@@ -70,4 +70,11 @@ describe('Miniature', () => {
         expect(html).not.toContain('<text');
         expect(html).not.toContain('tabindex');
     });
+
+    it('honours fill opacity, border width and a dashed border', () => {
+        const input = { ...withElements([element('d', 'primary_activities', 'domain', 'Domein')]), layouts: { d: { mode: 'manual' as const, x: 16, y: 48, width: 300, height: 200, z: 5, style: { fill: '#112233', fill_opacity: 40, border_colour: '#445566', border_width: 8, border_style: 'dashed' as const } } } };
+        const rect = buildMiniature(computeCanvasLayout(input, fakeMeasurer), 336).rects.find((candidate) => candidate.id === 'd')!;
+        expect(rect).toMatchObject({ fillOpacity: 0.4, stroke: '#445566', dashed: true });
+        expect(rect.strokeWidth).toBeGreaterThan(0.5);
+    });
 });

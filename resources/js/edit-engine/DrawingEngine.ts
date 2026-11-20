@@ -1,4 +1,6 @@
-import type { DrawnCanvas, LayoutArea, LayoutElement } from '../layout';
+import type { DrawnCanvas, LayoutArea, LayoutElement, TextMeasurer } from '../layout';
+import type { CopiedStyle } from './commands/pasteStyle';
+import type { StyleChange, StylePatch } from './commands/style';
 
 export type LayoutStyle = Record<string, string | number | boolean>;
 
@@ -47,6 +49,7 @@ export interface MountOptions {
     structure?: CanvasStructure;
     onTextAttempt?: () => void;
     onPushBack?: (ids: string[]) => void;
+    measurer?: TextMeasurer;
     onMoveRefused?: (reason: RefusalReason, targetName: string) => void;
 }
 
@@ -92,9 +95,6 @@ export type DrawingCommand =
     | { kind: 'equalHeight' }
     | { kind: 'bringForward' }
     | { kind: 'sendBackward' }
-    | { kind: 'setStyle'; style: LayoutStyle }
-    | { kind: 'pasteStyle'; style: LayoutStyle }
-    | { kind: 'applyStyleToSiblings' }
     | { kind: 'resetToAutomatic'; scope: 'element' | 'domain' }
     | { kind: 'previewMove'; elementId: string; targetId: string }
     | { kind: 'commitMove'; elementId: string; targetId: string; layout: LayoutRect | null; mode: MoveCommitMode }
@@ -107,6 +107,11 @@ export interface DrawingEngine {
     getLayout(): LayoutPayload;
     getSelection(): string[];
     getBox(id: string): BoxValues | null;
+    getStyle(id: string): LayoutStyle;
+    setStyle(patch: StylePatch): StyleChange;
+    copyStyle(id: string): CopiedStyle | null;
+    pasteStyle(copied: CopiedStyle): StyleChange;
+    applyStyleToSiblings(id: string): StyleChange;
     canUndo(): boolean;
     canRedo(): boolean;
     onSelectionChange(listener: (ids: string[]) => void): () => void;

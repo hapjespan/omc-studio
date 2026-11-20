@@ -1,9 +1,8 @@
 import { readFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { seedMoveCanvas, tinker } from './support/drawing';
+import { openDrawing, seedMoveCanvas } from './support/drawing';
 import { ARTBOARD_WIDTH, PNG_SCALE } from './support/artboard';
-import { signInAs } from './support/shell';
 
 const exportPng = async (page: Page): Promise<Buffer> => {
     await page.getByRole('button', { name: 'Exporteren' }).click();
@@ -32,10 +31,10 @@ const pixelAt = (page: Page, bytes: Buffer, x: number, y: number): Promise<[numb
         { data: bytes.toString('base64'), at: { x, y } },
     );
 
-test('a fill stored from Tekenen shows in the PNG export', async ({ page }) => {
+test('a fill changed in Tekenen shows in the PNG export', async ({ page }) => {
     test.setTimeout(120_000);
     const canvas = seedMoveCanvas();
-    await signInAs(page, 'reader');
+    const layers = await openDrawing(page, canvas);
     await page.goto(`/canvases/${canvas.id}/view`);
     await page.locator('[data-artboard]').waitFor();
     const artboard = (await page.locator('[data-artboard]').boundingBox())!;
@@ -47,8 +46,14 @@ test('a fill stored from Tekenen shows in the PNG export', async ({ page }) => {
     const before = await pixelAt(page, await exportPng(page), x, y);
     expect(before).toEqual([0xf6, 0xe6, 0xcc]);
 
-    tinker(`$id = App\\Models\\Element::where('canvas_id', ${canvas.id})->where('name', 'Onderwijs')->value('id'); App\\Models\\Layout::where('element_id', $id)->update(['style' => json_encode(['fill' => '#FF0000'])]); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version');`);
-    await page.reload();
+    await page.goto(`/canvases/${canvas.id}/drawing`);
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    const fill = page.getByLabel('Vulling van Onderwijs', { exact: true });
+    await fill.fill('#FF0000');
+    await fill.press('Enter');
+    await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
+    await page.goto(`/canvases/${canvas.id}/view`);
     await page.locator('[data-artboard]').waitFor();
 
     const after = await pixelAt(page, await exportPng(page), x, y);
