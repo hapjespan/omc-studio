@@ -174,7 +174,7 @@ class ReauthenticateTest extends TestCase
 
     public function test_the_security_log_records_the_renewal_without_the_address(): void
     {
-        $log = storage_path('logs/security-'.now()->format('Y-m-d').'.log');
+        $log = storage_path('logs/security-'.date('Y-m-d').'.log');
         File::delete($log);
         $this->signedIn(self::ALMOST, User::factory()->create(['email' => 'writer@example.test', 'password' => self::PASSWORD]));
 
