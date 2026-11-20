@@ -32,7 +32,7 @@ Measurement machine for every figure in this file: linux 7.0.14-linuxkit arm64 (
 | SC-022 no request leaves the machine | the `guards` fixture of `tests/e2e/support/guards.ts` (outside request and CSP violation asserted after every spec that uses it), `tests/e2e/export-network.spec.ts`, `tests/e2e/drawing-load.spec.ts`, `scripts/check-assets.mjs` over the final build (CI job `js`) | met |
 | SC-023 property test of FR-095 | `tests/Unit/Calculation/FigurePropertyTest.php`, `tests/Unit/Calculation/ClosingCheckTest.php` | met |
 | SC-024 acceptance session of the product owner | none possible by a machine | unmet by design: the product owner runs it, recorded for him in section 8 |
-| SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts`, `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | met: `tests/e2e/drawing-colour-acceptance.spec.ts` (move, resize and fill, reload, same place and size within 1 pixel in Bekijken, same fill, structure names unchanged), `tests/e2e/drawing-style.spec.ts` |
+| SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts`, `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | place, size, fill and structure met: `tests/e2e/drawing-colour-acceptance.spec.ts` (move, resize and fill, reload, same place and size within 1 pixel in Bekijken, same fill, structure names unchanged), `tests/e2e/drawing-style.spec.ts`; partly met: figures unchanged after the save have no test (section 8) |
 | SC-026 added Element appears without handwork | `tests/Feature/Layout/NewPillTest.php`, `tests/js/layout/placement.test.ts`, `tests/e2e/drawing-frame.spec.ts` | partly met; no single browser journey from Invoeren to Tekenen |
 | SC-027 no outside request in a Tekenen session | `tests/e2e/drawing-load.spec.ts`, `tests/e2e/csp-guard.spec.ts`, the guards fixture on every drawing spec | met |
 | SC-028 Alles automatisch opmaken equals a new Canvas | `tests/e2e/drawing-reset.spec.ts` (every Area and Element X, Y, B, H) | met for place, size and style: `tests/e2e/drawing-colour-acceptance.spec.ts` compares the computed style of a changed Domain after Alles automatisch opmaken with that Domain on a new Canvas of the same content |
@@ -144,6 +144,8 @@ DT.6 is merged; nothing waits for it any more. The style, font and colour requir
 
 | Item | Reason |
 |---|---|
+| SC-021 keyboard-only scenario of the D3 screens | partly met: Tab-only walks exist for the earlier screens and the export menu; none for Versies, the Snapshot view and the JSON import |
+| SC-025 figures unchanged after a Layout save | not asserted by a test; structure is (`tests/Feature/Layout/SaveLayoutTest.php`), figures are not touched by the save code but have no before and after check |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
 | SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
@@ -159,5 +161,5 @@ Run on this branch after the last change: the PHP suites `tests/Feature/Exchange
 | SC-018 | `tests/Feature/Snapshot/SnapshotViewTest.php`, `tests/e2e/snapshot-view.spec.ts`, `tests/e2e/snapshot-overlay.spec.ts` | none |
 | SC-019 | `tests/e2e/export-png.spec.ts`, `tests/e2e/print.spec.ts`, `tests/e2e/export-menu.spec.ts` | `tests/e2e/png-style.spec.ts` and the styled PNG step of `tests/e2e/journey-d3.spec.ts` (a pixel of the fill in the downloaded file) |
 | SC-020 | `tests/Feature/Performance/ExchangeVolumeTest.php`, `tests/e2e/performance-d3.spec.ts` (figures in section 7) | an ordinary laptop is the product owner's run (K-6) |
-| SC-021 | `tests/e2e/journey-d3.spec.ts`, `tests/e2e/d2-axe.spec.ts`, `tests/e2e/versions.spec.ts` | none |
+| SC-021 | `tests/e2e/journey-d3.spec.ts`, `tests/e2e/d2-axe.spec.ts`, `tests/e2e/versions.spec.ts` | axe met; the keyboard-only scenario is partly met: no Tab-only walk exists for Versies, the Snapshot view and the JSON import (see section 8) |
 | SC-022 | `tests/e2e/export-network.spec.ts`, `tests/e2e/journey-d3.spec.ts` (guards fixture) | none |

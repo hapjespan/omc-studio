@@ -36,7 +36,7 @@ make restore FOLDER=<map>
 
 `make backup` maakt in het opslagvolume van de toepassing een map `storage/backups/<datum_tijd>` met de database, de geüploade bestanden en de sleutel van de toepassing, en toont die map. Die map staat dus nog in dezelfde container: kopieer hem naar een andere plek met `docker compose cp app:/var/www/html/storage/backups/<datum_tijd> .`. Bewaar de kopie veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import.
 
-Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
+Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/` zet de map over naar de gebruiker van de toepassing met `docker compose exec -u root app chown -R www-data:www-data storage/backups` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
 
 ## Importeren
 
@@ -52,6 +52,6 @@ De toepassing zet veilige cookies. Weigert uw browser die op http://localhost:80
 
 **Waar staan mijn gegevens?** In één Docker-volume op uw machine en in uw back-ups.
 
-**Hoe verwijder ik de voorbeeldgegevens?** In het beheerscherm, onder voorbeeldgegevens.
+**Hoe verwijder ik de voorbeeldgegevens?** In het beheerscherm, onder Voorbeelddata.
 
 **Wat als een momentopname beschadigd is?** U krijgt een melding bij de systeemmeldingen en die momentopname is dan niet te openen. De rest werkt gewoon.
