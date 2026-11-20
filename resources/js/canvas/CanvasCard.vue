@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { formatDate } from '../format';
 import { t } from '../i18n';
@@ -16,21 +16,34 @@ export interface CardCanvas {
     name: string;
     updated_at: string | null;
     archived: boolean;
-    counts: { elements: number; statements: number } | null;
+    counts: Record<string, number> | null;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
 }
 
 const props = defineProps<{ canvas: CardCanvas; layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>; measurer: TextMeasurer | null; canWrite?: boolean; template?: boolean }>();
 const emit = defineEmits<{ action: [action: CardAction, canvas: CardCanvas] }>();
-const drawn = computed(() => (props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements }, props.measurer) : null));
+const card = ref<HTMLElement>();
+const near = ref(typeof IntersectionObserver === 'undefined');
+let observer: IntersectionObserver | undefined;
+onMounted(() => {
+    if (near.value || !card.value) return;
+    observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        near.value = true;
+        observer?.disconnect();
+    }, { rootMargin: '600px' });
+    observer.observe(card.value);
+});
+onBeforeUnmount(() => observer?.disconnect());
+const drawn = computed(() => (near.value && props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements }, props.measurer) : null));
 </script>
 
 <template>
-    <article class="flex max-w-full flex-col gap-1 rounded-card border border-hairline bg-white p-2 hover:border-edge">
+    <article ref="card" class="flex max-w-full flex-col gap-1 rounded-card border border-hairline bg-white p-2 hover:border-edge">
         <Link :href="routes.canvas(canvas.id)" class="flex flex-col gap-1 font-display font-semibold">
             <Miniature v-if="drawn" :canvas="drawn" :width="240" class="h-auto max-w-full" />
-            <span v-else class="block h-[170px] w-[240px] max-w-full" aria-hidden="true" />
+            <svg v-else class="block h-[170px] w-[240px] max-w-full" aria-hidden="true" focusable="false" />
             <span>{{ canvas.name }}</span>
         </Link>
         <p class="text-[12.5px] text-secondary">

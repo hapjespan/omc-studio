@@ -33,6 +33,9 @@ test('the toolbar and the Areas are separate Tab stops', async ({ page }) => {
     const canvas = seedViewCanvas();
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${canvas.id}/view`);
+    await page.getByRole('link', { name: 'Bekijken' }).focus();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('group', { name: 'Overlay' }).getByRole('button').first()).toBeFocused();
     await page.getByRole('button', { name: 'Passend maken' }).focus();
     await page.keyboard.press('Tab');
     await expect(page.locator('[data-block][data-kind="area"]').first()).toBeFocused();

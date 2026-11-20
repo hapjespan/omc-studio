@@ -1,75 +1,63 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, onMounted, ref, shallowRef } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import CanvasView from '../../canvas/CanvasView.vue';
+import CanvasStage from '../../canvas/CanvasStage.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
-import { contentHeight } from '../../canvas/extent';
+import ExportMenu from '../../canvas/ExportMenu.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
-import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
-import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
-import { ARTBOARD } from '../../layout';
-import { detail, openDetail } from '../../shell/detail';
-import { modeSwitchPlacement } from '../../shell/modes';
-import ModeSwitch from '../../shell/ModeSwitch.vue';
-import type { ShellCanvas } from '../../shell/TopBar.vue';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
+import type { CanvasFigures, OverlayFilters as Filters } from '../../canvas/overlay/figures';
+import OverlayFilters from '../../canvas/overlay/OverlayFilters.vue';
+import type { FilterOptions } from '../../canvas/overlay/OverlayFilters.vue';
+import { visitOverlay } from '../../canvas/overlay/query';
+import VersionSelect from '../../canvas/VersionSelect.vue';
+import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
+import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import HeaderSlot from '../../shell/HeaderSlot.vue';
+import { useQuietStatus } from '../../shell/layout';
+
+useQuietStatus();
 
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
     canWrite: boolean;
+    versions: VersionOption[];
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
+    overlay: string;
+    year: number | null;
+    figures: CanvasFigures | null;
+    figuresMessage: string | null;
+    filters: Filters;
+    filterOptions: FilterOptions;
 }>();
 
-const page = usePage<{ auth: { role: string } }>();
-const shellCanvas = computed(() => page.props.canvas as unknown as ShellCanvas);
-modeSwitchPlacement.inPage = true;
-onBeforeUnmount(() => (modeSwitchPlacement.inPage = false));
-
+const role = computed(() => (usePage().props.auth as { role: string | null }).role);
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
-const selectedId = ref<string | null>(null);
-const content = computed(() => (selectedId.value ? detailOf(selectedId.value, { areas: props.layout.areas, elements: props.elements, statements: props.statements, modalities: props.modalities }) : null));
-const kickerOf = (id: string): string => {
-    const element = props.elements.find((candidate) => candidate.id === id);
-    if (!element || !content.value) return '';
-    const path = [props.layout.areas.find((candidate) => candidate.key === element.area)?.label ?? ''];
-    let parent = props.elements.find((candidate) => candidate.id === element.parent);
-    while (parent) {
-        path.splice(1, 0, parent.name);
-        parent = props.elements.find((candidate) => candidate.id === parent?.parent);
-    }
-
-    return `${content.value.kind} · ${path.join(' › ')}`;
-};
-const select = (id: string): void => {
-    selectedId.value = id;
-    if (content.value) openDetail(content.value.title, document.querySelector<HTMLElement>(`[data-block="${CSS.escape(id)}"]`), kickerOf(id));
-};
-watch(() => detail.open, (open) => !open && (selectedId.value = null));
-
-const zoom = ref(100);
-const scroller = ref<HTMLElement>();
-const fit = (): void => {
-    if (scroller.value && drawn.value) zoom.value = fitZoom({ width: scroller.value.clientWidth, height: scroller.value.clientHeight }, { width: ARTBOARD.width, height: contentHeight(drawn.value) });
-};
+const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
+const plain = ref(false);
 </script>
 
 <template>
     <Head :title="canvas.name" />
-    <header class="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
-        <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
-    </header>
+    <HeaderSlot to="title">
+        <h1 class="mr-2 font-display text-[20px] font-semibold leading-[28px] tracking-[-0.01em]">{{ canvas.name }}</h1>
+    </HeaderSlot>
+    <HeaderSlot to="actions">
+        <OverlaySwitch :model-value="overlay" @update:model-value="visitOverlay({ overlay: $event === 'none' ? null : $event })" />
+        <div class="ml-auto flex flex-wrap items-center gap-2">
+            <OverlayFilters v-if="overlay === 'financial'" :filters="filters" :options="filterOptions" />
+            <VersionSelect v-if="versions.length" :canvas-id="canvas.id" :versions="versions" :current="null" />
+            <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" :overlay="overlay" @plain="plain = $event" />
+        </div>
+    </HeaderSlot>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
-    <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
-    <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
-        <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" @select="select" />
-    </div>
-    <ViewDetail v-if="content && detail.open" :content="content" />
+    <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
+    <CanvasStage :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="filterOptions.costKinds" :canvas-id="canvas.id" :can-assign="role === 'administrator'" :plain="plain" />
 </template>

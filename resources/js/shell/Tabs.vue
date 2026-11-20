@@ -6,7 +6,7 @@ import { isActive, visibleTabs } from './tabs';
 import type { ShellCanvas } from './TopBar.vue';
 
 const props = defineProps<{ role: string; canvas?: ShellCanvas | null; url: string }>();
-const tabs = computed(() => visibleTabs(props.role, Boolean(props.canvas)));
+const tabs = computed(() => visibleTabs(props.role, Boolean(props.canvas), props.canvas?.kind));
 </script>
 
 <template>

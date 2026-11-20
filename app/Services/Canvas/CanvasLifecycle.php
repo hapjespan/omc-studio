@@ -3,10 +3,15 @@
 namespace App\Services\Canvas;
 
 use App\Enums\CanvasKind;
+use App\Models\AllocationLine;
+use App\Models\AllocationSet;
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Models\FinalisedYear;
 use App\Models\Organisation;
+use App\Models\Snapshot;
 use App\Models\Statement;
+use App\Models\SystemNotice;
 use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditRemoval;
 use App\Services\Support\SerialisedWrite;
@@ -77,6 +82,7 @@ class CanvasLifecycle
 
             $counts = $this->deletionCounts($canvas);
 
+            $this->removeCanvasData($canvas);
             $canvas->deleteQuietly();
             $this->removal->purge($canvas, $counts);
         });
@@ -88,7 +94,42 @@ class CanvasLifecycle
         return [
             'elements' => Element::where('canvas_id', $canvas->getKey())->count(),
             'statements' => Statement::where('canvas_id', $canvas->getKey())->count(),
+            'allocation_sets' => AllocationSet::where('canvas_id', $canvas->getKey())->count(),
+            'finalised_years' => FinalisedYear::where('canvas_id', $canvas->getKey())->count(),
+            'snapshots' => Snapshot::where('canvas_id', $canvas->getKey())->count(),
         ];
+    }
+
+    private function removeCanvasData(Canvas $canvas): void
+    {
+        $sets = AllocationSet::with('lines')->where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($sets as $set) {
+            foreach ($set->lines as $line) {
+                $line->delete();
+            }
+
+            $set->delete();
+        }
+
+        $years = FinalisedYear::where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($years as $year) {
+            $year->delete();
+        }
+
+        $notices = SystemNotice::where('canvas_id', $canvas->getKey())->get();
+
+        foreach ($notices as $notice) {
+            $notice->delete();
+        }
+
+        $snapshotIds = Snapshot::where('canvas_id', $canvas->getKey())->pluck('id');
+
+        foreach ($snapshotIds as $snapshotId) {
+            $snapshot = Snapshot::findOrFail($snapshotId);
+            $snapshot->delete();
+        }
     }
 
     private function stamp(Canvas $canvas, string $action, mixed $value, callable $applies): Canvas
@@ -114,14 +155,20 @@ class CanvasLifecycle
 
         $canvas = Canvas::create(['organisation_id' => $organisation->getKey(), 'kind' => CanvasKind::Canvas, 'name' => trim($name)]);
 
-        $this->cloneElements($source, $canvas);
+        $elements = $this->cloneElements($source, $canvas);
         $this->cloneStatements($source, $canvas);
+
+        if ($source->organisation_id === $organisation->getKey()) {
+            $this->cloneAllocationSets($source, $canvas, $elements);
+        }
+
         UnknownAllocationDomain::ensure($canvas);
 
         return $canvas;
     }
 
-    public function cloneElements(Canvas $source, Canvas $canvas, ?string $parentId = null, ?string $newParentId = null): void
+    /** @return array<string, string> */
+    public function cloneElements(Canvas $source, Canvas $canvas, ?string $parentId = null, ?string $newParentId = null): array
     {
         $elements = Element::where('canvas_id', $source->getKey())
             ->where('is_unknown_allocation', false)
@@ -130,6 +177,8 @@ class CanvasLifecycle
             ->orderBy('position')
             ->get();
 
+        $map = [];
+
         foreach ($elements as $element) {
             $copy = Element::create([
                 ...$element->only(['area_id', 'kind', 'name', 'description', 'modality_id', 'rationale', 'icon', 'position']),
@@ -137,7 +186,31 @@ class CanvasLifecycle
                 'parent_id' => $newParentId,
             ]);
 
-            $this->cloneElements($source, $canvas, $element->getKey(), $copy->getKey());
+            $map[$element->getKey()] = $copy->getKey();
+            $map = [...$map, ...$this->cloneElements($source, $canvas, $element->getKey(), $copy->getKey())];
+        }
+
+        return $map;
+    }
+
+    /** @param  array<string, string>  $elements */
+    protected function cloneAllocationSets(Canvas $source, Canvas $canvas, array $elements): void
+    {
+        $sets = AllocationSet::with('lines')->where('canvas_id', $source->getKey())->get();
+
+        foreach ($sets as $set) {
+            $copy = AllocationSet::create([
+                ...$set->only(['cost_record_id', 'fiscal_year_id']),
+                'canvas_id' => $canvas->getKey(),
+            ]);
+
+            foreach ($set->lines as $line) {
+                AllocationLine::create([
+                    ...$line->only(['basis_points', 'position']),
+                    'allocation_set_id' => $copy->getKey(),
+                    'element_id' => $elements[$line->element_id],
+                ]);
+            }
         }
     }
 

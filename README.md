@@ -41,6 +41,10 @@ php artisan boost:install
 
 Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
+## Importing
+
+A Canvas exported as JSON is imported by an Administrator as a new Canvas, after a dry run without errors, all at once or not at all. One limit follows from the rule that an Allocation set needs Yearly figures for its year: an export that holds a carry-over Allocation set without Yearly figures in its year is refused on import, and the refusal names the Cost record. CSV exports can be imported again unchanged: a leading apostrophe added on export before `=`, `+`, `-`, `@`, a tab or a carriage return is removed on import.
+
 ## Contributing
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
