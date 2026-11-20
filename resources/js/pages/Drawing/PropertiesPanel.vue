@@ -39,7 +39,7 @@ function commit(key: (typeof keys)[number]): void {
             <h3 class="text-[13px] font-semibold">{{ t('drawing.place_and_size') }}</h3>
             <p class="text-[13px] text-secondary" data-size-label>{{ box.width }} × {{ box.height }}</p>
             <div class="grid grid-cols-2 gap-2">
-                <TextField v-for="key in keys" :id="`box-${key}`" :key="key" v-model="values[key]" type="number" :label="t(labels[key], { name })" @change="commit(key)" @keydown.enter="commit(key)" />
+                <TextField v-for="key in keys" :id="`box-${key}`" :key="key" v-model="values[key]" type="number" :label="t(labels[key], { name })" @change="commit(key)" />
             </div>
         </form>
         <p v-else-if="!$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>

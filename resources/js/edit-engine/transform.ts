@@ -7,23 +7,23 @@ export interface Selection {
 }
 
 export function setBox(editor: Editor, id: string, box: Partial<Box>): void {
-    editor.updateNodeWithUndo(id, box, 'Plek en grootte');
+    editor.updateNodeWithUndo(id, box, 'Box');
 }
 
 export function nudge({ editor, ids }: Selection, dx: number, dy: number): void {
-    editor.undo.runBatch('Verplaatsen', () => {
+    editor.undo.runBatch('Move', () => {
         for (const id of ids) {
             const node = editor.graph.getNode(id);
-            if (node) editor.updateNodeWithUndo(id, { x: node.x + dx, y: node.y + dy }, 'Verplaatsen');
+            if (node) editor.updateNodeWithUndo(id, { x: node.x + dx, y: node.y + dy }, 'Move');
         }
     });
 }
 
 export function resizeBy({ editor, ids }: Selection, dw: number, dh: number): void {
-    editor.undo.runBatch('Grootte', () => {
+    editor.undo.runBatch('Resize', () => {
         for (const id of ids) {
             const node = editor.graph.getNode(id);
-            if (node) editor.updateNodeWithUndo(id, { width: node.width + dw, height: node.height + dh }, 'Grootte');
+            if (node) editor.updateNodeWithUndo(id, { ...(dw === 0 ? {} : { width: node.width + dw }), ...(dh === 0 ? {} : { height: node.height + dh }) }, 'Resize');
         }
     });
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { snapChanges, snapToGrid } from '../../../resources/js/edit-engine/commands/grid';
-import { boxOf, setBox } from '../../../resources/js/edit-engine/transform';
+import { boxOf } from '../../../resources/js/edit-engine/transform';
 import { element } from '../layout/support';
 import { manual, open } from './support';
 
@@ -16,10 +16,10 @@ describe('grid', () => {
     it('snaps place and size with the grid on and leaves them off', () => {
         let on = true;
         const { editor } = open(tree, layouts, { snap: () => on });
-        setBox(editor, 'a', { x: 13, y: 21, width: 101, height: 45 });
+        editor.graph.updateNodePreview('a', { x: 13, y: 21, width: 101, height: 45 });
         expect(boxOf(editor, 'a')).toEqual({ x: 16, y: 24, width: 104, height: 48 });
         on = false;
-        setBox(editor, 'a', { x: 13, width: 101 });
+        editor.graph.updateNodePreview('a', { x: 13, width: 101 });
         expect(boxOf(editor, 'a')).toMatchObject({ x: 13, width: 101 });
     });
 });

@@ -17,7 +17,7 @@ export function equalSize({ editor, ids }: Selection, key: 'width' | 'height'): 
     const [first, ...others] = ids;
     const reference = first === undefined ? undefined : editor.graph.getNode(first);
     if (!reference || others.length === 0) return;
-    editor.undo.runBatch(key === 'width' ? 'Gelijke breedte' : 'Gelijke hoogte', () => {
-        for (const id of others) editor.updateNodeWithUndo(id, { [key]: reference[key] }, key === 'width' ? 'Gelijke breedte' : 'Gelijke hoogte');
+    editor.undo.runBatch(key === 'width' ? 'Equal width' : 'Equal height', () => {
+        for (const id of others) editor.updateNodeWithUndo(id, { [key]: reference[key] }, key === 'width' ? 'Equal width' : 'Equal height');
     });
 }

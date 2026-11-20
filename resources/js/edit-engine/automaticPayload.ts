@@ -28,12 +28,14 @@ export function storedPayload(layouts: Record<string, ElementLayout>, ids: strin
     };
 }
 
-export function mergeLayout(own: LayoutPayload, fresh: LayoutPayload): LayoutPayload {
+export function mergeLayout(own: LayoutPayload, base: LayoutPayload, fresh: LayoutPayload): LayoutPayload {
+    const changed = <T>(mine: T | undefined, loaded: T | undefined): boolean => JSON.stringify(mine) !== JSON.stringify(loaded);
     const ids = Object.keys(fresh.elements);
+
     return {
         ...fresh,
-        areas: { ...fresh.areas, ...own.areas },
-        elements: Object.fromEntries(ids.map((id) => [id, own.elements[id] ?? fresh.elements[id]])),
+        areas: { ...fresh.areas, ...Object.fromEntries(Object.entries(own.areas).filter(([key, area]) => changed(area, base.areas[key]))) },
+        elements: Object.fromEntries(ids.map((id) => [id, id in own.elements && changed(own.elements[id], base.elements[id]) ? own.elements[id] : fresh.elements[id]])),
     };
 }
 

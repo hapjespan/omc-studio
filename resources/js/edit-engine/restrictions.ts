@@ -85,9 +85,9 @@ export function restrict(editor: Editor, graph: SceneGraph, lockedIds: string[],
             const container = parent.id === ARTBOARD_ID ? ({ kind: 'artboard-area' } as const) : ({ kind: 'parent', width: parent.width, height: parent.height } as const);
             const asked: Partial<ConstraintBox> = {};
             for (const key of BOX_KEYS) if (key in changes) asked[key] = changes[key] as number;
-            const result = constrain(node, hooks.snap?.() ? snapChanges(asked) : asked, container, childRight(node));
+            const result = constrain(node, name === 'updateNodePreview' && hooks.snap?.() ? snapChanges(asked) : asked, container, childRight(node));
             if (result.pushed) hooks.onPushBack?.(id);
-            if ('height' in changes) hooks.onResize?.(id);
+            if (changes.height !== undefined && changes.height !== node.height) hooks.onResize?.(id);
             const done = original(name).call(graph, id, { ...changes, ...result.changes });
             if (result.growParentTo !== null) grow(parent.id, result.growParentTo);
             return done;

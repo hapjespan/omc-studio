@@ -315,3 +315,30 @@ describe('the sender of SaveQueue', () => {
         expect(queue.versions).toEqual({ structure: 41, layout: 18 });
     });
 });
+
+describe('SaveQueue discard and robustness', () => {
+    it('drops pending saves and carries the given versions after a reload', async () => {
+        const sent: LayoutPayload[] = [];
+        const results = [{ outcome: 'conflict', conflict: 'layout_changed' } as const, { outcome: 'saved', layoutVersion: 9 } as const];
+        const queue = new SaveQueue({ canvas: 1, versions: { structure: 1, layout: 1 }, getLayout: () => payload(), send: async (_canvas, body) => (sent.push(body), results[sent.length - 1]) });
+        queue.changed();
+        await flush();
+        expect(queue.status).toBe('layoutChanged');
+        queue.discard({ structure: 3, layout: 8 });
+        await flush();
+        expect(sent).toHaveLength(1);
+        expect(queue.status).toBe('idle');
+        queue.changed();
+        await flush();
+        expect(sent[1]).toMatchObject({ structure_version: 3, layout_version: 8 });
+    });
+
+    it('fails instead of stalling when the sender throws', async () => {
+        const failures: string[] = [];
+        const queue = new SaveQueue({ canvas: 1, versions: { structure: 1, layout: 1 }, getLayout: () => payload(900), onFailure: (failure) => failures.push(failure.kind), send: async () => Promise.reject(new Error('down')) });
+        queue.changed();
+        await flush();
+        expect(queue.status).toBe('failed');
+        expect(failures).toEqual(['unreachable']);
+    });
+});

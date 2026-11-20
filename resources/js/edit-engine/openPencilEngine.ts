@@ -10,6 +10,7 @@ import { loadFace, registerFonts } from './fonts';
 import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
 import { toPayload } from './payload';
 import { align, distribute, equalSize } from './commands/align';
+import { snapChanges } from './commands/grid';
 import { backward, forward, stackOrders } from './commands/order';
 import { restrict } from './restrictions';
 import { boxOf, nudge, resizeBy, setBox } from './transform';
@@ -29,6 +30,7 @@ export class OpenPencilEngine implements DrawingEngine {
     private readonly sized = new Set<string>();
     private readonly pushed = new Set<string>();
     private readonly reordered = new Set<string>();
+    private readonly moved = new Set<string>();
     private onPushBack: ((ids: string[]) => void) | undefined;
     private readonly listeners = new Set<(change: FinishedAction) => void>();
     private readonly stops: (() => void)[] = [];
@@ -74,7 +76,7 @@ export class OpenPencilEngine implements DrawingEngine {
     getLayout(): LayoutPayload {
         const { base, canvas, graph } = this.mounted();
         const { editor } = this.mounted();
-        return toPayload(base, canvas, readPlaces(graph, canvas, this.sized), stackOrders(editor, [...this.reordered], (id) => id.endsWith(TEXT_SUFFIX)));
+        return toPayload(base, canvas, readPlaces(graph, canvas, this.sized), stackOrders(editor, [...this.reordered], (id) => id.endsWith(TEXT_SUFFIX), (id) => this.moved.has(id) || base.elements[id]?.mode === 'manual' || id in base.areas));
     }
 
     getSelection(): string[] {
@@ -99,7 +101,7 @@ export class OpenPencilEngine implements DrawingEngine {
         const selection = { editor, ids: [...editor.state.selectedIds] };
         switch (command.kind) {
             case 'setBox':
-                return setBox(editor, command.id, command.box);
+                return setBox(editor, command.id, this.grid ? snapChanges(command.box) : command.box);
             case 'nudge':
                 return nudge(selection, command.dx, command.dy);
             case 'resizeBy':
@@ -140,6 +142,7 @@ export class OpenPencilEngine implements DrawingEngine {
         for (const id of selection.ids) {
             const parent = this.mounted().graph.getNode(id)?.parentId;
             if (parent) this.reordered.add(parent);
+            this.moved.add(id);
         }
         command(selection);
     }

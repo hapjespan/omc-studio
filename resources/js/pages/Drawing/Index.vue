@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
@@ -56,6 +56,8 @@ const zoom = ref(1);
 const selected = ref<string[]>([]);
 let created: DrawingEngine | null = null;
 let queue: SaveQueue | null = null;
+let loaded: LayoutPayload | null = null;
+let refreshing = false;
 let measurer: TextMeasurer | null = null;
 let unmounted = false;
 let timer = 0;
@@ -115,21 +117,31 @@ function release(): void {
     engine.value = null;
 }
 
+function say(text: string): void {
+    notice.value = '';
+    void nextTick(() => (notice.value = text));
+}
+
 const onFailure = (failure: SaveFailure): void => {
-    notice.value = failure.kind === 'refused' ? failure.messages.join(' ') : t('drawing.save_failed');
+    say(failure.kind === 'refused' && failure.messages.length > 0 ? failure.messages.join(' ') : t('drawing.save_failed'));
 };
 
 async function start(payload: LayoutPayload): Promise<void> {
     release();
+    loaded = payload;
+    selected.value = [];
+    box.value = null;
     state.value = 'loading';
     try {
         const computed = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: payloadLayouts(payload) }, measurer ?? (measurer = await createBrowserMeasurer()));
         drawn.value = computed;
         const { createDrawingEngine } = await import('../../edit-engine');
         created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, computed, { layout: payload, onTextAttempt: showHint, onPushBack: (ids) => (notice.value = t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
+        await created.mount(host.value as HTMLElement, computed, { layout: payload, onTextAttempt: showHint, onPushBack: (ids) => say(t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
         if (unmounted) return release();
         created.zoomToFit();
+        created.setTool(tool.value);
+        created.apply({ kind: 'setGrid', on: grid.value });
         engine.value = created;
         const live = created;
         stopSelection = live.onSelectionChange((ids) => {
@@ -159,13 +171,23 @@ const onStatus = (next: SaveStatus): void => {
 };
 
 async function refresh(keepOwn: boolean, message = ''): Promise<void> {
+    if (refreshing) return;
+    refreshing = true;
     const own = keepOwn && engine.value ? engine.value.getLayout() : null;
-    await new Promise<void>((resolve) => router.reload({ only: ['layout', 'elements', 'statements', 'layouts', 'versions', 'newElements'], onFinish: () => resolve() }));
-    const fresh = storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions);
-    await start(own ? mergeLayout(own, fresh) : fresh);
-    queue?.resolveStructureChange(props.versions.structure, props.versions.layout);
-    if (own) queue?.changed();
-    notice.value = message;
+    const base = loaded;
+    try {
+        await new Promise<void>((resolve) => router.reload({ only: ['layout', 'elements', 'statements', 'layouts', 'versions', 'newElements'], onFinish: () => resolve() }));
+        const fresh = storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions);
+        await start(own && base ? mergeLayout(own, base, fresh) : fresh);
+        if (own && base) {
+            queue?.resolveStructureChange(props.versions.structure, props.versions.layout);
+            queue?.changed();
+        } else queue?.discard(props.versions);
+        say(message);
+    } finally {
+        refreshing = false;
+        host.value?.focus();
+    }
 }
 
 onMounted(async () => {
@@ -193,7 +215,7 @@ onBeforeUnmount(() => {
     <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]">
         <LayersPanel :fresh="fresh" :areas="layout.areas" @keydown="onKey" :elements="elements" :selected="selected" class="max-h-[40vh] overflow-auto lg:max-h-[calc(100vh-14rem)]" @select="pick" />
         <div class="flex min-w-0 flex-col gap-3">
-            <div ref="host" role="img" tabindex="0" @keydown="onKey" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[60vh] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#c3c9cf_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[calc(100vh-17rem)]" :data-state="state"></div>
+            <div ref="host" role="group" tabindex="0" @keydown="onKey" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[60vh] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#c3c9cf_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[calc(100vh-17rem)]" :data-state="state"></div>
             <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Announcer :message="notice" />
             <Toolbar v-model:grid="grid" :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />

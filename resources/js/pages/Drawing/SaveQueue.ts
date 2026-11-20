@@ -98,6 +98,14 @@ export class SaveQueue {
         this.pump();
     }
 
+    discard(versions: LayoutVersions): void {
+        this.pending.length = 0;
+        this.current = { ...versions };
+        this.paused = false;
+        this.state = 'idle';
+        this.options.onStatus?.('idle');
+    }
+
     retry(): void {
         this.resume();
     }
@@ -129,7 +137,12 @@ export class SaveQueue {
     }
 
     private async runSave(): Promise<void> {
-        const result = await this.send(this.options.canvas, { ...this.options.getLayout(), structure_version: this.current.structure, layout_version: this.current.layout });
+        let result: SaveResult;
+        try {
+            result = await this.send(this.options.canvas, { ...this.options.getLayout(), structure_version: this.current.structure, layout_version: this.current.layout });
+        } catch {
+            result = { outcome: 'unreachable' };
+        }
         this.running = false;
 
         if (result.outcome === 'saved') {
@@ -138,7 +151,7 @@ export class SaveQueue {
             return;
         }
 
-        this.pending.unshift({ kind: 'save' });
+        if (this.pending[0]?.kind !== 'save') this.pending.unshift({ kind: 'save' });
 
         if (result.outcome === 'conflict') {
             this.halt(result.conflict === 'structure_changed' ? 'structureChanged' : 'layoutChanged');

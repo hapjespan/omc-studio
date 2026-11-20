@@ -27,15 +27,17 @@ describe('storedPayload', () => {
 });
 
 describe('mergeLayout', () => {
-    it('keeps own changes for Elements that still exist, takes the rest and the versions from the fresh payload', async () => {
+    it('re-applies only the own changes on top of the fresh Layout and drops Elements that are gone', async () => {
         const { mergeLayout } = await import('../../../resources/js/edit-engine/automaticPayload');
-        const own = storedPayload({ 'dom-1': { mode: 'manual', x: 99, y: 48, width: 286, height: 204, z: 2 }, gone: { mode: 'manual', x: 1, y: 1, width: 50, height: 50, z: 0 } }, ['dom-1', 'gone'], { structure: 1, layout: 1 });
-        const fresh = storedPayload({}, ['dom-1', 'added'], { structure: 2, layout: 5 });
-        const merged = mergeLayout(own, fresh);
+        const loaded = storedPayload({ 'dom-1': { mode: 'manual', x: 10, y: 48, width: 286, height: 204, z: 2 }, 'dom-2': { mode: 'manual', x: 5, y: 5, width: 100, height: 100, z: 0 } }, ['dom-1', 'dom-2', 'gone'], { structure: 1, layout: 1 });
+        const own = { ...loaded, elements: { ...loaded.elements, 'dom-1': { mode: 'manual' as const, x: 99, y: 48, width: 286, height: 204, z: 2 } } };
+        const fresh = storedPayload({ 'dom-2': { mode: 'manual', x: 77, y: 5, width: 100, height: 100, z: 0 } }, ['dom-1', 'dom-2', 'added'], { structure: 2, layout: 5 });
+        const merged = mergeLayout(own, loaded, fresh);
         expect(merged.structure_version).toBe(2);
         expect(merged.layout_version).toBe(5);
-        expect(Object.keys(merged.elements).sort()).toEqual(['added', 'dom-1']);
+        expect(Object.keys(merged.elements).sort()).toEqual(['added', 'dom-1', 'dom-2']);
         expect(merged.elements['dom-1']).toMatchObject({ mode: 'manual', x: 99 });
+        expect(merged.elements['dom-2']).toMatchObject({ mode: 'manual', x: 77 });
         expect(merged.elements.added).toEqual({ mode: 'automatic' });
     });
 });

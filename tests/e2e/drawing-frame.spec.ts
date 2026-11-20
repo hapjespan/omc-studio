@@ -80,8 +80,8 @@ test('rows of Elements added since the last save carry the text pill nieuw until
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas.id}/drawing`);
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
-    const row = page.locator('li', { has: page.getByRole('button', { name: 'Onderwijs', exact: true }) }).first();
-    await expect(row.getByText('nieuw').first()).toBeVisible();
+    const row = page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true }).locator('xpath=..');
+    await expect(row.getByText('nieuw')).toBeVisible();
     await page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true }).click();
-    await expect(row.locator('> div').getByText('nieuw')).toHaveCount(0);
+    await expect(row.getByText('nieuw')).toHaveCount(0);
 });

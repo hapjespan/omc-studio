@@ -1,5 +1,6 @@
 import type { DrawnCanvas } from '../layout';
 import type { LayoutPayload, SavedArea, SavedElement } from './DrawingEngine';
+import { ARTBOARD_HEIGHT, MIN_HEIGHT } from './constraints';
 import { placesOf, type Place } from './scene';
 
 const same = (one: Place | undefined, other: Place | undefined) => !!one && !!other && one.x === other.x && one.y === other.y && one.width === other.width && one.height === undefined;
@@ -15,7 +16,7 @@ export function toPayload(base: LayoutPayload, canvas: DrawnCanvas, places: Map<
         if (block.kind === 'area') {
             const stored = base.areas[block.id];
             if (block.areaKey === 'direction' || (!stored && same(place, built.get(block.id)) && !orders.has(block.id))) continue;
-            areas[block.id] = { x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? block.drawnHeight, z: orders.get(block.id) ?? stored?.z ?? 0, ...(stored?.style ? { style: stored.style } : {}) };
+            areas[block.id] = { x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? Math.min(block.drawnHeight, ARTBOARD_HEIGHT - place.y), z: orders.get(block.id) ?? stored?.z ?? 0, ...(stored?.style ? { style: stored.style } : {}) };
             continue;
         }
         const entry = base.elements[block.id];
@@ -24,7 +25,7 @@ export function toPayload(base: LayoutPayload, canvas: DrawnCanvas, places: Map<
             elements[block.id] = { mode: 'automatic' };
             continue;
         }
-        elements[block.id] = { mode: 'manual', x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? block.drawnHeight, z: orders.get(block.id) ?? stored?.z ?? 0, ...(stored?.style ? { style: stored.style } : {}) };
+        elements[block.id] = { mode: 'manual', x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? MIN_HEIGHT, z: orders.get(block.id) ?? stored?.z ?? 0, ...(stored?.style ? { style: stored.style } : {}) };
     }
 
     return { structure_version: base.structure_version, layout_version: base.layout_version, format_version: base.format_version, areas, elements };
