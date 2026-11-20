@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 
 class CostRecordImport
 {
-    public const COLUMNS = ['code', 'naam', 'soort', 'leverancier', 'eigenaar', 'kostenplaats', 'applicatie', 'jaar', 'budget', 'prognose', 'run_pct', 'change_pct', 'fte'];
+    public const COLUMNS = ['code', 'name', 'kind', 'supplier', 'owner', 'cost_centre', 'application', 'year', 'budget', 'forecast', 'run_percentage', 'change_percentage', 'fte'];
 
     public function __construct(
         private readonly FinalisedYears $finalised,
@@ -111,11 +111,11 @@ class CostRecordImport
                     $messages[] = __('import.duplicate_fields', ['line' => $number, 'code' => $row['code'], 'other' => $other]);
                 }
 
-                if ($row['jaar'] !== '') {
-                    $key = $code.'|'.$row['jaar'];
+                if ($row['year'] !== '') {
+                    $key = $code.'|'.$row['year'];
 
                     if (isset($seenYears[$key])) {
-                        $messages[] = __('import.duplicate_year', ['line' => $number, 'code' => $row['code'], 'year' => $row['jaar'], 'other' => $seenYears[$key]]);
+                        $messages[] = __('import.duplicate_year', ['line' => $number, 'code' => $row['code'], 'year' => $row['year'], 'other' => $seenYears[$key]]);
                     }
 
                     $seenYears[$key] ??= $number;
@@ -123,7 +123,7 @@ class CostRecordImport
             }
 
             $record = $records->get($code);
-            $year = $yearModels->get((int) $row['jaar']);
+            $year = $yearModels->get((int) $row['year']);
 
             if ($messages === [] && $figures !== null && $year !== null && $this->figuresChange($record, $figures, $year->getKey())) {
                 $canvas = $finalised[$year->year] ??= $this->finalised->finalisedInOrganisation($year) ?? false;
@@ -131,14 +131,14 @@ class CostRecordImport
             }
 
             if ($messages === []) {
-                $this->collect($creates['owners'], $row['eigenaar'], $owners);
-                $this->collect($creates['applications'], $row['applicatie'], $applications);
+                $this->collect($creates['owners'], $row['owner'], $owners);
+                $this->collect($creates['applications'], $row['application'], $applications);
             }
 
-            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['jaar']] ?? null, $owners, $applications);
+            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['year']] ?? null, $owners, $applications);
             $totals[$status === 'error' ? 'errors' : $status]++;
             $lines[] = ['line' => $number, 'status' => $status, 'messages' => $messages];
-            $messages === [] && $rows[] = ['cells' => $row, 'fields' => $fields, 'figures' => $figures, 'year' => $years[(int) $row['jaar']] ?? null];
+            $messages === [] && $rows[] = ['cells' => $row, 'fields' => $fields, 'figures' => $figures, 'year' => $years[(int) $row['year']] ?? null];
         }
 
         return [
@@ -215,8 +215,8 @@ class CostRecordImport
             'cost_kind' => $row['fields']['kind'],
             'supplier' => $row['fields']['supplier'],
             'cost_centre' => $row['fields']['cost_centre'],
-            'owner_id' => $this->entry(Owner::class, $organisation, $data['owners'], $row['cells']['eigenaar']),
-            'application_id' => $this->entry(Application::class, $organisation, $data['applications'], $row['cells']['applicatie']),
+            'owner_id' => $this->entry(Owner::class, $organisation, $data['owners'], $row['cells']['owner']),
+            'application_id' => $this->entry(Application::class, $organisation, $data['applications'], $row['cells']['application']),
         ];
 
         $key = mb_strtolower($row['cells']['code']);
