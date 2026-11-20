@@ -32,6 +32,16 @@ describe('OverflowNotice', () => {
         expect(message.value).toBe('Niet alles past op het A3-tekenvlak: 3 blokken vallen erbuiten');
     });
 
+    it('adds the Tekenen hint for Administrators only', async () => {
+        message.value = '';
+        const admin = await render(OverflowNotice, { count: 3, administrator: true });
+        expect(admin).toContain('data-overflow-hint');
+        expect(admin).toContain('Maak blokken kleiner of verplaats ze in Tekenen');
+        await Promise.resolve();
+        expect(message.value).toBe('Niet alles past op het A3-tekenvlak: 3 blokken vallen erbuiten Maak blokken kleiner of verplaats ze in Tekenen');
+        expect(await render(OverflowNotice, { count: 3 })).not.toContain('data-overflow-hint');
+    });
+
     it('shows nothing when everything fits', async () => {
         message.value = '';
         expect(await render(OverflowNotice, { count: 0 })).not.toContain('data-overflow-notice');

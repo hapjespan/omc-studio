@@ -552,5 +552,6 @@
     "audit_log.field.size": "Grootte",
     "audit_log.field.style": "Opmaak",
     "layout.reset.not_domain": "Opmaak :name: alleen een domein kan als domein terug naar automatisch",
-    "layout.warning.adjusted": "Opmaak aangepast: :name"
+    "layout.warning.adjusted": "Opmaak aangepast: :name",
+    "view.overflow_hint": "Maak blokken kleiner of verplaats ze in Tekenen"
 }

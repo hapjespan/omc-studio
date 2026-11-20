@@ -7,18 +7,20 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
+use App\Services\Layout\LayoutSnapshot;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CanvasViewController extends Controller
 {
-    public function __invoke(Canvas $canvas): Response
+    public function __invoke(Canvas $canvas, LayoutSnapshot $layouts): Response
     {
         $modalities = Modality::orderBy('position')->get();
         $letters = $modalities->pluck('letter', 'id');
 
         return Inertia::render('Canvas/View', [
             'canWrite' => false,
+            'layouts' => $layouts->for($canvas),
             'layout' => [
                 'areas' => Area::orderBy('position')->get()->map(fn (Area $area) => [
                     'key' => $area->key,
