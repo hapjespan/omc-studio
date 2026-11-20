@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import UndoMessage from '../../components/list/UndoMessage.vue';
 import { useUndoFlash } from '../../components/list/undoFlash';
 import Dialog from '../../components/overlays/Dialog.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import { activitiesOf, formatPercentage, remaining, restToLine, splitEvenly, splitOverDomainActivities } from '../../allocation/helpers';
 import { indexTargets, type CostRecordRow, type DraftLine, type TargetRow } from '../../allocation/types';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import AllocationEditor from './AllocationEditor.vue';
 import AllocationQuick from './AllocationQuick.vue';
+import AllocationSummary from './AllocationSummary.vue';
 import ImportAllocations from './ImportAllocations.vue';
 import CostRecordStatusList from './CostRecordStatusList.vue';
 import TargetTree from './TargetTree.vue';
 
-const props = defineProps<{ canvas: { id: number; name: string; archived: boolean }; year: number | null; finalised: boolean; costRecords: CostRecordRow[]; chosen: string | null; set: { elementId: string; basisPoints: number; position: number }[]; targets: TargetRow[]; canvasTotalCents: number | null; figuresAvailable: boolean }>();
+const props = defineProps<{ canvas: { id: number; name: string; archived: boolean }; year: number | null; finalised: boolean; costRecords: CostRecordRow[]; chosen: string | null; set: { elementId: string; basisPoints: number; position: number }[]; targets: TargetRow[]; canvasTotalCents: number | null; figuresAvailable: boolean; areaTotals: Record<string, number> | null }>();
 
 const page = usePage();
 const stored = (): DraftLine[] => [...props.set].sort((a, b) => a.position - b.position).map((line) => ({ elementId: line.elementId, basisPoints: line.basisPoints }));
@@ -62,10 +64,12 @@ function through(visit: () => void): void {
     }
 }
 
-const add = (id: string): void => {
+const add = async (id: string): Promise<void> => {
     if (!writable.value || !info.value[id] || draft.value.some((line) => line.elementId === id)) return;
     draft.value = [...draft.value, { elementId: id, basisPoints: Math.max(0, left.value) }];
     announce(t('allocation_page.add', { target: info.value[id].path }));
+    await nextTick();
+    document.getElementById(`allocation-line-${draft.value.length - 1}`)?.focus();
 };
 const change = (index: number, basisPoints: number): void => void (draft.value = draft.value.map((line, i) => (i === index ? { ...line, basisPoints } : line)));
 const remove = (index: number): void => void (draft.value = draft.value.filter((_, i) => i !== index));
@@ -99,54 +103,51 @@ const leave = (): void => {
     discard();
     if (visit) through(() => router.visit(visit.url.href, { method: visit.method as 'get' }));
 };
-const statusText = computed(() => (record.value ? t(`allocation_page.status_${record.value.status}`) : ''));
+const draftText = computed(() => (dirty.value ? formatPercentage(total.value) : null));
 const canClear = computed(() => writable.value && record.value?.status === 'allocated');
 </script>
 
 <template>
     <Head :title="t('allocation_page.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('allocation_page.title') }}: {{ canvas.name }}</h1>
-    <ImportAllocations v-if="!canvas.archived" :canvas-id="canvas.id" />
-    <p v-if="finalised" role="status" class="mt-2 text-[13px] text-[#8A5A00]">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</p>
-    <p v-if="year === null" role="status" class="mt-2 text-[13px]">{{ t('allocation_page.no_year') }}</p>
-    <div v-if="errors.rule" role="alert" class="mt-3"><ErrorSummary :errors="errors" /></div>
-    <div v-if="undo.state.value" class="mt-3"><UndoMessage :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" /></div>
-    <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)]">
-        <CostRecordStatusList :records="costRecords" :chosen="chosen" @choose="choose" />
+    <h1 class="sr-only">{{ t('allocation_page.title') }}: {{ canvas.name }}</h1>
+    <p v-if="finalised" role="status" class="mb-3 text-[13px] text-warning">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</p>
+    <p v-if="year === null" role="status" class="mb-3 text-[13px]">{{ t('allocation_page.no_year') }}</p>
+    <div v-if="errors.rule" role="alert" class="mb-3"><ErrorSummary :errors="errors" /></div>
+    <div v-if="undo.state.value" class="mb-3"><UndoMessage :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" /></div>
+    <div class="grid items-start gap-5 lg:grid-cols-[346px_minmax(0,1fr)_380px]">
+        <div class="min-w-0 space-y-4">
+            <CostRecordStatusList :records="costRecords" :chosen="chosen" :year="year" :draft="draftText" @choose="choose" />
+            <ImportAllocations v-if="!canvas.archived" :canvas-id="canvas.id" />
+        </div>
         <section role="region" aria-labelledby="allocation-middle" class="min-w-0">
             <template v-if="record">
-                <h2 id="allocation-middle" class="text-[15px] font-semibold">{{ t('allocation_page.lines', { name: record.name }) }}</h2>
-                <p class="mt-1 flex flex-wrap items-center gap-2 text-[13px]">
-                    <span class="flex items-center gap-1.5"><span aria-hidden="true" class="inline-block h-2.5 w-2.5 rounded-full" :class="record.status === 'allocated' ? 'bg-[#1F7A3D]' : 'bg-[#8A5A00]'" />{{ statusText }}</span>
-                    <span v-if="dirty" class="font-semibold text-[#8A5A00]" data-testid="draft">{{ t('allocation_page.draft', { percentage: formatPercentage(total) }) }}</span>
-                </p>
-                <div class="mt-2 flex flex-wrap items-start gap-2">
+                <AllocationSummary :record="record" :year="year" :lines="draft" :draft="draftText">
                     <AllocationQuick :count="draft.length" :domains="targets" :disabled="!writable" @even="even" @domain="overDomain" />
-                    <button v-if="dirty" type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="discard">{{ t('allocation_page.discard') }}</button>
-                    <button type="button" :disabled="!canClear" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E] disabled:opacity-60" @click="clearOpen = true">{{ t('allocation_page.clear') }}</button>
-                </div>
+                </AllocationSummary>
                 <div class="mt-3">
                     <AllocationEditor :lines="draft" :info="info" :budget-cents="record.budgetCents" :disabled="!writable" @change="change" @remove="remove" @rest="rest" @drop="add" />
                 </div>
-                <div class="mt-3">
-                    <button type="button" :disabled="!canSave" aria-describedby="allocation-save-hint" class="rounded-md border border-[#171B21] bg-[#171B21] px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-60" @click="save">{{ t('allocation_page.save') }}</button>
-                    <p v-if="dirty && !canSave && writable" id="allocation-save-hint" class="mt-1 text-[13px]">{{ t('allocation_page.save_blocked') }}</p>
+                <div class="mt-3 flex items-start gap-3">
+                    <AppButton :variant="canSave ? 'primary' : 'secondary'" :icon="canSave ? undefined : 'lock'" :disabled="!canSave" aria-describedby="allocation-save-hint" @click="save">{{ t('allocation_page.save') }}</AppButton>
+                    <p v-if="dirty && !canSave && writable" id="allocation-save-hint" class="min-w-0 flex-1 pt-1.5 text-[12.5px] text-secondary">{{ t('allocation_page.save_blocked') }}</p>
+                    <AppButton v-if="dirty" class="ml-auto shrink-0" @click="discard">{{ t('allocation_page.discard') }}</AppButton>
                 </div>
+                <AppButton class="mt-3" variant="danger" :disabled="!canClear" @click="clearOpen = true">{{ t('allocation_page.clear') }}</AppButton>
             </template>
-            <p v-else id="allocation-middle" class="text-[13px]">{{ t('allocation_page.pick') }}</p>
+            <p v-else id="allocation-middle" class="rounded-panel border border-hairline bg-white p-5 text-[13px]">{{ t('allocation_page.pick') }}</p>
         </section>
-        <TargetTree :targets="targets" :in-set="draft.map((line) => line.elementId)" :disabled="!writable" :figures-available="figuresAvailable" @add="add" />
+        <TargetTree :targets="targets" :in-set="draft.map((line) => line.elementId)" :disabled="!writable" :figures-available="figuresAvailable" :year="year" :area-totals="areaTotals" @add="add" />
     </div>
     <Dialog v-model:open="clearOpen" :title="t('allocation_page.clear_title')" :description="t('allocation_page.clear_text', { name: record?.name ?? '', year: year ?? '' })">
         <div class="mt-3 flex gap-2">
-            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="clearOpen = false">{{ t('list.cancel') }}</button>
-            <button type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="clear">{{ t('allocation_page.clear_confirm') }}</button>
+            <AppButton @click="clearOpen = false">{{ t('list.cancel') }}</AppButton>
+            <AppButton variant="danger" @click="clear">{{ t('allocation_page.clear_confirm') }}</AppButton>
         </div>
     </Dialog>
     <Dialog v-model:open="leaveOpen" :title="t('allocation_page.leave_title')" :description="t('allocation_page.leave_text')">
         <div class="mt-3 flex gap-2">
-            <button type="button" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="leaveOpen = false">{{ t('allocation_page.leave_stay') }}</button>
-            <button type="button" class="rounded-md border border-[#C0645A] px-3 py-1.5 text-[13px] text-[#A12A1E]" @click="leave">{{ t('allocation_page.leave_go') }}</button>
+            <AppButton @click="leaveOpen = false">{{ t('allocation_page.leave_stay') }}</AppButton>
+            <AppButton variant="danger" @click="leave">{{ t('allocation_page.leave_go') }}</AppButton>
         </div>
     </Dialog>
 </template>

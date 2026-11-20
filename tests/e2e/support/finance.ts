@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import type { Page } from '@playwright/test';
 
 const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
 
@@ -32,4 +33,10 @@ export function seedAllocation(name: string, records: Record<string, number>, st
     const output = tinker(`app(App\\Services\\Operations\\Steps\\ReferenceDataStep::class)(); $o = App\\Models\\Organisation::factory()->create(['name' => '${name}']); $f = App\\Models\\FiscalYear::factory()->create(['organisation_id' => $o->id, 'year' => 2026]); $w = App\\Models\\Owner::factory()->create(['organisation_id' => $o->id]); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => $o->id, 'name' => '${name} canvas']); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); $a = App\\Models\\Area::where('key', 'primary_activities')->first(); $ids = []; ${recordCode} ${elementCode} echo 'OUT=' . json_encode(['organisation' => $o->id, 'canvas' => $c->id, 'records' => $ids]);`);
 
     return JSON.parse(/OUT=(.*)/.exec(output)?.[1] ?? '{}') as AllocationSeed;
+}
+
+export async function expandTarget(page: Page, name: string): Promise<void> {
+    await page.getByRole('tree').waitFor();
+    const button = page.getByRole('button', { name: `Uitklappen: ${name}` });
+    if ((await button.count()) > 0) await button.click();
 }

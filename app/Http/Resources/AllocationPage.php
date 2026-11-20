@@ -26,6 +26,7 @@ class AllocationPage
             'chosen' => $chosen,
             'set' => $year === null || $chosen === null ? [] : $this->set($canvas, $year, $chosen),
             'targets' => $this->targets($canvas, $figures->elements ?? null),
+            'areaTotals' => $figures === null ? null : array_map(fn (array $money): int => $money['budget'], $figures->areas),
             'canvasTotalCents' => $figures?->canvasTotal['budget'] ?? null,
             'figuresAvailable' => $figures !== null,
         ];
@@ -36,15 +37,17 @@ class AllocationPage
     {
         $allocated = AllocationSet::where('canvas_id', $canvas->getKey())->where('fiscal_year_id', $year->getKey())->pluck('cost_record_id')->all();
 
-        return $canvas->organisation->costRecords()
+        return $canvas->organisation->costRecords()->with('owner:id,name')
             ->join('yearly_figures', fn ($join) => $join->on('yearly_figures.cost_record_id', '=', 'cost_records.id')->where('yearly_figures.fiscal_year_id', '=', $year->getKey()))
             ->orderByRaw('LOWER(cost_records.name)')
-            ->get(['cost_records.id', 'cost_records.code', 'cost_records.name', 'cost_records.archived_at', 'yearly_figures.budget_cents'])
+            ->get(['cost_records.id', 'cost_records.code', 'cost_records.name', 'cost_records.archived_at', 'cost_records.cost_kind', 'cost_records.owner_id', 'yearly_figures.budget_cents'])
             ->map(fn ($record) => [
                 'id' => $record->id,
                 'code' => $record->code,
                 'name' => $record->name,
                 'archived' => $record->archived_at !== null,
+                'costKind' => $record->cost_kind->value,
+                'owner' => $record->owner->name,
                 'budgetCents' => (int) $record->getAttribute('budget_cents'),
                 'status' => in_array($record->id, $allocated, true) ? 'allocated' : 'unallocated',
             ])->all();
