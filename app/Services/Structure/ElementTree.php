@@ -6,6 +6,7 @@ use App\Enums\ElementKind;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Services\Layout\LayoutRows;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use InvalidArgumentException;
@@ -16,12 +17,12 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules, private readonly ModalityRules $modalities) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules, private readonly ModalityRules $modalities, private readonly LayoutRows $layoutRows) {}
 
     /** @param array<string, mixed> $fields */
-    public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = []): Element
+    public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = [], bool $raisesVersion = true): Element
     {
-        return $this->writes->run([$canvas], function () use ($canvas, $area, $kind, $parentId, $fields) {
+        return $this->writes->run([$canvas], function () use ($canvas, $area, $kind, $parentId, $fields, $raisesVersion) {
             $this->assertStructureWritable($canvas);
 
             $parent = $this->parent($canvas, $area, $kind, $parentId);
@@ -34,7 +35,7 @@ class ElementTree
 
             $this->fieldRules->assertValid($area, $fields);
 
-            return Element::create([
+            $element = Element::create([
                 ...array_intersect_key($fields, array_flip(self::FIELDS)),
                 'canvas_id' => $canvas->id,
                 'area_id' => $area->id,
@@ -42,6 +43,25 @@ class ElementTree
                 'kind' => $kind,
                 'position' => $this->positions->next($canvas->id, $area->id, $parent?->id, $kind),
             ]);
+
+            if ($raisesVersion) {
+                $canvas->raiseStructureVersion();
+            }
+
+            return $element;
+        });
+    }
+
+    public function moveUnder(Element $element, Area|Element $target): Element
+    {
+        $canvas = $element->canvas;
+
+        return $this->writes->run([$canvas], function () use ($canvas, $element, $target) {
+            $moved = $this->move($element, $target);
+
+            $this->layoutRows->remove($canvas, $this->layoutRows->subtree($moved));
+
+            return $moved;
         });
     }
 
@@ -81,6 +101,8 @@ class ElementTree
             ]);
 
             $this->carry($element);
+
+            $canvas->raiseStructureVersion();
 
             return $element;
         });
@@ -158,6 +180,8 @@ class ElementTree
                     $sibling->update(['position' => $index]);
                 }
             }
+
+            $canvas->raiseStructureVersion();
         });
     }
 

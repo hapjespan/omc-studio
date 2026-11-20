@@ -1,5 +1,6 @@
 import { stackOrder } from './manual';
 import { elementPadding, MODALITY_BADGE } from './padding';
+import { automaticStart } from './placement';
 import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
 import type { TreeNode } from './tree';
 import { wrapText } from './wrapText';
@@ -51,16 +52,18 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
     let hanging = 0;
     for (const child of node.children) {
         const childRect = context.rect?.(child.element.id) ?? null;
-        if (childRect) {
-            const placed = place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect);
-            hanging = Math.max(hanging, childRect.y + placed.drawnHeight);
-            continue;
-        }
+        if (!childRect) continue;
+        const placed = place(child, area, x + childRect.x, y + childRect.y, childRect.width, out, context, childRect);
+        hanging = Math.max(hanging, childRect.y + placed.drawnHeight);
+    }
+    cursor = automaticStart(cursor, hanging);
+    for (const child of node.children) {
+        if (context.rect?.(child.element.id)) continue;
         const indent = child.element.kind === 'cluster' ? CLUSTER_INDENT : 0;
         const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
-    block.drawnHeight = Math.max(own?.height ?? 0, cursor + pad.y, hanging === 0 ? 0 : hanging + pad.y);
+    block.drawnHeight = Math.max(own?.height ?? 0, cursor + pad.y);
 
     return block;
 }

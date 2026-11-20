@@ -8,7 +8,7 @@ import { modeSwitchPlacement } from '../../shell/modes';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
 import type { DrawingEngine } from '../../edit-engine';
-import { automaticPayload } from '../../edit-engine/automaticPayload';
+import { storedPayload } from '../../edit-engine/automaticPayload';
 import { t } from '../../i18n';
 import DirectionBand from './DirectionBand.vue';
 import Header from './Header.vue';
@@ -18,6 +18,8 @@ import Toolbar from './Toolbar.vue';
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
     canWrite?: boolean;
+    layouts: NonNullable<CanvasLayoutInput['layouts']>;
+    versions: { structure: number; layout: number };
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
@@ -65,11 +67,11 @@ function release(): void {
 
 onMounted(async () => {
     try {
-        const computed = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, await createBrowserMeasurer());
+        const computed = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, await createBrowserMeasurer());
         drawn.value = computed;
         const { createDrawingEngine } = await import('../../edit-engine');
         created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, computed, { layout: automaticPayload(props.elements.map(({ id }) => id)), onTextAttempt: showHint });
+        await created.mount(host.value as HTMLElement, computed, { layout: storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions), onTextAttempt: showHint });
         if (unmounted) return release();
         created.zoomToFit();
         engine.value = created;

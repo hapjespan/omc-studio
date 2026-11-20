@@ -7,9 +7,12 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
+use App\Services\Layout\LayoutSnapshot;
 
 class ViewData
 {
+    public function __construct(private readonly LayoutSnapshot $layouts) {}
+
     /** @return array<string, mixed> */
     public function for(Canvas $canvas): array
     {
@@ -18,6 +21,7 @@ class ViewData
 
         return [
             'canWrite' => false,
+            'layouts' => $this->layouts->for($canvas),
             'layout' => [
                 'areas' => Area::orderBy('position')->get()->map(fn (Area $area) => [
                     'key' => $area->key,

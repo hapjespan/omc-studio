@@ -22,6 +22,6 @@ class DrawingController extends Controller
             return redirect("/canvases/{$canvas->id}/view");
         }
 
-        return Inertia::render('Drawing/Index', $data->for($canvas));
+        return Inertia::render('Drawing/Index', [...$data->for($canvas), 'versions' => ['structure' => (int) $canvas->structure_version, 'layout' => (int) $canvas->layout_version]]);
     }
 }

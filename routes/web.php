@@ -20,6 +20,7 @@ use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\DrawingController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\QuickEntryController;
@@ -145,4 +146,12 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/quick-e
 
 Route::middleware('auth')->group(function () {
     Route::get('/canvases/{canvas}/drawing', DrawingController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::put('/canvases/{canvas}/layout', [LayoutController::class, 'update']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/layout/reset', [LayoutController::class, 'reset']);
 });

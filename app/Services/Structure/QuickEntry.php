@@ -35,6 +35,7 @@ class QuickEntry
             }
 
             $created = $existing->all();
+            $added = 0;
 
             foreach ($result['lines'] as $line) {
                 if ($line['status'] === 'exists') {
@@ -43,7 +44,12 @@ class QuickEntry
 
                 $parent = $line['level'] === 0 ? null : $created[$this->parentPath($line['path'])];
 
-                $created[$line['path']] = $this->tree->create($canvas, $area, ElementKind::from($line['kind']), $parent?->id, ['name' => $line['name']]);
+                $created[$line['path']] = $this->tree->create($canvas, $area, ElementKind::from($line['kind']), $parent?->id, ['name' => $line['name']], raisesVersion: false);
+                $added++;
+            }
+
+            if ($added > 0) {
+                $canvas->raiseStructureVersion();
             }
         });
     }

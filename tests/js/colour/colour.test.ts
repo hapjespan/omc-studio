@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import contrast from '../../fixtures/contrast.json';
 import defaults from '../../../resources/data/default-colours.json';
-import { autoTextColour, contrastRatio, defaultColourPairs } from '../../../resources/js/colour';
+import { autoTextColour, contrastRatio, defaultColourPairs, effectiveFill } from '../../../resources/js/colour';
 
 describe('autoTextColour', () => {
     it.each(contrast.cases)('$background gets $text', ({ background, text }) => {
         expect(autoTextColour(background)).toBe(text);
+    });
+});
+
+describe('effectiveFill', () => {
+    it.each(contrast.effectiveCases)('$fill at $opacity over $behind is $effective', ({ fill, opacity, behind, effective, text }) => {
+        expect(effectiveFill(fill, opacity, behind)).toBe(effective);
+        expect(autoTextColour(effective)).toBe(text);
     });
 });
 

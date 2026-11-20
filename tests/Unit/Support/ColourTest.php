@@ -20,6 +20,16 @@ class ColourTest extends TestCase
         }
     }
 
+    public function test_the_effective_fill_composites_opacity_over_the_fill_behind(): void
+    {
+        foreach ($this->fixture()['effectiveCases'] as $case) {
+            $effective = Colour::effectiveFill($case['fill'], $case['opacity'], $case['behind']);
+
+            $this->assertSame($case['effective'], $effective);
+            $this->assertSame($case['text'], Colour::autoText($effective));
+        }
+    }
+
     public function test_every_default_colour_pair_meets_the_minimum_ratio(): void
     {
         $pairs = Colour::defaultPairs();

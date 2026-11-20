@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Layout;
 
+use App\Models\Area;
 use App\Models\Canvas;
+use App\Models\Layout;
 use App\Models\User;
+use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -23,6 +26,21 @@ class DrawingRouteTest extends TestCase
             ->has('elements')
             ->has('statements')
             ->has('modalities'));
+    }
+
+    public function test_the_stored_layouts_and_the_real_versions_reach_the_page(): void
+    {
+        app(ReferenceDataStep::class)();
+        $canvas = Canvas::factory()->create();
+        $canvas->forceFill(['structure_version' => 7, 'layout_version' => 3])->save();
+        $area = Area::query()->where('key', 'primary_activities')->firstOrFail();
+        Layout::query()->create(['canvas_id' => $canvas->id, 'area_id' => $area->id, 'element_id' => null, 'x' => 5, 'y' => 200, 'width' => 900, 'height' => 300, 'z' => 0, 'style' => [], 'format_version' => 1]);
+
+        $this->actingAs(User::factory()->administrator()->create())->get("/canvases/{$canvas->id}/drawing")->assertInertia(fn (Assert $page) => $page
+            ->where('versions.structure', 7)
+            ->where('versions.layout', 3)
+            ->where('layouts.primary_activities.width', 900)
+            ->where('layouts.primary_activities.mode', 'manual'));
     }
 
     public function test_a_reader_is_sent_to_bekijken(): void

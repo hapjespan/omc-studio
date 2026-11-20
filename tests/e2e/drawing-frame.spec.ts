@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
 import { seedViewCanvas } from './support/view';
@@ -59,4 +60,15 @@ test('the mode switch loads Tekenen as a full page under its own policy and leav
     await page.getByRole('link', { name: 'Tekenen' }).click();
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
     await expect(page.getByRole('group', { name: 'Modus' })).toHaveCount(1);
+});
+
+test('Tekenen opens a Canvas with a stored Layout', async ({ page }) => {
+    const canvas = seedViewCanvas();
+    const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+    const code = `$a = App\\Models\\Area::where('key', 'primary_activities')->value('id'); App\\Models\\Layout::create(['canvas_id' => ${canvas.id}, 'area_id' => $a, 'element_id' => null, 'x' => 40, 'y' => 220, 'width' => 900, 'height' => 400, 'z' => 0, 'style' => [], 'format_version' => 1]); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version');`;
+    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${canvas.id}/drawing`);
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await expect(page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: 'Onderwijs', exact: true })).toBeVisible();
 });

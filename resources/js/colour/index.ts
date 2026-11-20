@@ -15,6 +15,15 @@ export const contrastRatio = (a: string, b: string): number => {
     return (high + 0.05) / (low + 0.05);
 };
 
+export const effectiveFill = (fill: string, opacity: number, behind: string): string => {
+    const alpha = opacity / 100;
+    const hex = [1, 3, 5].map((i) => {
+        const value = Math.floor(parseInt(fill.slice(i, i + 2), 16) * alpha + parseInt(behind.slice(i, i + 2), 16) * (1 - alpha) + 0.5);
+        return value.toString(16).padStart(2, '0').toUpperCase();
+    });
+    return `#${hex.join('')}`;
+};
+
 export const autoTextColour = (background: string): string =>
     contrastRatio(background, defaults.ink) >= contrastRatio(background, defaults.white) ? defaults.ink : defaults.white;
 
