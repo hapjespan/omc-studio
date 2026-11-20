@@ -18,7 +18,7 @@ class SecurityHeaders
 
         $response->headers->set('Content-Security-Policy', $this->policyFor($request));
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('Referrer-Policy', 'no-referrer');
+        $response->headers->set('Referrer-Policy', 'same-origin');
 
         if ($request->user() !== null) {
             $response->headers->set('Cache-Control', 'no-store');

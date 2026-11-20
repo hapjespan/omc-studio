@@ -4,6 +4,12 @@ From 2026-11-19 the GitHub account refused to start Actions jobs ("recent accoun
 
 When Actions works again, the first CI run on the tip of `release` comes before any other work; a red run goes before everything else.
 
+## Status: GitHub Actions works again (2026-11-20)
+
+The repository is public and Actions runs again. From now on a pull request is merged into `release` only when its CI on GitHub is green (`gh pr checks --watch`); a local run alone no longer counts.
+
+The first CI run on the tip of `release` after the block, run 44715702490 on commit `2338580` (pull request 405, which contains every pull request in the table below), finished with conclusion success: Dependency audits, Delivered image build, Scope of the change, PHP suite on PostgreSQL, PHP suite on SQLite, Vitest types lint and static checks, Playwright performance on three engines (on the 2 vCPU runner) and Playwright on three engines, all green. Every pull request in the table is therefore covered by a green CI run through that tip, including the PostgreSQL half of the PHP suite and the performance job that earlier runs could only approximate locally.
+
 | Pull request | Merged | PostgreSQL half of the PHP suite | Notes |
 |---|---|---|---|
 | 395 design foundation (T379) | 2026-11-19 | run afterwards on the tip of release on 2026-11-20: 725 passed, 2 errors that were a date bug in two tests (fixed in the pull request that adds this file) | Firefox opening Invoeren is close to the 1000 ms limit on this 11-core machine (p95 996 ms): check the performance job first on the 2 vCPU runner |
