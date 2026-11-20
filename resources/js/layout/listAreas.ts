@@ -5,7 +5,7 @@ import type { AreaKey, DrawnBlock, ElementKind } from './types';
 
 const GROUP_GAP = 12;
 const ITEM_GAP = 4;
-const ITEM_INDENT = 8;
+export const ITEM_INDENT = 8;
 const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 };
 
 export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, context: FlowContext): Flow {

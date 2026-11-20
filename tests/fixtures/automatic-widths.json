@@ -1,0 +1,52 @@
+{
+    "cases": [
+        {
+            "name": "primary activities card, cluster and activities",
+            "elements": [
+                { "id": "d1", "area": "primary_activities", "parent": null, "kind": "domain" },
+                { "id": "c1", "area": "primary_activities", "parent": "d1", "kind": "cluster" },
+                { "id": "a1", "area": "primary_activities", "parent": "c1", "kind": "activity" },
+                { "id": "a2", "area": "primary_activities", "parent": "d1", "kind": "activity" }
+            ],
+            "expected": { "d1": 284, "c1": 252, "a1": 236, "a2": 260 }
+        },
+        {
+            "name": "steering domains share two columns",
+            "elements": [
+                { "id": "d1", "area": "steering", "parent": null, "kind": "domain" },
+                { "id": "d2", "area": "steering", "parent": null, "kind": "domain" },
+                { "id": "d3", "area": "steering", "parent": null, "kind": "domain" }
+            ],
+            "expected": { "d1": 393, "d2": 393, "d3": 393 }
+        },
+        {
+            "name": "list area narrows by the item indent",
+            "elements": [
+                { "id": "g1", "area": "actors", "parent": null, "kind": "domain" },
+                { "id": "g2", "area": "actors", "parent": "g1", "kind": "cluster" },
+                { "id": "g3", "area": "actors", "parent": "g2", "kind": "activity" }
+            ],
+            "expected": { "g1": 216, "g2": 208, "g3": 200 }
+        },
+        {
+            "name": "manual parent with automatic children",
+            "elements": [
+                { "id": "d1", "area": "primary_activities", "parent": null, "kind": "domain" },
+                { "id": "c1", "area": "primary_activities", "parent": "d1", "kind": "cluster" },
+                { "id": "a1", "area": "primary_activities", "parent": "c1", "kind": "activity" },
+                { "id": "d2", "area": "primary_activities", "parent": null, "kind": "domain" }
+            ],
+            "elementWidths": { "d1": 400 },
+            "expected": { "d1": 400, "c1": 368, "a1": 352, "d2": 284 }
+        },
+        {
+            "name": "manual area changes the card columns",
+            "elements": [
+                { "id": "d1", "area": "primary_activities", "parent": null, "kind": "domain" },
+                { "id": "a1", "area": "primary_activities", "parent": "d1", "kind": "activity" }
+            ],
+            "areaWidths": { "primary_activities": 600 },
+            "expected": { "d1": 282, "a1": 258 }
+        }
+    ]
+}
