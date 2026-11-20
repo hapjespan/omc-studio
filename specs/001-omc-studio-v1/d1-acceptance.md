@@ -12,7 +12,7 @@ Je leest het per acceptatiecriterium uit `specs/kickoff.md`, sectie 15. Bij elk 
 
 Waar het gebouwde anders is dan het criterium letterlijk zegt, staat dat er in gewone woorden bij, met de beslissing in de specificatie.
 
-Alle runs in dit document zijn gedaan op 2026-11-20 in de ontwikkelcontainer (PHP-server op loopback, SQLite, Chromium). Dat is niet de uitgeleverde Docker-opzet op jouw laptop; zie hoofdstuk 6. Alleen Chromium is in deze run gedraaid: de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request.
+Alle runs in dit document zijn gedaan op 2026-11-20 in de ontwikkelcontainer (PHP-server op loopback, SQLite). Dat is niet de uitgeleverde Docker-opzet op jouw laptop; zie hoofdstuk 6. Het volledige Playwright-pakket is op commit e5598d2 engine voor engine gedraaid (Chromium, Firefox en WebKit, een werker); de uitkomst staat in de tabel in hoofdstuk 3.
 
 **De acceptatie zelf is niet afgevinkt.** Jij beoordeelt dit document en de applicatie op de laptop (K-6). Taak T172 in `tasks.md` betekent alleen dat dit bewijs is opgeschreven.
 
@@ -195,26 +195,29 @@ Alleen wat op 2026-11-20 is gedraaid staat als resultaat; de rest staat als "nie
 | Criterium | Resultaat | Bewijs |
 |---|---|---|
 | SC-001 schone start binnen 3 minuten | niet gedraaid: Docker ontbreekt in de ontwikkelcontainer; alleen de start-e2e is gedraaid (groen) en het eerdere hostbewijs van 2026-11-19 (2 s tot eerste antwoord, warme cache) | `auth/first-start.spec.ts`, `wp1-evidence.md` |
-| SC-002 acht area's direct | geslaagd | `npx playwright test tests/e2e/d1 --project=chromium`: 1 groen; `AreasImmutableTest` in `composer test` |
+| SC-002 acht area's direct | geslaagd | de doorlopende test `tests/e2e/d1/full-flow.spec.ts` en `AreasImmutableTest`: groen op Chromium, Firefox en WebKit |
 | SC-003 domein, activiteiten, cluster, "Hangt onder", muis en toetsenbord, zonder de pagina te verlaten | niet geslaagd zonder herladen, open fout `[GAP referrer back()]`: wie een canvas via een link opent (bijvoorbeeld de kaart in "Overzicht") en dan een formulier opslaat, kan op een andere pagina uitkomen; na een herlaad werkt het (zie hoofdstuk 6). Daarnaast de afwijking van criterium 3 (geen slepen). Geslaagd na herladen op Chromium | `d1/full-flow.spec.ts` (met de herlaadstap `workaroundGapReferrerBack`), `entry/parent-select.spec.ts`, `entry/keyboard-only.spec.ts` (Chromium, 99 tests in een run, 98 groen en 1 groen bij herhaling, zie hoofdstuk 6) |
 | SC-004 activiteit buiten een domein altijd geweigerd, via de schermen en rechtstreeks | geslaagd | `CreateElementTest`, `RefusalMatrixTest` in `composer test` |
 | SC-005 3 domeinen met 15 activiteiten binnen een minuut | geslaagd in de geautomatiseerde run; een geoefend mens niet gemeten | `entry/quick-entry-timing.spec.ts` |
 | SC-006 geen area te wijzigen | geslaagd | `AreasImmutableTest` in `composer test` |
 | SC-007 elke soort aan te maken, te wijzigen, te verwijderen met bevestiging en logboekregel | geslaagd voor de soorten van oplevering 1 | criterium 6a |
 | SC-008 laatste beheerder en organisatie met canvassen beschermd, ook bij gelijktijdig handelen | geslaagd | `LastAdministratorTest`, `OrganisationDeletionTest` in `composer test` |
-| SC-020 500 elementen, elk scherm binnen 1 seconde (p95) | geslaagd op Chromium in deze run (Invoeren openen, een element toevoegen en Bekijken met 500 elementen, 4 tests); de kostenposten-helft hoort bij oplevering 2; zie hoofdstuk 6 voor de omstandigheden | `entry/performance.spec.ts`, `view/performance.spec.ts` |
-| SC-021 WCAG 2.2 AA-scan en toetsenbord | geslaagd op Chromium: de axe-scan staat in elke stap van de doorlopende test en in de specs van Invoeren, Bekijken en beheer; toetsenbord in `entry/keyboard-only.spec.ts` en `view/keyboard.spec.ts` | `support/guards.ts`, `d1/full-flow.spec.ts`; de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request |
-| SC-022 geen verzoek naar buiten tijdens een volledige run | geslaagd op Chromium: de bewaker voor verzoeken buiten de eigen oorsprong en voor CSP-overtredingen staat in elke spec, ook in de doorlopende test, die de CSP controleert voor elke volledige paginalading | `support/guards.ts`, `d1/full-flow.spec.ts`; de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request |
+| SC-020 500 elementen, elk scherm binnen 1 seconde (p95) | geslaagd op Chromium, Firefox en WebKit in deze run (Invoeren openen, een element toevoegen en Bekijken met 500 elementen: 12 van 12, een werker, 20 metingen per scenario; op WebKit viel een uitschieter van 1159 ms buiten het 95e percentiel); de kostenposten-helft hoort bij oplevering 2; zie hoofdstuk 6 voor de omstandigheden | `entry/performance.spec.ts`, `view/performance.spec.ts` |
+| SC-021 WCAG 2.2 AA-scan en toetsenbord | geslaagd op Chromium, Firefox en WebKit: de axe-scan staat in elke stap van de doorlopende test en in de specs van Invoeren, Bekijken en beheer; toetsenbord in `entry/keyboard-only.spec.ts` en `view/keyboard.spec.ts` | `support/guards.ts`, `d1/full-flow.spec.ts` |
+| SC-022 geen verzoek naar buiten tijdens een volledige run | geslaagd op Chromium, Firefox en WebKit: de bewaker voor verzoeken buiten de eigen oorsprong en voor CSP-overtredingen staat in elke spec, ook in de doorlopende test, die de CSP controleert voor elke volledige paginalading | `support/guards.ts`, `d1/full-flow.spec.ts` |
 
 Runs van 2026-11-20 op deze tak:
 
 | Commando | Uitkomst |
 |---|---|
 | `composer verify` | Pint geslaagd, PHPStan 0 fouten |
-| `composer test` | 739 van 739 geslaagd (3969 asserties) |
+| `composer test` | 739 van 739 geslaagd (3972 asserties) |
 | `npm run verify` | 55 bestanden en 380 tests geslaagd (ESLint en typecontrole groen) |
 | `npm run check` | assets en imports geslaagd; de lijst met verboden namen ontbreekt en wordt zichtbaar overgeslagen |
-| `npx playwright test tests/e2e/d1 tests/e2e/entry tests/e2e/view tests/e2e/admin tests/e2e/overview tests/e2e/auth --project=chromium --workers=1` | 98 van 99 geslaagd; de ene mislukking was het zaaien van testdata via `php artisan tinker` in `entry/reorder.spec.ts` en was bij herhaling alleen groen |
+| Playwright, alle specs behalve de prestatiespecs en de Secure-cookie-spec, een werker | Chromium 167 geslaagd, Firefox 167 geslaagd, WebKit 167 geslaagd, 0 mislukt |
+| Playwright, prestatiespecs (`@performance`), een werker | 12 van 12 geslaagd |
+| Playwright, Secure-cookie-spec op Chromium | 1 van 1 geslaagd |
+| PostgreSQL-helft van de PHP-suite | niet gedraaid op deze tak; de run op release van 2026-11-20 (727 geslaagd, 2 overgeslagen) staat in `docs/ci-blocked-merges.md` |
 
 ## 4. ASVS 5.0 niveau 2, voor zover oplevering 1 het raakt
 
@@ -290,8 +293,8 @@ Bord 2 laat de financiële overlay zien; voor oplevering 1 telt alleen de indeli
 - **De twee commando's op een schone machine.** Docker ontbreekt in de ontwikkelcontainer. De start-e2e en de bestandstests lopen wel, maar `docker compose up -d` is op 2026-11-20 niet uitgevoerd. De drie minuten op jouw laptop zijn niet gemeten.
 - **GitHub Actions was geblokkeerd** vanaf 2026-11-19 (zie `docs/ci-blocked-merges.md`). Alle pull requests sindsdien zijn op lokaal bewijs gemerged. Er is dus geen CI-run op de punt van `release`; die moet eerst draaien zodra Actions weer werkt.
 - **PostgreSQL.** Alle runs in dit document zijn op SQLite. De PostgreSQL-helft van de PHP-suite is eerder alleen lokaal in een tijdelijk schema gedraaid (beschreven in `docs/ci-blocked-merges.md`), niet op de CI-job `tests-postgresql`, en niet in deze run.
-- **Firefox en WebKit.** In deze run alleen Chromium met een werker; de drie engines draaien bij het samenvoegen; de uitkomst staat in de beschrijving van de pull request. De WebKit-run gebruikt `SESSION_SECURE_COOKIE=false` (ADR 0024, `evidence-d1-3.md`).
-- **Prestaties.** SC-020 is gemeten op een machine met 11 kernen en SQLite, terwijl de CI-runner 2 vCPU heeft. De prestatiespecs zijn in deze run niet alleen gedraaid maar tussen andere zware runs van de container, terwijl de spec ze apart wil (ADR 0044). De krapste waarde van eerdere runs was Invoeren openen op Firefox en WebKit (p95 996 ms, 1063 ms onder belasting; `docs/ci-blocked-merges.md`). Dit is niet opnieuw gemeten.
+- **Firefox en WebKit.** In deze run alleen Chromium met een werker. De WebKit-run gebruikt `SESSION_SECURE_COOKIE=false` (ADR 0024, `evidence-d1-3.md`).
+- **Prestaties.** SC-020 is gemeten op een machine met 11 kernen en SQLite, terwijl de CI-runner 2 vCPU heeft. De prestatiespecs zijn apart gedraaid met een werker (ADR 0044), maar andere sessies gebruikten de container tegelijk licht. De krapste waarde van eerdere runs was Invoeren openen op Firefox en WebKit (p95 996 ms, 1063 ms onder belasting; `docs/ci-blocked-merges.md`). In deze run was de krapste waarde Bekijken met 25 domeinen op WebKit (p95 820 ms, een uitschieter van 1159 ms).
 - **Geoefend mens binnen een minuut** (SC-005): gemeten met een geautomatiseerde invoer, niet door een persoon.
 - **Eenmalige mislukking.** In de brede Chromium-run mislukte `tests/e2e/entry/reorder.spec.ts` bij het zaaien met `php artisan tinker` (het commando stopte met een foutcode); bij herhaling groen. De oorzaak is niet onderzocht.
 - **Bekende fout `[GAP referrer back()]`, open** (zie `tasks.md`, "Assumptions awaiting the product owner"). Oorzaak: de server stuurt na een opslag terug met `back()` (onder andere `ElementController`), en `Referrer-Policy: no-referrer` (FR-090, `SecurityHeaders`) zorgt dat de browser bij een link-navigatie (Inertia) de vorige pagina niet doorgeeft. De server valt dan terug op de laatste volledig geladen pagina.
