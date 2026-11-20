@@ -27,6 +27,7 @@ watch(
 
 <template>
     <aside id="detail-panel" :hidden="!detail.open" aria-labelledby="detail-title" class="shell-detail overflow-y-auto rounded-panel border border-hairline bg-white p-4" @keydown.esc="detail.confirming ? dismissDiscard() : requestCloseDetail()">
+        <p v-if="detail.kicker" class="text-[11.5px] text-muted">{{ detail.kicker }}</p>
         <div class="flex items-start justify-between gap-2">
             <h2 id="detail-title" ref="heading" tabindex="-1" class="font-display text-[18px] font-semibold">{{ detail.title }}</h2>
             <AppButton size="small" @click="requestCloseDetail">{{ t('dialog.close') }}</AppButton>

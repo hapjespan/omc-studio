@@ -1,3 +1,4 @@
+import { reactive } from 'vue';
 import { routes } from '../routes';
 import type { ShellCanvas } from './TopBar.vue';
 
@@ -14,6 +15,8 @@ const registry: Mode[] = [
     { key: 'entry', label: 'shell.mode.entry', roles: ['administrator'], writes: true, onTemplate: true, href: (canvas) => routes.entry(canvas) },
     { key: 'view', label: 'shell.mode.view', roles: ['administrator', 'reader'], writes: false, onTemplate: false, href: (canvas) => routes.view(canvas) },
 ];
+
+export const modeSwitchPlacement = reactive({ inPage: false });
 
 export function registerMode(mode: Mode, position = registry.length): void {
     registry.splice(position, 0, mode);
