@@ -31,7 +31,7 @@ const opener = ref<HTMLElement | null>(null);
 const deleting = ref<ListRow | null>(null);
 const deleteOpen = computed({ get: () => deleting.value !== null, set: (open) => { if (!open) deleting.value = null; } });
 const selected = ref<(number | string)[]>([]);
-const FIRST_CHUNK = 100;
+const FIRST_CHUNK = 60;
 const NEXT_CHUNK = 200;
 const shown = ref(FIRST_CHUNK);
 const visibleRows = computed(() => props.rows.slice(0, shown.value));
@@ -42,7 +42,7 @@ function grow(): void {
     growing = setTimeout(() => {
         shown.value += NEXT_CHUNK;
         grow();
-    }, 0);
+    }, shown.value === FIRST_CHUNK ? 400 : 40);
 }
 const allSelected = computed(() => props.rows.length > 0 && selected.value.length === props.rows.length);
 const allChecked = computed({ get: () => allSelected.value, set: (checked: boolean) => toggleAll(checked) });
