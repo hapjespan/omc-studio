@@ -11,6 +11,7 @@ test('selecting an Element opens the read-only panel with its fields and Modalit
     await activity.click();
     const panel = page.locator('#detail-panel');
     await expect(panel.getByRole('heading', { name: 'Plannen' })).toBeVisible();
+    await expect(panel).toContainText(/Activiteit · Richten › Strategie/);
     await expect(panel).toContainText('Jaarplan opstellen');
     await expect(panel).toContainText('Richting geven');
     await expect(panel.locator('[data-modality]')).toContainText('A');

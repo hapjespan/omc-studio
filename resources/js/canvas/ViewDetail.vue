@@ -1,5 +1,6 @@
 <script lang="ts">
 import { t } from '../i18n';
+import { detail } from '../shell/detail';
 import type { LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
 import type { ModalityMark } from './CanvasView.vue';
 
@@ -69,9 +70,9 @@ defineProps<{ content: DetailContent }>();
 <template>
     <Teleport to="#detail-body">
         <div data-view-detail>
-            <p class="text-[12.5px] text-secondary">
-                {{ content.kind }}
-                <span v-if="content.system" class="ml-1 font-semibold">{{ t('view.system') }}</span>
+            <p v-if="content.system || !detail.kicker" class="text-[12.5px] text-secondary">
+                <template v-if="!detail.kicker">{{ content.kind }}</template>
+                <span v-if="content.system" class="font-semibold">{{ t('view.system') }}</span>
             </p>
             <p v-if="content.modality" class="mt-2 flex items-center gap-2 text-[13px]" data-modality>
                 <span class="flex h-4 w-4 items-center justify-center rounded-[3px] text-[11px] font-bold leading-none text-white" :style="{ background: content.modality.colour }" aria-hidden="true">{{ content.modality.letter }}</span>

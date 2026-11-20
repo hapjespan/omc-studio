@@ -7,6 +7,11 @@ When Actions works again, the first CI run on the tip of `release` comes before 
 | Pull request | Merged | PostgreSQL half of the PHP suite | Notes |
 |---|---|---|---|
 | 395 design foundation (T379) | 2026-11-19 | run afterwards on the tip of release on 2026-11-20: 725 passed, 2 errors that were a date bug in two tests (fixed in the pull request that adds this file) | Firefox opening Invoeren is close to the 1000 ms limit on this 11-core machine (p95 996 ms): check the performance job first on the 2 vCPU runner |
+| 396 Invoeren to board 1 (T380) with the DB_SCHEMA change and the date fix of two tests | 2026-11-20 | run on the tip of release on 2026-11-20 (725 passed before the date fix, the two errors were the fixed date bug) | the first functional run was void (a leftover test server held the port); 8 load timeouts passed when repeated alone |
+| 397 Bekijken, sign-in, Overview and admin lists (T381, T382) and the end-to-end harness port | 2026-11-20 | run on the combined state: 726 passed, 1 test of its own fixed afterwards | webkit Invoeren opening was slow under load of other sessions in the first performance run (p95 1063 ms) and fast when repeated alone |
+| Bekijken breadcrumb and detail panel, design comparison with screenshots (T381 follow-up, T383), pull request number filled in at merge | merge date filled in at merge | run on this tip: 727 passed, 2 skipped (the DB_SCHEMA tests skip under a throwaway schema) | machine idle during the run: 164 functional specs per engine passed on chromium, firefox and webkit, one worker; performance 12 of 12; secure cookie 1 of 1 |
+
+The tightest figure on the 11-core machine is Invoeren opening on Firefox and WebKit; the 2 vCPU runner is slower, so the performance job is the first thing to read on the first CI run after the block.
 
 ## Running the PostgreSQL half locally
 

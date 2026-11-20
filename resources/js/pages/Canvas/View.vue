@@ -35,9 +35,21 @@ onMounted(async () => (measurer.value = await createBrowserMeasurer()));
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
 const selectedId = ref<string | null>(null);
 const content = computed(() => (selectedId.value ? detailOf(selectedId.value, { areas: props.layout.areas, elements: props.elements, statements: props.statements, modalities: props.modalities }) : null));
+const kickerOf = (id: string): string => {
+    const element = props.elements.find((candidate) => candidate.id === id);
+    if (!element || !content.value) return '';
+    const path = [props.layout.areas.find((candidate) => candidate.key === element.area)?.label ?? ''];
+    let parent = props.elements.find((candidate) => candidate.id === element.parent);
+    while (parent) {
+        path.splice(1, 0, parent.name);
+        parent = props.elements.find((candidate) => candidate.id === parent?.parent);
+    }
+
+    return `${content.value.kind} · ${path.join(' › ')}`;
+};
 const select = (id: string): void => {
     selectedId.value = id;
-    if (content.value) openDetail(content.value.title, document.querySelector<HTMLElement>(`[data-block="${CSS.escape(id)}"]`));
+    if (content.value) openDetail(content.value.title, document.querySelector<HTMLElement>(`[data-block="${CSS.escape(id)}"]`), kickerOf(id));
 };
 watch(() => detail.open, (open) => !open && (selectedId.value = null));
 
