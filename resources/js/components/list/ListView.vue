@@ -31,6 +31,19 @@ const opener = ref<HTMLElement | null>(null);
 const deleting = ref<ListRow | null>(null);
 const deleteOpen = computed({ get: () => deleting.value !== null, set: (open) => { if (!open) deleting.value = null; } });
 const selected = ref<(number | string)[]>([]);
+const FIRST_CHUNK = 100;
+const NEXT_CHUNK = 200;
+const shown = ref(FIRST_CHUNK);
+const visibleRows = computed(() => props.rows.slice(0, shown.value));
+let growing: ReturnType<typeof setTimeout> | undefined;
+function grow(): void {
+    clearTimeout(growing);
+    if (shown.value >= props.rows.length) return;
+    growing = setTimeout(() => {
+        shown.value += NEXT_CHUNK;
+        grow();
+    }, 0);
+}
 const allSelected = computed(() => props.rows.length > 0 && selected.value.length === props.rows.length);
 const allChecked = computed({ get: () => allSelected.value, set: (checked: boolean) => toggleAll(checked) });
 const searchId = useId();
@@ -47,11 +60,18 @@ watch(editing, async (now, before) => {
     await nextTick();
     if (opener.value?.isConnected) opener.value.focus();
 });
-watch(() => props.rows, (rows) => (selected.value = selected.value.filter((id) => rows.some((row) => row.id === id))));
+watch(() => props.rows, (rows) => {
+    selected.value = selected.value.filter((id) => rows.some((row) => row.id === id));
+    shown.value = Math.max(FIRST_CHUNK, Math.min(shown.value, rows.length));
+    grow();
+}, { immediate: true });
 watch(() => props.query.search, (value) => {
     if (echo.adopts(value)) search.value = value;
 });
-onBeforeUnmount(() => clearTimeout(timer));
+onBeforeUnmount(() => {
+    clearTimeout(timer);
+    clearTimeout(growing);
+});
 watch(() => props.undo, async (now, before) => {
     if (before && !now) {
         await nextTick();
@@ -176,7 +196,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline first:border-t-0 hover:bg-surface', editing && editing !== 'new' && editing.id === row.id && 'bg-surface shadow-[inset_2px_0_0_var(--color-ink)]']">
+                    <tr v-for="row in visibleRows" :key="row.id" :class="['border-t border-hairline first:border-t-0 hover:bg-surface', editing && editing !== 'new' && editing.id === row.id && 'bg-surface shadow-[inset_2px_0_0_var(--color-ink)]']">
                         <td v-if="bulkActions?.length" class="pl-3 pr-2 py-2.5"><CheckBox v-model="selected" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></td>
                         <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock && 'min-w-36', column.align === 'right' && 'text-right tabular-nums']">
                             <button v-if="index === 0 && $slots.form" type="button" class="rounded-control text-left font-semibold" @click="open(row, $event.currentTarget as HTMLElement)">{{ row[column.key] }}</button>
