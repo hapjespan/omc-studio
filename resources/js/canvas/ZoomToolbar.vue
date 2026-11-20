@@ -11,18 +11,20 @@ export const fitZoom = (viewport: { width: number; height: number }, content: { 
 </script>
 
 <script setup lang="ts">
+import AppButton from '../components/ui/AppButton.vue';
+import IconButton from '../components/ui/IconButton.vue';
 import { t } from '../i18n';
 
 const zoom = defineModel<number>('zoom', { required: true });
 const emit = defineEmits<{ fit: [] }>();
-const button = 'rounded-md border border-edge bg-white px-3 py-1.5 text-[13px] font-semibold aria-disabled:cursor-not-allowed aria-disabled:bg-disabled aria-disabled:text-secondary';
+const inert = 'aria-disabled:cursor-not-allowed aria-disabled:border-hairline aria-disabled:bg-disabled aria-disabled:text-muted';
 </script>
 
 <template>
     <div role="toolbar" :aria-label="t('view.zoom.toolbar')" class="flex flex-wrap items-center gap-2">
-        <button type="button" :class="button" :aria-disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)">{{ t('view.zoom.out') }}</button>
-        <output class="min-w-[4ch] text-center text-[13px]" data-zoom aria-live="polite">{{ zoom }}%</output>
-        <button type="button" :class="button" :aria-disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)">{{ t('view.zoom.in') }}</button>
-        <button type="button" :class="button" @click="emit('fit')">{{ t('view.zoom.fit') }}</button>
+        <IconButton icon="minus" :label="t('view.zoom.out')" :class="inert" :aria-disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)" />
+        <output class="min-w-[4ch] text-center text-[13px] font-semibold" data-zoom aria-live="polite">{{ zoom }}%</output>
+        <IconButton icon="plus" :label="t('view.zoom.in')" :class="inert" :aria-disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)" />
+        <AppButton size="small" @click="emit('fit')">{{ t('view.zoom.fit') }}</AppButton>
     </div>
 </template>

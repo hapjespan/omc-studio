@@ -1,12 +1,11 @@
 <script lang="ts">
 import type { DirectionColumnKey, LayoutStatement } from '../layout/types';
-import { statementText } from './ViewDetail.vue';
+import { statementLines } from './ViewDetail.vue';
 
 export const DIRECTION_PREFIX = 'direction:';
 
 export function directionText(statements: LayoutStatement[], key: DirectionColumnKey): string[] {
-    const kind = key === 'goals' ? 'goal' : key;
-    return statements.filter((statement) => statement.kind === kind).sort((a, b) => a.position - b.position).map(statementText);
+    return key === 'logo' ? [] : statementLines(statements, key === 'goals' ? 'goal' : key);
 }
 </script>
 

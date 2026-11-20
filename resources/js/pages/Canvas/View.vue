@@ -42,7 +42,7 @@ const fit = (): void => {
 
 <template>
     <Head :title="canvas.name" />
-    <h1 class="text-[20px] font-semibold">{{ canvas.name }}</h1>
+    <h1 class="font-display text-[20px] font-semibold">{{ canvas.name }}</h1>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>

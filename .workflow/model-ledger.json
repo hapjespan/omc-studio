@@ -632,6 +632,10 @@
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T381": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
   "T380": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"

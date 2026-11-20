@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AREA_LETTER_SPACING, isListArea } from '../layout/arrangeAreas';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -9,7 +10,7 @@ const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, sourc
 const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
 const box = (): Record<string, string> => {
     const { block } = props;
-    const [x, y] = padding[block.kind];
+    const [x, y] = block.kind !== 'area' && isListArea(block.areaKey) ? [0, 0] : padding[block.kind];
     return {
         left: `${block.x}px`,
         top: `${block.y}px`,
@@ -25,6 +26,7 @@ const box = (): Record<string, string> => {
         fontSize: `${block.style.font.size}px`,
         fontWeight: String(block.style.font.weight),
         lineHeight: `${block.style.lineHeight}px`,
+        letterSpacing: block.kind === 'area' ? `${AREA_LETTER_SPACING}em` : 'normal',
     };
 };
 </script>
@@ -32,7 +34,7 @@ const box = (): Record<string, string> => {
 <template>
     <button
         type="button"
-        class="absolute box-border block overflow-visible text-left"
+        class="absolute box-border flex flex-col justify-start overflow-visible text-left"
         :class="{ 'outline-2 outline-accent': selected }"
         :data-block="block.id"
         :data-kind="block.kind"
@@ -48,7 +50,7 @@ const box = (): Record<string, string> => {
         @focus="emit('peek', block.id, 'focus')"
         @blur="emit('peek', null, 'focus')"
     >
-        <span v-for="(line, index) in block.textLines" :key="index" class="block whitespace-pre">{{ line }}</span>
+        <span v-for="(line, index) in block.textLines" :key="index" class="block shrink-0 whitespace-pre" data-line>{{ line }}</span>
         <UnknownCard v-if="block.system" :colour="block.style.textColour" />
         <span
             v-if="block.modality && modalityColour"

@@ -512,5 +512,7 @@
     "entry_design.rationale": "Onderbouwing modaliteit",
     "entry_design.parent_hint": "Verplaatsen naar een ander domein of cluster doe je hier.",
     "entry_design.order_help": "Volgorde wijzig je met de pijlen. Nieuwe elementen krijgen vanzelf een plek op het canvas.",
-    "entry_design.drawing_hint": "Plek, grootte en kleur op het canvas regel je in Tekenen."
+    "entry_design.drawing_hint": "Plek, grootte en kleur op het canvas regel je in Tekenen.",
+    "view.direction.logo": "Logo",
+    "view.direction.goals": "Strategische doelen"
 }

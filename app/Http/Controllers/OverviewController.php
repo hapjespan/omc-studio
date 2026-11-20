@@ -51,7 +51,7 @@ class OverviewController extends Controller
                     'position' => $area->position,
                     'label' => __('areas.'.$area->key.'.name'),
                 ])->values(),
-                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('overview.goals')],
+                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('view.direction.goals')],
             ],
             'showArchived' => $showArchived,
             'canWrite' => $canWrite,
