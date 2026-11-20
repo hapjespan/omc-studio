@@ -35,6 +35,35 @@ export function placesOf(canvas: DrawnCanvas): Map<string, Place> {
     return places;
 }
 
+const DIRECTION_PADDING = 16;
+const LABEL_LINE = 14;
+const LABEL_GAP = 8;
+const BODY_LINE = 18;
+
+function addDirectionText(graph: SceneGraph, canvas: DrawnCanvas, block: DrawnBlock): void {
+    const text = (id: string, x: number, y: number, width: number, lines: string[], size: number, weight: number, lineHeight: number, hex: string) =>
+        graph.createNodeWithId(`${block.id}-${id}${TEXT_SUFFIX}`, 'TEXT', block.id, {
+            name: `${block.id}-${id}${TEXT_SUFFIX}`,
+            x,
+            y,
+            width,
+            height: lines.length * lineHeight,
+            text: lines.join('\n'),
+            fontFamily: 'Inter',
+            fontSize: size,
+            fontWeight: weight,
+            lineHeight,
+            textAutoResize: 'NONE',
+            textAlignHorizontal: 'LEFT',
+            fills: solid(hex),
+        });
+    for (const column of canvas.direction) {
+        const width = column.width - 2 * DIRECTION_PADDING;
+        if (column.label) text(`${column.key}-label`, column.x + DIRECTION_PADDING, DIRECTION_PADDING, width, [column.label.toUpperCase()], 11, 600, LABEL_LINE, block.style.labelColour);
+        if (column.lines.length > 0) text(column.key, column.x + DIRECTION_PADDING, DIRECTION_PADDING + LABEL_LINE + LABEL_GAP, width, column.lines, 13, column.key === 'goals' ? 600 : 400, BODY_LINE, block.style.textColour);
+    }
+}
+
 export function buildScene(canvas: DrawnCanvas): SceneGraph {
     const graph = new SceneGraph();
     const page = graph.getPages()[0] ?? graph.addPage('Artboard');
@@ -83,6 +112,7 @@ export function buildScene(canvas: DrawnCanvas): SceneGraph {
                     fills: solid(block.style.textColour),
                 });
             }
+            if (block.id === 'direction') addDirectionText(graph, canvas, block);
             add(block.id);
         }
     };

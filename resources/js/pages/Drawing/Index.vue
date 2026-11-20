@@ -3,12 +3,13 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { CanvasLayoutInput } from '../../layout';
+import type { CanvasLayoutInput, DrawnCanvas } from '../../layout';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
 import type { DrawingEngine } from '../../edit-engine';
 import { automaticPayload } from '../../edit-engine/payload';
 import { t } from '../../i18n';
+import DirectionBand from './DirectionBand.vue';
 import Header from './Header.vue';
 import LayersPanel from './LayersPanel.vue';
 import Toolbar from './Toolbar.vue';
@@ -33,6 +34,8 @@ const setTool = (next: 'select' | 'pan'): void => {
     tool.value = next;
     engine.value?.setTool(next);
 };
+const drawn = shallowRef<DrawnCanvas | null>(null);
+const peeked = ref<string | null>(null);
 const hint = ref('');
 let hintTimer = 0;
 const showHint = (): void => {
@@ -44,10 +47,11 @@ const pick = (id: string): void => engine.value?.select([id]);
 
 onMounted(async () => {
     try {
-        const drawn = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, await createBrowserMeasurer());
+        const computed = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, await createBrowserMeasurer());
+        drawn.value = computed;
         const { createDrawingEngine } = await import('../../edit-engine');
         const created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, drawn, { layout: automaticPayload(props.elements.map(({ id }) => id)), onTextAttempt: showHint });
+        await created.mount(host.value as HTMLElement, computed, { layout: automaticPayload(props.elements.map(({ id }) => id)), onTextAttempt: showHint });
         created.zoomToFit();
         engine.value = created;
         timer = window.setInterval(() => {
@@ -73,6 +77,7 @@ onBeforeUnmount(() => {
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
     </header>
     <Header class="mt-3" :name="canvas.name" @undo="engine?.undo()" @redo="engine?.redo()" @fit="engine?.zoomToFit()" />
+    <DirectionBand v-if="drawn" class="mt-3" :drawn="drawn" :statements="statements" @peek="peeked = $event" />
     <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]">
         <LayersPanel :areas="layout.areas" :elements="elements" :selected="selected" class="max-h-[40vh] overflow-auto lg:max-h-[calc(100vh-14rem)]" @select="pick" />
         <div class="flex min-w-0 flex-col gap-3">
@@ -82,7 +87,8 @@ onBeforeUnmount(() => {
         </div>
         <aside :aria-label="t('drawing.properties')">
             <h2 class="text-[13px] font-semibold">{{ t('drawing.properties') }}</h2>
-            <p class="mt-2 text-[13px] text-secondary">{{ selected.length ? selected.length : t('drawing.nothing_selected') }}</p>
+            <p v-if="peeked" class="mt-2 whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p>
+            <p v-else class="mt-2 text-[13px] text-secondary">{{ selected.length ? selected.length : t('drawing.nothing_selected') }}</p>
         </aside>
     </div>
 </template>

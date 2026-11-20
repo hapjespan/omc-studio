@@ -540,5 +540,6 @@
     "drawing.artboard": "Tekenvlak van :name",
     "drawing.loading": "Tekenvlak laden",
     "drawing.failed": "Het tekenvlak kon niet worden geladen",
-    "drawing.text_hint": "Tekst wijzig je in Invoeren"
+    "drawing.text_hint": "Tekst wijzig je in Invoeren",
+    "drawing.direction_cut": "Koerstekst past niet in de koersbalk"
 }
