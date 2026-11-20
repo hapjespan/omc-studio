@@ -13,11 +13,14 @@ use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditTrail;
 use App\Services\Exchange\Csv\CsvReader;
 use App\Services\Support\SerialisedWrite;
+use App\Services\Support\WritableGuard;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
 class CostRecordImport
 {
+    use WritableGuard;
+
     public const COLUMNS = ['code', 'name', 'kind', 'supplier', 'owner', 'cost_centre', 'application', 'year', 'budget', 'forecast', 'run_percentage', 'change_percentage', 'fte'];
 
     public function __construct(
@@ -46,14 +49,16 @@ class CostRecordImport
         $scan = $this->scan($organisation, $path);
 
         if ($scan['totals']['errors'] > 0) {
-            $this->refuse('import.refused_errors');
+            $this->refuseFile('import.refused_errors');
         }
 
         return $this->write->run([$organisation], fn () => $this->context->during('imported', function () use ($organisation, $scan) {
+            $this->assertWritable($organisation->refresh());
+
             $data = $this->load($organisation);
 
             if ($this->fingerprint($data, $this->refinalised($data, $scan['finalised'])) !== $scan['fingerprint']) {
-                $this->refuse('import.refused_changed');
+                $this->refuseFile('import.refused_changed');
             }
 
             $batch = new CostRecordBatch($this->context, $this->trail, (int) $organisation->getKey());
@@ -73,6 +78,8 @@ class CostRecordImport
      */
     private function scan(Organisation $organisation, string $path): array
     {
+        $this->assertWritable($organisation);
+
         $data = $this->load($organisation);
         $yearModels = $data['yearModels'];
         $years = $data['years'];
@@ -130,12 +137,18 @@ class CostRecordImport
                 $canvas !== false && $messages[] = __('import.year_finalised', ['line' => $number, 'year' => $year->year, 'canvas' => $canvas]);
             }
 
-            if ($messages === []) {
+            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['year']] ?? null, $owners, $applications);
+
+            if ($status === 'updated' && $record?->archived_at !== null) {
+                $status = 'error';
+                $messages[] = __('import.record_archived', ['line' => $number, 'code' => $row['code']]);
+            }
+
+            if ($status !== 'error') {
                 $this->collect($creates['owners'], $row['owner'], $owners);
                 $this->collect($creates['applications'], $row['application'], $applications);
             }
 
-            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['year']] ?? null, $owners, $applications);
             $totals[$status === 'error' ? 'errors' : $status]++;
             $lines[] = ['line' => $number, 'status' => $status, 'messages' => $messages];
             $messages === [] && $rows[] = ['cells' => $row, 'fields' => $fields, 'figures' => $figures, 'year' => $years[(int) $row['year']] ?? null];
@@ -178,7 +191,7 @@ class CostRecordImport
     {
         $records = $data['records']
             ->map(fn (CostRecord $record) => [
-                $record->only(['code_normalised', 'name', 'cost_kind', 'supplier', 'owner_id', 'cost_centre', 'application_id']),
+                $record->only(['code_normalised', 'name', 'cost_kind', 'supplier', 'owner_id', 'cost_centre', 'application_id', 'archived_at']),
                 $record->yearlyFigures->map->only(['fiscal_year_id', 'budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths'])->sortBy('fiscal_year_id')->values()->all(),
             ])
             ->sortKeys()
@@ -270,7 +283,7 @@ class CostRecordImport
         return (int) $id;
     }
 
-    private function refuse(string $key): never
+    private function refuseFile(string $key): never
     {
         throw ValidationException::withMessages(['file' => (string) __($key)]);
     }

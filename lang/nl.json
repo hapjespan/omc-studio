@@ -712,6 +712,7 @@
     "import.split_too_high": "Regel :line, change_pct: run_pct plus change_pct is meer dan 100. Verlaag een van beide",
     "import.duplicate_year": "Regel :line: code :code en jaar :year staan ook op regel :other. Laat een van beide regels weg",
     "import.duplicate_fields": "Regel :line: code :code heeft andere kostenpostgegevens dan regel :other. Maak de velden gelijk",
+    "import.record_archived": "Regel :line: kostenpost :code is gearchiveerd, de velden en jaarcijfers zijn alleen-lezen",
     "import.year_finalised": "Regel :line: :year is definitief in canvas :canvas",
     "import.refused_errors": "Importeren is niet gelukt; het bestand bevat fouten. Er is niets gewijzigd",
     "import.refused_changed": "Importeren is niet gelukt; de gegevens zijn ondertussen gewijzigd. Er is niets gewijzigd. Controleer het bestand opnieuw",
