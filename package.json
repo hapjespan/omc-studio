@@ -8,7 +8,7 @@
         "lint": "eslint resources tests/js",
         "typecheck": "vue-tsc --noEmit",
         "test": "vitest run",
-        "check": "node scripts/check-assets.mjs && node scripts/check-forbidden-names.mjs && node scripts/check-imports.mjs",
+        "check": "node scripts/check-audit.mjs && node scripts/check-assets.mjs && node scripts/check-forbidden-names.mjs && node scripts/check-imports.mjs",
         "test:proof": "vitest run --config proof/wp-e0/vitest.config.ts",
         "verify": "npm run lint && npm run typecheck && npm run test"
     },
