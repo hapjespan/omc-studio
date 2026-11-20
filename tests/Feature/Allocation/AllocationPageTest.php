@@ -83,6 +83,8 @@ class AllocationPageTest extends TestCase
                 ->where('costRecords.0.status', 'unallocated')
                 ->where('costRecords.1.status', 'allocated')
                 ->where('costRecords.1.budgetCents', 23_000)
+                ->has('costRecords.1.costKind')
+                ->has('costRecords.1.owner')
                 ->has('targets', 1)
                 ->where('targets.0.name', 'Inkoop')
                 ->where('targets.0.totalCents', 23_000)

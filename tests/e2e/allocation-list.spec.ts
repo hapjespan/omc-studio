@@ -20,7 +20,7 @@ test('the left column lists the Cost records of the year with a dot plus status 
     await page.getByLabel('Zoeken').first().fill('');
 
     await row.click();
-    await expect(page.getByRole('heading', { level: 2, name: 'Verdeling van Licentie planning' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Licentie planning' })).toBeVisible();
     await expectNoAxeViolations(page);
 });
 
