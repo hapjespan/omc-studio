@@ -1,5 +1,6 @@
 import { AREA_PADDING, areaWidth, isListArea } from './arrangeAreas';
-import { CARD_GAP, columnCount, padding } from './flowDomains';
+import { CARD_GAP, columnCount } from './flowDomains';
+import { elementPadding as padding } from './padding';
 import { ITEM_INDENT } from './listAreas';
 import type { AreaKey, LayoutElement } from './types';
 

@@ -26,6 +26,7 @@ function scan(dir, allowVendored) {
         return;
     }
     for (const file of allFiles(dir)) {
+        if (/\.(wasm|ttf|woff2?|png|jpe?g)$/.test(file)) continue;
         const urls = readFileSync(file, 'utf8').match(/https?:\/\/[^\s"'`)\\]+/g) ?? [];
         for (const url of urls) {
             if (isIdentifier(url) || (allowVendored && vendored.has(url.replace(/\$\{[^}]*\}.*$/, '')))) continue;

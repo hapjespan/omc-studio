@@ -141,9 +141,9 @@ jobs:
             [ "$n" -ge 3 ] && exit 1
             sleep 20
           done
-      - run: npx playwright test --grep-invert '@performance|Secure session cookie'
+      - run: xvfb-run -a npx playwright test --grep-invert '@performance|Secure session cookie'
       - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
-      - run: npx playwright test --project=chromium --grep 'Secure session cookie'
+      - run: xvfb-run -a npx playwright test --project=chromium --grep 'Secure session cookie'
 
   e2e-performance:
     name: Playwright performance on three engines

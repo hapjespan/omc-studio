@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { AREA_LETTER_SPACING, isListArea } from '../layout/arrangeAreas';
+import { AREA_LETTER_SPACING } from '../layout/arrangeAreas';
+import { blockPadding } from '../layout/padding';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -7,10 +8,9 @@ import UnknownCard from './UnknownCard.vue';
 const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null }>();
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, source: PeekSource] }>();
 
-const padding = { area: [12, 5], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
 const box = (): Record<string, string> => {
     const { block } = props;
-    const [x, y] = block.kind !== 'area' && isListArea(block.areaKey) ? [0, 0] : padding[block.kind];
+    const { x, y } = blockPadding(block);
     return {
         left: `${block.x}px`,
         top: `${block.y}px`,
@@ -34,7 +34,7 @@ const box = (): Record<string, string> => {
 <template>
     <button
         type="button"
-        class="absolute box-border flex flex-col justify-start overflow-visible text-left"
+        class="absolute box-border flex flex-col [text-rendering:geometricPrecision] justify-start overflow-visible text-left"
         :class="{ 'outline-2 outline-accent': selected }"
         :data-block="block.id"
         :data-kind="block.kind"

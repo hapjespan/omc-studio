@@ -26,6 +26,16 @@ export default [
         },
     },
     {
+        files: ['resources/js/**/*.{ts,vue}'],
+        ignores: ['resources/js/edit-engine/**'],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                { patterns: [{ group: ['@open-pencil/*', '@open-pencil/*/**'], message: 'The drawing library is reached only through resources/js/edit-engine (FR-110).' }] },
+            ],
+        },
+    },
+    {
         files: ['resources/js/pages/**/*.vue', 'resources/js/components/**/*.vue', 'resources/js/canvas/**/*.vue', 'resources/js/shell/**/*.vue'],
         rules: { 'vue/multi-word-component-names': 'off' },
     },

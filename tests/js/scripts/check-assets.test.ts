@@ -52,6 +52,13 @@ describe('check-assets with vendored strings', () => {
         expect(result.stderr).toContain('Thing.ts');
     });
 
+    it('does not read binary assets as code', () => {
+        const root = scratch();
+        write(root, 'build/engine.wasm', 'http://www.unicode.org/copyright.html');
+        write(root, 'build/face.ttf', 'https://cdn.example.org/x');
+        expect(run(join(root, 'build'), 'scripts/vendored-urls.txt', join(root, 'src')).status).toBe(0);
+    });
+
     it('fails when there is no build to check', () => {
         const root = scratch();
         expect(run(join(root, 'missing'), 'scripts/vendored-urls.txt', join(root, 'src')).status).toBe(1);
