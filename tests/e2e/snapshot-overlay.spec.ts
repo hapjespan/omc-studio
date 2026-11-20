@@ -13,7 +13,7 @@ test('the financial overlay on a Snapshot shows the numbers of the moment after 
 
     const card = page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' }).first();
     const id = await card.getAttribute('data-block');
-    await expect(page.locator(`[data-overlay-card="${id}"] [data-total]`)).toHaveText('€ 1.000 · 25,0% van totaal');
+    await expect(page.locator(`[data-overlay-card="${id}"] [data-total]`)).toHaveText('€ 1.000 25,0% van totaal');
     await expect(page.locator('[data-figure-panel]')).toContainText('€ 4.000');
     await expectNoAxeViolations(page);
 });

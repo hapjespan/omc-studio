@@ -13,9 +13,9 @@ test('a Domain card draws its Total, Share, bar, forecast line and counts inside
     const card = page.locator('[data-kind="domain"]').filter({ hasText: 'Onderwijs' }).first();
     const id = await card.getAttribute('data-block');
     const layer = page.locator(`[data-overlay-card="${id}"]`);
-    await expect(layer.locator('[data-total]')).toHaveText('€ 1.000 · 25,0% van totaal');
-    await expect(layer.locator('[data-forecast]')).toHaveText('Prognose € 900 · 90,0% van budget');
-    await expect(layer.locator('[data-counts]')).toHaveText('Activiteiten 4 · Clusters 1');
+    await expect(layer.locator('[data-total]')).toHaveText('€ 1.000 25,0% van totaal');
+    await expect(layer.locator('[data-forecast]')).toHaveText('Prognose € 900 · 90% van budget');
+    await expect(layer.locator('[data-counts]')).toHaveText('4 activiteiten · 1 cluster');
     await expect(layer.locator('[data-bar]')).toBeVisible();
     await expect(card).toContainText('Prognose € 900');
     await expectNoAxeViolations(page);

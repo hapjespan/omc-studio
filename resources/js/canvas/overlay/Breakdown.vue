@@ -61,12 +61,12 @@ const rows = computed(() => breakdownRows(loaded.value, props.cents ?? false));
 </script>
 
 <template>
-    <div v-if="rows.length" class="mt-2" data-breakdown>
-        <p class="font-semibold">{{ t('overlay.breakdown') }}</p>
-        <ul>
+    <div v-if="rows.length" class="mt-2 flex flex-col gap-1" data-breakdown>
+        <p class="text-[11px] font-semibold leading-[15.4px] text-secondary">{{ t('overlay.breakdown') }}</p>
+        <ul class="flex flex-col gap-1 text-[12px] leading-[16.8px]">
             <li v-for="row in rows" :key="row.id" class="flex justify-between gap-4">
-                <span>{{ row.name }}</span>
-                <span class="whitespace-nowrap">{{ row.percentage }} · {{ row.amount }}</span>
+                <span class="min-w-0">{{ row.name }}</span>
+                <span class="whitespace-nowrap"><span class="text-secondary">{{ row.percentage }}</span> · <span class="font-semibold">{{ row.amount }}</span></span>
             </li>
         </ul>
     </div>

@@ -35,15 +35,31 @@ export function layoutDirection(
 ): DirectionColumn[] {
     const ordered = [...statements].sort((a, b) => a.position - b.position);
     const textOf = (key: DirectionColumnKey): string[] => {
-        if (key === 'logo') return [];
-        const kind = key === 'goals' ? 'goal' : key;
-        return ordered.filter((statement) => statement.kind === kind).map((statement) => (statement.title ? `${statement.title}: ${statement.body}` : statement.body));
+        if (key === 'logo' || key === 'goals') return [];
+        return ordered.filter((statement) => statement.kind === key).map((statement) => (statement.title ? `${statement.title}: ${statement.body}` : statement.body));
     };
+
+    const goals = ordered.filter((statement) => statement.kind === 'goal').map((statement, index) => {
+        const lead = statement.title ? (/[.!?]$/.test(statement.title) ? statement.title : `${statement.title}.`) : '';
+        const prefix = `${index + 1}. `;
+        return { text: `${prefix}${lead ? `${lead} ` : ''}${statement.body}`, from: prefix.length, to: prefix.length + lead.length };
+    });
 
     let x = 0;
     return columnWidths.map(([key, width]) => {
         const textWidth = width - 2 * DIRECTION_PADDING;
-        const all = textOf(key).flatMap((text) => wrapText(text, textWidth, DIRECTION_BODY_FONT, measurer));
+        const emphasis: DirectionColumn['emphasis'] = [];
+        let all: string[];
+        if (key === 'goals') {
+            all = [];
+            for (const goal of goals) {
+                const wrapped = wrapText(goal.text, textWidth, DIRECTION_BODY_FONT, measurer);
+                if (goal.to > goal.from) emphasis.push({ line: all.length, from: goal.from, to: Math.min(goal.to, wrapped[0]?.length ?? goal.to) });
+                all.push(...wrapped);
+            }
+        } else {
+            all = textOf(key).flatMap((text) => wrapText(text, textWidth, DIRECTION_BODY_FONT, measurer));
+        }
         const truncated = all.length > directionMaxLines();
         const column: DirectionColumn = {
             key,
@@ -51,6 +67,7 @@ export function layoutDirection(
             width,
             label: key === 'logo' ? null : labels[key],
             lines: truncated ? cut(all, textWidth, measurer) : all,
+            emphasis: emphasis.filter((range) => range.line < directionMaxLines()),
             truncated,
         };
         x += width;
