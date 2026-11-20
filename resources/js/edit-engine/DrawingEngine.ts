@@ -65,6 +65,8 @@ export interface DrawingEngine {
     redo(): void;
     zoomToFit(): void;
     getZoom(): number;
+    zoomTo100(): void;
+    getView(): { x: number; y: number; zoom: number };
     setTool(tool: 'select' | 'pan'): void;
     destroy(): void;
 }

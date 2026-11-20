@@ -1,5 +1,6 @@
 import { SceneGraph } from '@open-pencil/scene-graph';
 import { ARTBOARD, type DrawnBlock, type DrawnCanvas } from '../layout';
+import { textOffset } from './fontCalibration';
 import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 
 export const ARTBOARD_ID = 'artboard';
@@ -98,7 +99,7 @@ export function buildScene(canvas: DrawnCanvas): SceneGraph {
                 graph.createNodeWithId(block.id + TEXT_SUFFIX, 'TEXT', block.id, {
                     name: block.id + TEXT_SUFFIX,
                     x: pad.x,
-                    y: pad.y,
+                    y: pad.y + textOffset(block.style.font),
                     width: place.width - 2 * pad.x - (block.modality ? MODALITY_BADGE : 0),
                     height: block.textLines.length * block.style.lineHeight,
                     text: block.textLines.join('\n'),

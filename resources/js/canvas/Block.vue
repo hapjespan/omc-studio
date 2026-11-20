@@ -34,7 +34,7 @@ const box = (): Record<string, string> => {
 <template>
     <button
         type="button"
-        class="absolute box-border flex flex-col justify-start overflow-visible text-left"
+        class="absolute box-border flex flex-col [text-rendering:geometricPrecision] justify-start overflow-visible text-left"
         :class="{ 'outline-2 outline-accent': selected }"
         :data-block="block.id"
         :data-kind="block.kind"
