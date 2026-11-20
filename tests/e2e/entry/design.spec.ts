@@ -58,6 +58,18 @@ test('a selected row has the ink border of two pixels', async ({ page }) => {
     await expect(box).toHaveCSS('box-shadow', /rgb\(23, 27, 33\) 0px 0px 0px 1px inset/);
 });
 
+test('"Toon gearchiveerd" is a 16 pixel box inside a 24 pixel target', async ({ page }) => {
+    await openEntry(page, seed());
+
+    const box = await page.getByLabel('Toon gearchiveerd').boundingBox();
+    const target = await page.locator('label:has(input[type=checkbox])').first().boundingBox();
+
+    expect(box?.width).toBe(16);
+    expect(box?.height).toBe(16);
+    expect(target?.width).toBeGreaterThanOrEqual(24);
+    expect(target?.height).toBeGreaterThanOrEqual(24);
+});
+
 test('changing the Area with unsaved edits keeps the panel and its edits until the question is answered', async ({ page }) => {
     await openEntry(page, seed());
 
