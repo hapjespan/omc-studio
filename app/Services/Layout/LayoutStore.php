@@ -16,7 +16,7 @@ class LayoutStore
 
     private const FORMAT_VERSION = 1;
 
-    public function __construct(private readonly SerialisedWrite $writes) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly LayoutAudit $audit) {}
 
     /** @param array<string, mixed> $payload */
     public function save(Canvas $canvas, array $payload): int
@@ -36,7 +36,11 @@ class LayoutStore
 
             (new LayoutValidator($elements))->assertValid($payload);
 
+            $before = $this->audit->current($canvas);
+
             $this->replace($canvas, $elements, $payload);
+
+            $this->audit->record($canvas, $before, $this->audit->incoming($payload));
 
             $canvas->raiseLayoutVersion();
 

@@ -545,5 +545,9 @@
     "layout.rule.too_small": "Opmaak :name: kies een breedte van minstens 40 en een hoogte van minstens 24 pixels",
     "layout.rule.contrast": "Tekst :name: kies een tekstkleur met meer contrast, nu :ratio:1, minstens 4,5:1",
     "layout.conflict.structure_changed": "Iemand anders heeft de inhoud van dit canvas gewijzigd",
-    "layout.conflict.layout_changed": "Iemand anders heeft de opmaak gewijzigd. De tekening is opnieuw geladen"
+    "layout.conflict.layout_changed": "Iemand anders heeft de opmaak gewijzigd. De tekening is opnieuw geladen",
+    "audit_log.action.layout_changed": "Opmaak gewijzigd",
+    "audit_log.field.place": "Plek",
+    "audit_log.field.size": "Grootte",
+    "audit_log.field.style": "Opmaak"
 }
