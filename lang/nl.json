@@ -606,5 +606,19 @@
     "drawing.conflict_title": "De structuur is gewijzigd",
     "drawing.conflict_body": "Iemand heeft elementen toegevoegd, verwijderd of verplaatst sinds je Tekenen opende.",
     "drawing.conflict_apply": "Opmaak toepassen op wat nog bestaat",
-    "drawing.conflict_reload": "Opnieuw laden"
+    "drawing.conflict_reload": "Opnieuw laden",
+    "drawing_style.heading": "Kleur",
+    "drawing_style.fill": "Vulling",
+    "drawing_style.fill_of": "Vulling van :name",
+    "drawing_style.fill_swatch": "Kleurkiezer voor vulling van :name",
+    "drawing_style.fill_opacity_of": "Dekking van de vulling van :name (0 tot 100)",
+    "drawing_style.border": "Rand",
+    "drawing_style.border_of": "Randkleur van :name",
+    "drawing_style.border_swatch": "Kleurkiezer voor rand van :name",
+    "drawing_style.border_width_of": "Randbreedte van :name (0 tot 8)",
+    "drawing_style.border_style_of": "Randstijl van :name",
+    "drawing_style.solid": "doorgetrokken",
+    "drawing_style.dashed": "gestreept",
+    "drawing_style.corner_radius_of": "Hoeken van :name (0 tot 64)",
+    "drawing_style.changed": "Opmaak van :name gewijzigd"
 }

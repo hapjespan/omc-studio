@@ -18,9 +18,23 @@ function colour(hex: string) {
     return { r: ((value >> 16) & 255) / 255, g: ((value >> 8) & 255) / 255, b: (value & 255) / 255, a: 1 };
 }
 
-const solid = (hex: string) => [{ type: 'SOLID' as const, color: colour(hex), opacity: 1, visible: true }];
+export const fillPaint = (hex: string, opacity = 100) => ({ type: 'SOLID' as const, color: colour(hex), opacity: opacity / 100, visible: true });
 
-const stroke = (hex: string) => [{ type: 'SOLID' as const, color: colour(hex), opacity: 1, visible: true, weight: 1, align: 'INSIDE' as const }];
+export const strokePaint = (hex: string, weight = 1, dashed = false) => ({ ...fillPaint(hex), weight, align: 'INSIDE' as const, ...(dashed ? { dashPattern: [weight * 3, weight * 2] } : {}) });
+
+const solid = (hex: string, opacity = 100) => [fillPaint(hex, opacity)];
+
+const stroke = (hex: string, weight = 1, dashed = false) => [strokePaint(hex, weight, dashed)];
+
+export const ALIGN_HORIZONTAL = { left: 'LEFT', center: 'CENTER', right: 'RIGHT' } as const;
+
+export function textBox(block: DrawnBlock, width: number, height: number): { x: number; y: number; width: number; height: number } {
+    const pad = blockPadding(block);
+    const textHeight = block.textLines.length * block.style.lineHeight;
+    const free = Math.max(0, height - 2 * pad.y - textHeight);
+    const top = { top: 0, middle: free / 2, bottom: free }[block.style.alignVertical];
+    return { x: pad.x, y: pad.y + top + textOffset(block.style.font), width: width - 2 * pad.x - (block.modality ? MODALITY_BADGE : 0), height: textHeight };
+}
 
 function parentId(block: DrawnBlock, byId: Map<string, DrawnBlock>): string {
     if (block.kind === 'area') return ARTBOARD_ID;
@@ -90,19 +104,15 @@ export function buildScene(canvas: DrawnCanvas): SceneGraph {
                 y: place.y,
                 width: place.width,
                 height: block.drawnHeight,
-                fills: block.style.fill ? solid(block.style.fill) : [],
-                strokes: block.style.border ? stroke(block.style.border) : [],
+                fills: block.style.fill ? solid(block.style.fill, block.style.fillOpacity) : [],
+                strokes: block.style.border ? stroke(block.style.border, block.style.borderWidth, block.style.borderStyle === 'dashed') : [],
                 cornerRadius: block.style.radius,
                 clipsContent: false,
             });
             if (block.textLines.length > 0) {
-                const pad = blockPadding(block);
                 graph.createNodeWithId(block.id + TEXT_SUFFIX, 'TEXT', block.id, {
                     name: block.id + TEXT_SUFFIX,
-                    x: pad.x,
-                    y: pad.y + textOffset(block.style.font),
-                    width: place.width - 2 * pad.x - (block.modality ? MODALITY_BADGE : 0),
-                    height: block.textLines.length * block.style.lineHeight,
+                    ...textBox(block, place.width, block.drawnHeight),
                     text: block.textLines.join('\n'),
                     fontFamily: block.style.font.family,
                     fontSize: block.style.font.size,
@@ -110,7 +120,7 @@ export function buildScene(canvas: DrawnCanvas): SceneGraph {
                     italic: block.style.font.italic,
                     lineHeight: block.style.lineHeight,
                     textAutoResize: 'NONE',
-                    textAlignHorizontal: 'LEFT',
+                    textAlignHorizontal: ALIGN_HORIZONTAL[block.style.alignHorizontal],
                     fills: solid(block.style.textColour),
                 });
             }

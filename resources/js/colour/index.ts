@@ -1,5 +1,7 @@
 import defaults from '../../data/default-colours.json';
 
+export const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
 const channel = (value: number): number => {
     const s = value / 255;
     return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
@@ -23,6 +25,9 @@ export const effectiveFill = (fill: string, opacity: number, behind: string): st
     });
     return `#${hex.join('')}`;
 };
+
+export const withOpacity = (hex: string, opacity: number): string =>
+    opacity >= 100 ? hex : `rgba(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(',')},${opacity / 100})`;
 
 export const autoTextColour = (background: string): string =>
     contrastRatio(background, defaults.ink) >= contrastRatio(background, defaults.white) ? defaults.ink : defaults.white;

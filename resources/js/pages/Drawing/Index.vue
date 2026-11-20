@@ -2,8 +2,11 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
+import { resolveStyle } from '../../layout/resolveStyle';
+import type { StylePatch } from '../../edit-engine/commands/style';
+import type { StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { CanvasLayoutInput, DrawnCanvas, TextMeasurer } from '../../layout';
+import type { CanvasLayoutInput, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
 import { modeSwitchPlacement } from '../../shell/modes';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
@@ -45,6 +48,7 @@ const peeked = ref<string | null>(null);
 const hint = ref('');
 const notice = ref('');
 const box = ref<BoxValues | null>(null);
+const target = ref<StyleTarget | null>(null);
 const grid = ref(false);
 const saveStatus = ref<SaveStatus>('idle');
 const seen = ref<string[]>([]);
@@ -81,6 +85,13 @@ const names = computed(() => new Map<string, string>([...props.layout.areas.map(
 const single = computed(() => (selected.value.length === 1 ? selected.value[0] : null));
 const refreshBox = (): void => {
     box.value = single.value ? (engine.value?.getBox(single.value) ?? null) : null;
+    const block = single.value ? drawn.value?.blocks.find((candidate) => candidate.id === single.value) : undefined;
+    target.value = block && block.areaKey !== 'direction' && engine.value && single.value ? { kind: block.kind, resolved: resolveStyle(block.areaKey, block.kind, engine.value.getStyle(single.value) as ElementStyle) } : null;
+};
+const setStyle = (patch: StylePatch): void => {
+    const result = engine.value?.setStyle(patch);
+    refreshBox();
+    if (result && result.ids.length > 0) say(t('drawing_style.changed', { name: names.value.get(result.ids[0]) ?? result.ids[0] }));
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {
     engine.value?.apply({ kind: 'setBox', id, box: values });
@@ -137,7 +148,7 @@ async function start(payload: LayoutPayload): Promise<void> {
         drawn.value = computed;
         const { createDrawingEngine } = await import('../../edit-engine');
         created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, computed, { layout: payload, onTextAttempt: showHint, onPushBack: (ids) => say(t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
+        await created.mount(host.value as HTMLElement, computed, { layout: payload, measurer: measurer ?? undefined, onTextAttempt: showHint, onPushBack: (ids) => say(t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
         if (unmounted) return release();
         created.zoomToFit();
         created.setTool(tool.value);
@@ -220,7 +231,7 @@ onBeforeUnmount(() => {
             <Announcer :message="notice" />
             <Toolbar v-model:grid="grid" :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" @box="setBox">
+        <PropertiesPanel :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" @box="setBox" @style="setStyle">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>

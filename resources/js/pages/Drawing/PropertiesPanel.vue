@@ -4,9 +4,11 @@ import TextField from '../../components/fields/TextField.vue';
 import Panel from '../../components/ui/Panel.vue';
 import { t } from '../../i18n';
 import type { BoxValues } from '../../edit-engine';
+import type { StylePatch } from '../../edit-engine/commands/style';
+import StylePanel, { type StyleTarget } from './StylePanel.vue';
 
-const props = defineProps<{ id: string | null; name: string; box: BoxValues | null }>();
-const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>] }>();
+const props = defineProps<{ id: string | null; name: string; box: BoxValues | null; target?: StyleTarget | null }>();
+const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>]; style: [patch: StylePatch] }>();
 
 const keys = ['x', 'y', 'width', 'height'] as const;
 const labels = { x: 'drawing.field_x', y: 'drawing.field_y', width: 'drawing.field_width', height: 'drawing.field_height' } as const;
@@ -42,6 +44,7 @@ function commit(key: (typeof keys)[number]): void {
                 <TextField v-for="key in keys" :id="`box-${key}`" :key="key" v-model="values[key]" type="number" :label="t(labels[key], { name })" @change="commit(key)" />
             </div>
         </form>
+        <StylePanel v-if="id && target" :id="id" :name="name" :target="target" @style="emit('style', $event)" />
         <p v-else-if="!$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>
     </Panel>
 </template>

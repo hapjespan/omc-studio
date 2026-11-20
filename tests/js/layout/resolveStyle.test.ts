@@ -39,11 +39,32 @@ describe('resolveStyle', () => {
     it('lets an Element style win and picks ink or white by contrast', () => {
         expect(resolveStyle('steering', 'domain', { fill: '#000000' })).toMatchObject({ fill: '#000000', textColour: '#FFFFFF' });
         expect(resolveStyle('steering', 'domain', { fill: '#FFFF00' }).textColour).toBe('#171B21');
-        expect(resolveStyle('steering', 'domain', { fill: '#000000', textColour: '#FF0000' }).textColour).toBe('#FF0000');
+        expect(resolveStyle('steering', 'domain', { fill: '#000000', text_colour: '#FF0000' }).textColour).toBe('#FF0000');
     });
 
     it('draws Activities with a hairline border and Domains without', () => {
         expect(resolveStyle('primary_activities', 'activity').border).toBe('#DCDFE2');
         expect(resolveStyle('primary_activities', 'domain').border).toBeNull();
+    });
+
+    it('applies every stored style key over the Default colours', () => {
+        const style = resolveStyle('steering', 'domain', { fill: '#112233', fill_opacity: 50, border_colour: '#445566', border_width: 3, border_style: 'dashed', corner_radius: 20, font: 'inter', font_size: 20, font_weight: 'normal', italic: true, align_horizontal: 'center', align_vertical: 'bottom' });
+        expect(style).toMatchObject({ fill: '#112233', fillOpacity: 50, border: '#445566', borderColour: '#445566', borderWidth: 3, borderStyle: 'dashed', radius: 20, lineHeight: 28, alignHorizontal: 'center', alignVertical: 'bottom' });
+        expect(style.font).toEqual({ family: 'Inter', size: 20, weight: 400, italic: true });
+    });
+
+    it('reports the Default border, width and alignment when nothing is set', () => {
+        expect(resolveStyle('primary_activities', 'activity')).toMatchObject({ borderWidth: 1, borderStyle: 'solid', alignHorizontal: 'left', alignVertical: 'top', fillOpacity: 100 });
+        expect(resolveStyle('primary_activities', 'domain')).toMatchObject({ border: null, borderWidth: 0, borderColour: '#DCDFE2' });
+    });
+
+    it('hides the border at width 0 and ignores italic for Space Grotesk', () => {
+        expect(resolveStyle('primary_activities', 'activity', { border_width: 0 }).border).toBeNull();
+        expect(resolveStyle('primary_activities', 'domain', { border_width: 2 }).border).toBe('#DCDFE2');
+        expect(resolveStyle('steering', 'domain', { font: 'space_grotesk', italic: true }).font.italic).toBe(false);
+    });
+
+    it('picks the automatic text colour from the fill seen through its opacity', () => {
+        expect(resolveStyle('steering', 'domain', { fill: '#000000', fill_opacity: 10 }).textColour).toBe('#171B21');
     });
 });

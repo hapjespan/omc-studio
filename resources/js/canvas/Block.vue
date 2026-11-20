@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { withOpacity } from '../colour';
 import { AREA_LETTER_SPACING } from '../layout/arrangeAreas';
 import { blockPadding } from '../layout/padding';
 import type { DrawnBlock } from '../layout/types';
@@ -17,8 +18,11 @@ const box = (): Record<string, string> => {
         width: `${block.width}px`,
         height: `${block.drawnHeight}px`,
         zIndex: String(block.z + 1),
-        background: block.style.fill ?? 'transparent',
-        border: block.style.border ? `1px solid ${block.style.border}` : '0',
+        background: block.style.fill ? withOpacity(block.style.fill, block.style.fillOpacity) : 'transparent',
+        border: block.style.border ? `${block.style.borderWidth}px ${block.style.borderStyle === 'dashed' ? 'dashed' : 'solid'} ${block.style.border}` : '0',
+        textAlign: block.style.alignHorizontal,
+        justifyContent: { top: 'flex-start', middle: 'center', bottom: 'flex-end' }[block.style.alignVertical],
+        fontStyle: block.style.font.italic ? 'italic' : 'normal',
         borderRadius: `${block.style.radius}px`,
         color: block.style.textColour,
         padding: `${y}px ${x}px`,
