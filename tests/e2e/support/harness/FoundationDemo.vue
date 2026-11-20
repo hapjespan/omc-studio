@@ -37,7 +37,7 @@ if (params.get('quiet') === '1') useQuietStatus();
         <StatusRegion />
         <button id="post" type="button" @click="announce('Alles opgeslagen')">Meld</button>
         <SegmentedControl :items="[{ key: 'none', label: 'Geen' }, { key: 'modality', label: 'Modaliteit' }]" :active="overlay" label="Laag" @select="overlay = $event" />
-        <ChipSelect id="kind" v-model="kind" label="Soort" name="Soort filter" :options="[{ value: '', label: 'Alle' }, { value: 'a', label: 'Eerste' }]" />
+        <ChipSelect id="kind" v-model="kind" label="Soort" :options="[{ value: '', label: 'Alle' }, { value: 'a', label: 'Eerste' }]" />
         <Panel id="panel" :padding="24" heading="Exporteren"><p>Inhoud</p></Panel>
         <FileField id="upload" label="Bestand" hint="Alleen JSON" accept=".json" @pick="picked = $event?.name ?? ''" />
         <p id="picked">{{ picked }}</p>
