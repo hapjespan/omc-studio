@@ -11,6 +11,7 @@ vi.mock('@inertiajs/vue3', () => ({
     Head: { render: () => null },
 }));
 
+const { shellLayout } = await import('../../../resources/js/shell/layout');
 const AppShell = (await import('../../../resources/js/shell/AppShell.vue')).default;
 
 const render = async () => (await renderToString(createSSRApp({ render: () => h(AppShell, null, { default: () => h('h1', 'Overzicht') }) }))).replace(/<!--.*?-->/g, '');
@@ -71,5 +72,33 @@ describe('AppShell with a Canvas', () => {
         expect(html).toContain('role="group" aria-label="Modus"');
         expect(html).toContain('Bekijken');
         expect(html).not.toContain('Invoeren');
+    });
+});
+
+describe('AppShell layout options', () => {
+    it('keeps 16 pixel padding, no header targets and a visually hidden status region by default', async () => {
+        const html = await render();
+
+        expect(html).toMatch(/<main[^>]*class="shell-main p-4"/);
+        expect(html).not.toContain('page-title');
+        expect(html).not.toContain('page-actions');
+        expect(html).toMatch(/<div role="status"[^>]*class="sr-only"/);
+    });
+
+    it('widens the main padding to 24 pixels only when a page asks for it', async () => {
+        shellLayout.widePadding = true;
+        const html = await render();
+        shellLayout.widePadding = false;
+
+        expect(html).toMatch(/<main[^>]*class="shell-main p-6"/);
+    });
+
+    it('renders the header targets only while a page fills them', async () => {
+        shellLayout.headerSlots = 1;
+        const html = await render();
+        shellLayout.headerSlots = 0;
+
+        expect(html).toContain('id="page-title"');
+        expect(html).toContain('id="page-actions"');
     });
 });

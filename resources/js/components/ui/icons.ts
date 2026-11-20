@@ -9,6 +9,7 @@ export const ICON_PATHS = {
     'chevron-right': 'm6.2 4.2 3.8 3.8-3.8 3.8',
     warning: 'M8 2.4 14.8 13.6H1.2Zm0 4.4v3.3m0 2.1h.01',
     lock: 'M4.3 7.4h7.4v6.2H4.3Zm1.6 0V5.6a2.1 2.1 0 0 1 4.2 0v1.8',
+    fit: 'M2.5 6V2.5H6m4 0h3.5V6m0 4v3.5H10m-4 0H2.5V10',
     close: 'm4.2 4.2 7.6 7.6m0-7.6-7.6 7.6',
 } as const;
 

@@ -518,5 +518,7 @@
     "list.kind_new": ":kind toevoegen",
     "list.kind_edit": ":kind bewerken",
     "users.kind": "Gebruiker",
-    "organisations.kind": "Organisatie"
+    "organisations.kind": "Organisatie",
+    "fields.file_choose": "Kies een bestand",
+    "fields.file_none": "Geen bestand gekozen"
 }

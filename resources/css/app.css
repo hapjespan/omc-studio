@@ -23,6 +23,9 @@
     --color-warning-soft: #fff3d6;
     --color-danger: #a12a1e;
     --color-danger-edge: #c0645a;
+    --color-danger-soft: #fdecea;
+    --color-over-budget: #9a7811;
+    --color-drop-zone: #9aa1aa;
     --color-accent: #2459d6;
     --color-accent-soft: #e3ebfb;
     --color-disabled: #e6e8e6;
@@ -63,6 +66,49 @@
     h2,
     h3 {
         font-family: var(--font-display);
+    }
+}
+
+@layer components {
+    .check-target > input {
+        appearance: none;
+        position: relative;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--color-edge);
+        border-radius: var(--radius-badge);
+        background-color: #ffffff;
+        accent-color: var(--color-ink);
+    }
+
+    .check-target > input:checked,
+    .check-target > input:indeterminate {
+        border-color: var(--color-ink);
+        background-color: var(--color-ink);
+    }
+
+    .check-target > input:checked::after {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        width: 4px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .check-target > input:indeterminate::after {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 5.5px;
+        width: 8px;
+        height: 2px;
+        border: 0;
+        background-color: #ffffff;
+        transform: none;
     }
 }
 

@@ -3,12 +3,13 @@ import { ref } from 'vue';
 import Icon from './Icon.vue';
 import type { IconName } from './icons';
 
-const props = withDefaults(defineProps<{ variant?: 'primary' | 'secondary' | 'danger'; size?: 'control' | 'dense' | 'small'; type?: 'button' | 'submit'; icon?: IconName; disabled?: boolean }>(), {
+const props = withDefaults(defineProps<{ variant?: 'primary' | 'secondary' | 'danger'; size?: 'control' | 'dense' | 'small'; type?: 'button' | 'submit'; icon?: IconName; disabled?: boolean; href?: string }>(), {
     variant: 'secondary',
     size: 'control',
     type: 'button',
     icon: undefined,
     disabled: false,
+    href: undefined,
 });
 
 const variants = {
@@ -18,13 +19,17 @@ const variants = {
 };
 const sizes = { control: 'min-h-control px-3 text-[13px]', dense: 'min-h-dense px-3 text-[13px]', small: 'min-h-mark px-2.5 text-[12.5px]' };
 const shape = 'inline-flex items-center justify-center gap-1.5 rounded-control py-1 font-medium disabled:border-edge disabled:bg-disabled disabled:text-secondary';
-const element = ref<HTMLButtonElement>();
+const element = ref<HTMLElement>();
 
 defineExpose({ focus: () => element.value?.focus() });
 </script>
 
 <template>
-    <button ref="element" :type="props.type" :disabled="props.disabled" :class="[shape, variants[props.variant], sizes[props.size]]">
+    <a v-if="props.href" ref="element" :href="props.href" :class="[shape, variants[props.variant], sizes[props.size]]">
+        <Icon v-if="props.icon" :name="props.icon" />
+        <slot />
+    </a>
+    <button v-else ref="element" :type="props.type" :disabled="props.disabled" :class="[shape, variants[props.variant], sizes[props.size]]">
         <Icon v-if="props.icon" :name="props.icon" />
         <slot />
     </button>
