@@ -5,6 +5,7 @@ import NativeSelect from '../../components/fields/NativeSelect.vue';
 import SidePanel from '../../components/overlays/SidePanel.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import CheckBox from '../../components/ui/CheckBox.vue';
+import ReportTable from '../../components/ui/ReportTable.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
@@ -36,21 +37,9 @@ function run(): void {
         </form>
         <section role="region" v-if="report" aria-labelledby="carry-over-result" class="mt-4 text-[13px]">
             <h2 id="carry-over-result" role="status" class="text-[16px] font-semibold">{{ report.summary }}</h2>
-            <table v-if="report.copied.length" class="mt-2 w-full">
-                <caption class="text-left font-semibold">{{ t('carry_over.copied') }}</caption>
-                <thead><tr><th scope="col" class="text-left">{{ t('carry_over.col_name') }}</th></tr></thead>
-                <tbody><tr v-for="row in report.copied" :key="row.name"><th scope="row" class="text-left font-normal">{{ row.name }}</th></tr></tbody>
-            </table>
-            <table v-if="report.skipped.length" class="mt-2 w-full">
-                <caption class="text-left font-semibold">{{ t('carry_over.skipped') }}</caption>
-                <thead><tr><th scope="col" class="text-left">{{ t('carry_over.col_name') }}</th><th scope="col" class="text-left">{{ t('carry_over.col_reason') }}</th></tr></thead>
-                <tbody><tr v-for="row in report.skipped" :key="row.name + row.reason"><th scope="row" class="text-left font-normal">{{ row.name }}</th><td>{{ row.reason }}</td></tr></tbody>
-            </table>
-            <table v-if="report.manual.length" class="mt-2 w-full">
-                <caption class="text-left font-semibold">{{ t('carry_over.manual') }}</caption>
-                <thead><tr><th scope="col" class="text-left">{{ t('carry_over.col_name') }}</th></tr></thead>
-                <tbody><tr v-for="row in report.manual" :key="row.name"><th scope="row" class="text-left font-normal">{{ row.name }}</th></tr></tbody>
-            </table>
+            <ReportTable v-if="report.copied.length" class="mt-3" :caption="t('carry_over.copied')" :columns="[{ key: 'name', label: t('carry_over.col_name') }]" :rows="report.copied" row-header="name" />
+            <ReportTable v-if="report.skipped.length" class="mt-3" :caption="t('carry_over.skipped')" :columns="[{ key: 'name', label: t('carry_over.col_name') }, { key: 'reason', label: t('carry_over.col_reason') }]" :rows="report.skipped" row-header="name" />
+            <ReportTable v-if="report.manual.length" class="mt-3" :caption="t('carry_over.manual')" :columns="[{ key: 'name', label: t('carry_over.col_name') }]" :rows="report.manual" row-header="name" />
         </section>
     </SidePanel>
 </template>
