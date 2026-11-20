@@ -133,17 +133,16 @@ All live under `resources/js/components/` and are the only way to build these pa
 | `ui/ActionMenu` | `label` (button text, chevron), `items` as `{ key, label, disabled? }`, emits `select(key)`; reka-ui DropdownMenu, keyboard operable |
 | `ui/icons` | adds `fit`; `minus` already existed |
 | `fields/FileField` | `id`, `label`, `accept`, `hint`, `error`, `v-model` (`File` or null: a reset to null clears the shown name), emits `pick(file or null)`; 36 high box, 28 high button reading "Kies een bestand", the file name beside it; the native input stays the labelled, focusable control |
+| `fields/InlineField` | `v-model` string, `id`, `label` (accessible name, visually hidden through `Field` `hideLabel`), `suffix` (for example "%", drawn inside the box), `hint`, `error`, `inputmode` text, decimal or numeric, `disabled`; 84 by 36 box, text right-aligned in Space Grotesk 13 bold, border `#848B95`, `#C0645A` with `aria-invalid` on error, `aria-describedby` through `Field` |
+| `fields/NativeSelect` | `v-model` string, `id`, `label` (visible, through `Field`), `options` as `{ value, label }`, `emptyLabel` (when given, a first option with value empty and this text), `hint`, `error`, `disabled`; native select, chevron, 36 high, border `#848B95`, `#C0645A` with `aria-invalid` on error; use it where `SelectField` cannot hold an empty value |
+| `ui/ReportTable` | `caption` (accessible, visually hidden), `columns` as `{ key, label, align? }` with align left (default) or right, `rows` as records, `empty` (text when there are no rows), `rowHeader` (column key whose cells become `th scope="row"`); slots `cell-<key>` with `{ row, value }`; bordered white card (hairline, radius 8, scrolls sideways when too wide), small header 11.5 `#454C57`, right-aligned columns use tabular figures |
 | `shell/HeaderSlot` | `to` title or actions; the page puts its title or actions inside it and they appear in the page header row of the shell; the row exists only while a page uses a slot |
+| `shell/TopBar` | the breadcrumb wraps anywhere and the right-hand group (fiscal year, role menu) wraps, so the bar does not scroll sideways at 320 CSS pixels with a long organisation and canvas name; no props changed, the 1440 look is unchanged |
 | `shell/layout` | `useWideMain()` in a page setup sets the main padding to 24 instead of 16, `useQuietStatus()` makes the shell status region visually hidden but still announced; both reset on unmount, the defaults are 16 pixels and visible text |
 
 The shell status region shows its message as text by default, as in delivery 1 (flash statuses, "Wachtwoord gekopieerd"); a page that shows the confirmation elsewhere opts in to the visually hidden mode.
 
-Foundation gaps of the later deliveries that this set does not cover, tracked here:
-
-- F-2: a compact inline field with a hidden label and a "%" suffix (Toewijzen percentage input).
-- F-6: the top bar overflows at 320 pixels once a Fiscal year selector and notices sit in it.
-- G-8: one shared report table for the three report tables (`ImportReport`, `CountsReport`, the Toewijzen lines).
-- K-28: a styled native select with an empty value item, or `SelectField` accepting one (the specs use `selectOption`).
+Foundation gaps F-2, F-6, G-8 and K-28 are closed by T386: `InlineField`, the narrow top bar, `ReportTable` and `NativeSelect` above.
 
 ## States
 
