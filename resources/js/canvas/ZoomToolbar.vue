@@ -11,18 +11,19 @@ export const fitZoom = (viewport: { width: number; height: number }, content: { 
 </script>
 
 <script setup lang="ts">
+import AppButton from '../components/ui/AppButton.vue';
 import { t } from '../i18n';
 
 const zoom = defineModel<number>('zoom', { required: true });
 const emit = defineEmits<{ fit: [] }>();
-const button = 'rounded-md border border-edge bg-white px-3 py-1.5 text-[13px] font-semibold aria-disabled:cursor-not-allowed aria-disabled:bg-disabled aria-disabled:text-secondary';
+const disabled = 'aria-disabled:cursor-not-allowed aria-disabled:border-edge aria-disabled:bg-disabled aria-disabled:text-secondary';
 </script>
 
 <template>
     <div role="toolbar" :aria-label="t('view.zoom.toolbar')" class="flex flex-wrap items-center gap-2">
-        <button type="button" :class="button" :aria-disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)">{{ t('view.zoom.out') }}</button>
-        <output class="min-w-[4ch] text-center text-[13px]" data-zoom aria-live="polite">{{ zoom }}%</output>
-        <button type="button" :class="button" :aria-disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)">{{ t('view.zoom.in') }}</button>
-        <button type="button" :class="button" @click="emit('fit')">{{ t('view.zoom.fit') }}</button>
+        <AppButton size="small" :class="disabled" :aria-disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)">{{ t('view.zoom.out') }}</AppButton>
+        <output class="min-w-[4ch] text-center text-[12.5px] font-semibold" data-zoom aria-live="polite">{{ zoom }}%</output>
+        <AppButton size="small" :class="disabled" :aria-disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)">{{ t('view.zoom.in') }}</AppButton>
+        <AppButton size="small" @click="emit('fit')">{{ t('view.zoom.fit') }}</AppButton>
     </div>
 </template>

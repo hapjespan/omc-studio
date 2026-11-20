@@ -22,7 +22,7 @@ test('a filter on Owner recalculates every number and shows above the canvas', a
     await expect(panel).toContainText('€ 1.000');
     await expect(panel).not.toContainText('€ 4.000');
     await expect(panel.locator('[data-closing]')).toHaveText('Totalen sluiten: € 1.000,00 + € 0,00 = € 1.000,00');
-    await expect(page.locator('[data-total]').filter({ hasText: '€ 1.000' }).first()).toHaveText('€ 1.000 · 100,0% van totaal');
+    await expect(page.locator('[data-total]').filter({ hasText: '€ 1.000' }).first()).toHaveText('€ 1.000 100,0% van totaal');
     await expectNoAxeViolations(page);
 
     await page.getByLabel('Eigenaar').selectOption({ label: 'Alle' });
@@ -46,7 +46,7 @@ test('the Unknown allocation card shows its amount and Share like any card', asy
 
     const card = page.locator('[data-area="supporting_activities"][data-kind="domain"]').last();
     const layer = page.locator(`[data-overlay-card="${await card.getAttribute('data-block')}"]`);
-    await expect(layer.locator('[data-total]')).toHaveText('€ 3.000 · 75,0% van totaal');
+    await expect(layer.locator('[data-total]')).toHaveText('€ 3.000 75,0% van totaal');
     await card.hover();
     await expect(page.locator('[data-hover-content]')).toContainText('Totaal € 3.000');
     await expect(page.getByRole('complementary', { name: 'Totalen van het canvas' })).toContainText('Onbekende allocatie');

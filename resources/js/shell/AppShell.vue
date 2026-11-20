@@ -44,7 +44,9 @@ watch(
         </header>
         <LeftPanel class="shell-left" />
         <main id="main" tabindex="-1" class="shell-main p-4">
-            <ModeSwitch v-if="page.props.canvas" :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" class="mb-4" />
+            <div v-if="page.props.canvas" id="page-header" class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <ModeSwitch :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" />
+            </div>
             <slot />
             <StatusRegion />
         </main>
