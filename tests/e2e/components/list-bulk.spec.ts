@@ -1,6 +1,7 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
+import { HARNESS_URL } from '../support/ports';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: HARNESS_URL });
 
 test('checkboxes are labelled with the row name and select-all selects every row', async ({ page }) => {
     await page.goto('/?demo=List');

@@ -1,6 +1,7 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
+import { HARNESS_URL } from '../support/ports';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: HARNESS_URL });
 
 test('selecting a row opens the detail panel with focus inside and closing returns focus to the row', async ({ page }) => {
     await page.goto('/?demo=Shell');

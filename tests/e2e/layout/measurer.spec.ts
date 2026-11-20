@@ -1,6 +1,7 @@
 import { expect, test } from '../support/guards';
+import { HARNESS_URL } from '../support/ports';
 
-test.use({ baseURL: 'http://127.0.0.1:4187' });
+test.use({ baseURL: HARNESS_URL });
 
 test('the loader waits for both fonts and the measured widths repeat exactly', async ({ page }) => {
     await page.goto('/?demo=Layout');

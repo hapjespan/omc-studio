@@ -1,5 +1,6 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { signInAs } from '../support/shell';
+import { HARNESS_URL } from '../support/ports';
 
 const horizontalOverflow = (page: import('@playwright/test').Page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
@@ -39,7 +40,7 @@ test.describe('at 320 CSS pixels', () => {
     });
 
     test.describe('on the harness', () => {
-    test.use({ baseURL: 'http://127.0.0.1:4187' });
+    test.use({ baseURL: HARNESS_URL });
 
     test('the detail panel covers the main content instead of sitting next to it', async ({ page }) => {
         await page.goto('/?demo=Shell');
