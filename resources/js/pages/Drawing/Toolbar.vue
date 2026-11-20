@@ -31,9 +31,9 @@ const align = (key: string): void => {
         <SegmentedControl :items="items" :active="tool" :label="t('drawing.tool_group')" @select="emit('tool', $event as 'select' | 'pan')" />
         <ActionMenu :label="t('drawing.tool_align')" :items="alignItems" @select="align" />
         <ActionMenu :label="t('drawing.tool_distribute')" :items="distributeItems" @select="emit('command', { kind: 'distribute', axis: $event as 'horizontal' | 'vertical' })" />
-        <IconButton icon="minus" :label="t('drawing.zoom_out')" @click="emit('navigate', 'out')" />
-        <span class="px-2 text-[13px] text-secondary">{{ t('drawing.zoom', { percent: Math.round(zoom * 100) }) }}</span>
-        <IconButton icon="plus" :label="t('drawing.zoom_in')" @click="emit('navigate', 'in')" />
+        <IconButton icon="minus" :label="t('view.zoom.out')" @click="emit('navigate', 'out')" />
+        <output class="px-2 text-[13px] text-secondary" aria-live="polite">{{ t('drawing.zoom', { percent: Math.round(zoom * 100) }) }}</output>
+        <IconButton icon="plus" :label="t('view.zoom.in')" @click="emit('navigate', 'in')" />
         <AppButton size="small" @click="emit('navigate', 'actual')">{{ t('drawing.zoom_100') }}</AppButton>
         <IconButton icon="chevron-left" :label="t('drawing.pan_left')" @click="emit('navigate', 'left')" />
         <IconButton icon="chevron-right" :label="t('drawing.pan_right')" @click="emit('navigate', 'right')" />

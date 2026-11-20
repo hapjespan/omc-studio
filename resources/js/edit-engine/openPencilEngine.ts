@@ -27,7 +27,6 @@ const DIRECTION_ID = 'direction';
 const READY_TIMEOUT = 20000;
 
 export class OpenPencilEngine implements DrawingEngine {
-    private host: HTMLElement | null = null;
     private editor: Editor | null = null;
     private graph: SceneGraph | null = null;
     private canvas: DrawnCanvas | null = null;
@@ -64,7 +63,6 @@ export class OpenPencilEngine implements DrawingEngine {
             getViewportSize: () => ({ width: element.clientWidth, height: element.clientHeight }),
             skipInitialGraphSetup: true,
         });
-        this.host = element;
         this.graph = graph;
         this.canvas = scene;
         this.base = options.layout;
@@ -256,8 +254,7 @@ export class OpenPencilEngine implements DrawingEngine {
     }
 
     zoomTo(level: number): void {
-        const { editor } = this.mounted();
-        editor.setZoomAroundPoint(level, (this.host?.clientWidth ?? 0) / 2, (this.host?.clientHeight ?? 0) / 2);
+        this.mounted().editor.zoomToLevel(level);
     }
 
     panBy(dx: number, dy: number): void {
@@ -286,7 +283,6 @@ export class OpenPencilEngine implements DrawingEngine {
         this.canvas = null;
         this.base = null;
         this.restrictions = null;
-        this.host = null;
     }
 
     private guarded<T>(action: () => T): T {
