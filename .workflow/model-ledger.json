@@ -624,6 +624,9 @@
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T170": {
+    "built_by": "claude-sonnet-5-5"
+  },
   "T373": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
