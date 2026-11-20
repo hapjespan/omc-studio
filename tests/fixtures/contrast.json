@@ -45,5 +45,42 @@
             "background": "#0000FF",
             "text": "#FFFFFF"
         }
+    ],
+    "effectiveCases": [
+        {
+            "fill": "#171B21",
+            "opacity": 100,
+            "behind": "#FFFFFF",
+            "effective": "#171B21",
+            "text": "#FFFFFF"
+        },
+        {
+            "fill": "#171B21",
+            "opacity": 0,
+            "behind": "#FFFFFF",
+            "effective": "#FFFFFF",
+            "text": "#171B21"
+        },
+        {
+            "fill": "#000000",
+            "opacity": 50,
+            "behind": "#FFFFFF",
+            "effective": "#808080",
+            "text": "#171B21"
+        },
+        {
+            "fill": "#1E5FBF",
+            "opacity": 25,
+            "behind": "#FFFFFF",
+            "effective": "#C7D7EF",
+            "text": "#171B21"
+        },
+        {
+            "fill": "#1E5FBF",
+            "opacity": 80,
+            "behind": "#ECE8F5",
+            "effective": "#477ACA",
+            "text": "#FFFFFF"
+        }
     ]
 }
