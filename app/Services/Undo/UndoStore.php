@@ -66,6 +66,8 @@ class UndoStore
 
     public function restore(string $token, User $user): void
     {
+        $this->prune();
+
         $record = UndoRecord::query()
             ->whereKey($token)
             ->where('user_id', $user->getKey())

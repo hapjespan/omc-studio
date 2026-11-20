@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\UndoRecord;
 use App\Services\Audit\SecurityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ class SignOutController extends Controller
     public function __invoke(Request $request): RedirectResponse
     {
         SecurityLog::record('sign_out');
+
+        UndoRecord::query()->where('user_id', Auth::id())->delete();
 
         Auth::logout();
         $request->session()->invalidate();
