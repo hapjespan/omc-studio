@@ -54,7 +54,8 @@ describe('areaLine and OverlayLegend', () => {
 
     it('explains the colour scale, the bar and that list Areas carry no costs', async () => {
         const html = await renderToString(createSSRApp({ render: () => h(OverlayLegend, { overlay: 'financial', modalities: [] }) }));
-        expect(html).toContain('Aandeel van totaal laag naar hoog');
+        expect(html).toContain('Aandeel van totaal');
+        expect(html).toContain('laag naar hoog');
         expect(html).toContain('streep');
         expect(html).toContain('geen kosten');
     });

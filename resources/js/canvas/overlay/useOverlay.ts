@@ -1,11 +1,12 @@
 import { computed } from 'vue';
 import type { ComputedRef, Ref } from 'vue';
 import type { DrawnBlock, DrawnCanvas, LayoutArea, LayoutElement } from '../../layout/types';
+import { t } from '../../i18n';
 import { descendantCounts, modalityCounts } from './counts';
 import type { ModalityCounts } from './counts';
 import type { CanvasFigures, ElementFigures } from './figures';
-import { areaLine, cardLines } from './FinancialCard.vue';
-import type { CardCounts } from './FinancialCard.vue';
+import { areaParts, cardLines } from './FinancialCard.vue';
+import type { AreaParts, CardCounts } from './FinancialCard.vue';
 import { countsLine } from './ModalityOverlay.vue';
 import { shareColour } from './ShareColour';
 
@@ -32,9 +33,9 @@ export function useOverlay(input: () => OverlayInput, drawn: Ref<DrawnCanvas | n
     };
     const modalityCard = (block: DrawnBlock): ModalityCounts | null =>
         input().overlay === 'modality' && block.kind === 'domain' && !block.system && costAreas.value.has(block.areaKey) ? (domainModalities.value.get(block.id) ?? { byLetter: Object.fromEntries(input().letters.map((letter) => [letter, 0])), none: 0 }) : null;
-    const areaTotal = (block: DrawnBlock): string | null => {
+    const areaTotal = (block: DrawnBlock): AreaParts | null => {
         const { figures } = input();
-        return figures && block.kind === 'area' && costAreas.value.has(block.areaKey) && figures.areas[block.id] ? areaLine(figures.areas[block.id], figures.canvasTotal) : null;
+        return figures && block.kind === 'area' && costAreas.value.has(block.areaKey) && figures.areas[block.id] ? areaParts(figures.areas[block.id], figures.canvasTotal) : null;
     };
     const cardColours = computed(() => Object.fromEntries([...blocks.value.values()].flatMap((block) => {
         const figures = cardFigures(block);
@@ -48,7 +49,7 @@ export function useOverlay(input: () => OverlayInput, drawn: Ref<DrawnCanvas | n
             const area = areaTotal(block);
             const figures = cardFigures(block);
             if (marks) map.set(block.id, [countsLine(marks, input().letters)]);
-            else if (area) map.set(block.id, [area]);
+            else if (area) map.set(block.id, [t('overlay.area_total', { ...area })]);
             else if (figures) {
                 const lines = cardLines(figures, domainCounts.value.get(block.id) ?? NO_COUNTS, input().year);
                 map.set(block.id, lines.empty ? [lines.header, lines.empty] : [lines.total, lines.share, lines.forecast, lines.counts]);

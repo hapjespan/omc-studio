@@ -1,7 +1,7 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
-import FinancialCard, { cardLines, fitParts } from '../../../resources/js/canvas/overlay/FinancialCard.vue';
+import FinancialCard, { cardLines, countsText, fitParts } from '../../../resources/js/canvas/overlay/FinancialCard.vue';
 import type { ElementFigures, Money } from '../../../resources/js/canvas/overlay/figures';
 import { descendantCounts } from '../../../resources/js/canvas/overlay/counts';
 import { computeCanvasLayout } from '../../../resources/js/layout';
@@ -17,9 +17,15 @@ describe('cardLines', () => {
         expect(lines.total).toBe('Totaal € 1.235');
         expect(lines.header).toBe('€ 1.235 · 12,4% van totaal');
         expect(lines.share).toBe('12,4% van totaal');
-        expect(lines.forecast).toBe('Prognose € 1.100 · 89,1% van budget');
-        expect(lines.counts).toBe('Activiteiten 3 · Clusters 1');
+        expect(lines.forecast).toBe('Prognose € 1.100 · 89% van budget');
+        expect(lines.counts).toBe('3 activiteiten · 1 cluster');
         expect(lines.empty).toBeNull();
+    });
+
+    it('leaves out a zero cluster count, keeps the singular and always names the activities', () => {
+        expect(countsText({ activities: 2, clusters: 0 })).toBe('2 activiteiten');
+        expect(countsText({ activities: 1, clusters: 2 })).toBe('1 activiteit · 2 clusters');
+        expect(countsText({ activities: 0, clusters: 0 })).toBe('0 activiteiten');
     });
 
     it('says that no costs are allocated for the year', () => {
@@ -42,9 +48,19 @@ describe('FinancialCard', () => {
         const block = { ...drawn.blocks.find((candidate) => candidate.id === 'd')!, drawnHeight: 200 };
         const html = await renderToString(createSSRApp({ render: () => h(FinancialCard, { block, figures: figures(1000, 500, 1000), counts: { activities: 0, clusters: 0 }, year: 2026 }) }));
         expect(html).toContain('data-bar-fill');
-        expect(html).toContain('width:50%');
-                expect(html).toContain('€ 10 · 10,0% van totaal');
-        expect(html).toContain('max(0px, calc(100% - 2px))');
+        expect(html).toContain('width:41.666');
+        expect(html).toContain('left:83.333');
+        expect(html).not.toContain('data-bar-over');
+        expect(html).toContain('>€ 10<');
+        expect(html).toContain('>10,0% van totaal<');
+    });
+
+    it('shows the part of the forecast above the budget in the contract amber', async () => {
+        const drawn = computeCanvasLayout({ ...emptyInput(), elements: [element('d', 'primary_activities', 'domain', 'Onderwijs')] }, fakeMeasurer);
+        const block = { ...drawn.blocks.find((candidate) => candidate.id === 'd')!, drawnHeight: 200 };
+        const html = await renderToString(createSSRApp({ render: () => h(FinancialCard, { block, figures: figures(1000, 1100, 1000), counts: { activities: 0, clusters: 0 }, year: 2026 }) }));
+        expect(html).toContain('data-bar-over');
+        expect(html).toContain('#9A7811');
     });
 });
 
