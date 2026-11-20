@@ -66,6 +66,13 @@ class CsvReaderTest extends TestCase
         ], $this->read("code;naam\nLC-001;Hosting\nLC-002;Licenties\n"));
     }
 
+    public function test_it_strips_exactly_one_leading_apostrophe_before_a_formula_character(): void
+    {
+        $this->assertSame([
+            1 => ['=SOM(A1)', '+x', '-a', '@b', "''=twee", "'gewoon", "'", '='],
+        ], $this->read("'=SOM(A1);'+x;'-a;'@b;''=twee;'gewoon;';'=\n"));
+    }
+
     public function test_it_accepts_a_byte_order_mark_and_carriage_returns(): void
     {
         $this->assertSame([

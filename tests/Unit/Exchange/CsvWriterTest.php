@@ -115,7 +115,7 @@ class CsvWriterTest extends TestCase
 
         $this->assertSame(['code', 'naam', 'leverancier'], $read[0]);
         $this->assertSame(['LC-001', 'Hosting; met "quote"', "twee\nregels"], $read[1]);
-        $this->assertSame(['LC-002', "'=SOM(A1)", "'@a"], $read[2]);
+        $this->assertSame(['LC-002', '=SOM(A1)', '@a'], $read[2]);
     }
 
     public function test_it_writes_and_reads_back_five_megabytes_within_ten_seconds(): void

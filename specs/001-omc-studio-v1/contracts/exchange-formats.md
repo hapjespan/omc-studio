@@ -4,7 +4,7 @@ Headers and labels inside files are user-facing; their Dutch text lives in `lang
 
 ## CSV (FR-084)
 
-Semicolon separated; UTF-8, an optional byte order mark accepted on import; decimal comma, no thousands separator on export; double quotes around a field holding a semicolon, quote or line break; a field starting with `=`, `+`, `-`, `@`, tab or carriage return is prefixed with an apostrophe on export.
+Semicolon separated; UTF-8, an optional byte order mark accepted on import; decimal comma, no thousands separator on export; double quotes around a field holding a semicolon, quote or line break; a field starting with `=`, `+`, `-`, `@`, tab or carriage return is prefixed with an apostrophe on export, and on import exactly one leading apostrophe before such a character is removed.
 
 | File | Header (exact) | Delivery |
 |---|---|---|

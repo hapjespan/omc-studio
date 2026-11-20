@@ -1,7 +1,7 @@
 # 0043: The 10 second import limit (P-3) binds the delivered engine, PostgreSQL in CI only has a sanity limit
 
 Date: 2026-11-19
-Status: accepted (integrator choice, phase 6, after three CI runs with the PostgreSQL commit at 8.0, 8.2 and 11.4 seconds)
+Status: accepted (integrator choice, phase 6, after three CI runs with the PostgreSQL commit at 8.0, 8.2 and 11.4 seconds; confirmed by the product owner 2026-11-19)
 
 ## Decision
 
