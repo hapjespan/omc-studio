@@ -1,5 +1,5 @@
-import { defaultColours, effectiveFill } from '../../colour';
-import type { BlockStyle, DrawnBlock } from '../../layout';
+import { defaultColours, effectiveFill } from '../colour';
+import type { BlockStyle, DrawnBlock } from './types';
 
 export function backdropOf(block: DrawnBlock, blocks: Map<string, DrawnBlock>, styleOf: (id: string) => BlockStyle): string {
     const parent = block.kind === 'area' ? undefined : blocks.get(block.parentId ?? block.areaKey);

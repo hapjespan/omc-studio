@@ -2,9 +2,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
+import { backdropOf } from '../../layout/backdrop';
 import { resolveStyle } from '../../layout/resolveStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
-import { backdropOf } from './backdrop';
 import type { StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import type { BlockStyle, CanvasLayoutInput, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
@@ -95,7 +95,9 @@ const refreshBox = (): void => {
 const setStyle = (patch: StylePatch): void => {
     const result = engine.value?.setStyle(patch);
     refreshBox();
-    if (result && result.ids.length > 0) say(t('drawing_style.changed', { name: names.value.get(result.ids[0]) ?? result.ids[0] }));
+    if (!result || result.ids.length === 0) return;
+    const named = (ids: string[]) => ids.map((id) => names.value.get(id) ?? id).join(', ');
+    say(result.autoText.length > 0 ? t('drawing_style.auto_text', { names: named(result.autoText) }) : t('drawing_style.changed', { name: named(result.ids) }));
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {
     engine.value?.apply({ kind: 'setBox', id, box: values });

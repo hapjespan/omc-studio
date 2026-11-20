@@ -35,3 +35,20 @@ test('a text colour below 4.5:1 shows the ratio as text, keeps the value invalid
     await expect(page.getByText('Tekst Onderwijs: kies een tekstkleur met meer contrast, nu 1,0:1, minstens 4,5:1').first()).toBeVisible();
     await expect(page.locator('[data-announcer]')).toContainText('Tekst Onderwijs: kies een tekstkleur met meer contrast, nu 1,0:1, minstens 4,5:1');
 });
+
+test('a dark fill returns dark own text to automatic and tells the user', async ({ page }) => {
+    const layers = await openDrawing(page);
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    const fill = page.getByLabel('Vulling van Onderwijs', { exact: true });
+    await fill.fill('#FFFFFF');
+    await fill.press('Enter');
+    const text = page.getByLabel('Tekstkleur van Onderwijs', { exact: true });
+    await text.fill('#222222');
+    await text.press('Enter');
+    await expect(text).toHaveValue('#222222');
+    await fill.fill('#000000');
+    await fill.press('Enter');
+    await expect(text).toHaveValue('#FFFFFF');
+    await expect(page.locator('[data-announcer]')).toContainText('De tekstkleur van Onderwijs is weer automatisch');
+    await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
+});

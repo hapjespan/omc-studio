@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { computeCanvasLayout } from '../../../resources/js/layout';
 import { resolveStyle } from '../../../resources/js/layout/resolveStyle';
 import type { ElementStyle } from '../../../resources/js/layout';
-import { backdropOf } from '../../../resources/js/pages/Drawing/backdrop';
-import { fakeMeasurer } from '../layout/fakeMeasurer';
-import { element, withElements } from '../layout/support';
+import { backdropOf } from '../../../resources/js/layout/backdrop';
+import { fakeMeasurer } from './fakeMeasurer';
+import { element, withElements } from './support';
 
 const canvas = computeCanvasLayout(withElements([element('d', 'primary_activities', 'domain', 'Domein'), element('a', 'primary_activities', 'activity', 'Activiteit', 'd', 1)]), fakeMeasurer);
 const blocks = new Map(canvas.blocks.map((block) => [block.id, block]));

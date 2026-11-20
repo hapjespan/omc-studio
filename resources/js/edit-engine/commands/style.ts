@@ -1,5 +1,7 @@
 import type { SceneGraph } from '@open-pencil/scene-graph';
 import type { DrawnBlock, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
+import { contrastRatio, MINIMUM_CONTRAST } from '../../colour';
+import { backdropOf } from '../../layout/backdrop';
 import { resolveStyle } from '../../layout/resolveStyle';
 import { wrapText } from '../../layout/wrapText';
 import type { LayoutStyle } from '../DrawingEngine';
@@ -10,6 +12,7 @@ export type StylePatch = Record<string, string | number | boolean | null>;
 
 export interface StyleChange {
     ids: string[];
+    autoText: string[];
 }
 
 export interface StyleHooks {
@@ -70,12 +73,41 @@ export function paintBlock(selection: Selection, block: DrawnBlock, style: Layou
     );
 }
 
+const descendants = (blocks: Map<string, DrawnBlock>, roots: Set<string>): Set<string> => {
+    const found = new Set(roots);
+    for (let grew = true; grew; ) {
+        grew = false;
+        for (const block of blocks.values()) {
+            const parent = block.kind === 'area' ? null : (block.parentId ?? block.areaKey);
+            if (parent === null || !found.has(parent) || found.has(block.id)) continue;
+            found.add(block.id);
+            grew = true;
+        }
+    }
+    return found;
+};
+
 export function setStyle(selection: Selection, canvas: DrawnCanvas, patch: StylePatch, hooks: StyleHooks = {}): StyleChange {
     const blocks = new Map(canvas.blocks.map((block) => [block.id, block]));
-    const targets = selection.ids.flatMap((id) => (id === 'direction' || !blocks.has(id) ? [] : [blocks.get(id) as DrawnBlock]));
-    if (targets.length === 0) return { ids: [] };
+    const targets = selection.ids.filter((id) => id !== 'direction' && blocks.has(id));
+    if (targets.length === 0) return { ids: [], autoText: [] };
+    const { graph } = selection.editor;
+    const styles = new Map(canvas.blocks.map((block) => [block.id, storedStyle(graph, block.id)]));
+    for (const id of targets) styles.set(id, mergeStyle(styles.get(id) as LayoutStyle, patch));
+    const resolved = (id: string) => resolveStyle((blocks.get(id) as DrawnBlock).areaKey, (blocks.get(id) as DrawnBlock).kind, styles.get(id) as ElementStyle);
+    const autoText: string[] = [];
+    if ('fill' in patch || 'fill_opacity' in patch) {
+        for (const id of descendants(blocks, new Set(targets))) {
+            const own = styles.get(id)?.text_colour;
+            if (typeof own === 'string' && contrastRatio(own, backdropOf(blocks.get(id) as DrawnBlock, blocks, resolved)) < MINIMUM_CONTRAST) {
+                styles.set(id, mergeStyle(styles.get(id) as LayoutStyle, { text_colour: null }));
+                autoText.push(id);
+            }
+        }
+    }
+    const ids = [...new Set([...targets, ...autoText])];
     selection.editor.undo.runBatch('Style', () => {
-        for (const block of targets) paintBlock(selection, block, mergeStyle(storedStyle(selection.editor.graph, block.id), patch), hooks.measurer);
+        for (const id of ids) paintBlock(selection, blocks.get(id) as DrawnBlock, styles.get(id) as LayoutStyle, hooks.measurer);
     });
-    return { ids: targets.map((block) => block.id) };
+    return { ids, autoText };
 }
