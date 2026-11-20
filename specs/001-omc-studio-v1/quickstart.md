@@ -22,14 +22,18 @@ How to prove each delivery works end to end. Commands run inside the development
 
 ## Delivery 1
 
-1. Clean start (SC-001): on a machine with only Docker, `cp env.example .env` and `docker compose up -d` (the delivered stack at the root, ADR 0038; on the development machine the local `.env` points `COMPOSE_FILE` at `.devcontainer/`, and the same command starts the development container). Once the image is built, within 3 minutes `http://localhost:8080` shows "Inloggen"; `docker compose logs` shows the Administrator e-mail and one-time password once. Restart: no new password.
+The acceptance checklist is written for the product owner in Dutch, with the steps, the expected result and the evidence per kickoff criterion: [d1-acceptance.md](d1-acceptance.md). The steps below are the technical short form; recorded results of 2026-11-20 are in that file.
+
+1. Clean start (SC-001): on a machine with only Docker, `cp env.example .env` and `docker compose up -d` (the delivered stack at the root, ADR 0038; on the development machine the local `.env` points `COMPOSE_FILE` at `.devcontainer/`, and the same command starts the development container). Once the image is built, within 3 minutes `http://localhost:8080` shows "Inloggen"; `docker compose logs` shows the Administrator e-mail and one-time password once. Restart: no new password. Not run in the development container (no Docker there).
 2. Sign in, replace the password, enable the second factor, sign out and in with a code (US1, US2); a second session ends when the factor is turned on; a session older than 12 hours ends (ADR 0037).
 3. As Administrator: create a Reader, an Organisation with a logo, a Canvas from "Leeg canvas" (US5, US6, US8).
-4. Invoeren with the keyboard only: a Domain, three Activities, a Cluster, move an Activity into it through "Hangt onder", reorder with the arrows (SC-003); quick entry of 3 Domains with 15 Activities within a minute (SC-005).
+4. Invoeren with the keyboard only: a Domain, three Activities, a Cluster, move an Activity into it through "Hangt onder" (the built form of "dragging in", ADR 0036), reorder with the arrows (SC-003); quick entry of 3 Domains with 15 Activities within a minute (SC-005).
 5. Bekijken: the eight Areas on the A3 Artboard, the Unknown allocation card last in Supporting activities, zoom and "Passend maken" (US16).
 6. As Reader: only Bekijken; a direct POST to any write route returns 403 (US5.7).
 7. Logboek shows the rename with old and new value (US7).
 8. Performance dataset: `php artisan app:dev-dataset --elements=500 --cost-records=1000` (a development-only command), then the end-to-end timing suite reports p95 under 1000 ms per screen (P-1).
+9. The end-to-end of the whole flow: `npx playwright test tests/e2e/d1` (Organisation, Canvas, Invoeren, Quick entry, Koers, Bekijken, with the network, CSP and axe guards). It reloads the page once after the Canvas is created, named `workaroundGapReferrerBack` in the spec, until `[GAP referrer back()]` is decided.
+10. Refusals: `D1RefusalCoverageTest` fails when a refusal message of `lang/nl.json` has no server test; the list is [d1-refusals.md](d1-refusals.md).
 
 ## WP-E0 (after WP1)
 
