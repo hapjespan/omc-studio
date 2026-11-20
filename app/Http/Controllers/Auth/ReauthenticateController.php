@@ -38,7 +38,7 @@ class ReauthenticateController extends Controller
         $throttle = new Throttle(self::NAMESPACE);
         $identifier = (string) $user->getKey();
 
-        if ($throttle->tooManyAttempts($identifier)) {
+        if (! $throttle->claim($identifier)) {
             SecurityLog::record('reauthentication_throttled');
 
             throw ValidationException::withMessages([
@@ -82,7 +82,7 @@ class ReauthenticateController extends Controller
 
     private function refuse(Throttle $throttle, string $identifier, ValidationException $refusal): never
     {
-        $throttle->hit($identifier);
+        $throttle->fail($identifier);
         SecurityLog::record('reauthentication_failed');
 
         throw $refusal;

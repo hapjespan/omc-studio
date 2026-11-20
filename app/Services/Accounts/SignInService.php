@@ -28,7 +28,7 @@ class SignInService
     {
         $email = mb_strtolower(trim($email));
 
-        if ($this->throttle->tooManyAttempts($email)) {
+        if (! $this->throttle->claim($email)) {
             SecurityLog::record('sign_in_throttled');
 
             throw ValidationException::withMessages([
@@ -99,7 +99,7 @@ class SignInService
 
     private function refuse(string $email, string $reason): never
     {
-        $this->throttle->hit($email);
+        $this->throttle->fail($email);
         SecurityLog::record('sign_in_failed', ['reason' => $reason]);
 
         throw ValidationException::withMessages(['email' => __('auth.failed')]);

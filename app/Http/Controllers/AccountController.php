@@ -52,14 +52,6 @@ class AccountController extends Controller
         $throttle = new Throttle(self::NAMESPACE);
         $identifier = (string) $user->getKey();
 
-        if ($throttle->tooManyAttempts($identifier)) {
-            SecurityLog::record('password_change_throttled');
-
-            throw ValidationException::withMessages([
-                'current_password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
-            ]);
-        }
-
         $validated = $request->validate([
             'current_password' => ['required', 'string'],
             'password' => ['required', 'string', 'confirmed', new Password],
@@ -69,14 +61,24 @@ class AccountController extends Controller
             'password.confirmed' => __('validation.password_confirmed'),
         ]);
 
+        if (! $throttle->claim($identifier)) {
+            SecurityLog::record('password_change_throttled');
+
+            throw ValidationException::withMessages([
+                'current_password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+            ]);
+        }
+
         if (! Hash::check($validated['current_password'], (string) $user->password)) {
-            $throttle->hit($identifier);
+            $throttle->fail($identifier);
             SecurityLog::record('password_change_failed');
 
             throw ValidationException::withMessages(['current_password' => __('account.current_password_wrong')]);
         }
 
         if (Hash::check($validated['password'], (string) $user->password)) {
+            $throttle->refund($identifier);
+
             throw ValidationException::withMessages(['password' => __('account.password_reused')]);
         }
 
