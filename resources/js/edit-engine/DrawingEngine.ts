@@ -74,6 +74,7 @@ export interface DrawingEngine {
     setStyle(patch: StylePatch): StyleChange;
     copyStyle(id: string): CopiedStyle | null;
     pasteStyle(copied: CopiedStyle): StyleChange;
+    applyStyleToSiblings(id: string): StyleChange;
     canUndo(): boolean;
     canRedo(): boolean;
     onSelectionChange(listener: (ids: string[]) => void): () => void;

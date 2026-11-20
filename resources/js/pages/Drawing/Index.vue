@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { backdropOf } from '../../layout/backdrop';
 import { resolveStyle } from '../../layout/resolveStyle';
+import { applyScope } from '../../edit-engine/commands/applyStyle';
 import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import type { StyleTarget } from './StylePanel.vue';
@@ -18,6 +19,7 @@ import type { LayoutPayload } from '../../edit-engine';
 import { t } from '../../i18n';
 import { commandForKey } from '../../edit-engine/keyboard';
 import type { BoxValues, DrawingCommand } from '../../edit-engine';
+import ApplyStyleDialog from './ApplyStyleDialog.vue';
 import Announcer from './Announcer.vue';
 import ConflictDialog from './ConflictDialog.vue';
 import { SaveQueue, type SaveFailure, type SaveStatus } from './SaveQueue';
@@ -52,6 +54,8 @@ const notice = ref('');
 const box = ref<BoxValues | null>(null);
 const target = ref<StyleTarget | null>(null);
 const copied = ref<CopiedStyle | null>(null);
+const applying = ref(false);
+const scope = computed(() => (single.value && drawn.value && target.value ? applyScope(drawn.value, single.value) : null));
 const grid = ref(false);
 const saveStatus = ref<SaveStatus>('idle');
 const seen = ref<string[]>([]);
@@ -98,11 +102,13 @@ const copyStyle = (): void => {
     copied.value = single.value ? (engine.value?.copyStyle(single.value) ?? null) : null;
     if (copied.value && single.value) say(t('drawing_style.copied', { name: names.value.get(single.value) ?? single.value }));
 };
-const setStyle = (patch: StylePatch, paste = false): void => {
-    const result = paste && copied.value ? engine.value?.pasteStyle(copied.value) : engine.value?.setStyle(patch);
+const setStyle = (patch: StylePatch, mode: 'patch' | 'paste' | 'apply' = 'patch'): void => {
+    applying.value = false;
+    const result = mode === 'paste' && copied.value ? engine.value?.pasteStyle(copied.value) : mode === 'apply' && single.value ? engine.value?.applyStyleToSiblings(single.value) : engine.value?.setStyle(patch);
     refreshBox();
     if (!result || result.ids.length === 0) return;
     const named = (ids: string[]) => ids.map((id) => names.value.get(id) ?? id).join(', ');
+    if (mode === 'apply' && single.value) return say(t('drawing_style.applied', { name: names.value.get(single.value) ?? single.value, count: result.ids.length }));
     say(result.autoText.length > 0 ? t('drawing_style.auto_text', { names: named(result.autoText) }) : t('drawing_style.changed', { name: named(result.ids) }));
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {
@@ -232,6 +238,7 @@ onBeforeUnmount(() => {
     </header>
     <Header class="mt-3" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
+    <ApplyStyleDialog v-model:open="applying" :scope="scope?.scope ?? null" :count="scope?.ids.length ?? 0" :name="single ? (names.get(single) ?? '') : ''" @confirm="setStyle({}, 'apply')" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>
     <DirectionBand v-if="drawn" class="mt-3" :drawn="drawn" :statements="statements" @peek="peeked = $event" />
@@ -243,7 +250,7 @@ onBeforeUnmount(() => {
             <Announcer :message="notice" />
             <Toolbar v-model:grid="grid" :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" @box="setBox" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, true)">
+        <PropertiesPanel :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" :scope="scope?.scope ?? null" @box="setBox" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, 'paste')" @apply-style="applying = true">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>

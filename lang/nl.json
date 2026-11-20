@@ -644,5 +644,13 @@
     "drawing_style.auto_text": "De tekstkleur van :names is weer automatisch, zodat de tekst leesbaar blijft op de nieuwe vulling",
     "drawing_style.copy": "Stijl kopiëren",
     "drawing_style.paste": "Stijl plakken",
-    "drawing_style.copied": "Stijl van :name gekopieerd"
+    "drawing_style.copied": "Stijl van :name gekopieerd",
+    "drawing_style.apply_domains": "Stijl naar alle domeinen hier",
+    "drawing_style.apply_activities": "Stijl naar alle activiteiten in dit domein",
+    "drawing_style.apply_title": "Stijl van :name toepassen?",
+    "drawing_style.apply_body_domains": "De stijl van :name wordt gezet op :count andere domeinen in dit vlak. Hun plek en grootte blijven zoals ze zijn.",
+    "drawing_style.apply_body_activities": "De stijl van :name wordt gezet op :count andere activiteiten in dit domein. Hun plek en grootte blijven zoals ze zijn.",
+    "drawing_style.apply_confirm": "Stijl toepassen",
+    "drawing_style.apply_cancel": "Annuleren",
+    "drawing_style.applied": "Stijl van :name toegepast op :count andere, plek en grootte ongewijzigd"
 }
