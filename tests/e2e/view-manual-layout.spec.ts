@@ -34,6 +34,9 @@ for (const role of ['administrator', 'reader'] as const) {
         const seeded = seedManualCanvas();
         await signInAs(page, role);
         await page.goto(`/canvases/${seeded.canvas}/view`);
+        await page.locator('[data-zoom]').waitFor();
+        for (let step = 0; step < 12 && (await page.locator('[data-zoom]').innerText()) !== '100%'; step += 1) await page.getByRole('button', { name: 'Inzoomen' }).click();
+        await expect(page.locator('[data-zoom]')).toHaveText('100%');
 
         const origin = await page.locator('[data-artboard]').boundingBox();
         const boxOf = async (id: string) => {

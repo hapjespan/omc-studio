@@ -8,6 +8,7 @@ use App\Models\Organisation;
 use App\Models\SystemNotice;
 use App\Models\User;
 use App\Services\Exchange\FullExport;
+use App\Services\Snapshot\SnapshotContent;
 use App\Services\Snapshot\Snapshots;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -57,7 +58,7 @@ class FullExportTest extends CanvasExchangeTestCase
         $this->assertSame(['Voor de stuurgroep'], array_column($exported, 'name'));
         $this->assertSame($sound->checksum, $exported[0]['checksum']);
         $this->assertSame(2026, $exported[0]['fiscal_year']);
-        $this->assertSame(1, $exported[0]['content']['schema_version']);
+        $this->assertSame(SnapshotContent::SCHEMA_VERSION, $exported[0]['content']['schema_version']);
         $this->assertSame(['Tweede ronde'], SystemNotice::where('kind', 'snapshot_damaged')->get()->map(fn (SystemNotice $notice) => $notice->details['snapshot'])->all());
     }
 

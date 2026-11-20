@@ -4,8 +4,6 @@ namespace App\Services\Layout;
 
 class AutomaticWidths
 {
-    private const ARTBOARD_WIDTH = 1680;
-
     private const AREA_GAP = 12;
 
     private const AREA_PADDING = 12;
@@ -68,10 +66,10 @@ class AutomaticWidths
     public static function areaWidth(string $key): int
     {
         return match (true) {
-            $key === 'direction' => self::ARTBOARD_WIDTH,
-            $key === 'steering' || $key === 'governing' => intdiv(self::ARTBOARD_WIDTH - 3 * self::AREA_GAP, 2),
+            $key === 'direction' => Artboard::WIDTH,
+            $key === 'steering' || $key === 'governing' => intdiv(Artboard::WIDTH - 3 * self::AREA_GAP, 2),
             in_array($key, self::LIST_AREAS, true) => self::LIST_COLUMN,
-            default => self::ARTBOARD_WIDTH - self::AREA_GAP - (self::AREA_GAP + 3 * self::LIST_COLUMN + 3 * self::AREA_GAP),
+            default => Artboard::WIDTH - self::AREA_GAP - (self::AREA_GAP + 3 * self::LIST_COLUMN + 3 * self::AREA_GAP),
         };
     }
 }

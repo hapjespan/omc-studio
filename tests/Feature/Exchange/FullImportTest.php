@@ -329,7 +329,7 @@ class FullImportTest extends CanvasExchangeTestCase
             ...$data['organisations'][0]['canvases'][0]['snapshots'][0],
             'remark' => str_repeat('a', 2001),
             'fiscal_year' => 1999,
-            'schema_version' => 2,
+            'schema_version' => 99,
             'checksum' => 'kort',
             'content' => [],
             'created_at' => '2026-03-01T12:00:00',
