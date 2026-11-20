@@ -37,6 +37,7 @@ import Header from './Header.vue';
 import LayersPanel from './LayersPanel.vue';
 import PropertiesPanel from './PropertiesPanel.vue';
 import Toolbar from './Toolbar.vue';
+import { navigate, type NavigateAction } from './navigate';
 
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
@@ -386,7 +387,7 @@ onBeforeUnmount(() => {
             <div ref="host" role="group" tabindex="0" @keydown="onKey" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[70vh] min-h-[480px] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#b4bbc2_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[max(720px,calc(100vh-14rem))]" :data-state="state" :data-view="view"></div>
             <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Announcer :message="notice" />
-            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
+            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" @navigate="(action: NavigateAction) => engine && navigate(engine, action)" />
         </div>
         <PropertiesPanel v-model:grid="grid" :count="selected.length" :path="single ? pathOf(single, layout.areas, elements) : ''" :canvas-id="canvas.id" @command="command" :invalid="invalid" :refused="refused" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" :scope="scope?.scope ?? null" @box="setBox" @move="moveTo" @reset="askReset" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, 'paste')" @apply-style="applying = true">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
