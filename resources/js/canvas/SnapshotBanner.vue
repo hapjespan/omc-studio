@@ -9,9 +9,9 @@ onMounted(() => announce(text));
 </script>
 
 <template>
-    <section role="region" :aria-label="t('snap.banner_label')" class="mt-2 rounded-md border border-[#848B95] bg-[#EEF1F5] px-3 py-2 text-[13px]" data-snapshot-banner>
-        <p class="font-semibold">{{ text }}</p>
-        <p>{{ t('snap.banner_year', { year }) }}</p>
+    <section role="region" :aria-label="t('snap.banner_label')" class="mt-2 rounded-card border border-hairline bg-surface px-4 py-2.5 text-[13px]" data-snapshot-banner>
+        <p class="font-display text-[14px] font-semibold">{{ text }}</p>
+        <p class="text-[12.5px] text-secondary">{{ t('snap.banner_year', { year }) }}</p>
         <slot />
     </section>
 </template>
