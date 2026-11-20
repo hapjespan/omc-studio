@@ -1130,5 +1130,9 @@
   "T386": {
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
+  },
+  "T387": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }
