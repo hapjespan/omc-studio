@@ -69,7 +69,7 @@ class PasswordChangeTest extends TestCase
     public function test_an_empty_current_password_is_refused(): void
     {
         $this->actingAs($this->user())->put('/account/password', $this->fields(['current_password' => '']))
-            ->assertSessionHasErrors('current_password');
+            ->assertSessionHasErrors(['current_password' => __('account.current_password_required')]);
     }
 
     public function test_the_new_password_must_differ_from_the_current_one(): void
