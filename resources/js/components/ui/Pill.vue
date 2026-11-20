@@ -2,12 +2,13 @@
 import Icon from './Icon.vue';
 import type { IconName } from './icons';
 
-const props = withDefaults(defineProps<{ tone?: 'neutral' | 'warning' | 'success'; icon?: IconName }>(), { tone: 'neutral', icon: undefined });
+const props = withDefaults(defineProps<{ tone?: 'neutral' | 'warning' | 'success' | 'danger'; icon?: IconName }>(), { tone: 'neutral', icon: undefined });
 
 const tones = {
     neutral: 'border-hairline bg-surface text-secondary',
     warning: 'border-warning-soft bg-warning-soft text-warning',
     success: 'border-success-soft bg-success-soft text-success',
+    danger: 'border-danger-soft bg-danger-soft text-danger',
 };
 </script>
 

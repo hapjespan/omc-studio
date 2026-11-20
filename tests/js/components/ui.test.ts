@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createSSRApp, h } from 'vue';
+import { vi } from 'vitest';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
 import AppButton from '../../../resources/js/components/ui/AppButton.vue';
@@ -10,7 +11,15 @@ import IconButton, { ICON_BUTTON_CLASS } from '../../../resources/js/components/
 import { ICON_PATHS } from '../../../resources/js/components/ui/icons';
 import LogoMark from '../../../resources/js/components/ui/LogoMark.vue';
 import Pill from '../../../resources/js/components/ui/Pill.vue';
+import ActionMenu from '../../../resources/js/components/ui/ActionMenu.vue';
+import CheckBox from '../../../resources/js/components/ui/CheckBox.vue';
+import ChipSelect from '../../../resources/js/components/ui/ChipSelect.vue';
+import Panel from '../../../resources/js/components/ui/Panel.vue';
+import SegmentedControl from '../../../resources/js/components/ui/SegmentedControl.vue';
+import FileField from '../../../resources/js/components/fields/FileField.vue';
 import SearchField from '../../../resources/js/components/ui/SearchField.vue';
+
+vi.mock('@inertiajs/vue3', () => ({ Link: { props: ['href'], template: '<a :href="href"><slot /></a>' } }));
 
 const render = (component: object, props: Record<string, unknown> = {}, slot = '') =>
     renderToString(createSSRApp({ render: () => h(component, props, slot === '' ? undefined : { default: () => slot }) }));
@@ -122,5 +131,146 @@ describe('the reorder arrows of the tree', () => {
     it('inlines the same chevron paths as the icon component', () => {
         expect(source).toContain(`d="${ICON_PATHS['chevron-up']}"`);
         expect(source).toContain(`d="${ICON_PATHS['chevron-down']}"`);
+    });
+});
+
+describe('AppButton as a link', () => {
+    it('renders an anchor with the same classes and passes download, target and rel', async () => {
+        const link = await render(AppButton, { href: '/export', download: 'export.json', target: '_blank', rel: 'noopener' }, 'Alles exporteren');
+        const button = await render(AppButton, {}, 'Alles exporteren');
+
+        expect(link).toMatch(/^<a /);
+        expect(link).toContain('href="/export"');
+        expect(link).toContain('download="export.json"');
+        expect(link).toContain('rel="noopener"');
+        expect(link).not.toContain('type=');
+        expect(link.match(/class="([^"]*)"/)?.[1]).toBe(button.match(/class="([^"]*)"/)?.[1]);
+    });
+});
+
+describe('IconButton size', () => {
+    it('measures 36 by 36 on request', async () => {
+        const html = await render(IconButton, { label: 'Verwijderen', icon: 'close', size: 36 });
+
+        expect(html).toContain('h-control');
+        expect(html).toContain('w-control');
+        expect(html).not.toContain('h-mark');
+    });
+});
+
+describe('danger tone', () => {
+    it('colours a pill and a callout with the danger tokens', async () => {
+        expect(await render(Pill, { tone: 'danger' }, 'fout')).toContain('bg-danger-soft');
+        expect(await render(Pill, { tone: 'danger' }, 'fout')).toContain('text-danger');
+        const callout = await render(Callout, { tone: 'danger' }, 'Mislukt');
+        expect(callout).toContain('bg-danger-soft');
+        expect(callout).toContain('<svg');
+    });
+});
+
+describe('icons', () => {
+    it('has the zoom icons', () => {
+        expect(ICON_PATHS.minus).toBeTruthy();
+        expect(ICON_PATHS.fit).toBeTruthy();
+    });
+});
+
+describe('CheckBox', () => {
+    it('keeps a 16 pixel box in a 24 pixel target with the styled class', async () => {
+        const html = await render(CheckBox, { modelValue: false });
+
+        expect(html).toContain('size-6');
+        expect(html).toContain('class="check-target');
+    });
+});
+
+describe('SegmentedControl', () => {
+    const items = [{ key: 'a', label: 'Eerste', href: '/a' }, { key: 'b', label: 'Tweede', href: '/b' }];
+
+    it('renders links with aria-current and a named group', async () => {
+        const html = (await render(SegmentedControl, { items, active: 'b', label: 'Modus' })).replace(/<!--.*?-->/g, '');
+
+        expect(html).toContain('role="group"');
+        expect(html).toContain('aria-label="Modus"');
+        expect(html).toContain('h-control');
+        expect(html.match(/aria-current="page"/g)).toHaveLength(1);
+        expect(html).toMatch(/aria-current="page"[^>]*>Tweede/);
+    });
+
+    it('renders buttons with aria-pressed when the items have no href', async () => {
+        const html = (await render(SegmentedControl, { items: [{ key: 'a', label: 'Geen' }, { key: 'b', label: 'Modaliteit' }], active: 'a', label: 'Laag' })).replace(/<!--.*?-->/g, '');
+
+        expect(html).toContain('role="group"');
+        expect(html).toMatch(/aria-pressed="true"[^>]*>Geen/);
+        expect(html).toMatch(/aria-pressed="false"[^>]*>Modaliteit/);
+    });
+});
+
+describe('ChipSelect', () => {
+    it('shows the label and a native select with its options', async () => {
+        const html = await render(ChipSelect, { id: 'kind', label: 'Soort', modelValue: '', options: [{ value: '', label: 'Alle' }, { value: 'a', label: 'Eerste' }] });
+
+        expect(html).toContain('<label for="kind"');
+        expect(html).toContain('<select id="kind"');
+        expect(html).not.toContain('aria-label');
+        expect(html).toContain('border-edge');
+        expect(html).toContain('h-control');
+        expect(html).toContain('Alle');
+    });
+});
+
+describe('Panel', () => {
+    it('is white with a hairline and padding 16 or 24', async () => {
+        const small = await render(Panel, {}, 'Inhoud');
+        const large = await render(Panel, { padding: 24, heading: 'Exporteren' }, 'Inhoud');
+
+        expect(small).toContain('border-hairline');
+        expect(small).toContain('rounded-panel');
+        expect(small).toContain('p-4');
+        expect(large).toContain('p-6');
+        expect(large).toMatch(/<h2[^>]*font-display[^>]*>Exporteren<\/h2>/);
+    });
+});
+
+describe('FileField', () => {
+    it('ties label, hint and error to the native input and shows a Dutch button label', async () => {
+        const html = await render(FileField, { id: 'upload', label: 'Bestand', hint: 'Alleen JSON', error: 'Kies een bestand' });
+
+        expect(html).toContain('<label for="upload"');
+        expect(html).toContain('type="file"');
+        expect(html).toContain('aria-describedby="upload-hint upload-error"');
+        expect(html).toContain('aria-invalid="true"');
+        expect(html).toContain('Geen bestand gekozen');
+    });
+});
+
+describe('ActionMenu', () => {
+    it('renders one button with a chevron', async () => {
+        const html = await render(ActionMenu, { label: 'Meer acties', items: [{ key: 'a', label: 'Eerste' }] });
+
+        expect(html).toContain('Meer acties');
+        expect(html).toContain('<svg');
+        expect(html).toContain('aria-haspopup="menu"');
+    });
+});
+
+describe('CheckBox states in the stylesheet', () => {
+    const css = readFileSync(fileURLToPath(new URL('../../../resources/css/app.css', import.meta.url)), 'utf8');
+
+    it('greys a disabled box and keeps the marks visible in forced colours', () => {
+        expect(css).toContain('.check-target > input:disabled');
+        expect(css).toContain('var(--color-disabled)');
+        expect(css).toMatch(/@media \(forced-colors: active\)[\s\S]*HighlightText/);
+    });
+});
+
+describe('FileField with a value', () => {
+    it('shows the name of the file the parent holds and the placeholder once it is reset', async () => {
+        const held = await render(FileField, { id: 'upload', label: 'Bestand', modelValue: { name: 'export.json' } });
+        const reset = await render(FileField, { id: 'upload', label: 'Bestand', modelValue: null });
+
+        expect(held).toContain('export.json');
+        expect(held).not.toContain('Geen bestand gekozen');
+        expect(reset).toContain('Geen bestand gekozen');
     });
 });
