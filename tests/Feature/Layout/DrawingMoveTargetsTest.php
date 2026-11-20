@@ -6,6 +6,7 @@ use App\Models\Element;
 use App\Models\User;
 use App\Services\Canvas\UnknownAllocationDomain;
 use Illuminate\Testing\TestResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\Structure\StructureTestCase;
 
 class DrawingMoveTargetsTest extends StructureTestCase
@@ -112,6 +113,7 @@ class DrawingMoveTargetsTest extends StructureTestCase
         $this->move($cluster, $group)->assertUnprocessable();
     }
 
+    /** @return TestResponse<Response> */
     private function move(Element $element, Element $target): TestResponse
     {
         $this->canvas->refresh();
