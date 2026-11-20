@@ -70,8 +70,8 @@ export function layoutChanges(canvas: number): void {
     execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Canvas::whereKey(${canvas})->increment('layout_version');`], { env });
 }
 
-export function tinker(code: string): void {
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+export function tinker(code: string): string {
+    return execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env, maxBuffer: 64 * 1024 * 1024 }).toString();
 }
 
 export function seedMoveContent(): ViewCanvas {

@@ -1,4 +1,5 @@
 import { expect, expectNoAxeViolations, test } from './support/guards';
+import { ARTBOARD_WIDTH } from './support/artboard';
 import { dragTo, ACTIVITY, openDrawing, seedMoveCanvas, DOMAIN_TARGET } from './support/drawing';
 
 test('the Tekenen journey: arrange, save, reload, Bekijken equals Tekenen, axe clean in every state', async ({ page }) => {
@@ -37,9 +38,10 @@ test('the Tekenen journey: arrange, save, reload, Bekijken equals Tekenen, axe c
     await page.goto(`/canvases/${canvas.id}/view`);
     const artboard = (await page.locator('[data-artboard]').boundingBox())!;
     const block = (await page.locator('[data-block]', { has: page.getByText('Onderwijs', { exact: true }) }).first().boundingBox())!;
-    expect(Math.abs(block.x - artboard.x - (780 + 44))).toBeLessThanOrEqual(1);
-    expect(Math.abs(block.y - artboard.y - (400 + 64))).toBeLessThanOrEqual(1);
-    expect(Math.abs(block.width - 320)).toBeLessThanOrEqual(1);
+    const scale = artboard.width / ARTBOARD_WIDTH;
+    expect(Math.abs((block.x - artboard.x) / scale - (780 + 44))).toBeLessThanOrEqual(1);
+    expect(Math.abs((block.y - artboard.y) / scale - (400 + 64))).toBeLessThanOrEqual(1);
+    expect(Math.abs(block.width / scale - 320)).toBeLessThanOrEqual(1);
     await expectNoAxeViolations(page);
 });
 

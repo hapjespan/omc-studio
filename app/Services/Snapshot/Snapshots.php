@@ -76,7 +76,13 @@ class Snapshots
             return null;
         }
 
-        return json_decode($encoded, true, 512, JSON_THROW_ON_ERROR);
+        $content = $this->content->upgraded(json_decode($encoded, true, 512, JSON_THROW_ON_ERROR));
+
+        if ($content === null) {
+            $this->damaged($snapshot);
+        }
+
+        return $content;
     }
 
     public function damaged(Snapshot $snapshot): void

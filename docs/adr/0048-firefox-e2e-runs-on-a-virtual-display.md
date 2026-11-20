@@ -1,4 +1,4 @@
-# 0047: Firefox end-to-end runs on a virtual display
+# 0048: Firefox end-to-end runs on a virtual display
 
 Date: 2026-11-20
 Status: accepted

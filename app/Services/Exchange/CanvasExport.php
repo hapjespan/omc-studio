@@ -3,6 +3,7 @@
 namespace App\Services\Exchange;
 
 use App\Models\AllocationSet;
+use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\Element;
@@ -11,11 +12,14 @@ use App\Models\Modality;
 use App\Models\Organisation;
 use App\Models\Statement;
 use App\Models\YearlyFigure;
+use App\Services\Layout\LayoutSnapshot;
 use Illuminate\Support\Str;
 
 class CanvasExport
 {
     public const FORMAT = 'omc-studio-canvas';
+
+    public function __construct(private readonly LayoutSnapshot $layouts) {}
 
     /** @return array<string, mixed> */
     public function build(Canvas $canvas): array
@@ -49,7 +53,7 @@ class CanvasExport
             'name' => $canvas->name,
             'statements' => $this->statements($canvas),
             'elements' => $this->elements($canvas),
-            'layout' => null,
+            'layout' => $this->layout($canvas),
             'allocation_sets' => $this->sets($canvas, $years),
             'finalised_years' => FinalisedYear::where('canvas_id', $canvas->getKey())->get()
                 ->map(fn (FinalisedYear $year) => ['year' => $years[$year->fiscal_year_id], 'finalised_at' => $year->finalised_at->toIso8601String()])
@@ -107,6 +111,25 @@ class CanvasExport
                     'remark' => $figure->remark,
                 ])->values()->all(),
             ])->all();
+    }
+
+    /** @return ?array{areas: array<string, array<string, mixed>>, elements: array<string, array<string, mixed>>} */
+    private function layout(Canvas $canvas): ?array
+    {
+        $stored = $this->layouts->for($canvas);
+
+        if ($stored === []) {
+            return null;
+        }
+
+        $areas = array_map(fn (array $box) => array_diff_key($box, ['mode' => true]), array_intersect_key($stored, array_flip(Area::KEYS)));
+        $elements = [];
+
+        foreach (Element::where('canvas_id', $canvas->getKey())->whereNull('archived_at')->orderBy('position')->orderBy('name')->pluck('id') as $id) {
+            $elements[$id] = $stored[$id] ?? ['mode' => 'automatic'];
+        }
+
+        return ['areas' => $areas, 'elements' => $elements];
     }
 
     /** @return list<array<string, mixed>> */

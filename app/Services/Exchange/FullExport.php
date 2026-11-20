@@ -52,13 +52,13 @@ class FullExport
         $blocks = [];
 
         foreach (Snapshot::where('canvas_id', $canvas->getKey())->orderBy('id')->get() as $snapshot) {
-            $content = $this->snapshots->read($snapshot);
+            $intact = $this->snapshots->read($snapshot) !== null;
 
-            $content === null || $blocks[] = [
+            $intact && $blocks[] = [
                 ...$snapshot->only(['name', 'fiscal_year', 'remark', 'schema_version']),
                 'created_at' => $snapshot->created_at->toIso8601String(),
                 'archived_at' => $snapshot->archived_at?->toIso8601String(),
-                'content' => $content,
+                'content' => json_decode((string) $snapshot->content, true, 512, JSON_THROW_ON_ERROR),
                 'checksum' => $snapshot->checksum,
             ];
         }

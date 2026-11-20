@@ -128,9 +128,11 @@ class CanvasImportValidatorTest extends CanvasExchangeTestCase
     public function test_a_colour_outside_the_hexadecimal_form_is_reported_with_its_location(): void
     {
         $data = $this->file();
-        $data['canvas']['layout'] = ['blocks' => [['fill' => 'red']]];
+        $id = $data['canvas']['elements'][$this->indexOf($data, 'Inkoop')]['id'];
+        $every = array_fill_keys(array_column(array_filter($data['canvas']['elements'], fn (array $element) => $element['archived_at'] === null), 'id'), ['mode' => 'automatic']);
+        $data['canvas']['layout'] = ['areas' => [], 'elements' => [$id => ['mode' => 'manual', 'x' => 0, 'y' => 0, 'width' => 200, 'height' => 100, 'style' => ['fill' => 'red']]] + $every];
 
-        $this->assertErrorAt('canvas.layout.blocks[0].fill', $this->errorsOf($data));
+        $this->assertErrorAt("canvas.layout.elements.$id.style", $this->errorsOf($data));
     }
 
     public function test_a_name_taken_by_an_active_sibling_is_reported_at_the_later_element(): void
