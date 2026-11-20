@@ -116,10 +116,10 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: () => (edi
                 <caption class="sr-only">{{ title }}</caption>
                 <thead>
                     <tr>
-                        <th v-if="bulkActions?.length" scope="col" class="px-3 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input type="checkbox" class="size-4 accent-ink" :checked="allSelected" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" @change="toggleAll(($event.target as HTMLInputElement).checked)" /></label></th>
+                        <th v-if="bulkActions?.length" scope="col" class="pl-3 pr-2 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input type="checkbox" class="size-4 accent-ink" :checked="allSelected" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" @change="toggleAll(($event.target as HTMLInputElement).checked)" /></label></th>
                         <template v-for="column in columns" :key="column.key">
                             <SortHeader v-if="column.sortable" :label="column.label" :direction="directionOf(column.key)" :align="column.align" @sort="sortBy(column.key)" />
-                            <th v-else scope="col" :class="[column.align === 'right' ? 'text-right' : 'text-left', 'px-3 py-2.5 text-[11.5px] font-semibold text-secondary']">{{ column.label }}</th>
+                            <th v-else scope="col" :class="[column.align === 'right' ? 'text-right' : 'text-left', 'pl-3 pr-2 py-2.5 text-[11.5px] font-semibold text-secondary']">{{ column.label }}</th>
                         </template>
                         <th v-if="archivable" scope="col" class="sr-only">{{ t('list.restore') }}</th>
                         <th v-if="canDelete && !dock" scope="col" class="sr-only">{{ t('list.actions') }}</th>
@@ -127,18 +127,18 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: () => (edi
                 </thead>
                 <tbody>
                     <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline', dock && editing && editing !== 'new' && editing.id === row.id ? 'bg-surface shadow-[inset_2px_0_0_var(--color-ink)]' : '']">
-                        <td v-if="bulkActions?.length" class="px-3 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input v-model="selected" type="checkbox" class="size-4 accent-ink" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></label></td>
-                        <td v-for="(column, index) in columns" :key="column.key" :class="['px-3 py-2.5', index === 0 && dock ? 'min-w-40' : '', column.align === 'right' ? 'text-right' : '']">
+                        <td v-if="bulkActions?.length" class="pl-3 pr-2 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input v-model="selected" type="checkbox" class="size-4 accent-ink" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></label></td>
+                        <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock ? 'min-w-44' : '', column.align === 'right' ? 'text-right' : '']">
                             <button v-if="index === 0 && $slots.form" type="button" :class="['rounded-control text-left', dock ? 'font-semibold' : 'underline']" @click="editing = row">{{ row[column.key] }}</button>
                             <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                             <template v-else>{{ row[column.key] }}</template>
                             <span v-if="index === 0 && row.archived_at" class="ml-2 rounded-badge border border-edge px-1 text-[11.5px]">{{ t('list.archived') }}</span>
                             <p v-if="column.sub && row[column.sub]" class="text-[11.5px] text-muted">{{ row[column.sub] }}</p>
                         </td>
-                        <td v-if="archivable" class="px-3 py-2.5">
+                        <td v-if="archivable" class="pl-3 pr-2 py-2.5">
                             <AppButton v-if="row.archived_at" size="small" :aria-label="`${t('list.restore')} ${row.name}`" @click="emit('restore', row)">{{ t('list.restore') }}</AppButton>
                         </td>
-                        <td v-if="canDelete && !dock" class="px-3 py-2.5">
+                        <td v-if="canDelete && !dock" class="pl-3 pr-2 py-2.5">
                             <AppButton size="small" :aria-label="`${t('list.delete')} ${row.name}`" @click="deleting = row">{{ t('list.delete') }}</AppButton>
                         </td>
                     </tr>
