@@ -111,7 +111,7 @@ class CiWorkflowTest extends TestCase
         $commands = $this->commands('audit');
 
         $this->assertStringContainsString('composer audit', $commands);
-        $this->assertStringContainsString('npm audit --audit-level=high', $commands);
+        $this->assertStringContainsString('node scripts/check-audit.mjs', $commands);
     }
 
     public function test_the_static_checks_run(): void
