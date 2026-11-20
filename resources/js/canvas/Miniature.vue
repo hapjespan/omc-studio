@@ -9,6 +9,6 @@ const picture = computed(() => buildMiniature(props.canvas, props.width));
 
 <template>
     <svg :width="picture.width" :height="picture.height" :viewBox="`0 0 ${picture.width} ${picture.height}`" aria-hidden="true" focusable="false">
-        <rect v-for="rect in picture.rects" :key="rect.id" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" :fill="rect.fill" :stroke="rect.stroke ?? 'none'" stroke-width="0.5" />
+        <rect v-for="rect in picture.rects" :key="rect.id" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" :fill="rect.fill" :fill-opacity="rect.fillOpacity" :stroke="rect.stroke ?? 'none'" :stroke-width="rect.strokeWidth" :stroke-dasharray="rect.dashed ? '3 2' : undefined" />
     </svg>
 </template>

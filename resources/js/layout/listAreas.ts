@@ -1,3 +1,5 @@
+import { defaultColours } from '../colour';
+import { styleBackdrop } from './resolveStyle';
 import { stackOrder } from './manual';
 import { automaticStart } from './placement';
 import { AREA_HEADER, AREA_PADDING } from './arrangeAreas';
@@ -14,9 +16,10 @@ const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 
 export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, context: FlowContext): Flow {
     const blocks: DrawnBlock[] = [];
 
-    const draw = (node: TreeNode, x: number, top: number, width: number, own: ManualRect | null = null): DrawnBlock => {
+    const draw = (node: TreeNode, x: number, top: number, width: number, own: ManualRect | null = null, behind: string = context.behind ?? defaultColours.white): DrawnBlock => {
         const { element } = node;
-        const style = context.style(element, element.kind);
+        const style = context.style(element, element.kind, behind);
+        const backdrop = styleBackdrop(style, behind);
         const textLines = wrapText(element.name, width, style.font, context.measurer);
         const block: DrawnBlock = {
             id: element.id,
@@ -37,12 +40,12 @@ export function flowList(groups: TreeNode[], area: AreaKey, innerWidth: number, 
         let hanging = 0;
         for (const child of node.children) {
             const childRect = context.rect?.(child.element.id) ?? null;
-            if (childRect) hanging = Math.max(hanging, childRect.y + draw(child, x + childRect.x, top + childRect.y, childRect.width, childRect).drawnHeight);
+            if (childRect) hanging = Math.max(hanging, childRect.y + draw(child, x + childRect.x, top + childRect.y, childRect.width, childRect, backdrop).drawnHeight);
         }
         block.drawnHeight = automaticStart(block.drawnHeight, hanging);
         for (const child of node.children) {
             if (context.rect?.(child.element.id)) continue;
-            const item = draw(child, x + ITEM_INDENT, top + block.drawnHeight + ITEM_GAP, width - ITEM_INDENT);
+            const item = draw(child, x + ITEM_INDENT, top + block.drawnHeight + ITEM_GAP, width - ITEM_INDENT, null, backdrop);
             block.drawnHeight += ITEM_GAP + item.drawnHeight;
         }
         block.drawnHeight = Math.max(block.drawnHeight, own?.height ?? 0);

@@ -3,11 +3,11 @@ import { createDefaultEditorState, createEditor, type Editor } from '@open-penci
 import type { SceneGraph } from '@open-pencil/scene-graph';
 import wasmUrl from 'canvaskit-wasm/bin/canvaskit.wasm?url';
 import { createApp, h, reactive, type App } from 'vue';
-import type { DrawnCanvas } from '../layout';
+import type { DrawnCanvas, TextMeasurer } from '../layout';
 import { bundledIcons, closeNetworkBoundary } from './boundary';
 import DrawingSurface from './DrawingSurface.vue';
 import { loadFace, registerFonts } from './fonts';
-import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, LayoutRect, MountOptions, ShiftVerdictEvent } from './DrawingEngine';
+import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, LayoutRect, LayoutStyle, MountOptions, ShiftVerdictEvent } from './DrawingEngine';
 import { MoveHistory } from './moveHistory';
 import { attachShiftMove, type ShiftMoveHandle } from './shiftGesture';
 import { buildMoveModel } from './shiftMove';
@@ -15,7 +15,10 @@ import { toPayload } from './payload';
 import { align, distribute, equalSize } from './commands/align';
 import { snapChanges } from './commands/grid';
 import { backward, forward, stackOrders } from './commands/order';
-import { restrict } from './restrictions';
+import { restrict, type Restrictions } from './restrictions';
+import { applyStyleToSiblings } from './commands/applyStyle';
+import { copyStyle, pasteStyle, type CopiedStyle } from './commands/pasteStyle';
+import { setStyle, storedStyle, styleData, type StyleChange, type StylePatch } from './commands/style';
 import { boxOf, nudge, resizeBy, setBox } from './transform';
 import { ARTBOARD_ID, buildScene, readPlaces, TEXT_SUFFIX } from './scene';
 import { keepSelectable, watchSelection } from './selection';
@@ -28,6 +31,8 @@ export class OpenPencilEngine implements DrawingEngine {
     private graph: SceneGraph | null = null;
     private canvas: DrawnCanvas | null = null;
     private base: LayoutPayload | null = null;
+    private restrictions: Restrictions | null = null;
+    private measurer: TextMeasurer | undefined;
     private app: App | null = null;
     private grid = false;
     private readonly sized = new Set<string>();
@@ -45,6 +50,10 @@ export class OpenPencilEngine implements DrawingEngine {
         await getCanvasKit({ locateFile: () => wasmUrl });
         await registerFonts();
         const graph = buildScene(scene);
+        for (const block of scene.blocks) {
+            const style = options.layout.areas[block.id]?.style ?? (options.layout.elements[block.id]?.mode === 'manual' ? (options.layout.elements[block.id] as { style?: LayoutStyle }).style : undefined);
+            if (style) graph.updateNode(block.id, { pluginData: styleData(style) });
+        }
         const page = graph.getPages()[0];
         const editor = createEditor({
             graph,
@@ -60,8 +69,10 @@ export class OpenPencilEngine implements DrawingEngine {
         this.onPushBack = options.onPushBack;
         this.editor = editor;
         const locked = [DIRECTION_ID];
-        const restrictions = restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid });
-        this.stops.push(restrictions.release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
+        this.restrictions = restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid });
+        this.measurer = options.measurer;
+        this.stops.push(this.restrictions.release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
+        const restrictions = this.restrictions;
         this.watch(editor, graph, scene);
         await new Promise<void>((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('The drawing surface did not become ready.')), READY_TIMEOUT);
@@ -96,7 +107,7 @@ export class OpenPencilEngine implements DrawingEngine {
     getLayout(): LayoutPayload {
         const { base, canvas, graph } = this.mounted();
         const { editor } = this.mounted();
-        return toPayload(base, canvas, readPlaces(graph, canvas, this.sized), stackOrders(editor, [...this.reordered], (id) => id.endsWith(TEXT_SUFFIX), (id) => this.moved.has(id) || base.elements[id]?.mode === 'manual' || id in base.areas));
+        return toPayload(base, canvas, readPlaces(graph, canvas, this.sized), stackOrders(editor, [...this.reordered], (id) => id.endsWith(TEXT_SUFFIX), (id) => this.moved.has(id) || base.elements[id]?.mode === 'manual' || id in base.areas), new Map(canvas.blocks.map((block) => [block.id, storedStyle(graph, block.id)])));
     }
 
     getSelection(): string[] {
@@ -160,6 +171,33 @@ export class OpenPencilEngine implements DrawingEngine {
         }
     }
 
+    setStyle(patch: StylePatch): StyleChange {
+        const { editor, canvas } = this.mounted();
+        const result = this.guarded(() => setStyle({ editor, ids: [...editor.state.selectedIds] }, canvas, patch, { measurer: this.measurer }));
+        return result;
+    }
+
+    pasteStyle(copied: CopiedStyle): StyleChange {
+        const { editor, canvas } = this.mounted();
+        const result = this.guarded(() => pasteStyle({ editor, ids: [...editor.state.selectedIds] }, canvas, copied, { measurer: this.measurer }));
+        return result;
+    }
+
+    applyStyleToSiblings(id: string): StyleChange {
+        const { editor, canvas } = this.mounted();
+        const result = this.guarded(() => applyStyleToSiblings({ editor, ids: [] }, canvas, id, { measurer: this.measurer }));
+        return result;
+    }
+
+    copyStyle(id: string): CopiedStyle | null {
+        const { graph, canvas } = this.mounted();
+        return copyStyle(graph, canvas, id);
+    }
+
+    getStyle(id: string): LayoutStyle {
+        return storedStyle(this.mounted().graph, id);
+    }
+
     getBox(id: string): BoxValues | null {
         return boxOf(this.mounted().editor, id);
     }
@@ -196,11 +234,11 @@ export class OpenPencilEngine implements DrawingEngine {
     }
 
     undo(): void {
-        this.mounted().editor.undoAction();
+        this.guarded(() => this.mounted().editor.undoAction());
     }
 
     redo(): void {
-        this.mounted().editor.redoAction();
+        this.guarded(() => this.mounted().editor.redoAction());
     }
 
     zoomToFit(): void {
@@ -236,6 +274,11 @@ export class OpenPencilEngine implements DrawingEngine {
         this.graph = null;
         this.canvas = null;
         this.base = null;
+        this.restrictions = null;
+    }
+
+    private guarded<T>(action: () => T): T {
+        return this.restrictions ? this.restrictions.privileged(action) : action();
     }
 
     private mounted() {

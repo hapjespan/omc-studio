@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { blockPadding } from '../layout/padding';
+import { withOpacity } from '../colour';
+import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -18,12 +19,15 @@ const box = (): Record<string, string> => {
         width: `${block.width}px`,
         height: `${block.drawnHeight}px`,
         zIndex: String(block.z + 1),
-        background: props.colour?.background ?? block.style.fill ?? 'transparent',
-        border: border ? `1px solid ${border}` : '0',
+        background: props.colour?.background ?? (block.style.fill ? withOpacity(block.style.fill, block.style.fillOpacity) : 'transparent'),
+        border: border ? `${block.style.border ? block.style.borderWidth : 1}px ${block.style.border && block.style.borderStyle === 'dashed' ? 'dashed' : 'solid'} ${border}` : '0',
+        textAlign: block.style.alignHorizontal,
+        justifyContent: { top: 'flex-start', middle: 'center', bottom: 'flex-end' }[block.style.alignVertical],
+        fontStyle: block.style.font.italic ? 'italic' : 'normal',
         borderRadius: `${block.style.radius}px`,
         color: props.colour?.text ?? block.style.textColour,
         letterSpacing: block.style.font.tracking ? `${block.style.font.tracking}em` : 'normal',
-        padding: `${y}px ${x}px`,
+        padding: `${y}px ${x + (block.modality ? MODALITY_BADGE : 0)}px ${y}px ${x}px`,
         fontFamily: `"${block.style.font.family}"`,
         fontSize: `${block.style.font.size}px`,
         fontWeight: String(block.style.font.weight),

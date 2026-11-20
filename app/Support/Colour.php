@@ -36,6 +36,11 @@ class Colour
         return (max($values) + 0.05) / (min($values) + 0.05);
     }
 
+    public static function ratioLabel(float $ratio): string
+    {
+        return number_format(floor($ratio * 10) / 10, 1, ',', '');
+    }
+
     /** @return list<array{background: string, text: string}> */
     public static function defaultPairs(): array
     {
