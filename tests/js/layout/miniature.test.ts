@@ -33,6 +33,35 @@ describe('buildMiniature', () => {
     });
 });
 
+describe('buildMiniature from a stored Layout', () => {
+    const stored = computeCanvasLayout(
+        {
+            ...withElements([element('d', 'primary_activities', 'domain', 'Onderwijs'), element('e', 'primary_activities', 'domain', 'Zorg', null, 2)]),
+            layouts: {
+                primary_activities: { mode: 'manual', x: 560, y: 400, width: 1100, height: 380, z: 0 },
+                d: { mode: 'manual', x: 16, y: 48, width: 300, height: 200, z: 5, style: { fill: '#112233' } },
+                e: { mode: 'manual', x: 100, y: 100, width: 300, height: 200, z: 2 },
+            },
+        },
+        fakeMeasurer,
+    );
+
+    it('follows the stored places, sizes and colours', () => {
+        const { rects } = buildMiniature(stored, 840);
+        const area = rects.find((rect) => rect.id === 'primary_activities')!;
+        const domain = rects.find((rect) => rect.id === 'd')!;
+        expect([area.x, area.y, area.width, area.height]).toEqual([280, 200, 550, 190]);
+        expect([domain.x, domain.y, domain.width, domain.height]).toEqual([288, 224, 150, 100]);
+        expect(domain.fill).toBe('#112233');
+    });
+
+    it('draws in z order', () => {
+        const ids = buildMiniature(stored, 840).rects.map((rect) => rect.id);
+        expect(ids.indexOf('e')).toBeLessThan(ids.indexOf('d'));
+        expect(ids.indexOf('primary_activities')).toBeLessThan(ids.indexOf('e'));
+    });
+});
+
 describe('Miniature', () => {
     it('is hidden from assistive technology and holds no text', async () => {
         const html = await renderToString(createSSRApp({ render: () => h(Miniature, { canvas: drawn }) }));

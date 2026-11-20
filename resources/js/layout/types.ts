@@ -58,12 +58,25 @@ export interface ElementStyle {
     textColour?: string;
 }
 
+export interface ManualRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    z: number;
+}
+
+export interface ElementLayout extends Partial<ManualRect> {
+    mode?: 'manual' | 'automatic';
+    style?: ElementStyle;
+}
+
 export interface CanvasLayoutInput {
     areas: LayoutArea[];
     elements: LayoutElement[];
     statements: LayoutStatement[];
     directionLabels: { mission: string; vision: string; goals: string };
-    layouts?: Record<string, { style?: ElementStyle }>;
+    layouts?: Record<string, ElementLayout>;
 }
 
 export interface BlockStyle {
@@ -113,6 +126,7 @@ export type LayoutWarning =
     | { kind: 'emptyCluster'; id: string; name: string; area: AreaKey }
     | { kind: 'domainWithoutActivities'; id: string; name: string; area: AreaKey }
     | { kind: 'beyondArtboard'; id: string; name: string; area: AreaKey }
+    | { kind: 'overlap'; id: string; name: string; otherId: string; other: string; area: AreaKey }
     | { kind: 'directionTextCut'; column: DirectionColumnKey };
 
 export interface DrawnCanvas {
