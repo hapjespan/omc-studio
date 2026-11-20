@@ -2,8 +2,14 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
+import { backdropOf, behindOf } from '../../layout/backdrop';
+import { resolveStyle } from '../../layout/resolveStyle';
+import { applyScope } from '../../layout/styleScope';
+import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
+import type { StylePatch } from '../../edit-engine/commands/style';
+import type { StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { CanvasLayoutInput, DrawnCanvas, TextMeasurer } from '../../layout';
+import type { BlockStyle, CanvasLayoutInput, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
 import { modeSwitchPlacement } from '../../shell/modes';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
@@ -13,6 +19,7 @@ import type { LayoutPayload } from '../../edit-engine';
 import { t } from '../../i18n';
 import { commandForKey } from '../../edit-engine/keyboard';
 import type { BoxValues, DrawingCommand } from '../../edit-engine';
+import ApplyStyleDialog from './ApplyStyleDialog.vue';
 import Announcer from './Announcer.vue';
 import DragLabel from './DragLabel.vue';
 import MoveDialog from './MoveDialog.vue';
@@ -55,6 +62,10 @@ const peeked = ref<string | null>(null);
 const hint = ref('');
 const notice = ref('');
 const box = ref<BoxValues | null>(null);
+const target = ref<StyleTarget | null>(null);
+const copied = ref<CopiedStyle | null>(null);
+const applying = ref(false);
+const scope = computed(() => (single.value && drawn.value && target.value ? applyScope(drawn.value, single.value) : null));
 const grid = ref(false);
 const saveStatus = ref<SaveStatus>('idle');
 const seen = ref<string[]>([]);
@@ -128,6 +139,25 @@ const moveTo = (targetId: string, opener: HTMLElement | null): void => {
 };
 const refreshBox = (): void => {
     box.value = single.value ? (engine.value?.getBox(single.value) ?? null) : null;
+    const blocks = new Map((drawn.value?.blocks ?? []).map((candidate) => [candidate.id, candidate]));
+    const block = single.value ? blocks.get(single.value) : undefined;
+    const live = engine.value;
+    const styleOf = (id: string): BlockStyle => resolveStyle(blocks.get(id)!.areaKey, blocks.get(id)!.kind, (live?.getStyle(id) ?? {}) as ElementStyle);
+    target.value = block && block.areaKey !== 'direction' && live ? { kind: block.kind, resolved: resolveStyle(block.areaKey, block.kind, (live.getStyle(block.id) ?? {}) as ElementStyle, behindOf(block, blocks, styleOf)), backdrop: backdropOf(block, blocks, styleOf) } : null;
+};
+const copyStyle = (): void => {
+    copied.value = single.value ? (engine.value?.copyStyle(single.value) ?? null) : null;
+    if (copied.value && single.value) say(t('drawing_style.copied', { name: names.value.get(single.value) ?? single.value }));
+};
+const setStyle = (patch: StylePatch, mode: 'patch' | 'paste' | 'apply' = 'patch'): void => {
+    applying.value = false;
+    const count = scope.value?.ids.length ?? 0;
+    const result = mode === 'paste' && copied.value ? engine.value?.pasteStyle(copied.value) : mode === 'apply' && single.value ? engine.value?.applyStyleToSiblings(single.value) : engine.value?.setStyle(patch);
+    refreshBox();
+    if (!result || result.ids.length === 0) return;
+    const named = (ids: string[]) => ids.map((id) => names.value.get(id) ?? id).join(', ');
+    if (mode === 'apply' && single.value) return say(t('drawing_style.applied', { name: names.value.get(single.value) ?? single.value, count }) + (result.autoText.length > 0 ? `. ${t('drawing_style.auto_text', { names: named(result.autoText) })}` : ''));
+    say(result.autoText.length > 0 ? t('drawing_style.auto_text', { names: named(result.autoText) }) : t('drawing_style.changed', { name: named(result.ids) }));
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {
     invalid.value = null;
@@ -202,7 +232,7 @@ async function start(payload: LayoutPayload): Promise<void> {
         drawn.value = computed;
         const { createDrawingEngine } = await import('../../edit-engine');
         created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, computed, { layout: payload, structure: { areas: props.layout.areas, elements: props.elements }, onMoveRefused: (reason, target) => say(`${t('drawing.drag_refused', { reason: t(`drawing.refusal_${reason}`) })} (${target})`), onTextAttempt: showHint, onPushBack: (ids) => say(t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
+        await created.mount(host.value as HTMLElement, computed, { layout: payload, measurer: measurer ?? undefined, structure: { areas: props.layout.areas, elements: props.elements }, onMoveRefused: (reason, target) => say(`${t('drawing.drag_refused', { reason: t(`drawing.refusal_${reason}`) })} (${target})`), onTextAttempt: showHint, onPushBack: (ids) => say(t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })) });
         if (unmounted) return release();
         created.zoomToFit();
         created.setTool(tool.value);
@@ -366,6 +396,7 @@ onBeforeUnmount(() => {
     <ResetDialogs :scope="resetScope" :name="resetName" :count="resetCount" @confirm="performReset" @cancel="resetScope = null" />
     <MoveDialog :open="moveFlow.pending.value !== null" :busy="moveFlow.busy.value" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
+    <ApplyStyleDialog v-model:open="applying" :scope="scope?.scope ?? null" :count="scope?.ids.length ?? 0" :name="single ? (names.get(single) ?? '') : ''" @confirm="setStyle({}, 'apply')" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>
     <DirectionBand v-if="drawn" :class="cut ? 'mt-3' : 'sr-only'" :drawn="drawn" :statements="statements" @peek="peeked = $event" />
@@ -377,7 +408,7 @@ onBeforeUnmount(() => {
             <Announcer :message="notice" />
             <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel v-model:grid="grid" :count="selected.length" :path="single ? pathOf(single, layout.areas, elements) : ''" :canvas-id="canvas.id" @command="command" :invalid="invalid" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" @box="setBox" @move="moveTo" @reset="askReset">
+        <PropertiesPanel v-model:grid="grid" :count="selected.length" :path="single ? pathOf(single, layout.areas, elements) : ''" :canvas-id="canvas.id" @command="command" :invalid="invalid" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" :scope="scope?.scope ?? null" @box="setBox" @move="moveTo" @reset="askReset" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, 'paste')" @apply-style="applying = true">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>

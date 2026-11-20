@@ -269,7 +269,7 @@ class LayoutValidator
             return [];
         }
 
-        return [$this->refusal('contrast', $element, ['name' => $name, 'ratio' => number_format(floor($ratio * 10) / 10, 1, ',', '')])];
+        return [$this->refusal('contrast', $element, ['name' => $name, 'ratio' => Colour::ratioLabel($ratio)])];
     }
 
     /**
