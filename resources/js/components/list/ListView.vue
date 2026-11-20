@@ -128,7 +128,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: () => (edi
                 <tbody>
                     <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline', dock && editing && editing !== 'new' && editing.id === row.id ? 'bg-surface shadow-[inset_2px_0_0_var(--color-ink)]' : '']">
                         <td v-if="bulkActions?.length" class="pl-3 pr-2 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input v-model="selected" type="checkbox" class="size-4 accent-ink" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></label></td>
-                        <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock ? 'min-w-44' : '', column.align === 'right' ? 'text-right' : '']">
+                        <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock ? 'min-w-40' : '', column.align === 'right' ? 'text-right' : '']">
                             <button v-if="index === 0 && $slots.form" type="button" :class="['rounded-control text-left', dock ? 'font-semibold' : 'underline']" @click="editing = row">{{ row[column.key] }}</button>
                             <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                             <template v-else>{{ row[column.key] }}</template>
