@@ -109,7 +109,7 @@ class SessionLifetimeTest extends TestCase
 
     public function test_the_absolute_end_is_written_to_the_security_log_without_the_address(): void
     {
-        $log = storage_path('logs/security-'.now()->format('Y-m-d').'.log');
+        $log = storage_path('logs/security-'.date('Y-m-d').'.log');
         File::delete($log);
 
         $this->signedInAt('-13 hours', User::factory()->create(['email' => 'reader@example.test']))->get('/probe');
