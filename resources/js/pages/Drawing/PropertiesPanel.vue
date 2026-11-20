@@ -11,7 +11,7 @@ import { routes } from '../../routes';
 import type { BoxValues } from '../../edit-engine';
 import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
-import StylePanel, { type StyleTarget } from './StylePanel.vue';
+import StylePanel, { type StyleRefusal, type StyleTarget } from './StylePanel.vue';
 import TextStylePanel from './TextStylePanel.vue';
 
 export interface InvalidValue {
@@ -21,7 +21,7 @@ export interface InvalidValue {
     message: string;
 }
 
-const props = defineProps<{ id: string | null; name: string; box: BoxValues | null; targets: MoveTarget[]; invalid: InvalidValue | null; domain: boolean; count: number; path: string; canvasId: number; target?: StyleTarget | null; copied?: CopiedStyle | null; scope?: 'domains' | 'activities' | null }>();
+const props = defineProps<{ id: string | null; name: string; box: BoxValues | null; targets: MoveTarget[]; invalid: InvalidValue | null; domain: boolean; count: number; path: string; canvasId: number; target?: StyleTarget | null; copied?: CopiedStyle | null; scope?: 'domains' | 'activities' | null; refused?: StyleRefusal | null }>();
 const grid = defineModel<boolean>('grid', { default: false });
 const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>]; move: [targetId: string, opener: HTMLElement | null]; reset: [scope: 'element' | 'domain']; command: [command: DrawingCommand]; style: [patch: StylePatch]; copyStyle: []; pasteStyle: []; applyStyle: [] }>();
 const chosen = ref('');
@@ -80,8 +80,8 @@ function commit(key: (typeof keys)[number]): void {
                 </div>
             </div>
         </form>
-        <StylePanel v-if="id && target" :id="id" :name="name" :target="target" :copied="copied ?? null" :scope="scope ?? null" @style="emit('style', $event)" @copy="emit('copyStyle')" @paste="emit('pasteStyle')" @apply="emit('applyStyle')" />
-        <TextStylePanel v-if="id && target && target.kind !== 'area'" :id="id" :name="name" :target="target" @style="emit('style', $event)" />
+        <StylePanel v-if="id && target" :key="id" :id="id" :name="name" :target="target" :copied="copied ?? null" :scope="scope ?? null" :refused="refused ?? null" @style="emit('style', $event)" @copy="emit('copyStyle')" @paste="emit('pasteStyle')" @apply="emit('applyStyle')" />
+        <TextStylePanel v-if="id && target && target.kind !== 'area'" :key="id" :id="id" :name="name" :target="target" :refused="refused ?? null" @style="emit('style', $event)" />
         <div v-if="count > 0" class="mt-3 flex flex-col gap-2" data-arrange>
             <div class="flex flex-wrap gap-2">
                 <AppButton size="dense" :disabled="count < 2" @click="emit('command', { kind: 'equalWidth' })">{{ t('drawing.equal_width') }}</AppButton>

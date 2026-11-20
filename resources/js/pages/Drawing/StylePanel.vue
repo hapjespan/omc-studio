@@ -9,13 +9,20 @@ import { t } from '../../i18n';
 import type { BlockStyle } from '../../layout';
 import ColourField from './ColourField.vue';
 
+export interface StyleRefusal {
+    id: string;
+    key: string;
+    value: string;
+    message: string;
+}
+
 export interface StyleTarget {
     kind: 'area' | 'domain' | 'cluster' | 'activity';
     resolved: BlockStyle;
     backdrop: string;
 }
 
-const props = defineProps<{ id: string; name: string; target: StyleTarget; copied: CopiedStyle | null; scope: 'domains' | 'activities' | null }>();
+const props = defineProps<{ id: string; name: string; target: StyleTarget; copied: CopiedStyle | null; scope: 'domains' | 'activities' | null; refused?: StyleRefusal | null }>();
 const emit = defineEmits<{ style: [patch: StylePatch]; copy: []; paste: []; apply: [] }>();
 
 const RANGES = {
@@ -72,6 +79,7 @@ const borderStyles = [
             :swatch-label="t('drawing_style.fill_swatch', { name })"
             :value="target.resolved.fill ?? ''"
             :invalid-message="t('layout.style.fill', { name })"
+            :refused="refused?.key === 'fill' ? refused : null"
             @commit="colour('fill', $event)"
         />
         <TextField id="style-fill-opacity" v-model="numbers.fill_opacity" type="number" :label="t('drawing_style.fill_opacity_of', { name })" :error="errors.fill_opacity" @change="commitNumber('fill_opacity')" />
@@ -82,6 +90,7 @@ const borderStyles = [
             :swatch-label="t('drawing_style.border_swatch', { name })"
             :value="target.resolved.borderColour"
             :invalid-message="t('layout.style.border_colour', { name })"
+            :refused="refused?.key === 'border_colour' ? refused : null"
             @commit="colour('border_colour', $event)"
         />
         <div class="flex flex-col gap-3">
