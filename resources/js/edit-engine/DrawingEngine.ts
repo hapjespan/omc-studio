@@ -49,11 +49,24 @@ export interface MountOptions {
     onMoveRefused?: (reason: RefusalReason, targetName: string) => void;
 }
 
-export interface MoveIntent {
+export interface PlacedMove {
     kind: 'move';
     elementId: string;
     targetId: string;
     layout: LayoutRect;
+}
+
+export type MoveOrigin = 'drag' | 'panel' | 'undo' | 'redo';
+
+export type MoveCommitMode = 'new' | 'undo' | 'redo';
+
+export interface MoveIntent {
+    kind: 'move';
+    elementId: string;
+    targetId: string;
+    layout: LayoutRect | null;
+    position?: number;
+    origin: MoveOrigin;
 }
 
 export type FinishedAction = { kind: 'layout'; ids: string[] } | MoveIntent;
@@ -81,8 +94,10 @@ export type DrawingCommand =
     | { kind: 'applyStyleToSiblings' }
     | { kind: 'resetToAutomatic'; scope: 'element' | 'domain' }
     | { kind: 'previewMove'; elementId: string; targetId: string }
-    | { kind: 'commitMove'; elementId: string; targetId: string; layout: LayoutRect }
-    | { kind: 'revertMove'; elementId: string };
+    | { kind: 'commitMove'; elementId: string; targetId: string; layout: LayoutRect | null; mode: MoveCommitMode }
+    | { kind: 'revertMove'; elementId: string }
+    | { kind: 'cancelMoveHistory'; direction: 'undo' | 'redo' }
+    | { kind: 'clearHistory' };
 
 export interface DrawingEngine {
     mount(element: HTMLElement, scene: DrawnCanvas, options: MountOptions): Promise<void>;

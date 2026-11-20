@@ -1,6 +1,6 @@
 import type { Editor } from '@open-pencil/core/editor';
 import type { SceneGraph } from '@open-pencil/scene-graph';
-import type { MoveIntent, MoveVerdict, RefusalReason, ShiftVerdictEvent } from './DrawingEngine';
+import type { MoveVerdict, PlacedMove, RefusalReason, ShiftVerdictEvent } from './DrawingEngine';
 import type { Restrictions } from './restrictions';
 import { ARTBOARD_ID, TEXT_SUFFIX } from './scene';
 import { innermostAt, judge, landing, type MoveModel, type Point } from './shiftMove';
@@ -34,6 +34,10 @@ export class MovePlacement {
         });
     }
 
+    former(): SavedPlace | null {
+        return this.saved;
+    }
+
     capture(elementId: string): SavedPlace | null {
         const node = this.graph.getNode(elementId);
         const parent = node?.parentId ? this.graph.getNode(node.parentId) : null;
@@ -49,7 +53,7 @@ export class MovePlacement {
         });
     }
 
-    previewMove(elementId: string, targetId: string, topLeft?: Point): MoveIntent | null {
+    previewMove(elementId: string, targetId: string, topLeft?: Point): PlacedMove | null {
         const model = this.model();
         const target = model.find((block) => block.id === targetId);
         const place = this.capture(elementId);
@@ -83,14 +87,13 @@ export interface ShiftMoveOptions {
     restrictions: Restrictions;
     canvas: HTMLCanvasElement;
     model: MoveModel;
-    onIntent: (intent: MoveIntent) => void;
+    onIntent: (move: PlacedMove) => void;
     onRefusal?: (reason: RefusalReason, targetName: string) => void;
 }
 
 export interface ShiftMoveHandle {
+    placement: MovePlacement;
     onVerdict(listener: (event: ShiftVerdictEvent | null) => void): () => void;
-    previewMove(elementId: string, targetId: string, topLeft?: Point): MoveIntent | null;
-    revert(elementId: string): void;
     detach(): void;
 }
 
@@ -196,12 +199,11 @@ export function attachShiftMove(options: ShiftMoveOptions): ShiftMoveHandle {
     for (const [name, handler] of handlers) window.addEventListener(name, handler as EventListener, { capture: true });
 
     return {
+        placement,
         onVerdict(listener: (event: ShiftVerdictEvent | null) => void): () => void {
             listeners.add(listener);
             return () => listeners.delete(listener);
         },
-        previewMove: (elementId: string, targetId: string, topLeft?: Point) => placement.previewMove(elementId, targetId, topLeft),
-        revert: (elementId: string) => placement.revert(elementId),
         detach: () => {
             for (const [name, handler] of handlers) window.removeEventListener(name, handler as EventListener, { capture: true });
             editor.setDropTarget = setDropTarget;

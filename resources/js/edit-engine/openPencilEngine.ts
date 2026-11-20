@@ -7,7 +7,8 @@ import type { DrawnCanvas } from '../layout';
 import { bundledIcons, closeNetworkBoundary } from './boundary';
 import DrawingSurface from './DrawingSurface.vue';
 import { loadFace, registerFonts } from './fonts';
-import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions, ShiftVerdictEvent } from './DrawingEngine';
+import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, LayoutRect, MountOptions, ShiftVerdictEvent } from './DrawingEngine';
+import { MoveHistory } from './moveHistory';
 import { attachShiftMove, type ShiftMoveHandle } from './shiftGesture';
 import { buildMoveModel } from './shiftMove';
 import { toPayload } from './payload';
@@ -35,6 +36,7 @@ export class OpenPencilEngine implements DrawingEngine {
     private readonly moved = new Set<string>();
     private onPushBack: ((ids: string[]) => void) | undefined;
     private shiftMove: ShiftMoveHandle | null = null;
+    private history: MoveHistory | null = null;
     private readonly listeners = new Set<(change: FinishedAction) => void>();
     private readonly stops: (() => void)[] = [];
 
@@ -83,11 +85,10 @@ export class OpenPencilEngine implements DrawingEngine {
                 restrictions,
                 canvas: surface,
                 model: buildMoveModel(scene, options.structure),
-                onIntent: (intent) => {
-                    for (const listener of this.listeners) listener(intent);
-                },
+                onIntent: (move) => this.history?.dragged(move),
                 onRefusal: options.onMoveRefused,
             });
+            this.history = new MoveHistory(editor, this.shiftMove.placement, (id) => this.manualLayout(id), (intent) => this.tell(intent));
             this.stops.push(this.shiftMove.detach);
         }
     }
@@ -144,6 +145,16 @@ export class OpenPencilEngine implements DrawingEngine {
                 return this.reorder(selection, forward);
             case 'sendBackward':
                 return this.reorder(selection, backward);
+            case 'previewMove':
+                return this.moves().previewMove(command.elementId, command.targetId);
+            case 'commitMove':
+                return this.moves().commitMove(command.elementId, command.targetId, command.layout, command.mode);
+            case 'revertMove':
+                return this.moves().revertMove(command.elementId);
+            case 'cancelMoveHistory':
+                return this.moves().cancel(command.direction);
+            case 'clearHistory':
+                return this.moves().clear();
             default:
                 throw new Error(`The drawing command ${command.kind} is not built yet.`);
         }
@@ -159,6 +170,20 @@ export class OpenPencilEngine implements DrawingEngine {
 
     canRedo(): boolean {
         return this.mounted().editor.undo.canRedo;
+    }
+
+    private moves(): MoveHistory {
+        if (!this.history) throw new Error('The drawing engine was mounted without the structure the move needs.');
+        return this.history;
+    }
+
+    private manualLayout(id: string): LayoutRect | null {
+        const entry = this.getLayout().elements[id];
+        return entry?.mode === 'manual' ? { x: entry.x, y: entry.y, width: entry.width, height: entry.height, z: entry.z } : null;
+    }
+
+    private tell(change: FinishedAction): void {
+        for (const listener of this.listeners) listener(change);
     }
 
     private reorder(selection: { editor: Editor; ids: string[] }, command: (selection: { editor: Editor; ids: string[] }) => void): void {
@@ -202,6 +227,7 @@ export class OpenPencilEngine implements DrawingEngine {
     destroy(): void {
         for (const stop of this.stops.splice(0)) stop();
         this.shiftMove = null;
+        this.history = null;
         this.listeners.clear();
         this.app?.unmount();
         this.app = null;
@@ -234,7 +260,7 @@ export class OpenPencilEngine implements DrawingEngine {
                 if (touched.size === 0) return;
                 const ids = [...touched];
                 touched.clear();
-                for (const listener of this.listeners) listener({ kind: 'layout', ids });
+                this.tell({ kind: 'layout', ids });
             }),
         );
     }
