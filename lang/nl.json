@@ -606,5 +606,7 @@
     "drawing.conflict_title": "De structuur is gewijzigd",
     "drawing.conflict_body": "Iemand heeft elementen toegevoegd, verwijderd of verplaatst sinds je Tekenen opende.",
     "drawing.conflict_apply": "Opmaak toepassen op wat nog bestaat",
-    "drawing.conflict_reload": "Opnieuw laden"
+    "drawing.conflict_reload": "Opnieuw laden",
+    "rule.drawing_move_domain": "Een domein verplaats je met Hangt onder in Invoeren",
+    "rule.drawing_move_same_parent": "Dit blok hangt hier al onder"
 }

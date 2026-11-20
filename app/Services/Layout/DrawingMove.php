@@ -2,6 +2,7 @@
 
 namespace App\Services\Layout;
 
+use App\Enums\ElementKind;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
@@ -38,6 +39,7 @@ class DrawingMove
             $element = $this->element($canvas, (string) $request['element_id']);
             $target = $this->element($canvas, (string) $request['target_id']);
             $layout = $this->layout($request);
+            $this->assertTarget($element, $target);
 
             $before = $this->audit->current($canvas);
 
@@ -72,6 +74,17 @@ class DrawingMove
         }
 
         return $element;
+    }
+
+    private function assertTarget(Element $element, Element $target): void
+    {
+        if ($element->kind === ElementKind::Domain) {
+            throw ValidationException::withMessages(['rule' => __('rule.drawing_move_domain')]);
+        }
+
+        if ((string) $target->getKey() === (string) $element->parent_id) {
+            throw ValidationException::withMessages(['rule' => __('rule.drawing_move_same_parent')]);
+        }
     }
 
     private function order(Element $element, ?int $position): void
