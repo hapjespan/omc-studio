@@ -137,7 +137,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
 </script>
 
 <template>
-    <Head :title="canvas.name" />
+    <Head :title="`${canvas.name} - ${t('shell.mode.entry')}`" />
     <header class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="auth.role" :canvas="shellCanvas" :url="page.url" />
