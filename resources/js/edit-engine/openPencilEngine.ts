@@ -9,7 +9,11 @@ import DrawingSurface from './DrawingSurface.vue';
 import { loadFace, registerFonts } from './fonts';
 import type { DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
 import { toPayload } from './payload';
+import { restrict } from './restrictions';
 import { buildScene, readPlaces } from './scene';
+import { keepSelectable } from './selection';
+
+const DIRECTION_ID = 'direction';
 
 export class OpenPencilEngine implements DrawingEngine {
     private editor: Editor | null = null;
@@ -38,6 +42,8 @@ export class OpenPencilEngine implements DrawingEngine {
         this.canvas = scene;
         this.base = options.layout;
         this.editor = editor;
+        const locked = [DIRECTION_ID];
+        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt).release, keepSelectable(editor, locked));
         this.watch(editor, graph, scene);
         await new Promise<void>((resolve) => {
             this.app = createApp({ render: () => h(DrawingSurface, { editor, onReady: resolve }) });

@@ -539,5 +539,6 @@
     "drawing.zoom": "Zoom :percent%",
     "drawing.artboard": "Tekenvlak van :name",
     "drawing.loading": "Tekenvlak laden",
-    "drawing.failed": "Het tekenvlak kon niet worden geladen"
+    "drawing.failed": "Het tekenvlak kon niet worden geladen",
+    "drawing.text_hint": "Tekst wijzig je in Invoeren"
 }

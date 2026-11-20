@@ -26,6 +26,7 @@ export interface LayoutPayload {
 
 export interface MountOptions {
     layout: LayoutPayload;
+    onTextAttempt?: () => void;
 }
 
 export interface MoveIntent {

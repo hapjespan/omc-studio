@@ -33,6 +33,13 @@ const setTool = (next: 'select' | 'pan'): void => {
     tool.value = next;
     engine.value?.setTool(next);
 };
+const hint = ref('');
+let hintTimer = 0;
+const showHint = (): void => {
+    hint.value = t('drawing.text_hint');
+    window.clearTimeout(hintTimer);
+    hintTimer = window.setTimeout(() => (hint.value = ''), 6000);
+};
 const pick = (id: string): void => engine.value?.select([id]);
 
 onMounted(async () => {
@@ -40,7 +47,7 @@ onMounted(async () => {
         const drawn = computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, await createBrowserMeasurer());
         const { createDrawingEngine } = await import('../../edit-engine');
         const created = createDrawingEngine();
-        await created.mount(host.value as HTMLElement, drawn, { layout: automaticPayload(props.elements.map(({ id }) => id)) });
+        await created.mount(host.value as HTMLElement, drawn, { layout: automaticPayload(props.elements.map(({ id }) => id)), onTextAttempt: showHint });
         created.zoomToFit();
         engine.value = created;
         timer = window.setInterval(() => {
@@ -54,6 +61,7 @@ onMounted(async () => {
 });
 onBeforeUnmount(() => {
     window.clearInterval(timer);
+    window.clearTimeout(hintTimer);
     engine.value?.destroy();
 });
 </script>
@@ -69,6 +77,7 @@ onBeforeUnmount(() => {
         <LayersPanel :areas="layout.areas" :elements="elements" :selected="selected" class="max-h-[40vh] overflow-auto lg:max-h-[calc(100vh-14rem)]" @select="pick" />
         <div class="flex min-w-0 flex-col gap-3">
             <div ref="host" role="img" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[60vh] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#c3c9cf_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[calc(100vh-17rem)]" :data-state="state"></div>
+            <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Toolbar :tool="tool" :zoom="zoom" @tool="setTool" />
         </div>
         <aside :aria-label="t('drawing.properties')">
