@@ -183,6 +183,22 @@ class LayoutValidatorTest extends TestCase
         $this->assertSame(['invalid_layout'], $this->codes($this->payload([], ['primary_activities' => ['x' => 0]])));
     }
 
+    public function test_values_beyond_the_column_range_are_refused(): void
+    {
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload(['a1' => $this->manual(['y' => 3000000000])])));
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload(['a1' => $this->manual(['height' => PHP_INT_MAX])])));
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload(['a1' => $this->manual(['z' => PHP_INT_MAX])])));
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload([], ['primary_activities' => $this->area(['z' => -3000000000])])));
+    }
+
+    public function test_unknown_keys_on_an_entry_are_refused(): void
+    {
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload(['a1' => $this->manual(['format_version' => 999])])));
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload(['a1' => $this->manual(['element_id' => 'other'])])));
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload(['a1' => ['mode' => 'automatic', 'x' => -5]])));
+        $this->assertSame(['invalid_layout'], $this->codes($this->payload([], ['primary_activities' => $this->area(['canvas_id' => 2])])));
+    }
+
     public function test_asserting_a_refused_layout_throws_on_the_rule_key(): void
     {
         $payload = $this->payload(['a1' => $this->manual(['width' => 39])]);

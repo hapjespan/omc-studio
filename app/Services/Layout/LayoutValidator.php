@@ -21,6 +21,12 @@ class LayoutValidator
 
     private const MINIMUM_CONTRAST = 4.5;
 
+    private const COLUMN_MIN = -2147483648;
+
+    private const COLUMN_MAX = 2147483647;
+
+    private const BOX_KEYS = ['x', 'y', 'width', 'height', 'z', 'style'];
+
     /** @var array<string, array{id: string, area: string, parent: ?string, kind: string, name: string}> */
     private array $byId;
 
@@ -45,12 +51,14 @@ class LayoutValidator
             return $refused;
         }
 
+        $styles = $this->styles($entries, $areas);
+
         return [
             ...$this->parents($entries),
             ...$this->containment($entries, $areas),
             ...$this->areaBounds($areas),
             ...$this->minimumSizes($entries, $areas),
-            ...$styles = $this->styles($entries, $areas),
+            ...$styles,
             ...($styles === [] ? $this->contrast($entries, $areas) : []),
         ];
     }
@@ -100,17 +108,17 @@ class LayoutValidator
         foreach ($entries as $id => $entry) {
             $mode = is_array($entry) ? ($entry['mode'] ?? null) : null;
 
-            if ($mode === 'automatic') {
+            if ($mode === 'automatic' && array_diff(array_keys($entry), ['mode', 'parent']) === []) {
                 continue;
             }
 
-            if ($mode !== 'manual' || ! $this->isBox($entry)) {
+            if ($mode !== 'manual' || ! $this->isBox($entry, [...self::BOX_KEYS, 'mode', 'parent'])) {
                 $refused[] = $this->refusal('invalid_layout', (string) $id, ['name' => $this->name((string) $id)]);
             }
         }
 
         foreach ($areas as $key => $area) {
-            if (! $this->isBox($area)) {
+            if (! $this->isBox($area, self::BOX_KEYS)) {
                 $refused[] = $this->refusal('invalid_layout', null, ['name' => $this->areaName((string) $key)]);
             }
         }
@@ -336,19 +344,22 @@ class LayoutValidator
         return $widths;
     }
 
-    private function isBox(mixed $box): bool
+    /** @param list<string> $allowed */
+    private function isBox(mixed $box, array $allowed): bool
     {
-        if (! is_array($box)) {
+        if (! is_array($box) || array_diff(array_keys($box), $allowed) !== []) {
             return false;
         }
 
-        foreach (['x', 'y', 'width', 'height'] as $key) {
-            if (! is_int($box[$key] ?? null)) {
+        foreach (['x', 'y', 'width', 'height', 'z'] as $key) {
+            $value = $box[$key] ?? ($key === 'z' ? 0 : null);
+
+            if (! is_int($value) || $value < self::COLUMN_MIN || $value > self::COLUMN_MAX) {
                 return false;
             }
         }
 
-        return (! array_key_exists('z', $box) || is_int($box['z'])) && (! array_key_exists('style', $box) || is_array($box['style']));
+        return ! array_key_exists('style', $box) || is_array($box['style']);
     }
 
     /** @param array<string, mixed> $box */

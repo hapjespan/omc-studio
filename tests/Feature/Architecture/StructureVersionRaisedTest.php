@@ -7,11 +7,20 @@ use Tests\TestCase;
 
 class StructureVersionRaisedTest extends TestCase
 {
-    private const WRITES = 'create|forceCreate|update|save|delete|forceDelete|insert|upsert|increment|decrement';
+    private const WRITES = 'create|firstOrCreate|updateOrCreate|forceCreate|update|save|delete|forceDelete|insert|upsert|increment|decrement';
 
-    private const ROOTS = '/Element::|new Element|->children\(|->elements\(|\$element->|\$child->|\$sibling->|\$copy->/';
+    private const ROOTS = '/Element::|new Element|table\(.elements.\)|->children\(|->elements\(|\$element->|\$child->|\$sibling->|\$copy->/';
 
     private const ALLOWED = ['app/Services/Canvas/CanvasLifecycle.php'];
+
+    private const DELEGATED = [
+        'app/Services/Undo/UndoStore.php::insert',
+        'app/Services/Canvas/UnknownAllocationDomain.php::ensure',
+        'app/Services/Structure/ElementArchive.php::stamp',
+        'app/Services/Structure/ElementTree.php::update',
+        'app/Services/Structure/ElementTree.php::carry',
+        'app/Services/Structure/ElementDeletion.php::lift',
+    ];
 
     public function test_every_class_that_writes_elements_raises_the_structure_version(): void
     {
@@ -20,8 +29,10 @@ class StructureVersionRaisedTest extends TestCase
         foreach (Finder::create()->files()->name('*.php')->in(app_path()) as $file) {
             $path = 'app/'.str_replace(DIRECTORY_SEPARATOR, '/', $file->getRelativePathname());
 
-            if ($this->forgetsTheRaise($file->getContents(), $path)) {
-                $missing[] = $path;
+            $offender = $this->offender($file->getContents(), $path);
+
+            if ($offender !== null) {
+                $missing[] = $offender;
             }
         }
 
@@ -42,9 +53,6 @@ class StructureVersionRaisedTest extends TestCase
     {
         $paths = [
             'app/Services/Structure/ElementTree.php',
-            'app/Services/Structure/ElementDeletion.php',
-            'app/Services/Structure/ElementArchive.php',
-            'app/Services/Undo/UndoStore.php',
         ];
 
         foreach ($paths as $path) {
@@ -52,6 +60,13 @@ class StructureVersionRaisedTest extends TestCase
 
             $this->assertTrue($this->forgetsTheRaise($source, $path), $path);
         }
+    }
+
+    public function test_a_new_write_method_in_a_file_that_raises_elsewhere_is_caught(): void
+    {
+        $source = "<?php class Tree {\n    public function move() { \$canvas->raiseStructureVersion(); Element::create([]); }\n    public function lift(Element \$element): void { \$element->update(['parent_id' => null]); }\n}";
+
+        $this->assertSame('app/Tree.php::lift', $this->offender($source, 'app/Tree.php'));
     }
 
     public function test_the_raise_and_the_allowlist_clear_a_file(): void
@@ -65,16 +80,29 @@ class StructureVersionRaisedTest extends TestCase
 
     private function forgetsTheRaise(string $source, string $path): bool
     {
-        if (in_array($path, self::ALLOWED, true) || str_contains($source, 'raiseStructureVersion')) {
-            return false;
+        return $this->offender($source, $path) !== null;
+    }
+
+    private function offender(string $source, string $path): ?string
+    {
+        if (in_array($path, self::ALLOWED, true)) {
+            return null;
         }
 
-        foreach (explode(';', $source) as $statement) {
-            if (preg_match('/(->|::)('.self::WRITES.')\(/', $statement) === 1 && preg_match(self::ROOTS, $statement) === 1) {
-                return true;
+        foreach (preg_split('/(?=\n    (?:public|private|protected)[^\n]* function )/', $source) ?: [] as $method) {
+            preg_match('/function (\w+)/', $method, $name);
+
+            if (in_array($path.'::'.($name[1] ?? ''), self::DELEGATED, true) || str_contains($method, 'raiseStructureVersion')) {
+                continue;
+            }
+
+            foreach (explode(';', $method) as $statement) {
+                if (preg_match('/(->|::)('.self::WRITES.')\(/', $statement) === 1 && preg_match(self::ROOTS, $statement) === 1) {
+                    return $path.'::'.($name[1] ?? '');
+                }
             }
         }
 
-        return false;
+        return null;
     }
 }
