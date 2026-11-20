@@ -23,5 +23,6 @@ const nodes = computed<LayerNode[]>(() => props.areas.filter((area) => area.key 
                 <LayerItem v-for="node in nodes" :key="node.id" :node="node" :selected="selected" :fresh="fresh" strong @select="(id, toggle) => $emit('select', id, toggle)" />
             </ul>
         </nav>
+        <p class="mt-3 border-t border-hairline pt-3 text-[12.5px] text-secondary">{{ t('drawing.layers_note') }}</p>
     </Panel>
 </template>
