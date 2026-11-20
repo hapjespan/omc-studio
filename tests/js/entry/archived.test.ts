@@ -25,7 +25,11 @@ describe('archived rows', () => {
     it('are switched on by a labelled checkbox', async () => {
         const html = await renderToString(createSSRApp({ render: () => h(ArchivedToggle, { modelValue: false }) }));
 
-        expect(html).toMatch(/<label[^>]*><input[^>]*type="checkbox"[^>]*>Toon gearchiveerd<\/label>/);
+        const id = /<input[^>]*type="checkbox"[^>]*id="([^"]+)"/.exec(html)?.[1] ?? /<input[^>]*id="([^"]+)"[^>]*type="checkbox"/.exec(html)?.[1];
+
+        expect(id).toBeTruthy();
+        expect(html).toContain(`<label for="${id}"`);
+        expect(html).toMatch(/>Toon gearchiveerd<\/label>/);
     });
 });
 
