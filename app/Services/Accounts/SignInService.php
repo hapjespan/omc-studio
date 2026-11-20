@@ -28,28 +28,28 @@ class SignInService
     {
         $email = mb_strtolower(trim($email));
 
+        $user = User::query()->where('email', $email)->first();
+
         if (! $this->throttle->claim($email)) {
-            SecurityLog::record('sign_in_throttled');
+            SecurityLog::record('sign_in_throttled', ['user_id' => $user?->getKey()]);
 
             throw ValidationException::withMessages([
                 'email' => __('auth.throttled', ['seconds' => $this->throttle->secondsLeft($email)]),
             ]);
         }
 
-        $user = User::query()->where('email', $email)->first();
-
         if ($user === null) {
             Hash::check($password, self::ABSENT);
 
-            $this->refuse($email, 'unknown_address');
+            $this->refuse($email, $user, 'unknown_address');
         }
 
         if (! Hash::check($password, $user->password)) {
-            $this->refuse($email, 'wrong_password');
+            $this->refuse($email, $user, 'wrong_password');
         }
 
         if ($this->passwords->isExpired($user)) {
-            $this->refuse($email, 'one_time_password_expired');
+            $this->refuse($email, $user, 'one_time_password_expired');
         }
 
         $this->throttle->clear($email);
@@ -97,10 +97,10 @@ class SignInService
         return hash_hmac('sha256', (string) $user->password, (string) config('app.key'));
     }
 
-    private function refuse(string $email, string $reason): never
+    private function refuse(string $email, ?User $user, string $reason): never
     {
         $this->throttle->fail($email);
-        SecurityLog::record('sign_in_failed', ['reason' => $reason]);
+        SecurityLog::record('sign_in_failed', ['reason' => $reason, 'user_id' => $user?->getKey()]);
 
         throw ValidationException::withMessages(['email' => __('auth.failed')]);
     }
