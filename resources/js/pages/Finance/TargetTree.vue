@@ -8,7 +8,7 @@ import TargetNode from './TargetNode.vue';
 
 const AREA_ORDER = ['steering', 'governing', 'primary_activities', 'supporting_activities'];
 
-const props = defineProps<{ targets: TargetRow[]; inSet: string[]; disabled: boolean; figuresAvailable: boolean; year: number | null }>();
+const props = defineProps<{ targets: TargetRow[]; inSet: string[]; disabled: boolean; figuresAvailable: boolean; year: number | null; areaTotals: Record<string, number> | null }>();
 const emit = defineEmits<{ add: [id: string] }>();
 const search = ref('');
 const set = computed(() => new Set(props.inSet));
@@ -20,7 +20,7 @@ const groups = computed(() => {
     return keys
         .map((key) => ({ key, rows: byArea.get(key) ?? [] }))
         .filter((group) => group.rows.some((row) => matchesTarget(row, needle.value)))
-        .map((group) => ({ ...group, total: group.rows.reduce((sum, row) => sum + (row.totalCents ?? 0), 0) }));
+        .map((group) => ({ ...group, total: props.areaTotals?.[group.key] ?? null }));
 });
 </script>
 
@@ -31,14 +31,14 @@ const groups = computed(() => {
             <span v-if="figuresAvailable && year !== null" class="text-[12px] text-muted">{{ t('allocation_page.targets_total', { year }) }}</span>
         </div>
         <p v-if="!figuresAvailable" role="status" class="mt-1 text-[12.5px] text-warning">{{ t('allocation_page.total_hidden') }}</p>
-        <SearchField id="allocation-targets-search" v-model="search" class="mt-2.5" :label="t('allocation_page.targets_search')" :placeholder="t('allocation_page.targets_placeholder')" />
+        <div class="mt-2.5"><SearchField id="allocation-targets-search" v-model="search" :label="t('allocation_page.targets_search')" :placeholder="t('allocation_page.targets_placeholder')" /></div>
         <div role="tree" :aria-label="t('allocation_page.targets')" class="mt-1">
             <div v-for="group in groups" :key="group.key" role="group" :aria-labelledby="`allocation-area-${group.key}`">
                 <div class="flex items-baseline justify-between px-2.5 pb-1.5 pt-3.5 text-[10.5px] font-semibold uppercase tracking-wider text-secondary">
                     <span :id="`allocation-area-${group.key}`">{{ group.key ? t(`areas.${group.key}.name`) : '' }}</span>
-                    <span v-if="figuresAvailable" class="normal-case tracking-normal">{{ formatAmount(group.total) }}</span>
+                    <span v-if="figuresAvailable && group.total !== null" class="normal-case tracking-normal">{{ group.total > 0 ? formatAmount(group.total) : t('allocation_page.none') }}</span>
                 </div>
-                <TargetNode :rows="group.rows" :in-set="set" :needle="needle" :disabled="disabled" :hide-totals="!figuresAvailable" @add="emit('add', $event)" />
+                <TargetNode :rows="group.rows" :in-set="set" :needle="needle" :disabled="disabled" :hide-totals="!figuresAvailable" collapsible @add="emit('add', $event)" />
             </div>
         </div>
         <p class="mt-3.5 text-[11.5px] leading-snug text-muted">{{ t('allocation_page.footnote') }}</p>

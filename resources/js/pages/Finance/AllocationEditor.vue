@@ -48,16 +48,18 @@ function dropped(event: DragEvent): void {
     <section role="region" :aria-label="t('allocation_page.drop_zone')" class="min-w-0" @dragover.prevent @drop.prevent="dropped">
         <ul class="space-y-2.5">
             <li v-for="(line, index) in lines" :key="line.elementId" class="rounded-card border border-hairline bg-white p-3 text-[13px]">
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
                     <span aria-hidden="true" class="h-9 w-2.5 shrink-0 rounded-badge" :class="stripeClass(index)" />
-                    <div class="min-w-0 flex-1">
+                    <div class="min-w-[10rem] flex-1">
                         <p class="text-[11.5px] text-muted">{{ eyebrow(line) }}</p>
                         <p class="text-[15px] font-semibold">{{ target(line).name }}</p>
                     </div>
+                    <div class="ml-auto flex shrink-0 items-center gap-3">
                     <label :for="`allocation-line-${index}`" class="sr-only">{{ t('allocation_page.percentage_of', { target: target(line).path }) }}</label>
                     <input :id="`allocation-line-${index}`" :value="text(line.basisPoints)" inputmode="decimal" :disabled="disabled" :aria-invalid="invalid === index || undefined" :aria-describedby="invalid === index ? `allocation-line-${index}-error` : undefined" class="h-control w-[84px] rounded-control border border-edge bg-white px-2.5 text-right font-display text-[13px] font-bold text-ink disabled:border-hairline disabled:text-muted" @change="commit(index, $event)" />
                     <span aria-hidden="true" class="font-semibold">%</span>
                     <span :aria-label="t('allocation_page.amount')" class="w-28 shrink-0 text-right font-display text-[13px] font-bold">{{ formatAmount(amounts[index]) }}</span>
+                    </div>
                 </div>
                 <div class="mt-2 flex items-center gap-2 pl-[22px]">
                     <AppButton :disabled="disabled" :aria-label="t('allocation_page.rest_to_line', { target: target(line).path })" @click="emit('rest', index)">{{ t('allocation_page.rest_label') }}</AppButton>
@@ -66,6 +68,6 @@ function dropped(event: DragEvent): void {
                 <p v-if="invalid === index" :id="`allocation-line-${index}-error`" role="alert" class="mt-1 text-danger">{{ t('allocation_page.invalid_percentage') }}</p>
             </li>
         </ul>
-        <p class="mt-2.5 flex min-h-12 items-center justify-center rounded-card border border-dashed border-edge px-3 py-2 text-center text-[13px] text-secondary">{{ t('allocation_page.no_lines') }}</p>
+        <p class="mt-2.5 flex min-h-12 items-center justify-center rounded-card border border-dashed border-edge px-3 py-2 text-center text-[13px] text-secondary"><span class="hidden lg:inline">{{ t('allocation_page.no_lines') }}</span><span class="lg:hidden">{{ t('allocation_page.no_lines_stacked') }}</span></p>
     </section>
 </template>

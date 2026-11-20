@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Locator } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { seedAllocation } from './support/finance';
+import { seedAllocation, expandTarget } from './support/finance';
 import { signInAs } from './support/shell';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
@@ -17,9 +17,12 @@ test('Toewijzen follows board 3: white panels on the grey page, header card, amb
     ]);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
+    await expandTarget(page, 'Inkoop');
 
     await page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }).click();
+    await expect(page.getByLabel(/Percentage voor Inkoop > Offreren/)).toBeFocused();
     await page.getByRole('button', { name: 'Toevoegen aan verdeling: Bestellen' }).click();
+    await expect(page.getByLabel(/Percentage voor Inkoop > Bestellen/)).toBeFocused();
     const first = page.getByLabel(/Percentage voor Inkoop > Offreren/);
     await first.fill('25');
     await first.blur();
@@ -68,7 +71,7 @@ test('Toewijzen follows board 3: white panels on the grey page, header card, amb
     expect(await style(input, 'text-align')).toBe('right');
     expect(await style(input, 'font-weight')).toBe('700');
 
-    const zone = page.getByText('Klik rechts op een doel of sleep het hierheen om een regel toe te voegen');
+    const zone = page.getByText('Klik rechts op een doel of sleep het hierheen om een regel toe te voegen').locator('..');
     expect(await style(zone, 'border-top-style')).toBe('dashed');
     expect(Math.round((await zone.boundingBox())!.height)).toBeGreaterThanOrEqual(48);
 
@@ -95,7 +98,27 @@ test('Toewijzen follows board 3: white panels on the grey page, header card, amb
     expect(await style(targets.getByText('In set').first(), 'color')).toBe('rgb(31, 122, 77)');
     await expect(targets.getByText('geen').first()).toBeVisible();
     await expect(targets.getByText('leeg', { exact: false }).first()).toBeVisible();
-    const domain = targets.getByRole('treeitem', { name: /^Inkoop/ }).locator('> div').first();
+    const domain = targets.getByRole('treeitem').filter({ hasText: 'Inkoop' }).first().locator('> div').first();
     expect(await style(domain, 'background-color')).toBe('rgb(246, 247, 245)');
+    const fold = targets.getByRole('button', { name: 'Inklappen: Inkoop' });
+    await expect(fold).toHaveAttribute('aria-expanded', 'true');
+    await fold.click();
+    await expect(targets.getByText('Betalen')).toHaveCount(0);
+    await expect(targets.getByRole('button', { name: 'Uitklappen: Inkoop' })).toHaveAttribute('aria-expanded', 'false');
     await expect(targets.getByText('Bedragen zijn opgeslagen toewijzingen.')).toBeVisible();
+});
+
+test('line cards keep their name and stay inside the card at 320 pixels', async ({ page }) => {
+    const seed = seedAllocation(unique(), { Licentie: 5400000 });
+    await page.setViewportSize({ width: 320, height: 800 });
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
+    await expandTarget(page, 'Inkoop');
+    await page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }).click();
+
+    const card = page.getByRole('listitem').filter({ has: page.getByLabel(/Percentage voor Inkoop > Offreren/) });
+    await expect(card).toBeVisible();
+    expect(await card.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+    expect((await card.getByText('Offreren', { exact: true }).boundingBox())!.width).toBeGreaterThan(60);
+    expect(await page.locator('main').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 });

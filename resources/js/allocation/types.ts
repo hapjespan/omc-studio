@@ -12,8 +12,8 @@ export interface CostRecordRow {
     code: string | null;
     name: string;
     archived: boolean;
-    costKind: string | null;
-    owner: string | null;
+    costKind: string;
+    owner: string;
     budgetCents: number;
     status: 'allocated' | 'unallocated';
 }
@@ -41,4 +41,8 @@ export function indexTargets(rows: TargetRow[], parents: string[] = [], into: Re
 
 export function matchesTarget(row: TargetRow, needle: string): boolean {
     return needle === '' || row.name.toLowerCase().includes(needle) || row.children.some((child) => matchesTarget(child, needle));
+}
+
+export function holdsSet(row: TargetRow, inSet: Set<string>): boolean {
+    return inSet.has(String(row.id)) || row.children.some((child) => holdsSet(child, inSet));
 }

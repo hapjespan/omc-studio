@@ -23,9 +23,10 @@ const allocated = (record: CostRecordRow): boolean => record.status === 'allocat
             <span class="text-[12px] text-muted">{{ t('allocation_page.progress', { done, total: records.length }) }}</span>
         </div>
         <div class="mt-2.5 flex gap-2">
-            <SearchField id="allocation-records-search" v-model="search" class="min-w-0 flex-1" :label="t('list.search')" :placeholder="t('allocation_page.records_search')" />
-            <AppButton :variant="unallocatedOnly ? 'primary' : 'secondary'" :aria-pressed="unallocatedOnly" :title="t('allocation_page.filter_hint')" @click="unallocatedOnly = !unallocatedOnly">{{ t('allocation_page.filter') }}</AppButton>
+            <div class="min-w-0 flex-1"><SearchField id="allocation-records-search" v-model="search" :label="t('list.search')" :placeholder="t('allocation_page.records_search')" /></div>
+            <AppButton :variant="unallocatedOnly ? 'primary' : 'secondary'" :aria-pressed="unallocatedOnly" aria-describedby="allocation-filter-hint" :title="t('allocation_page.filter_hint')" @click="unallocatedOnly = !unallocatedOnly">{{ t('allocation_page.filter') }}</AppButton>
         </div>
+        <p id="allocation-filter-hint" class="sr-only">{{ t('allocation_page.filter_hint') }}</p>
         <ul class="mt-2.5 space-y-1.5">
             <li v-for="record in shown" :key="record.id">
                 <button type="button" :aria-current="record.id === chosen ? 'true' : undefined" class="block w-full rounded-card bg-white text-left" :class="record.id === chosen ? 'border-2 border-ink px-[11px] py-[9px]' : 'border border-hairline px-3 py-2.5'" @click="emit('choose', record.id)">

@@ -26,6 +26,7 @@ class AllocationPage
             'chosen' => $chosen,
             'set' => $year === null || $chosen === null ? [] : $this->set($canvas, $year, $chosen),
             'targets' => $this->targets($canvas, $figures->elements ?? null),
+            'areaTotals' => $figures === null ? null : array_map(fn (array $money): int => $money['budget'], $figures->areas),
             'canvasTotalCents' => $figures?->canvasTotal['budget'] ?? null,
             'figuresAvailable' => $figures !== null,
         ];
@@ -46,7 +47,7 @@ class AllocationPage
                 'name' => $record->name,
                 'archived' => $record->archived_at !== null,
                 'costKind' => $record->cost_kind->value,
-                'owner' => $record->owner?->name,
+                'owner' => $record->owner->name,
                 'budgetCents' => (int) $record->getAttribute('budget_cents'),
                 'status' => in_array($record->id, $allocated, true) ? 'allocated' : 'unallocated',
             ])->all();

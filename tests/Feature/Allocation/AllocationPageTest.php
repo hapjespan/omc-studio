@@ -16,6 +16,7 @@ use App\Models\Owner;
 use App\Models\User;
 use App\Models\YearlyFigure;
 use App\Services\Canvas\UnknownAllocationDomain;
+use App\Services\Finance\FigureService;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -83,8 +84,8 @@ class AllocationPageTest extends TestCase
                 ->where('costRecords.0.status', 'unallocated')
                 ->where('costRecords.1.status', 'allocated')
                 ->where('costRecords.1.budgetCents', 23_000)
-                ->has('costRecords.1.costKind')
-                ->has('costRecords.1.owner')
+                ->where('costRecords.1.costKind', $this->allocated->cost_kind->value)
+                ->where('costRecords.1.owner', Owner::query()->firstOrFail()->name)
                 ->has('targets', 1)
                 ->where('targets.0.name', 'Inkoop')
                 ->where('targets.0.totalCents', 23_000)
@@ -93,6 +94,18 @@ class AllocationPageTest extends TestCase
                 ->where('set.0.basisPoints', 10_000)
                 ->where('figuresAvailable', true)
                 ->where('canvasTotalCents', 46_000));
+    }
+
+    public function test_area_totals_come_from_the_calculation_and_count_the_unknown_allocation(): void
+    {
+        $expected = app(FigureService::class)->figures($this->canvas, 2026)->areas;
+
+        $this->admin()->get("/canvases/{$this->canvas->id}/allocation?year=2026")
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('areaTotals.supporting_activities', $expected['supporting_activities']['budget'])
+                ->where('areaTotals.primary_activities', $expected['primary_activities']['budget']));
+        $this->assertSame(23_000, $expected['supporting_activities']['budget']);
+        $this->assertSame(23_000, $expected['primary_activities']['budget']);
     }
 
     public function test_the_finalised_state_is_reported_and_no_set_without_a_choice(): void
@@ -109,6 +122,6 @@ class AllocationPageTest extends TestCase
         AllocationLine::query()->update(['element_id' => $archived->id]);
 
         $this->admin()->get("/canvases/{$this->canvas->id}/allocation?year=2026")
-            ->assertInertia(fn (Assert $page) => $page->where('figuresAvailable', false)->where('canvasTotalCents', null)->where('targets.0.totalCents', null));
+            ->assertInertia(fn (Assert $page) => $page->where('areaTotals', null)->where('figuresAvailable', false)->where('canvasTotalCents', null)->where('targets.0.totalCents', null));
     }
 }

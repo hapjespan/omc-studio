@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from './support/guards';
-import { seedAllocation } from './support/finance';
+import { seedAllocation, expandTarget } from './support/finance';
 import { signInAs } from './support/shell';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
@@ -12,6 +12,7 @@ test('rest to a line, even split and the split over the activities of a Domain',
     ]);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
+    await expandTarget(page, 'Inkoop');
 
     await page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }).click();
     await page.getByRole('button', { name: 'Toevoegen aan verdeling: Bestellen' }).click();
@@ -34,7 +35,7 @@ test('rest to a line, even split and the split over the activities of a Domain',
     await expect(page.getByText('Dit domein heeft geen activiteiten')).toBeVisible();
     await page.getByLabel('Domein').click();
     await page.getByRole('option', { name: 'Inkoop' }).click();
-    await page.getByRole('button', { name: 'Verdelen over activiteiten van een domein' }).last().click();
+    await page.getByRole('button', { name: 'Verdelen over dit domein' }).click();
     await expect(page.getByLabel(/Percentage voor Inkoop > Offreren/)).toHaveValue('33,34');
     await expect(page.getByLabel(/Percentage voor Inkoop > Betalen/)).toHaveValue('33,33');
 });

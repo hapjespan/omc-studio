@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
@@ -18,7 +18,7 @@ import ImportAllocations from './ImportAllocations.vue';
 import CostRecordStatusList from './CostRecordStatusList.vue';
 import TargetTree from './TargetTree.vue';
 
-const props = defineProps<{ canvas: { id: number; name: string; archived: boolean }; year: number | null; finalised: boolean; costRecords: CostRecordRow[]; chosen: string | null; set: { elementId: string; basisPoints: number; position: number }[]; targets: TargetRow[]; canvasTotalCents: number | null; figuresAvailable: boolean }>();
+const props = defineProps<{ canvas: { id: number; name: string; archived: boolean }; year: number | null; finalised: boolean; costRecords: CostRecordRow[]; chosen: string | null; set: { elementId: string; basisPoints: number; position: number }[]; targets: TargetRow[]; canvasTotalCents: number | null; figuresAvailable: boolean; areaTotals: Record<string, number> | null }>();
 
 const page = usePage();
 const stored = (): DraftLine[] => [...props.set].sort((a, b) => a.position - b.position).map((line) => ({ elementId: line.elementId, basisPoints: line.basisPoints }));
@@ -64,10 +64,12 @@ function through(visit: () => void): void {
     }
 }
 
-const add = (id: string): void => {
+const add = async (id: string): Promise<void> => {
     if (!writable.value || !info.value[id] || draft.value.some((line) => line.elementId === id)) return;
     draft.value = [...draft.value, { elementId: id, basisPoints: Math.max(0, left.value) }];
     announce(t('allocation_page.add', { target: info.value[id].path }));
+    await nextTick();
+    document.getElementById(`allocation-line-${draft.value.length - 1}`)?.focus();
 };
 const change = (index: number, basisPoints: number): void => void (draft.value = draft.value.map((line, i) => (i === index ? { ...line, basisPoints } : line)));
 const remove = (index: number): void => void (draft.value = draft.value.filter((_, i) => i !== index));
@@ -134,7 +136,7 @@ const canClear = computed(() => writable.value && record.value?.status === 'allo
             </template>
             <p v-else id="allocation-middle" class="rounded-panel border border-hairline bg-white p-5 text-[13px]">{{ t('allocation_page.pick') }}</p>
         </section>
-        <TargetTree :targets="targets" :in-set="draft.map((line) => line.elementId)" :disabled="!writable" :figures-available="figuresAvailable" :year="year" @add="add" />
+        <TargetTree :targets="targets" :in-set="draft.map((line) => line.elementId)" :disabled="!writable" :figures-available="figuresAvailable" :year="year" :area-totals="areaTotals" @add="add" />
     </div>
     <Dialog v-model:open="clearOpen" :title="t('allocation_page.clear_title')" :description="t('allocation_page.clear_text', { name: record?.name ?? '', year: year ?? '' })">
         <div class="mt-3 flex gap-2">

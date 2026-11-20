@@ -1,5 +1,5 @@
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedAllocation } from './support/finance';
+import { seedAllocation, expandTarget } from './support/finance';
 import { createClosingNotice } from './support/notices';
 import { seedOverlay } from './support/overlay';
 import { seedWorkspace, unique } from './support/d2';
@@ -77,6 +77,7 @@ test('Toewijzen: the page with a chosen record and lines, and the import panel',
     const seed = seedAllocation(unique(), { Licentie: 23000 });
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
+    await expandTarget(page, 'Inkoop');
     await page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }).click();
     await expect(page.getByLabel(/Percentage voor .*Offreren/)).toBeVisible();
     await expectNoAxeViolations(page);
