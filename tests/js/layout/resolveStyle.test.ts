@@ -6,6 +6,19 @@ import type { AreaKey } from '../../../resources/js/layout/types';
 
 const activityAreas: AreaKey[] = ['steering', 'governing', 'primary_activities', 'supporting_activities'];
 
+describe('resolveStyle Area heading', () => {
+    it.each(activityAreas)('draws the %s heading in secondary text with letter spacing at the contract contrast', (area) => {
+        const style = resolveStyle(area, 'area');
+        expect(style.textColour).toBe('#454C57');
+        expect(style.font.tracking).toBe(0.04);
+        expect(contrastRatio(style.fill!, style.textColour)).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('leaves the Direction band heading without letter spacing', () => {
+        expect(resolveStyle('direction', 'area').font.tracking).toBeUndefined();
+    });
+});
+
 describe('resolveStyle', () => {
     it.each(activityAreas)('uses the Default colours of %s at every level', (area) => {
         const levels = defaults.areas[area];

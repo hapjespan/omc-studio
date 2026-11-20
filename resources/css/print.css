@@ -1,0 +1,52 @@
+@page canvas {
+    size: A3 landscape;
+    margin: 0;
+}
+
+@media print {
+    [data-scroller] {
+        page: canvas;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        margin: 0 !important;
+    }
+
+    [data-scroller] > div {
+        width: auto !important;
+        height: auto !important;
+    }
+
+    [data-artboard] {
+        position: relative !important;
+        transform: none !important;
+        zoom: 0.9448;
+    }
+
+    .shell:has([data-artboard]) {
+        display: block;
+        min-height: 0;
+    }
+
+    .shell:has([data-artboard]) .shell-top,
+    .shell:has([data-artboard]) .shell-left,
+    .shell:has([data-artboard]) #detail-panel,
+    .shell:has([data-artboard]) .shell-main > :not([data-scroller]):not(:has([data-scroller])),
+    .shell:has([data-artboard]) [data-scroller] ~ * {
+        display: none !important;
+    }
+
+    .shell:has([data-artboard]) .shell-main > :has([data-scroller]) {
+        display: block !important;
+        margin: 0 !important;
+    }
+
+    .shell:has([data-artboard]) .shell-main {
+        padding: 0;
+    }
+
+    .shell:has([data-artboard]) * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

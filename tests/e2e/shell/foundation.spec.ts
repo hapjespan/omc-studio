@@ -57,7 +57,7 @@ test('an icon button measures 28 by 28 and keeps its name', async ({ page }) => 
 test('delivery 1 keeps its visible status text, 16 pixel main padding and no header row', async ({ page }) => {
     await signInAs(page, 'administrator');
 
-    const region = page.getByRole('status');
+    const region = page.locator('div[role="status"][aria-live="polite"]');
     await expect(region).toHaveAttribute('aria-live', 'polite');
     await expect(region).toHaveClass(/text-secondary/);
     expect(await styleOf(page.locator('#main'), 'padding-left')).toBe('16px');

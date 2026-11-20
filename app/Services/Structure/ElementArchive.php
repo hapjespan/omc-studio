@@ -17,6 +17,7 @@ class ElementArchive
         private readonly SiblingPosition $positions,
         private readonly UnknownAllocationGuard $unknown,
         private readonly LayoutRows $layouts,
+        private readonly ElementTree $tree,
     ) {}
 
     public function archive(Element $element): void
@@ -31,6 +32,8 @@ class ElementArchive
             $this->unknown->assertNone($element);
 
             if ($element->archived_at === null) {
+                $this->tree->assertNoAllocationLines($element);
+
                 $this->layouts->remove($canvas, $this->stamp($element, now(), null));
 
                 $canvas->raiseStructureVersion();

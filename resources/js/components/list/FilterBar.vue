@@ -2,8 +2,9 @@
 import { computed, useId } from 'vue';
 import { t } from '../../i18n';
 import AppButton from '../ui/AppButton.vue';
+import ChipSelect from '../ui/ChipSelect.vue';
 
-export type FilterDef = { name: string; label: string; options: { value: string; label: string }[] };
+export type FilterDef = { name: string; label: string; short?: string; options: { value: string; label: string }[] };
 
 const props = defineProps<{ filters: FilterDef[]; active: Record<string, string> }>();
 const emit = defineEmits<{ change: [filters: Record<string, string>] }>();
@@ -26,14 +27,8 @@ function set(name: string, value: string): void {
 
 <template>
     <div class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-center gap-3">
-            <div v-for="filter in filters" :key="filter.name" class="flex flex-col gap-1">
-                <label :for="`${prefix}-${filter.name}`" class="text-[13px] font-semibold">{{ filter.label }}</label>
-                <select :id="`${prefix}-${filter.name}`" :value="active[filter.name] ?? ''" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px]" @change="set(filter.name, ($event.target as HTMLSelectElement).value)">
-                    <option value="">{{ t('list.filter_all') }}</option>
-                    <option v-for="option in filter.options" :key="option.value" :value="option.value">{{ option.label }}</option>
-                </select>
-            </div>
+        <div class="flex flex-wrap gap-2">
+            <ChipSelect v-for="filter in filters" :id="`${prefix}-${filter.name}`" :key="filter.name" :label="filter.short ?? filter.label" :model-value="active[filter.name] ?? ''" :options="[{ value: '', label: t('list.filter_all') }, ...filter.options]" @update:model-value="set(filter.name, $event)" />
         </div>
         <ul v-if="chips.length" class="flex flex-wrap gap-2">
             <li v-for="chip in chips" :key="chip.name">

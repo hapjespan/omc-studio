@@ -5,7 +5,7 @@ const keys = (role: string, canvas: boolean) => visibleTabs(role, canvas).map((t
 
 describe('tabs', () => {
     it('shows Canvas and, for an Administrator, Beheer when a Canvas is open', () => {
-        expect(keys('administrator', true)).toEqual(['canvas', 'admin']);
+        expect(keys('administrator', true)).toEqual(['canvas', 'costs', 'allocation', 'versions', 'admin']);
     });
 
     it('shows Overzicht and, for an Administrator, Beheer without a Canvas', () => {
@@ -14,15 +14,19 @@ describe('tabs', () => {
     });
 
     it('shows a Reader only Canvas with a Canvas open', () => {
-        expect(keys('reader', true)).toEqual(['canvas']);
+        expect(keys('reader', true)).toEqual(['canvas', 'versions']);
     });
 
-    it('registers no tab of a later delivery in D1', () => {
-        const all = [...keys('administrator', true), ...keys('administrator', false)];
+    it('hides Versies on a Template', () => {
+        expect(visibleTabs('administrator', true, 'template').map((tab) => tab.key)).not.toContain('versions');
+    });
 
-        expect(all).not.toContain('costs');
-        expect(all).not.toContain('allocate');
-        expect(all).not.toContain('versions');
+    it('marks Versies and not Canvas on the versions address', () => {
+        const [canvas, , , versions] = visibleTabs('administrator', true);
+
+        expect(isActive(versions, '/canvases/4/versions')).toBe(true);
+        expect(isActive(canvas, '/canvases/4/versions')).toBe(false);
+        expect(isActive(versions, '/canvases/4/allocation')).toBe(false);
     });
 
     it('marks the tab whose address prefix matches the current address', () => {
@@ -37,7 +41,7 @@ describe('tabs', () => {
     it('lets a later delivery register a tab', () => {
         registerTab({ key: 'probe', label: 'shell.tab.overview', context: 'canvas', roles: ['administrator'], href: () => '/probe', matches: ['/probe'] }, 1);
 
-        expect(keys('administrator', true)).toEqual(['canvas', 'probe', 'admin']);
-        expect(keys('reader', true)).toEqual(['canvas']);
+        expect(keys('administrator', true)).toEqual(['canvas', 'probe', 'costs', 'allocation', 'versions', 'admin']);
+        expect(keys('reader', true)).toEqual(['canvas', 'versions']);
     });
 });

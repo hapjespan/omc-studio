@@ -2,6 +2,7 @@
 
 namespace App\Services\Accounts;
 
+use App\Services\Notices\LockoutCounter;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -14,7 +15,7 @@ class Throttle
 
     private readonly Repository $cache;
 
-    public function __construct(private readonly string $namespace)
+    public function __construct(private readonly string $namespace, private readonly bool $countsLockouts = false)
     {
         $this->cache = Cache::store(config('cache.throttle_store'));
     }
@@ -42,6 +43,10 @@ class Throttle
 
         $this->cache->forget($attempts);
         $this->cache->put($this->key($identifier, 'until'), Carbon::now()->getTimestamp() + self::SECONDS, self::SECONDS);
+
+        if ($this->countsLockouts) {
+            app(LockoutCounter::class)->record();
+        }
     }
 
     public function clear(string $identifier): void

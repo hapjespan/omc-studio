@@ -7,19 +7,21 @@ import SelectField from '../../components/fields/SelectField.vue';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
+import type { TargetRow } from '../../allocation/types';
 import Dialog from '../../components/overlays/Dialog.vue';
 import ModalityButtons from '../../components/ModalityButtons.vue';
 import { NO_MODALITY } from '../../components/modality';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 import { detail } from '../../shell/detail';
-import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type EntryElement, type EntryWarning } from './entry';
+import { AREA_PREFIX, parentOptions, parentValue, type EntryAreaInfo, type EntryElement, type EntryWarning, type ElementCost } from './entry';
 import ElementActions from './ElementActions.vue';
+import ElementCostsLine from './ElementCostsLine.vue';
 import ParentSelect from './ParentSelect.vue';
 import Warnings from './Warnings.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; list: boolean; icons: string[]; warnings: EntryWarning[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
-const emit = defineEmits<{ select: [id: string, opener: HTMLElement | null]; saved: [] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; list: boolean; icons: string[]; warnings: EntryWarning[]; year: number | null; cost?: ElementCost; targets: TargetRow[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const emit = defineEmits<{ select: [id: string, opener: HTMLElement | null]; saved: []; changed: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element), modality: props.element.modality ?? NO_MODALITY, rationale: props.element.rationale ?? '', confirm_rationale_clear: false });
 const confirming = ref(false);
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -84,6 +86,7 @@ function save(): void {
                 <TextArea v-if="form.modality !== NO_MODALITY" id="element-rationale" v-model="form.rationale" :label="t('entry_design.rationale')" :error="errors.rationale" :rows="3" />
             </template>
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
+            <ElementCostsLine :year="year" :cost="cost" />
         </form>
         <Dialog v-model:open="confirming" :title="t('modality_entry.confirm_title')" :description="t('modality_entry.confirm_message')">
             <div class="flex gap-2">
@@ -92,7 +95,7 @@ function save(): void {
             </div>
         </Dialog>
         <div v-if="!element.unknownAllocation" class="mt-4">
-            <ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :gone="gone">
+            <ElementActions :canvas-id="canvasId" :element="element" :elements="elements" :cost="cost" :targets="targets" :gone="gone">
                 <AppButton variant="primary" type="submit" form="element-form" :disabled="form.processing">{{ t('entry.save') }}</AppButton>
             </ElementActions>
         </div>

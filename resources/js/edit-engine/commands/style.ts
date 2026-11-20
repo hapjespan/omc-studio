@@ -2,7 +2,7 @@ import type { SceneGraph } from '@open-pencil/scene-graph';
 import type { DrawnBlock, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
 import { contrastRatio, MINIMUM_CONTRAST } from '../../colour';
 import { backdropOf, behindOf } from '../../layout/backdrop';
-import { AREA_LETTER_SPACING, AREA_PADDING } from '../../layout/arrangeAreas';
+import { AREA_PADDING } from '../../layout/arrangeAreas';
 import { blockPadding } from '../../layout/padding';
 import { resolveStyle } from '../../layout/resolveStyle';
 import { wrapText } from '../../layout/wrapText';
@@ -64,7 +64,7 @@ export function paintBlock(selection: Selection, block: DrawnBlock, style: Layou
     let height = frame.height;
     if (retype) {
         const whole = block.textLines.join(' ');
-        const width = block.kind === 'area' ? frame.width - 2 * AREA_PADDING - whole.length * AREA_LETTER_SPACING * resolved.font.size : textBox(drawn, frame.width, frame.height).width;
+        const width = block.kind === 'area' ? frame.width - 2 * AREA_PADDING : textBox(drawn, frame.width, frame.height).width;
         lines = measurer ? wrapText(whole, width, resolved.font, measurer) : block.textLines;
         const pad = blockPadding(block);
         height = Math.max(frame.height, 2 * pad.y + lines.length * resolved.lineHeight);

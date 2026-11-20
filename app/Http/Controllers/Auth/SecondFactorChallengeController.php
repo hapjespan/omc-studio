@@ -37,7 +37,7 @@ class SecondFactorChallengeController extends Controller
             ['code.required' => __('sign_in.second_factor.code_required')],
         );
 
-        $throttle = new Throttle(self::NAMESPACE);
+        $throttle = new Throttle(self::NAMESPACE, true);
         $identifier = (string) $user->getKey();
 
         if ($throttle->tooManyAttempts($identifier)) {

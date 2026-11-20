@@ -5,10 +5,16 @@ namespace App\Http\Middleware;
 use App\Models\Canvas;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
+
+    public function shouldStoreCurrentUrl(Request $request, Response $response): bool
+    {
+        return ! $response->isRedirect() && parent::shouldStoreCurrentUrl($request, $response);
+    }
 
     /** @return array<string, mixed> */
     public function share(Request $request): array
@@ -22,7 +28,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'appName' => config('app.name'),
             'canvas' => $this->canvas($request),
-            'flash' => ['status' => $request->session()->get('status'), 'undoToken' => $request->session()->get('undo_token')],
+            'flash' => ['status' => $request->session()->get('status'), 'undo' => $request->session()->get('undo'), 'bulk' => $request->session()->get('bulk'), 'carry_over' => $request->session()->get('carry_over'), 'undoToken' => $request->session()->get('undo_token')],
         ];
     }
 
@@ -36,7 +42,7 @@ class HandleInertiaRequests extends Middleware
     /** @return array<string, mixed>|null */
     private function canvas(Request $request): ?array
     {
-        $canvas = $request->route('canvas');
+        $canvas = $request->route('canvas') ?? $request->route('snapshot')?->canvas;
 
         return $canvas instanceof Canvas
             ? [
@@ -44,7 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'name' => $canvas->name,
                 'kind' => $canvas->kind->value,
                 'archived' => $canvas->archived_at !== null,
-                'organisation' => $canvas->organisation === null ? null : ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name],
+                'organisation' => $canvas->organisation === null ? null : ['id' => $canvas->organisation->id, 'name' => $canvas->organisation->name, 'is_sample' => $canvas->organisation->is_sample],
             ]
             : null;
     }

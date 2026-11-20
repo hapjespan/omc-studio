@@ -25,6 +25,8 @@ class Element extends Model
     /** @var list<string> */
     protected $touches = ['canvas'];
 
+    protected $with = ['canvas'];
+
     protected $attributes = ['position' => 0, 'is_unknown_allocation' => false];
 
     protected $casts = [
@@ -50,5 +52,13 @@ class Element extends Model
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    public function carriesCosts(Canvas $canvas): bool
+    {
+        return $this->canvas_id === $canvas->getKey()
+            && $this->archived_at === null
+            && ! $this->is_unknown_allocation
+            && $this->area?->carries_costs === true;
     }
 }

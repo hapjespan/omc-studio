@@ -6,11 +6,13 @@ import type { AreaKey, BlockStyle, ElementStyle, FontSpec } from './types';
 export type StyleLevel = 'area' | 'domain' | 'cluster' | 'activity';
 
 const HAIRLINE = '#DCDFE2';
+const SECONDARY = '#454C57';
+const AREA_TRACKING = 0.04;
 
 const font = (family: FontSpec['family'], size: number, weight: number): FontSpec => ({ family, size, weight, italic: false });
 
 const typography = (area: AreaKey, level: StyleLevel): Pick<BlockStyle, 'font' | 'lineHeight' | 'radius'> => {
-    if (level === 'area') return { font: font('Space Grotesk', 13, 600), lineHeight: 18, radius: 10 };
+    if (level === 'area') return { font: { ...font('Space Grotesk', 13, 600), ...(area === 'direction' ? {} : { tracking: AREA_TRACKING }) }, lineHeight: 18, radius: 10 };
     if (isListArea(area)) return { font: font('Inter', 13, level === 'domain' ? 600 : 400), lineHeight: 18, radius: 0 };
     if (level === 'domain') return { font: font('Space Grotesk', 14, 600), lineHeight: 20, radius: 8 };
     return { font: font('Inter', 13, level === 'cluster' ? 600 : 400), lineHeight: 18, radius: 6 };
@@ -26,7 +28,8 @@ export function resolveStyle(area: AreaKey, level: StyleLevel, override: Element
     const borderWidth = override.border_width ?? (defaultBorder === null ? 0 : 1);
     const border = borderWidth === 0 ? null : (override.border_colour ?? defaultBorder ?? HAIRLINE);
     const seen = fill === null ? behind : fillOpacity < 100 ? effectiveFill(fill, fillOpacity, behind) : fill;
-    const textColour = override.text_colour ?? autoTextColour(seen);
+    const heading = level === 'area' && area !== 'direction' && override.fill === undefined && override.fill_opacity === undefined;
+    const textColour = override.text_colour ?? (heading ? SECONDARY : autoTextColour(seen));
     const typed = typography(area, level);
     const family = override.font === undefined ? typed.font.family : override.font === 'inter' ? 'Inter' : 'Space Grotesk';
     const size = override.font_size ?? typed.font.size;
@@ -43,7 +46,7 @@ export function resolveStyle(area: AreaKey, level: StyleLevel, override: Element
         alignVertical: override.align_vertical ?? 'top',
         textColour,
         labelColour: area === 'direction' && level === 'area' ? defaultColours.directionLabels : textColour,
-        font: { family, size, weight, italic: (override.italic ?? false) && supportsItalic(family) },
+        font: { family, size, weight, italic: (override.italic ?? false) && supportsItalic(family), ...(typed.font.tracking ? { tracking: typed.font.tracking } : {}) },
         lineHeight: override.font_size === undefined ? typed.lineHeight : Math.round(size * 1.4),
         radius: override.corner_radius ?? typed.radius,
     };

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useSlots } from 'vue';
 import { t } from '../i18n';
 import { ARTBOARD } from '../layout';
 import type { DrawnCanvas, LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
@@ -26,7 +26,11 @@ const props = defineProps<{
     modalities: ModalityMark[];
     selectedId?: string | null;
     zoom?: number;
+    cardColours?: Record<string, { background: string; text: string }>;
+    figureLines?: (id: string) => string[];
+    inertIds?: Set<string>;
 }>();
+const slots = useSlots();
 const scale = computed(() => (props.zoom ?? 100) / 100);
 const height = computed(() => contentHeight(props.drawn));
 const artboard = ref<HTMLElement>();
@@ -34,7 +38,7 @@ const move = (event: KeyboardEvent): void => {
     const current = (event.target as HTMLElement).closest<HTMLElement>('[data-block]')?.dataset.block;
     if (!current || !isNavigationKey(event.key)) return;
     event.preventDefault();
-    const next = navigate(props.drawn.blocks, current, event.key);
+    const next = navigate(props.inertIds?.size ? props.drawn.blocks.filter((block) => !props.inertIds?.has(block.id)) : props.drawn.blocks, current, event.key);
     if (next) artboard.value?.querySelector<HTMLElement>(`[data-block="${CSS.escape(next)}"]`)?.focus();
 };
 const emit = defineEmits<{ select: [id: string] }>();
@@ -59,11 +63,16 @@ const hover = computed(() => {
     }
     const block = props.drawn.blocks.find((candidate) => candidate.id === id);
     const content = detailOf(id, { areas: props.areas, elements: props.elements, statements: props.statements, modalities: props.modalities });
-    if (!block || !content || block.kind === 'area') return null;
-    return { x: (block.x + block.width + 8) * scale.value, y: block.y * scale.value, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : [])] };
+    if (!block || !content) return null;
+    if (block.kind === 'area') {
+        const lines = props.figureLines?.(id) ?? [];
+        return lines.length ? { x: (block.x + 8) * scale.value, y: (block.y + 30) * scale.value, title: content.title, lines } : null;
+    }
+    return { x: (block.x + block.width + 8) * scale.value, y: block.y * scale.value, title: content.title, lines: [content.kind, ...(content.modality ? [content.modality.name] : []), ...(content.system ? [t('view.system')] : []), ...(props.figureLines?.(id) ?? [])] };
 });
 
 const names = computed(() => new Map<string, string>([...props.areas.map((area) => [area.key, area.label] as [string, string]), ...props.elements.map((element) => [element.id, element.name] as [string, string])]));
+const areaLabel = (id: string): string => [names.value.get(id) ?? id, ...(props.figureLines?.(id) ?? [])].join('. ');
 const colours = computed(() => new Map(props.modalities.map((modality) => [modality.letter, modality.colour])));
 const modalityNames = computed(() => new Map(props.modalities.map((modality) => [modality.letter, t(`view.modality.${modality.key}`)])));
 const band = computed(() => props.drawn.blocks.find((block) => block.id === 'direction'));
@@ -79,14 +88,30 @@ const segments = computed(() => new Map(props.drawn.direction.map((column) => [c
             v-for="block in blocks"
             :key="block.id"
             :block="block"
-            :label="block.kind === 'area' ? (names.get(block.id) ?? block.id) : null"
+            :label="block.kind === 'area' ? areaLabel(block.id) : null"
             :selected="selectedId === block.id"
             :modality-colour="block.modality ? (colours.get(block.modality) ?? null) : null"
             :modality-name="block.modality ? (modalityNames.get(block.modality) ?? null) : null"
+            :colour="cardColours?.[block.id] ?? null"
+            :summary="figureLines && block.kind !== 'area' ? figureLines(block.id).join('. ') : null"
+            :inert="inertIds?.has(block.id) ?? false"
             @select="emit('select', $event)"
             :described="!!hover && peeked === block.id"
             @peek="peek"
         />
+        <template v-if="slots.card">
+            <div
+                v-for="block in blocks"
+                :key="block.id"
+                class="pointer-events-none absolute overflow-hidden"
+                :class="{ 'outline-2 -outline-offset-2 outline-ink': selectedId === block.id }"
+                :style="{ left: `${block.x}px`, top: `${block.y}px`, width: `${block.width}px`, height: `${block.drawnHeight}px`, zIndex: 40, borderRadius: `${block.style.radius}px` }"
+                :data-overlay-card="block.id"
+                aria-hidden="true"
+            >
+                <slot name="card" :block="block" />
+            </div>
+        </template>
         <div v-if="band" class="pointer-events-none absolute left-0 top-0 z-[2]" :style="{ width: `${ARTBOARD.width}px`, height: `${ARTBOARD.directionHeight}px`, color: band.style.textColour, fontFamily: '\'Inter\'' }">
             <div
                 v-for="column in drawn.direction"
@@ -111,6 +136,8 @@ const segments = computed(() => new Map(props.drawn.direction.map((column) => [c
         </div>
         <span class="sr-only">{{ t('view.artboard') }}</span>
     </div>
-    <HoverContent v-if="hover" id="view-hover" v-bind="hover" @enter="peek(peeked)" @leave="peek(null)" />
+    <HoverContent v-if="hover" id="view-hover" v-bind="hover" @enter="peek(peeked)" @leave="peek(null)">
+        <slot name="hover" :id="peeked" />
+    </HoverContent>
     </div>
 </template>

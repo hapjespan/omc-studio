@@ -4,7 +4,7 @@ export type TemplateDialogKind = 'save' | 'rename' | 'delete';
 export interface TemplateTarget {
     id: number;
     name: string;
-    counts: { elements: number; statements: number } | null;
+    counts: Record<string, number> | null;
 }
 </script>
 
@@ -33,7 +33,7 @@ const titles: Record<TemplateDialogKind, () => string> = {
 };
 const description = computed(() => {
     if (kind.value !== 'delete' || !target.value?.counts) return undefined;
-    const { elements, statements } = target.value.counts;
+    const { elements = 0, statements = 0 } = target.value.counts;
 
     return t('canvas_dialog.delete_description', { counts: [t('canvas_dialog.count_elements', { count: elements }), t('canvas_dialog.count_statements', { count: statements })].join(', ') });
 });

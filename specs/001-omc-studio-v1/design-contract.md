@@ -97,6 +97,7 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 ## Components
 
 - **Buttons**: primary is an ink fill with white text, 36 high, radius 6. Secondary is white with a hairline border at 36, 32 or 28 high. Danger is white with red text and outline. Icon buttons are 28 by 28. Disabled buttons are `#E6E8E6` with a lock icon and an explanation next to them ("Opslaan kan zodra er 0,00% te verdelen is").
+- **File field** (proposed by T387, not in the design): label above in 13/600, a 36-pixel box with the `#848B95` edge and a 28-pixel native file button inside, hint in 11.5 muted and the refusal in 12.5 danger below, both tied with `aria-describedby`; the browser's own button label stays untranslated.
 - **Segmented control**: used for the modes, the overlay choice and the Modality choice (Common, Adaptive, Specialized, Distinct, Geen, each with its letter badge). The selected Modality has a 2-pixel ink border.
 - **Inputs**: label above in 13/600, field 36 high (32 in dense panels), hint below in 11.5 muted. Amounts carry "€ " inside the field. Percentages carry "%" after it.
 - **Filter chips**: a select button showing "Soort Alle".
@@ -162,3 +163,8 @@ Foundation gaps F-2, F-6, G-8 and K-28 are closed by T386: `InlineField`, the na
 ## Formats seen in the design
 
 On the canvas and in the overlay amounts are whole euros ("€ 84.000") and percentages have one decimal ("2,8%"); the detail panel, tables, forms and Toewijzen show cents ("€ 54.000,00") and two decimals (decision 40). Each amount is rounded on its own and shows the same everywhere; the line "Totalen sluiten" shows its amounts in cents (decision 52). The financial overlay draws its figures inside the card at the card's place and size (decision 39). The Cost record form also shows Supplier, cost centre, description and remark (decision 42). Long names wrap and cards grow (decision 48).
+
+## Decisions of the product owner after the build, 2026-11-20
+
+- Bekijken at 1440 px stays fit to width (about 62%) with zoom buttons to 100%; nothing changes (product owner decision). The question is closed as decided.
+- The screens of delivery 3 are accepted in the current design language (T387).

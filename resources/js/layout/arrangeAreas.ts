@@ -13,7 +13,6 @@ export const ARTBOARD_HEIGHT = 1188;
 export const AREA_GAP = 12;
 export const AREA_PADDING = 12;
 export const AREA_HEADER = 28;
-export const AREA_LETTER_SPACING = 0.04;
 const LIST_COLUMN = 240;
 const MIN_TOP_ROW = 160;
 

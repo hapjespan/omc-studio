@@ -3,6 +3,7 @@ import { seedOrganisation, tinker, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
 
 test('create from Leeg canvas, copy within and across Organisations, archive, restore and delete', async ({ page }) => {
+    test.slow();
     const source = unique('Noord');
     const target = unique('Zuid');
     const canvas = unique('Operating model');

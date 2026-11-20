@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\Admin\UserSecondFactorController;
 use App\Http\Controllers\Admin\UserSessionsController;
+use App\Http\Controllers\AllocationImportController;
 use App\Http\Controllers\Auth\KeepAliveController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\ReauthenticateController;
@@ -16,17 +17,25 @@ use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignOutController;
 use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasEntryController;
+use App\Http\Controllers\CanvasImportController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
 use App\Http\Controllers\DrawingController;
 use App\Http\Controllers\DrawingMoveController;
 use App\Http\Controllers\ElementController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FullExchangeController;
 use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\QuickEntryController;
+use App\Http\Controllers\SampleDataController;
 use App\Http\Controllers\SecondFactorController;
+use App\Http\Controllers\SnapshotController;
+use App\Http\Controllers\SnapshotViewController;
 use App\Http\Controllers\StatementController;
+use App\Http\Controllers\StructureImportController;
+use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UndoController;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +111,10 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/organisations')->gr
     Route::post('/{organisation}/restore', [OrganisationController::class, 'restore']);
 });
 
+foreach (glob(__DIR__.'/finance/*.php') ?: [] as $file) {
+    require $file;
+}
+
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::post('/canvases', [CanvasController::class, 'store']);
     Route::patch('/canvases/{canvas}', [CanvasController::class, 'update']);
@@ -130,6 +143,63 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::patch('/templates/{canvas}', [TemplateController::class, 'update']);
     Route::delete('/templates/{canvas}', [TemplateController::class, 'destroy']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/system-notices')->group(function () {
+    Route::get('/', [SystemNoticeController::class, 'index']);
+    Route::post('/{notice}/seen', [SystemNoticeController::class, 'seen']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/organisations/{organisation}/export/cost-records.csv', [ExportController::class, 'costRecords']);
+    Route::get('/canvases/{canvas}/export/allocations.csv', [ExportController::class, 'allocations']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/import/allocations/preview', [AllocationImportController::class, 'preview']);
+    Route::post('/canvases/{canvas}/import/allocations', [AllocationImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/import/structure/preview', [StructureImportController::class, 'preview']);
+    Route::post('/canvases/{canvas}/import/structure', [StructureImportController::class, 'commit']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/export/json', [ExportController::class, 'canvasJson']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/imports/canvas/preview', [CanvasImportController::class, 'preview']);
+    Route::post('/imports/canvas', [CanvasImportController::class, 'commit']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/versions', [SnapshotController::class, 'store']);
+    Route::patch('/snapshots/{snapshot}', [SnapshotController::class, 'update']);
+    Route::post('/snapshots/{snapshot}/archive', [SnapshotController::class, 'archive']);
+    Route::post('/snapshots/{snapshot}/restore', [SnapshotController::class, 'restore']);
+    Route::delete('/snapshots/{snapshot}', [SnapshotController::class, 'destroy']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/versions', [SnapshotController::class, 'index']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin/sample-data')->group(function () {
+    Route::get('/', [SampleDataController::class, 'show']);
+    Route::post('/remove', [SampleDataController::class, 'remove']);
+});
+
+Route::middleware(['auth', 'can:administer'])->prefix('admin')->group(function () {
+    Route::get('/exchange', [FullExchangeController::class, 'page']);
+    Route::get('/export/full', [FullExchangeController::class, 'export']);
+    Route::post('/import/full/preview', [FullExchangeController::class, 'preview']);
+    Route::post('/import/full', [FullExchangeController::class, 'commit']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/snapshots/{snapshot}/view', SnapshotViewController::class);
 });
 
 Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}')->group(function () {

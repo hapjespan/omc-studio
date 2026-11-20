@@ -26,6 +26,7 @@ class ElementDeletion
         private readonly SiblingPosition $positions,
         private readonly UnknownAllocationGuard $unknown,
         private readonly LayoutRows $layouts,
+        private readonly ElementTree $tree,
     ) {}
 
     public function delete(Element $element, User $user, ?string $clusterChildren = null): string
@@ -40,6 +41,8 @@ class ElementDeletion
             $this->unknown->assertNone($element);
 
             $this->liftWhenAsked($canvas, $element, $clusterChildren);
+
+            $this->tree->assertNoAllocationLines($element);
 
             $rows = $this->rows($element);
             $removed = array_column($rows, 'id');

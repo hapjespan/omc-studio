@@ -3,12 +3,14 @@
 namespace App\Services\Structure;
 
 use App\Enums\ElementKind;
+use App\Exceptions\RedistributionRequired;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
 use App\Services\Layout\LayoutRows;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class ElementTree
@@ -120,7 +122,7 @@ class ElementTree
 
             $this->unknown->assertNone($element);
 
-            $changes = array_intersect_key($fields, array_flip(['name', 'description', 'icon']));
+            $changes = array_intersect_key($fields, array_flip(['name', 'description', 'modality_id', 'icon']));
 
             if (isset($changes['name'])) {
                 $changes['name'] = trim((string) $changes['name']);
@@ -183,6 +185,47 @@ class ElementTree
 
             $canvas->raiseStructureVersion();
         });
+    }
+
+    public function assertNoAllocationLines(Element $element): void
+    {
+        $years = DB::table('allocation_sets')
+            ->join('allocation_lines', 'allocation_lines.allocation_set_id', '=', 'allocation_sets.id')
+            ->join('fiscal_years', 'fiscal_years.id', '=', 'allocation_sets.fiscal_year_id')
+            ->whereIn('allocation_lines.element_id', $this->subtree($element))
+            ->groupBy('allocation_sets.fiscal_year_id', 'fiscal_years.year')
+            ->orderBy('fiscal_years.year')
+            ->get([
+                'allocation_sets.fiscal_year_id',
+                'fiscal_years.year',
+                DB::raw('count(distinct allocation_sets.cost_record_id) as cost_records'),
+                DB::raw('sum(allocation_lines.basis_points) as basis_points'),
+            ])
+            ->map(fn (object $row) => [
+                'fiscal_year_id' => (int) $row->fiscal_year_id,
+                'year' => (int) $row->year,
+                'cost_records' => (int) $row->cost_records,
+                'basis_points' => (int) $row->basis_points,
+            ])
+            ->all();
+
+        if ($years !== []) {
+            throw RedistributionRequired::for($years);
+        }
+    }
+
+    /** @return list<string> */
+    private function subtree(Element $element): array
+    {
+        $ids = [(string) $element->getKey()];
+        $level = $ids;
+
+        while ($level !== []) {
+            $level = Element::query()->whereIn('parent_id', $level)->pluck('id')->map(fn (mixed $id) => (string) $id)->all();
+            $ids = [...$ids, ...$level];
+        }
+
+        return $ids;
     }
 
     private function carry(Element $element): void

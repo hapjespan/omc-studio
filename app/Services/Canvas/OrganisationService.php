@@ -3,6 +3,7 @@
 namespace App\Services\Canvas;
 
 use App\Models\Canvas;
+use App\Models\CostRecord;
 use App\Models\Organisation;
 use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditRemoval;
@@ -22,12 +23,15 @@ class OrganisationService
         private readonly AuditContext $context,
     ) {}
 
-    public function create(string $name): Organisation
+    public function create(string $name, bool $sample = false): Organisation
     {
-        return $this->writes->run([], function () use ($name) {
+        return $this->writes->run([], function () use ($name, $sample) {
             $this->assertNameFree($name);
 
-            return Organisation::create(['name' => trim($name), 'slug' => $this->uniqueSlug($name)]);
+            $organisation = new Organisation(['name' => trim($name), 'slug' => $this->uniqueSlug($name)]);
+            $organisation->forceFill(['is_sample' => $sample])->save();
+
+            return $organisation;
         });
     }
 
@@ -67,7 +71,7 @@ class OrganisationService
     public function delete(Organisation $organisation): void
     {
         $logo = $this->writes->run([$organisation], function () use ($organisation) {
-            if (Canvas::where('organisation_id', $organisation->getKey())->exists()) {
+            if (Canvas::where('organisation_id', $organisation->getKey())->exists() || CostRecord::where('organisation_id', $organisation->getKey())->exists()) {
                 throw ValidationException::withMessages(['rule' => __('organisations.delete_blocked')]);
             }
 
