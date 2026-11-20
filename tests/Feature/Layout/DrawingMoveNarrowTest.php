@@ -130,6 +130,15 @@ class DrawingMoveNarrowTest extends StructureTestCase
         $this->assertSame(['fill' => '#FFFFFF'], $row->style);
     }
 
+    public function test_children_are_narrowed_when_the_client_already_narrowed_the_block_to_the_target_width(): void
+    {
+        $this->row($this->child, 0, 10, 400, 48);
+
+        $this->move(['x' => 0, 'y' => 0, 'width' => self::TARGET_WIDTH, 'height' => 100])->assertOk();
+
+        $this->assertSame(self::TARGET_WIDTH, $this->stored($this->child)->width);
+    }
+
     public function test_a_manual_child_is_never_narrowed_below_the_minimum_width(): void
     {
         $this->row($this->target, 0, 200, 40, 200);

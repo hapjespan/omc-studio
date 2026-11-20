@@ -125,7 +125,8 @@ class DrawingMove
         }
 
         $refusals = (new LayoutValidator($this->rows->elements($canvas)))->refusals($this->payload($canvas, $element, $layout));
-        $messages = array_column(array_filter($refusals, fn (array $refusal): bool => $refusal['element'] === (string) $element->getKey()), 'message');
+        $own = [(string) $element->getKey(), ...Element::query()->where('parent_id', $element->getKey())->whereNull('archived_at')->pluck('id')->map(fn ($id) => (string) $id)->all()];
+        $messages = array_column(array_filter($refusals, fn (array $refusal): bool => in_array($refusal['element'], $own, true)), 'message');
 
         if ($messages !== []) {
             throw ValidationException::withMessages(['rule' => $messages]);

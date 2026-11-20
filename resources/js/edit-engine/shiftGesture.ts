@@ -3,7 +3,7 @@ import type { SceneGraph } from '@open-pencil/scene-graph';
 import type { MoveVerdict, PlacedMove, RefusalReason, ShiftVerdictEvent } from './DrawingEngine';
 import type { Restrictions } from './restrictions';
 import { ARTBOARD_ID, TEXT_SUFFIX } from './scene';
-import { fitChildren, innermostAt, judge, landing, type ChildBox, type MoveModel, type Point } from './shiftMove';
+import { fitChildren, innermostAt, judge, landing, type ChildBox, type MoveBlock, type MoveModel, type Point } from './shiftMove';
 
 export interface SavedPlace {
     id: string;
@@ -13,11 +13,14 @@ export interface SavedPlace {
     width: number;
     height: number;
     index: number;
+    position: number;
     children?: ChildBox[];
 }
 
 export class MovePlacement {
     private saved: SavedPlace | null = null;
+    private readonly appended = new Map<string, number>();
+    private appends = 0;
 
     constructor(
         private readonly graph: SceneGraph,
@@ -43,10 +46,11 @@ export class MovePlacement {
         const node = this.graph.getNode(elementId);
         const parent = node?.parentId ? this.graph.getNode(node.parentId) : null;
         if (!node || !parent) return null;
-        return { id: elementId, parentId: parent.id, x: node.x, y: node.y, width: node.width, height: node.height, index: parent.childIds.indexOf(elementId), children: this.children(elementId) };
+        return { id: elementId, parentId: parent.id, x: node.x, y: node.y, width: node.width, height: node.height, index: parent.childIds.indexOf(elementId), position: this.positionOf(elementId), children: this.children(elementId) };
     }
 
     restore(place: SavedPlace): void {
+        this.appended.delete(place.id);
         this.restrictions.privileged(() => {
             this.graph.reparentNode(place.id, place.parentId);
             this.graph.updateNode(place.id, { x: place.x, y: place.y, width: place.width, height: place.height });
@@ -55,19 +59,20 @@ export class MovePlacement {
         });
     }
 
-    previewMove(elementId: string, targetId: string, topLeft?: Point): PlacedMove | null {
+    previewMove(elementId: string, targetId: string, topLeft?: Point, former?: SavedPlace): PlacedMove | null {
         const model = this.model();
         const target = model.find((block) => block.id === targetId);
-        const place = this.capture(elementId);
+        const place = former ?? this.capture(elementId);
         if (!target || !place || !model.some((block) => block.id === elementId)) return null;
         const layout = landing(model, elementId, targetId, topLeft ?? { x: target.x, y: target.y + this.lowestChild(targetId) });
         this.saved = place;
+        this.appended.set(elementId, ++this.appends);
         this.restrictions.privileged(() => {
             this.graph.reparentNode(elementId, targetId);
             this.graph.updateNode(elementId, { x: layout.x, y: layout.y, width: layout.width, height: layout.height });
             if (layout.width < place.width) for (const child of fitChildren(place.children ?? [], layout.width)) this.graph.updateNode(child.id, { x: child.x, width: child.width });
         });
-        return { kind: 'move', elementId, targetId, layout };
+        return { kind: 'move', elementId, targetId, layout, narrowed: layout.width < place.width };
     }
 
     revert(elementId: string): void {
@@ -75,6 +80,16 @@ export class MovePlacement {
         if (!place || place.id !== elementId) return;
         this.saved = null;
         this.restore(place);
+    }
+
+    private positionOf(elementId: string): number {
+        const model = this.model();
+        const block = model.find((entry) => entry.id === elementId);
+        if (!block) return 0;
+        const key = (entry: MoveBlock): number => (this.appended.has(entry.id) ? Number.MAX_SAFE_INTEGER / 2 + (this.appended.get(entry.id) ?? 0) : entry.position);
+        const siblings = model.filter((entry) => entry.parentId === block.parentId && entry.kind === block.kind && entry.areaKey === block.areaKey).sort((a, b) => key(a) - key(b) || (a.id < b.id ? -1 : 1));
+
+        return siblings.findIndex((entry) => entry.id === elementId);
     }
 
     private children(elementId: string): ChildBox[] {
@@ -126,6 +141,7 @@ export function attachShiftMove(options: ShiftMoveOptions): ShiftMoveHandle {
     const setDropTarget = editor.setDropTarget.bind(editor);
     let snapshot: MoveModel = options.model;
     let origin: Point | null = null;
+    let others = new Map<string, Point>();
     let gesture: Gesture | null = null;
     let verdict: MoveVerdict | null = null;
     editor.setDropTarget = () => undefined;
@@ -151,6 +167,7 @@ export function attachShiftMove(options: ShiftMoveOptions): ShiftMoveHandle {
         gesture = null;
         snapshot = placement.model();
         origin = at(event);
+        others = new Map([...editor.state.selectedIds].flatMap((id) => (options.graph.getNode(id) ? [[id, { x: options.graph.getNode(id)!.x, y: options.graph.getNode(id)!.y }] as [string, Point]] : [])));
     };
 
     const move = (event: MouseEvent): void => {
@@ -195,13 +212,17 @@ export function attachShiftMove(options: ShiftMoveOptions): ShiftMoveHandle {
         if (!current || !current.moved || !event.shiftKey || !decided) return;
         event.stopImmediatePropagation();
         window.dispatchEvent(new Event('blur'));
+        options.restrictions.privileged(() => {
+            for (const [id, point] of others) if (id !== current.id) options.graph.updateNode(id, { x: point.x, y: point.y });
+        });
+        editor.select([current.id]);
         if (!decided.valid) {
             placement.restore(current.place);
             onRefusal?.(decided.reason, decided.targetName);
             return;
         }
         const released = at(event);
-        const intent = placement.previewMove(current.id, decided.targetId, { x: released.x - current.grab.x, y: released.y - current.grab.y });
+        const intent = placement.previewMove(current.id, decided.targetId, { x: released.x - current.grab.x, y: released.y - current.grab.y }, current.place);
         if (intent) onIntent(intent);
     };
 

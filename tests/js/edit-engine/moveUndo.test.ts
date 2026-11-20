@@ -66,7 +66,7 @@ describe('the panel route of the move', () => {
         const setup = start();
         const lowest = setup.box('act-3').y + setup.box('act-3').height;
         setup.history.previewMove('act-1', 'dom-2');
-        expect(setup.intents).toEqual([{ kind: 'move', elementId: 'act-1', targetId: 'dom-2', layout: { x: 0, y: lowest, width: moved.width, height: moved.height, z: moved.z }, origin: 'panel' }]);
+        expect(setup.intents).toEqual([{ kind: 'move', elementId: 'act-1', targetId: 'dom-2', layout: { x: 0, y: lowest, width: moved.width, height: moved.height, z: moved.z }, narrowed: false, origin: 'panel' }]);
         expect(setup.box('act-1').parentId).toBe('dom-2');
     });
 
@@ -91,7 +91,7 @@ describe('the drag route of the move', () => {
         expect(setup.box('act-1').parentId).toBe('dom-2');
         setup.history.commitMove('act-1', 'dom-2', placed.layout, 'new');
         setup.editor.undoAction();
-        expect(setup.intents[1]).toEqual({ kind: 'move', elementId: 'act-1', targetId: 'dom-1', layout: null, position: before.index, origin: 'undo' });
+        expect(setup.intents[1]).toEqual({ kind: 'move', elementId: 'act-1', targetId: 'dom-1', layout: null, position: 0, origin: 'undo' });
     });
 });
 
@@ -105,11 +105,10 @@ describe('the undo entry of an accepted move', () => {
 
     it('emits an undo intent with the former parent, position and Automatic layout, leaving the scene alone', () => {
         const setup = start();
-        const before = setup.box('act-1');
         moveAndCommit(setup);
         const placed = setup.box('act-1');
         setup.editor.undoAction();
-        expect(setup.intents[1]).toEqual({ kind: 'move', elementId: 'act-1', targetId: 'dom-1', layout: null, position: before.index, origin: 'undo' });
+        expect(setup.intents[1]).toEqual({ kind: 'move', elementId: 'act-1', targetId: 'dom-1', layout: null, position: 0, origin: 'undo' });
         expect(setup.box('act-1')).toEqual(placed);
         expect(setup.stacks()).toEqual([false, true]);
     });
@@ -197,5 +196,31 @@ describe('ordinary layout edits around a move', () => {
         setup.editor.undoAction();
         expect(setup.box('act-2').x).toBe(20);
         expect(setup.intents).toHaveLength(2);
+    });
+});
+
+describe('the drag route keeps the place the block started from', () => {
+    it('reverts to the place captured before the library displaced the block, not to the dropped place', () => {
+        const setup = start();
+        const started = setup.placement.capture('act-1')!;
+        setup.editor.graph.updateNode('act-1', { x: 60, y: 90 });
+        const placed = setup.placement.previewMove('act-1', 'dom-2', { x: 100, y: 100 }, started)!;
+        setup.history.dragged(placed);
+        expect(setup.intents[0].narrowed).toBe(false);
+        setup.history.revertMove('act-1');
+        expect(setup.box('act-1')).toMatchObject({ parentId: 'dom-1', x: started.x, y: started.y });
+    });
+
+    it('sends the structure position of the block, not its scene index, on undo', () => {
+        const setup = start();
+        moveAndCommit(setup);
+        setup.editor.undoAction();
+        expect(setup.intents.at(-1)).toMatchObject({ origin: 'undo', position: 0 });
+    });
+
+    it('keeps the style of a Manual block in the intent', () => {
+        const setup = start({ 'act-1': { x: 10, y: 20, width: 150, height: 40, z: 2, style: { fill: '#F6E6CC' } } });
+        setup.history.previewMove('act-1', 'dom-2');
+        expect(setup.intents[0].layout).toMatchObject({ style: { fill: '#F6E6CC' } });
     });
 });

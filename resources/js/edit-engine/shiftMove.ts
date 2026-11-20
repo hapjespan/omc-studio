@@ -19,6 +19,7 @@ export interface MoveBlock {
     width: number;
     height: number;
     z: number;
+    position: number;
 }
 
 export type MoveModel = MoveBlock[];
@@ -67,6 +68,7 @@ export function buildMoveModel(canvas: DrawnCanvas, structure: CanvasStructure):
             width: block.width,
             height: block.drawnHeight,
             z: block.z,
+            position: element.position,
         });
     }
     return model;

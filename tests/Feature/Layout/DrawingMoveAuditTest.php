@@ -54,7 +54,7 @@ class DrawingMoveAuditTest extends StructureTestCase
 
         $entries = AuditEntry::query()->where('subject_id', (string) $this->activity->id)->where('action', 'layout_changed')->orderBy('id')->get();
         $this->assertCount(2, $entries);
-        $this->assertSame([1, 1, 0], array_values($entries[0]->changes['place'][0]) ?: []);
+        $this->assertSame([1, 1, 0], array_values($entries[0]->changes['place'][0]));
         $this->assertSame([9, 9, 0], array_values($entries[1]->changes['place'][1]));
     }
 

@@ -8,8 +8,9 @@ export interface MoveFlowDependencies {
     apply: (command: DrawingCommand) => void;
     enqueue: (task: MoveTask) => void;
     nameOf: (id: string) => string;
-    widthOf: (id: string) => number | null;
     exists: (id: string) => boolean;
+    valid: (elementId: string, targetId: string) => boolean;
+    reloadStructure: () => Promise<void>;
     say: (text: string) => void;
     text: (key: string, values?: Record<string, string>) => string;
     refresh: (keepOwn: boolean, message: string) => Promise<void>;
@@ -39,8 +40,8 @@ export function createMoveFlow(deps: MoveFlowDependencies): MoveFlow {
         if (undoing(intent)) deps.apply({ kind: 'cancelMoveHistory', direction: intent.origin as 'undo' | 'redo' });
         else deps.apply({ kind: 'revertMove', elementId: intent.elementId });
     };
-    const announce = (intent: MoveIntent, stored: { width: number } | null, before: number | null): void => {
-        const narrowed = before !== null && (stored?.width ?? intent.layout?.width ?? before) < before;
+    const announce = (intent: MoveIntent): void => {
+        const narrowed = intent.narrowed === true;
         const moved = deps.text('drawing.moved', { block: deps.nameOf(intent.elementId), target: deps.nameOf(intent.targetId) });
         deps.say(narrowed ? `${moved}. ${deps.text('drawing.moved_narrower', { block: deps.nameOf(intent.elementId), target: deps.nameOf(intent.targetId) })}` : moved);
     };
@@ -54,7 +55,6 @@ export function createMoveFlow(deps: MoveFlowDependencies): MoveFlow {
         confirm() {
             const intent = pending.value;
             if (!intent) return;
-            const before = deps.widthOf(intent.elementId);
             pending.value = null;
             busy.value = true;
             deps.enqueue(async (versions: LayoutVersions) => {
@@ -62,11 +62,13 @@ export function createMoveFlow(deps: MoveFlowDependencies): MoveFlow {
                 busy.value = false;
                 if (result.outcome === 'saved') {
                     deps.apply({ kind: 'commitMove', elementId: intent.elementId, targetId: intent.targetId, layout: intent.layout, mode: commitMode(intent) });
-                    announce(intent, result.layout, before);
+                    announce(intent);
+                    void deps.reloadStructure();
                     return result.versions;
                 }
                 if (result.outcome === 'conflict') {
                     lost = intent;
+                    revert(intent);
                     throw new MoveConflict(result.conflict);
                 }
                 if (result.outcome === 'refused') {
@@ -91,7 +93,12 @@ export function createMoveFlow(deps: MoveFlowDependencies): MoveFlow {
             const intent = lost;
             lost = null;
             if (!intent) return;
-            if (deps.exists(intent.elementId) && deps.exists(intent.targetId)) deps.apply({ kind: 'previewMove', elementId: intent.elementId, targetId: intent.targetId });
+            if (undoing(intent)) {
+                deps.apply({ kind: 'clearHistory' });
+                deps.say(deps.text('drawing.move_not_saved'));
+                return;
+            }
+            if (deps.exists(intent.elementId) && deps.exists(intent.targetId) && deps.valid(intent.elementId, intent.targetId)) deps.apply({ kind: 'previewMove', elementId: intent.elementId, targetId: intent.targetId });
             else deps.say(deps.text('drawing.move_not_saved'));
         },
         structureReload(silent = false) {

@@ -92,8 +92,9 @@ const moveFlow = createMoveFlow({
     apply: (command) => engine.value?.apply(command),
     enqueue: (task) => queue?.enqueueMove(task),
     nameOf: (id) => names.value.get(id) ?? id,
-    widthOf: (id) => drawn.value?.blocks.find((block) => block.id === id)?.width ?? null,
     exists: (id) => props.elements.some((element) => element.id === id),
+    valid: (elementId, targetId) => moveTargets(elementId, props.layout.areas, props.elements).some((target) => target.id === targetId),
+    reloadStructure: () => new Promise<void>((resolve) => router.reload({ only: ['layout', 'elements', 'layouts', 'newElements'], onFinish: () => resolve() })),
     say: (text) => say(text),
     text: (key, values) => t(key, values),
     refresh: (keepOwn, message) => refresh(keepOwn, message),
@@ -101,7 +102,10 @@ const moveFlow = createMoveFlow({
 const targetPath = computed(() => (moveFlow.pending.value ? pathOf(moveFlow.pending.value.targetId, props.layout.areas, props.elements) : ''));
 const restore = (): HTMLElement | null => {
     const intent = moveFlow.pending.value;
-    return restoreTo.value ?? (intent ? document.querySelector<HTMLElement>(`[data-layer="${intent.elementId}"]`) : null) ?? host.value ?? null;
+    const opener = restoreTo.value;
+    restoreTo.value = null;
+
+    return opener ?? (intent ? document.querySelector<HTMLElement>(`[data-layer="${intent.elementId}"]`) : null) ?? host.value ?? null;
 };
 const targets = computed(() => (single.value ? moveTargets(single.value, props.layout.areas, props.elements) : []));
 const moveTo = (targetId: string, opener: HTMLElement | null): void => {
@@ -116,6 +120,7 @@ const setBox = (id: string, values: Partial<BoxValues>): void => {
     refreshBox();
 };
 const step = (which: 'undo' | 'redo'): void => {
+    restoreTo.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (which === 'undo') engine.value?.undo();
     else engine.value?.redo();
     refreshBox();
@@ -246,8 +251,8 @@ onBeforeUnmount(() => {
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
     </header>
     <DragLabel :event="verdict" />
-    <MoveDialog :open="moveFlow.pending.value !== null" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
-    <Header class="mt-3" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" />
+    <MoveDialog :open="moveFlow.pending.value !== null" :busy="moveFlow.busy.value" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
+    <Header class="mt-3" :inert="moveFlow.busy.value || moveFlow.pending.value !== null" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>

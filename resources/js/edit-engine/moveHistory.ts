@@ -25,8 +25,9 @@ export class MoveHistory {
     dragged(move: PlacedMove): void {
         const place = this.placement.former();
         if (!place || place.id !== move.elementId) return;
-        this.started = { place, targetId: place.parentId, layout: this.formerLayout(place) };
-        this.emit({ ...move, origin: 'drag' });
+        const layout = this.formerLayout(place);
+        this.started = { place, targetId: place.parentId, layout };
+        this.emit({ ...move, layout: this.styled(move.layout, layout), origin: 'drag' });
     }
 
     previewMove(elementId: string, targetId: string): void {
@@ -35,7 +36,7 @@ export class MoveHistory {
         const place = this.placement.former();
         if (!move || !place || place.id !== elementId) return;
         this.started = { place, targetId: place.parentId, layout };
-        this.emit({ ...move, origin: 'panel' });
+        this.emit({ ...move, layout: this.styled(move.layout, layout), origin: 'panel' });
     }
 
     revertMove(elementId: string): void {
@@ -90,13 +91,17 @@ export class MoveHistory {
             elementId: step.place.id,
             targetId: step.targetId,
             layout: step.layout,
-            ...(direction === 'undo' ? { position: step.place.index } : {}),
+            ...(direction === 'undo' ? { position: step.place.position } : {}),
             origin: direction,
         });
     }
 
     private restore(place: SavedPlace, layout: LayoutRect | null): void {
         this.placement.restore(layout ? { ...place, x: layout.x, y: layout.y, width: layout.width, height: layout.height } : place);
+    }
+
+    private styled(layout: LayoutRect, former: LayoutRect | null): LayoutRect {
+        return former?.style ? { ...layout, style: former.style } : layout;
     }
 
     private formerLayout(place: SavedPlace): LayoutRect | null {

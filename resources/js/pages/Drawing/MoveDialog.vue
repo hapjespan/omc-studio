@@ -4,10 +4,16 @@ import Dialog from '../../components/overlays/Dialog.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { t } from '../../i18n';
 
-const props = defineProps<{ open: boolean; target: string; restore: () => HTMLElement | null }>();
+const props = defineProps<{ open: boolean; busy: boolean; target: string; restore: () => HTMLElement | null }>();
 const emit = defineEmits<{ confirm: []; cancel: [] }>();
 
 let returnTo: HTMLElement | null = null;
+let waiting = false;
+const giveFocusBack = (): void => {
+    if (!waiting || props.busy) return;
+    waiting = false;
+    setTimeout(() => returnTo?.focus(), 50);
+};
 watch(
     () => props.open,
     async (open, wasOpen) => {
@@ -17,9 +23,11 @@ watch(
         }
         if (!wasOpen) return;
         await nextTick();
-        setTimeout(() => returnTo?.focus(), 50);
+        waiting = true;
+        giveFocusBack();
     },
 );
+watch(() => props.busy, giveFocusBack);
 </script>
 
 <template>

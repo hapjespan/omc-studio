@@ -143,7 +143,7 @@ describe('placing and reverting a Shift move in the scene', () => {
     it('places the block in the target at its landing spot and returns the intent', () => {
         const { graph, placement } = loaded();
         const intent = placement.previewMove('act-3', 'dom-2', { x: block('dom-2').x + 40, y: block('dom-2').y + 60 });
-        expect(intent).toEqual({ kind: 'move', elementId: 'act-3', targetId: 'dom-2', layout: { x: 40, y: 60, width: 150, height: block('act-3').height, z: block('act-3').z } });
+        expect(intent).toEqual({ kind: 'move', elementId: 'act-3', targetId: 'dom-2', layout: { x: 40, y: 60, width: 150, height: block('act-3').height, z: block('act-3').z }, narrowed: false });
         expect(graph.getNode('act-3')!.parentId).toBe('dom-2');
         expect([graph.getNode('act-3')!.x, graph.getNode('act-3')!.y, graph.getNode('act-3')!.width]).toEqual([40, 60, 150]);
     });

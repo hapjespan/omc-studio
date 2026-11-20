@@ -8,6 +8,7 @@ export interface LayoutRect {
     width: number;
     height: number;
     z: number;
+    style?: LayoutStyle;
 }
 
 export interface SavedArea extends LayoutRect {
@@ -54,6 +55,7 @@ export interface PlacedMove {
     elementId: string;
     targetId: string;
     layout: LayoutRect;
+    narrowed: boolean;
 }
 
 export type MoveOrigin = 'drag' | 'panel' | 'undo' | 'redo';
@@ -66,6 +68,7 @@ export interface MoveIntent {
     targetId: string;
     layout: LayoutRect | null;
     position?: number;
+    narrowed?: boolean;
     origin: MoveOrigin;
 }
 

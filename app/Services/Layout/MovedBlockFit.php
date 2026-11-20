@@ -26,9 +26,7 @@ class MovedBlockFit
         $targetWidth = $this->targetWidth($canvas, $target);
         $width = min((int) $layout['width'], $targetWidth);
 
-        if ($width < (int) $layout['width']) {
-            $this->fitChildren($canvas, $element, $width);
-        }
+        $this->fitChildren($canvas, $element, $width);
 
         return [
             ...$layout,

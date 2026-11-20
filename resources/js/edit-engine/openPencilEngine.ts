@@ -179,7 +179,7 @@ export class OpenPencilEngine implements DrawingEngine {
 
     private manualLayout(id: string): LayoutRect | null {
         const entry = this.getLayout().elements[id];
-        return entry?.mode === 'manual' ? { x: entry.x, y: entry.y, width: entry.width, height: entry.height, z: entry.z } : null;
+        return entry?.mode === 'manual' ? { x: entry.x, y: entry.y, width: entry.width, height: entry.height, z: entry.z, ...(entry.style ? { style: entry.style } : {}) } : null;
     }
 
     private tell(change: FinishedAction): void {
