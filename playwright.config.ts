@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ensureDisplay } from './tests/e2e/support/display';
 import { HARNESS_URL } from './tests/e2e/support/ports';
+
+ensureDisplay();
 
 export default defineConfig({
     testDir: 'tests/e2e',
