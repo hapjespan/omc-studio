@@ -144,11 +144,11 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
 
 <template>
     <section :aria-label="title" class="flex flex-col gap-3">
-        <div class="flex flex-wrap items-start gap-3">
-            <div class="w-[253px] max-w-full"><SearchField :id="searchId" ref="searchField" v-model="search" :label="t('list.search')" :placeholder="searchPlaceholder ?? t('list.search')" @input="onSearch" /></div>
+        <div class="flex flex-wrap items-start gap-2">
+            <div class="w-[220px] max-w-full"><SearchField :id="searchId" ref="searchField" v-model="search" :label="t('list.search')" :placeholder="searchPlaceholder ?? t('list.search')" @input="onSearch" /></div>
             <AppButton v-if="$slots.form && canCreate && !dock" @click="open('new', $event.currentTarget as HTMLElement)">{{ createLabel ?? t('list.new') }}</AppButton>
             <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="onFilters" />
-            <div class="ml-auto flex h-control items-center gap-3">
+            <div class="ml-auto flex h-control items-center gap-3 whitespace-nowrap">
                 <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
                 <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-secondary">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
             </div>
@@ -172,7 +172,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                 <tbody>
                     <tr v-for="row in rows" :key="row.id" :class="['border-t border-hairline', dock && editing && editing !== 'new' && editing.id === row.id ? 'bg-surface shadow-[inset_2px_0_0_var(--color-ink)]' : '']">
                         <td v-if="bulkActions?.length" class="pl-3 pr-2 py-2.5"><label class="inline-flex size-6 items-center justify-center"><input v-model="selected" type="checkbox" class="size-4 accent-ink" :value="row.id" :aria-label="t('list.select_row', { name: row.name })" /></label></td>
-                        <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock ? 'min-w-40' : '', column.align === 'right' ? 'text-right' : '']">
+                        <td v-for="(column, index) in columns" :key="column.key" :class="['pl-3 pr-2 py-2.5', index === 0 && dock ? 'min-w-36' : '', column.align === 'right' ? 'text-right' : '']">
                             <button v-if="index === 0 && $slots.form" type="button" :class="['rounded-control text-left', dock ? 'font-semibold' : 'underline']" @click="open(row, $event.currentTarget as HTMLElement)">{{ row[column.key] }}</button>
                             <slot v-else-if="$slots.cell" name="cell" :row="row" :column="column" />
                             <template v-else>{{ row[column.key] }}</template>

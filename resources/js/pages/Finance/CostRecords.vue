@@ -118,7 +118,7 @@ function load(query: ListState, year: number | null = props.year): void {
 
 <template>
     <Head :title="t('cost_records.title')" />
-    <div class="grid items-start gap-x-5 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto]">
+    <div class="grid items-start gap-x-4 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div class="flex min-w-0 flex-col gap-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ year ? `${t('cost_records.title')} ${year}` : t('cost_records.title') }}</h1>
