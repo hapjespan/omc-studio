@@ -3,11 +3,31 @@
 namespace App\Services\Layout;
 
 use App\Models\Canvas;
+use App\Models\Element;
 use App\Models\Layout;
 use Illuminate\Database\Eloquent\Builder;
 
 class LayoutRows
 {
+    /** @return list<string> */
+    public function subtree(Element $element): array
+    {
+        $ids = [(string) $element->id];
+
+        foreach ($element->children()->get() as $child) {
+            array_push($ids, ...$this->subtree($child));
+        }
+
+        return $ids;
+    }
+
+    public function clear(Canvas $canvas): void
+    {
+        if (Layout::query()->where('canvas_id', $canvas->getKey())->delete() > 0) {
+            $this->raise($canvas);
+        }
+    }
+
     /** @param list<string> $elementIds */
     public function remove(Canvas $canvas, array $elementIds): void
     {

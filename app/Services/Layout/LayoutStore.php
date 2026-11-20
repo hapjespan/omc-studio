@@ -2,6 +2,7 @@
 
 namespace App\Services\Layout;
 
+use App\Enums\ElementKind;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
@@ -9,6 +10,7 @@ use App\Models\Layout;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
 
 class LayoutStore
 {
@@ -16,7 +18,7 @@ class LayoutStore
 
     private const FORMAT_VERSION = 1;
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly LayoutAudit $audit) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly LayoutAudit $audit, private readonly LayoutRows $rows) {}
 
     /** @param array<string, mixed> $payload */
     public function save(Canvas $canvas, array $payload): int
@@ -46,6 +48,45 @@ class LayoutStore
 
             return (int) $canvas->layout_version;
         });
+    }
+
+    public function reset(Canvas $canvas, string $scope, ?string $elementId): int
+    {
+        return $this->writes->run([$canvas], function () use ($canvas, $scope, $elementId): int {
+            $this->assertStructureWritable($canvas);
+
+            $before = $this->audit->current($canvas);
+
+            if ($scope === 'canvas') {
+                $this->rows->clear($canvas);
+            } else {
+                $this->rows->remove($canvas, $this->resetIds($canvas, $scope, (string) $elementId));
+            }
+
+            $this->audit->record($canvas, $before, $this->audit->current($canvas));
+
+            return (int) Canvas::query()->whereKey($canvas->getKey())->value('layout_version');
+        });
+    }
+
+    /** @return list<string> */
+    private function resetIds(Canvas $canvas, string $scope, string $elementId): array
+    {
+        $element = Element::query()->where('canvas_id', $canvas->getKey())->whereNull('archived_at')->find($elementId);
+
+        if ($element === null) {
+            throw ValidationException::withMessages(['rule' => __('layout.rule.unknown_element', ['id' => $elementId])]);
+        }
+
+        if ($scope === 'element') {
+            return [$elementId];
+        }
+
+        if ($element->kind !== ElementKind::Domain) {
+            throw ValidationException::withMessages(['rule' => __('layout.reset.not_domain', ['name' => $element->name])]);
+        }
+
+        return $this->rows->subtree($element);
     }
 
     /**

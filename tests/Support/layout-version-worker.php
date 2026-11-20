@@ -31,5 +31,5 @@ if ($startAt > microtime(true)) {
 try {
     echo 'ok '.$app->make(LayoutStore::class)->save($canvas, $payload);
 } catch (HttpResponseException $conflict) {
-    echo (string) $conflict->getResponse()->getData()->conflict;
+    echo (string) json_decode((string) $conflict->getResponse()->getContent(), true)['conflict'];
 }

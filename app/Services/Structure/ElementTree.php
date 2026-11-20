@@ -59,7 +59,7 @@ class ElementTree
         return $this->writes->run([$canvas], function () use ($canvas, $element, $target) {
             $moved = $this->move($element, $target);
 
-            $this->layoutRows->remove($canvas, $this->subtreeIds($moved));
+            $this->layoutRows->remove($canvas, $this->layoutRows->subtree($moved));
 
             return $moved;
         });
@@ -183,18 +183,6 @@ class ElementTree
 
             $canvas->raiseStructureVersion();
         });
-    }
-
-    /** @return list<string> */
-    private function subtreeIds(Element $element): array
-    {
-        $ids = [(string) $element->id];
-
-        foreach ($element->children()->get() as $child) {
-            array_push($ids, ...$this->subtreeIds($child));
-        }
-
-        return $ids;
     }
 
     private function carry(Element $element): void

@@ -146,3 +146,7 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/quick-e
 Route::middleware(['auth', 'can:administer'])->group(function () {
     Route::put('/canvases/{canvas}/layout', [LayoutController::class, 'update']);
 });
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/layout/reset', [LayoutController::class, 'reset']);
+});
