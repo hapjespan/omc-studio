@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
+import AppButton from '../../components/ui/AppButton.vue';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import type { BulkSummary } from '../../components/list/BulkBar.vue';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
@@ -11,14 +12,15 @@ import CarryOver from './CarryOver.vue';
 import CostRecordForm from './CostRecordForm.vue';
 import FinaliseCard from './FinaliseCard.vue';
 import FiscalYearsPanel from './FiscalYearsPanel.vue';
+import SummaryCards, { type Cards } from './SummaryCards.vue';
 import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
-import { formatAmount, formatShare } from '../../format';
+import { formatAmount } from '../../format';
 import { exportCsv } from '../../canvas/csvDownload';
 
 export type Option = { id: number; name: string };
 
-const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; canvas?: { id: number; name: string }; cards?: { budgetCents: number; forecastCents: number; allocated: { budget: number; count: number }; unknown: { budget: number; count: number } } | null; canvases?: { id: number; name: string }[]; finalised?: { canvas_id: number; year: number; at: string; by: string | null }[]; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
+const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; canvas?: { id: number; name: string }; cards?: Cards | null; canvases?: { id: number; name: string }[]; finalised?: { canvas_id: number; year: number; at: string; by: string | null }[]; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
 
 const page = usePage();
 watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | undefined)?.status && announce((flash as { status: string }).status));
@@ -41,21 +43,47 @@ async function exportFile(url: string, name: string): Promise<void> {
 const yearsOpen = ref(false);
 const carryOpen = ref(false);
 const yearFinalised = computed(() => Boolean(props.canvas && props.finalised?.some((entry) => entry.canvas_id === props.canvas?.id && entry.year === props.year)));
+const dock = ref<HTMLElement | null>(null);
+let skipGuard = false;
+const removeGuard = router.on('before', (event) => {
+    const visit = event.detail.visit;
+    if (skipGuard || visit.method !== 'get' || visit.url.pathname !== window.location.pathname || visit.url.searchParams.get('year') === String(props.year)) return;
+    const target = `${visit.url.pathname}${visit.url.search}`;
+    list.value?.guard(
+        () => {
+            skipGuard = true;
+            router.get(target, {}, { preserveScroll: true, preserveState: false, onFinish: () => (skipGuard = false) });
+        },
+        () => {
+            const select = document.getElementById('year-selector') as HTMLSelectElement | null;
+            if (select) select.value = String(props.year);
+        },
+    );
+    return false;
+});
+onBeforeUnmount(removeGuard);
 const keep = { preserveScroll: true, preserveState: true };
 
 const columns: ListColumn[] = [
-    { key: 'name', label: t('fields.name'), sortable: true },
-    { key: 'code', label: t('fields.code'), sortable: true },
-    { key: 'budgetText', label: t('fields.budget') },
-    { key: 'forecastText', label: t('fields.forecast') },
+    { key: 'name', label: t('fields.name'), sortable: true, sub: 'code' },
+    { key: 'kindText', label: t('cost_records.filter_kind') },
+    { key: 'ownerText', label: t('fields.owner') },
+    { key: 'applicationText', label: t('fields.application') },
+    { key: 'budgetText', label: t('fields.budget'), align: 'right' },
+    { key: 'forecastText', label: t('fields.forecast'), align: 'right' },
     { key: 'allocationText', label: props.canvas ? t('cost_records.allocation_canvas') : t('cost_records.allocation') },
 ];
 
-const shownRows = computed(() => props.rows.map((row) => ({ ...row, budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: props.canvas ? (row.allocation === 'allocated' ? '100%' : t('cost_records.allocation_unknown')) : t(`cost_records.allocation_${row.allocation}`) })));
+const nameOf = (items: Option[], id: unknown): string => items.find((item) => item.id === Number(id))?.name ?? '';
+const delta = (row: ListRow): string => {
+    const cents = Number(row.forecast_cents) - Number(row.budget_cents);
+    return row.forecast_cents === null || row.budget_cents === null || cents === 0 ? '' : `${cents > 0 ? '+' : '-'}${formatAmount(Math.abs(cents)).replace('€ ', '')}`;
+};
+const shownRows = computed(() => props.rows.map((row) => ({ ...row, kindText: row.cost_kind ? t(`cost_kind.${row.cost_kind}`) : '', ownerText: nameOf(props.owners, row.owner_id), applicationText: nameOf(props.applications, row.application_id), budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: props.canvas ? (row.allocation === 'allocated' ? '100%' : t('cost_records.allocation_unknown')) : t(`cost_records.allocation_${row.allocation}`) })));
 const fresh = (row: ListRow): ListRow => shownRows.value.find((candidate) => candidate.id === row.id) ?? row;
 const options = (items: Option[]) => items.map((item) => ({ value: String(item.id), label: item.name }));
 const filters = computed(() => [
-    { name: 'cost_kind', label: t('fields.cost_kind'), options: props.costKinds.map((kind) => ({ value: kind, label: t(`cost_kind.${kind}`) })) },
+    { name: 'cost_kind', label: t('fields.cost_kind'), short: t('cost_records.filter_kind'), options: props.costKinds.map((kind) => ({ value: kind, label: t(`cost_kind.${kind}`) })) },
     { name: 'owner_id', label: t('fields.owner'), options: options(props.owners) },
     { name: 'application_id', label: t('fields.application'), options: options(props.applications) },
     { name: 'allocation', label: t('cost_records.allocation'), options: [{ value: 'allocated', label: t('cost_records.allocation_allocated') }, { value: 'unallocated', label: t('cost_records.allocation_unallocated') }] },
@@ -66,6 +94,7 @@ const consequence = (row: ListRow): string | null => {
     const sets = Number(row.set_count);
     return figures + sets === 0 ? null : t('cost_records.delete_consequence', { figures: plural('cost_records.figure_count', figures), sets: plural('cost_records.set_count', sets) });
 };
+const eyebrow = (row: ListRow | null): string | null => (row ? [t('cost_records.edit_eyebrow'), row.code].filter(Boolean).join(' · ') : null);
 const focusList = async (): Promise<void> => {
     await nextTick();
     list.value?.focusSearch();
@@ -89,34 +118,48 @@ function load(query: ListState, year: number | null = props.year): void {
 
 <template>
     <Head :title="t('cost_records.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('cost_records.title') }}: {{ organisation.name }}</h1>
-    <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="yearsOpen = true">{{ t('fiscal_years.title') }}</button>
-    <button type="button" class="ml-2 mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="exportFile(routes.costRecordsCsvExport(organisation.id), 'cost-records.csv')">{{ t('csvx.export_cost_records') }}</button>
-    <button v-if="canvas" type="button" class="ml-2 mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="exportFile(routes.allocationsCsvExport(canvas.id), 'allocations.csv')">{{ t('csvx.export_allocations') }}</button>
-    <p v-if="exportNote" class="mt-1 text-[12.5px]" data-testid="export-note">{{ exportNote }}</p>
-    <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :canvases="canvases" :finalised="finalised" :writable="!organisation.archived" />
-    <template v-if="canvas && cards && year !== null">
-        <button type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold" @click="carryOpen = true">{{ t('carry_over.title') }}</button>
-        <CarryOver v-model:open="carryOpen" :canvas-id="canvas.id" :years="years" />
-        <FinaliseCard class="mt-3" :canvas-id="canvas.id" :year="year" :remaining="cards.unknown.count" :finalised="yearFinalised" :writable="!organisation.archived" />
-    </template>
-    <section role="region" v-if="canvas && cards" :aria-label="t('cost_records.cards')" class="mt-3 grid gap-3 sm:grid-cols-3">
-        <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('cost_records.card_budget') }}</h2><p>{{ formatAmount(cards.budgetCents) }}</p><p>{{ t('fields.forecast') }}: {{ formatAmount(cards.forecastCents) }}</p></div>
-        <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_allocated') }}</h2><p>{{ formatAmount(cards.allocated.budget) }}</p><p>{{ t('cost_records.card_of', { done: cards.allocated.count, total: cards.allocated.count + cards.unknown.count }) }}</p></div>
-        <div class="rounded-md border border-[#848B95] p-3 text-[13px]"><h2 class="font-semibold">{{ t('allocation_page.status_unallocated') }}</h2><p>{{ formatAmount(cards.unknown.budget) }}</p><p>{{ plural('cost_records.card_count', cards.unknown.count) }}, {{ formatShare(cards.unknown.budget, cards.budgetCents) }}</p></div>
-    </section>
-    <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
-    <div class="mt-3">
-        <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
-            <template v-if="canvas" #cell="{ row, column }">
-                <span v-if="column.key === 'allocationText'" class="inline-flex items-center gap-1.5"><span aria-hidden="true" class="inline-block h-2.5 w-2.5 rounded-full" :class="row.allocation === 'allocated' ? 'bg-[#1F7A3D]' : 'bg-[#8A5A00]'" />{{ row[column.key] }}</span>
-                <template v-else>{{ row[column.key] }}</template>
-            </template>
-            <template #form="{ row, close, setDirty }">
-                <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @dirty="setDirty" />
-                <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty" />
-                <button v-if="row && !row.archived_at" type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="archive(row, close)">{{ t('cost_records.archive') }}</button>
-            </template>
-        </ListView>
+    <div class="grid items-start gap-x-4 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto]">
+        <div class="flex min-w-0 flex-col gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ year ? `${t('cost_records.title')} ${year}` : t('cost_records.title') }}</h1>
+                <div class="ml-auto flex flex-wrap justify-end gap-2">
+                    <AppButton @click="yearsOpen = true">{{ t('fiscal_years.title') }}</AppButton>
+                    <AppButton @click="exportFile(routes.costRecordsCsvExport(organisation.id), 'cost-records.csv')">{{ t('csvx.export_cost_records') }}</AppButton>
+                    <AppButton v-if="canvas" @click="exportFile(routes.allocationsCsvExport(canvas.id), 'allocations.csv')">{{ t('csvx.export_allocations') }}</AppButton>
+                    <AppButton v-if="canvas && cards && year !== null" @click="carryOpen = true">{{ t('carry_over.title') }}</AppButton>
+                    <AppButton v-if="!organisation.archived" @click="router.get(routes.costRecordImport(organisation.id))">{{ t('cost_records.import_csv') }}</AppButton>
+                    <AppButton v-if="!organisation.archived" variant="primary" icon="plus" @click="list?.create($event.currentTarget as HTMLElement)">{{ t('list.new') }}</AppButton>
+                </div>
+            </div>
+            <p v-if="exportNote" class="text-[12.5px]" data-testid="export-note">{{ exportNote }}</p>
+            <FiscalYearsPanel v-model:open="yearsOpen" :organisation-id="organisation.id" :years="years" :canvases="canvases" :finalised="finalised" :writable="!organisation.archived" />
+            <CarryOver v-if="canvas && cards && year !== null" v-model:open="carryOpen" :canvas-id="canvas.id" :years="years" />
+            <div v-if="canvas && cards" class="grid gap-3 lg:grid-cols-4">
+                <SummaryCards :cards="cards" class="lg:col-span-3" />
+                <FinaliseCard v-if="year !== null" :canvas-id="canvas.id" :year="year" :remaining="cards.unknown.count" :finalised="yearFinalised" :writable="!organisation.archived" />
+            </div>
+            <div v-if="listError.rule" role="alert"><ErrorSummary :errors="listError" /></div>
+            <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" :dock="dock" :eyebrow="eyebrow" :search-placeholder="t('cost_records.search_placeholder')" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
+                <template #cell="{ row, column }">
+                    <span v-if="column.key === 'allocationText'" :class="['inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] font-semibold', row.allocation === 'allocated' ? 'text-success' : 'text-warning']"><span aria-hidden="true" :class="['inline-block h-[7px] w-[7px] rounded-full', row.allocation === 'allocated' ? 'bg-success' : 'border-[1.5px] border-warning']" />{{ row[column.key] }}</span>
+                    <span v-else-if="column.key === 'budgetText'" class="whitespace-nowrap font-semibold">{{ row[column.key] }}</span>
+                    <span v-else-if="column.key === 'forecastText'" class="whitespace-nowrap">{{ row[column.key] }}<span v-if="delta(row)" :class="['ml-1.5 text-[11.5px]', delta(row).startsWith('+') ? 'text-warning' : 'text-success']"><span class="sr-only">{{ t('cost_records.delta') }} </span>{{ delta(row) }}</span></span>
+                    <span v-else-if="column.key === 'ownerText' || column.key === 'applicationText' || column.key === 'kindText'" :class="['whitespace-nowrap', row[column.key] ? '' : 'text-muted']">{{ row[column.key] || t('cost_records.none_text') }}</span>
+                    <template v-else>{{ row[column.key] }}</template>
+                </template>
+                <template #form="{ row, close, requestClose, setDirty, requestDelete }">
+                    <CostRecordForm :key="row?.id ?? 'new'" :row="row" :organisation-id="organisation.id" :owners="owners" :applications="applications" :cost-kinds="costKinds" @close="close" @cancel="requestClose" @dirty="setDirty($event, 'record')" />
+                    <YearlyFiguresForm v-if="row && year" :key="`${row.id}-${year}`" :row="fresh(row)" :year="year" @dirty="setDirty($event, 'figures')" />
+                    <div v-if="row" class="mt-4 border-t border-hairline pt-4">
+                        <p class="text-[12.5px] text-secondary">{{ consequence(row) ?? t('list.delete_none') }}</p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <AppButton v-if="!row.archived_at" @click="archive(row, close)">{{ t('cost_records.archive') }}</AppButton>
+                            <AppButton v-if="!organisation.archived" variant="danger" @click="requestDelete">{{ t('list.delete') }}</AppButton>
+                        </div>
+                    </div>
+                </template>
+            </ListView>
+        </div>
+        <aside ref="dock" :aria-label="t('cost_records.panel')" class="w-full empty:hidden lg:w-detail-panel" />
     </div>
 </template>

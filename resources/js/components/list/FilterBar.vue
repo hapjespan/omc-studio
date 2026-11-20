@@ -2,8 +2,9 @@
 import { computed, useId } from 'vue';
 import { t } from '../../i18n';
 import AppButton from '../ui/AppButton.vue';
+import NativeSelect from '../fields/NativeSelect.vue';
 
-export type FilterDef = { name: string; label: string; options: { value: string; label: string }[] };
+export type FilterDef = { name: string; label: string; short?: string; options: { value: string; label: string }[] };
 
 const props = defineProps<{ filters: FilterDef[]; active: Record<string, string> }>();
 const emit = defineEmits<{ change: [filters: Record<string, string>] }>();
@@ -26,13 +27,13 @@ function set(name: string, value: string): void {
 
 <template>
     <div class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-end gap-3">
-            <div v-for="filter in filters" :key="filter.name" class="flex flex-col gap-1">
-                <label :for="`${prefix}-${filter.name}`" class="text-[13px] font-semibold">{{ filter.label }}</label>
-                <select :id="`${prefix}-${filter.name}`" :value="active[filter.name] ?? ''" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px]" @change="set(filter.name, ($event.target as HTMLSelectElement).value)">
+        <div class="flex flex-wrap gap-2">
+            <div v-for="filter in filters" :key="filter.name" class="relative inline-flex h-control items-center rounded-control border border-edge bg-white">
+                <label :for="`${prefix}-${filter.name}`" class="pl-2.5 text-[13px] text-muted">{{ filter.short ?? filter.label }}</label>
+                <NativeSelect bare :id="`${prefix}-${filter.name}`" :model-value="active[filter.name] ?? ''" @update:model-value="set(filter.name, $event)">
                     <option value="">{{ t('list.filter_all') }}</option>
                     <option v-for="option in filter.options" :key="option.value" :value="option.value">{{ option.label }}</option>
-                </select>
+                </NativeSelect>
             </div>
         </div>
         <ul v-if="chips.length" class="flex flex-wrap gap-2">
