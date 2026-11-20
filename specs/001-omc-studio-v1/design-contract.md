@@ -36,7 +36,9 @@ Roles, with the contrast measured against their usual background (WCAG 2.2: 4.5:
 | Warning callout background | `#FFF3D6` | |
 | Danger text and outline (Verwijderen) | `#A12A1E` on white, outline `#C0645A` (design: `#D9B4AF`) | text 7.3:1; outline 4.0:1, decision 45 |
 | Focus and selection accent | `#2459D6` | 6.0:1 on white; selected layer row `#E3EBFB` |
-| Forecast above budget (bar part) | `#9A7811` (design: `#C9A227`) | 4.1:1 on white, 3.1:1 on the track, decision 45 |
+| Forecast above budget (bar part) | `#9A7811` (design: `#C9A227`), token `over-budget` | 4.1:1 on white, 3.1:1 on the track, decision 45 |
+| Danger callout and pill background | `#FDECEA`, token `danger-soft` | danger text `#A12A1E` on it 6.4:1 |
+| Drop zone and third line stripe grey | `#9AA1AA`, token `drop-zone` | 2.6:1 on white: decorative only, never a control edge or the only carrier of a meaning |
 | Bar track | `#DCDFE2` | |
 | Modality Common, Adaptive, Specialized, Distinct | `#1F7A4D`, `#1E5FBF`, `#B4540A`, `#6B3FB5` | white letter on each: 5.3, 6.1, 5.0, 7.0 :1 |
 
@@ -113,6 +115,35 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 - **Property panel** (Tekenen): "Plek en grootte" with X, Y, B and H in a 2-by-2 grid; "Kleur" with Vulling, Rand and Tekst, each a swatch plus a hex field; "Hoeken"; "Stijl naar alle domeinen hier" and "Terug naar automatische plek"; and a note linking to Invoeren. Beyond the board it holds the full list of addendum chapter 5 (decision 33): fill opacity, border width and style, font, size, weight, italic, text alignment, order, copy and paste style, same size, grid.
 - **Shift move** (Tekenen, added after the design, ADR 0036): for a selected Cluster, Activity or Item the property panel adds "Verplaatsen naar", a labelled select of valid targets by path with the button "Verplaatsen" (SD-42); while Shift-dragging, a pill next to the target reads "Naar <doel>" or, in the warning colours, "Kan hier niet: <reden>"; every move opens the dialog "Verplaatsen naar <doel>?" with "Verplaatsen" (primary) and "Annuleren", in the dialog pattern of this contract.
 - **Bottom toolbar** (Tekenen): floating and centred, with "Selecteren en verplaatsen", "Schuiven", "Uitlijnen", "Gelijk verdelen" and "Zoom 78%". The selection shows a 1-pixel accent frame with square handles and a size label ("286 × 204").
+
+## Shared components
+
+All live under `resources/js/components/` and are the only way to build these parts; a screen never copies their classes. Heights: control 36, dense 32, mark 28.
+
+| Component | Props and behaviour |
+|---|---|
+| `ui/AppButton` | `variant` primary, secondary or danger; `size` control, dense or small; `type`; `icon`; `disabled`; `href` renders an anchor with the same classes (`download`, `target` and `rel` pass through as attributes); `focus()` exposed |
+| `ui/IconButton` | `label` (accessible name), `icon`, `size` 28 (default) or 36, `type`, `disabled` |
+| `ui/SegmentedControl` | `items` as `{ key, label, href? }`, `active` (key), `label` (accessible name); items with `href` are links with `aria-current`, others are buttons with `aria-pressed` and emit `select(key)`; 36 high outside, 34 inside, active segment ink |
+| `ui/ChipSelect` | `v-model` string, `id`, `label` (visible, muted), `options` as `{ value, label }`; native select with a chevron, 36 high, edge `#848B95` |
+| `ui/Panel` | `padding` 16 (default) or 24, `heading` (Space Grotesk 16), `level` 2, 3 or 4; white, hairline `#DCDFE2`, radius 10 |
+| `ui/Pill` | `tone` neutral, warning, success or danger; `icon` |
+| `ui/Callout` | `tone` warning, success or danger; `label` |
+| `ui/CheckBox` | `v-model`, `value`, attributes pass to the input; 16 pixel box, radius 4, ink when checked or indeterminate, grey `#E6E8E6` when disabled, marks kept in forced-colours mode, inside a 24 pixel target |
+| `ui/ActionMenu` | `label` (button text, chevron), `items` as `{ key, label, disabled? }`, emits `select(key)`; reka-ui DropdownMenu, keyboard operable |
+| `ui/icons` | adds `fit`; `minus` already existed |
+| `fields/FileField` | `id`, `label`, `accept`, `hint`, `error`, `v-model` (`File` or null: a reset to null clears the shown name), emits `pick(file or null)`; 36 high box, 28 high button reading "Kies een bestand", the file name beside it; the native input stays the labelled, focusable control |
+| `shell/HeaderSlot` | `to` title or actions; the page puts its title or actions inside it and they appear in the page header row of the shell; the row exists only while a page uses a slot |
+| `shell/layout` | `useWideMain()` in a page setup sets the main padding to 24 instead of 16, `useQuietStatus()` makes the shell status region visually hidden but still announced; both reset on unmount, the defaults are 16 pixels and visible text |
+
+The shell status region shows its message as text by default, as in delivery 1 (flash statuses, "Wachtwoord gekopieerd"); a page that shows the confirmation elsewhere opts in to the visually hidden mode.
+
+Foundation gaps of the later deliveries that this set does not cover, tracked here:
+
+- F-2: a compact inline field with a hidden label and a "%" suffix (Toewijzen percentage input).
+- F-6: the top bar overflows at 320 pixels once a Fiscal year selector and notices sit in it.
+- G-8: one shared report table for the three report tables (`ImportReport`, `CountsReport`, the Toewijzen lines).
+- K-28: a styled native select with an empty value item, or `SelectField` accepting one (the specs use `selectOption`).
 
 ## States
 

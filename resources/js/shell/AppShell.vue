@@ -7,7 +7,9 @@ import { detail, discardDetail } from './detail';
 import DetailPanel from './DetailPanel.vue';
 import LeftPanel from './LeftPanel.vue';
 import MenuButton from './MenuButton.vue';
+import { shellLayout } from './layout';
 import { modeSwitchPlacement } from './modes';
+import PageHeader from './PageHeader.vue';
 import ModeSwitch from './ModeSwitch.vue';
 import ReauthDialog from './ReauthDialog.vue';
 import { reauth, scheduleReauth } from './session';
@@ -44,8 +46,11 @@ watch(
             </TopBar>
         </header>
         <LeftPanel class="shell-left" />
-        <main id="main" tabindex="-1" class="shell-main p-4">
-            <ModeSwitch v-if="page.props.canvas && !modeSwitchPlacement.inPage" :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" class="mb-4" />
+        <main id="main" tabindex="-1" :class="['shell-main', shellLayout.widePadding ? 'p-6' : 'p-4']">
+            <PageHeader v-if="shellLayout.headerSlots > 0">
+                <ModeSwitch v-if="page.props.canvas && !modeSwitchPlacement.inPage" :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" />
+            </PageHeader>
+            <ModeSwitch v-else-if="page.props.canvas && !modeSwitchPlacement.inPage" :role="page.props.auth.role" :canvas="page.props.canvas" :url="page.url" class="mb-4" />
             <slot />
             <StatusRegion />
         </main>

@@ -60,6 +60,9 @@ const palette: [string, string][] = [
     ['color-warning-soft', '#fff3d6'],
     ['color-danger', '#a12a1e'],
     ['color-danger-edge', '#c0645a'],
+    ['color-danger-soft', '#fdecea'],
+    ['color-over-budget', '#9a7811'],
+    ['color-drop-zone', '#9aa1aa'],
     ['color-accent', '#2459d6'],
     ['color-accent-soft', '#e3ebfb'],
     ['color-disabled', '#e6e8e6'],
@@ -92,6 +95,10 @@ const ratios: [string, string, string, number, number][] = [
     ['secondary text on a panel surface', 'color-secondary', 'color-surface', 4.5, 8.1],
     ['muted text on a panel surface', 'color-muted', 'color-surface', 4.5, 5.3],
     ['ink on a panel surface', 'color-ink', 'color-surface', 4.5, 16.1],
+    ['danger text on its callout', 'color-danger', 'color-danger-soft', 4.5, 6.4],
+    ['the over-budget bar on white', 'color-over-budget', white, 3, 4.1],
+    ['the over-budget bar on the track', 'color-over-budget', 'color-hairline', 3, 3.1],
+    ['the drop-zone grey on white, decorative only', 'color-drop-zone', white, 2.5, 2.6],
 ];
 
 describe('design tokens', () => {
@@ -110,9 +117,19 @@ describe('design tokens', () => {
         expect(rounded(measured)).toBe(documented);
     });
 
+    it('keeps the drop-zone grey below 3:1 so it stays decorative', () => {
+        expect(contrast(value('color-drop-zone'), white)).toBeLessThan(3);
+    });
+
     it('keeps the dashed add line off the page and the panel surface, where it misses 3:1', () => {
         expect(contrast(value('color-dashed'), value('color-page'))).toBeLessThan(3);
         expect(contrast(value('color-dashed'), value('color-surface'))).toBeLessThan(3);
+    });
+
+    it('documents the new tokens with their measured ratios in the contract', () => {
+        const contract = readFileSync(join(resources, '../specs/001-omc-studio-v1/design-contract.md'), 'utf8');
+        for (const name of ['color-danger-soft', 'color-over-budget', 'color-drop-zone']) expect(contract.toLowerCase()).toContain(value(name));
+        for (const ratio of ['6.4:1', '4.1:1', '3.1:1', '2.6:1']) expect(contract).toContain(ratio);
     });
 
     it('carries no navy left over from before the contract', () => {

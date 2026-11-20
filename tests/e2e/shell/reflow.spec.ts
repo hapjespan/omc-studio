@@ -1,5 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
-import { signInAs } from '../support/shell';
+import { createCanvas, signInAs } from '../support/shell';
 import { HARNESS_URL } from '../support/ports';
 
 const horizontalOverflow = (page: import('@playwright/test').Page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -29,7 +30,13 @@ test.describe('at 320 CSS pixels', () => {
     });
 
     test('at 200% text the shell still does not scroll horizontally', async ({ page }) => {
+        const longName = (word: string): string => `${word.repeat(3)}${randomUUID().slice(0, 8)}`;
+        const organisation = longName('Stichting-Kinderopvang-en-Onderwijs-');
+        const canvas = longName('Voorbeeldcanvasmetheellangenaam');
+        expect(Number.isFinite(createCanvas({ organisation, canvas }))).toBe(true);
         await signInAs(page, 'administrator');
+        await expect(page.getByRole('heading', { name: organisation })).toBeVisible();
+        await expect(page.getByRole('link', { name: canvas })).toBeVisible();
         await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
         await page.getByRole('button', { name: 'Menu' }).click();
         expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);

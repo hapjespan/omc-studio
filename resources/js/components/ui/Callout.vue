@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import Icon from './Icon.vue';
 
-const props = withDefaults(defineProps<{ tone?: 'warning' | 'success'; label?: string }>(), { tone: 'warning', label: undefined });
+const props = withDefaults(defineProps<{ tone?: 'warning' | 'success' | 'danger'; label?: string }>(), { tone: 'warning', label: undefined });
 
-const tones = { warning: 'bg-warning-soft text-warning', success: 'bg-success-soft text-success' };
+const tones = { warning: 'bg-warning-soft text-warning', success: 'bg-success-soft text-success', danger: 'bg-danger-soft text-danger' };
 </script>
 
 <template>
