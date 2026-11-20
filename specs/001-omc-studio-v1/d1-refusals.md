@@ -8,6 +8,7 @@ Refusals of a later delivery are not listed. A new `rule.*` message must get a t
 
 | Key | Message (Dutch UI text) | Server test |
 | --- | --- | --- |
+| `account.current_password_required` | Huidig wachtwoord: vul je huidige wachtwoord in | PasswordChangeTest |
 | `canvas_lifecycle.name_required` | Naam: vul een naam in van 1 tot 150 tekens | D1RefusalMessagesTest |
 | `direction_entry.title_required` | Titel: vul een titel in | DirectionStatementsTest |
 | `direction_entry.title_too_long` | Titel: gebruik maximaal 150 tekens | D1RefusalMessagesTest |
@@ -56,6 +57,8 @@ Refusals of a later delivery are not listed. A new `rule.*` message must get a t
 | `users.email_taken` | E-mailadres: dit adres is al in gebruik | UserAdministrationTest |
 | `users.last_administrator` | Er moet minstens één beheerder blijven | LastAdministratorTest |
 | `users.name_required` | Naam: vul een naam in | D1RefusalMessagesTest |
+| `users.own_account` | Je kunt je eigen account niet verwijderen of je eigen rol wijzigen | UserControllerTest |
+| `users.own_row_action` | Gebruik Mijn account voor je eigen tweede factor en sessies | AdminUserActionsTest |
 | `users.role_invalid` | Rol: kies Administrator of Lezer | D1RefusalMessagesTest |
 | `validation.name_forbidden_sign` | :label: het teken > is niet toegestaan | ElementNamesTest |
 | `validation.text_max` | :label: gebruik hoogstens :max tekens | ReviewFixesTest |
