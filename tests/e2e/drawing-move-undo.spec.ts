@@ -1,8 +1,8 @@
 import { expect, test } from './support/guards';
-import { dragTo, LES_GEVEN, openDrawing, seedMoveCanvas, VERKOOP } from './support/drawing';
+import { dragTo, ACTIVITY, openDrawing, seedMoveCanvas, DOMAIN_TARGET } from './support/drawing';
 
 async function moved(page: import('@playwright/test').Page) {
-    await dragTo(page, LES_GEVEN, VERKOOP);
+    await dragTo(page, ACTIVITY, DOMAIN_TARGET);
     await page.keyboard.press('Enter');
     await expect(page.locator('[data-announcer]')).toContainText('Les geven hangt nu onder Verkoop');
 }

@@ -25,6 +25,7 @@ export interface MoveFlow {
     cancel(): void;
     afterStructureRefresh(): void;
     structureReload(silent?: boolean): void;
+    hasLost(): boolean;
 }
 
 const commitMode = (intent: MoveIntent): 'new' | 'undo' | 'redo' => (intent.origin === 'undo' || intent.origin === 'redo' ? intent.origin : 'new');
@@ -100,6 +101,9 @@ export function createMoveFlow(deps: MoveFlowDependencies): MoveFlow {
             }
             if (deps.exists(intent.elementId) && deps.exists(intent.targetId) && deps.valid(intent.elementId, intent.targetId)) deps.apply({ kind: 'previewMove', elementId: intent.elementId, targetId: intent.targetId });
             else deps.say(deps.text('drawing.move_not_saved'));
+        },
+        hasLost() {
+            return lost !== null;
         },
         structureReload(silent = false) {
             if (lost && !silent) deps.say(deps.text('drawing.move_not_saved'));
