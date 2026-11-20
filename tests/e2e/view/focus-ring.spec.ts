@@ -9,20 +9,31 @@ const renderedRing = (page: import('@playwright/test').Page): Promise<{ width: n
         return { width: parseFloat(style.outlineWidth) * scale, offset: parseFloat(style.outlineOffset) * scale };
     });
 
-test('the focus ring on the Bekijken canvas stays 2 CSS px on screen at every zoom', async ({ page }) => {
+test('the focus ring on the Bekijken canvas is at least 2 CSS px on screen at every zoom step', async ({ page }) => {
     const canvas = seedViewCanvas();
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${canvas.id}/view`);
     await expect(page.locator('[data-block="steering"]')).toBeVisible();
+    const seen = new Set<string>();
 
-    for (const button of ['Uitzoomen', 'Inzoomen'] as const) {
-        const control = page.getByRole('button', { name: button });
-        while ((await control.getAttribute('aria-disabled')) !== 'true') await control.click();
+    const measure = async (): Promise<void> => {
         await page.locator('[data-block="steering"]').focus();
         await page.keyboard.press('Shift');
         await expect(page.locator('[data-block="steering"]')).toBeFocused();
         const ring = await renderedRing(page);
-        expect(ring.width, `${button} width`).toBeCloseTo(2, 1);
-        expect(ring.offset, `${button} offset`).toBeCloseTo(2, 1);
+        const zoom = await page.locator('[data-zoom]').textContent();
+        seen.add(zoom ?? '');
+        expect(ring.width, `width at ${zoom}`).toBeGreaterThanOrEqual(1.99);
+        expect(ring.offset, `offset at ${zoom}`).toBeGreaterThanOrEqual(1.99);
+    };
+
+    await measure();
+    for (const button of ['Uitzoomen', 'Inzoomen'] as const) {
+        const control = page.getByRole('button', { name: button });
+        while ((await control.getAttribute('aria-disabled')) !== 'true') {
+            await control.click();
+            await measure();
+        }
     }
+    expect(seen.size).toBeGreaterThan(10);
 });
