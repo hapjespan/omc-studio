@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import TextField from '../../components/fields/TextField.vue';
 import { defaultColours, HEX_PATTERN } from '../../colour';
 
-const props = defineProps<{ id: string; caption: string; label: string; swatchLabel: string; value: string; invalidMessage: string; error?: string }>();
+const props = defineProps<{ id: string; caption: string; label: string; swatchLabel: string; value: string; invalidMessage: string; error?: string; refused?: { value: string; message: string } | null }>();
 const emit = defineEmits<{ commit: [hex: string]; invalid: [text: string] }>();
 
 const draft = ref(props.value);
@@ -18,6 +18,18 @@ watch(
         draft.value = value;
         shape.value = '';
     },
+);
+
+watch(
+    () => props.refused,
+    async (refused) => {
+        if (!refused) return;
+        draft.value = refused.value;
+        shape.value = refused.message;
+        await nextTick();
+        field.value?.querySelector<HTMLInputElement>('input[type=text]')?.focus();
+    },
+    { immediate: true },
 );
 
 function commit(): void {

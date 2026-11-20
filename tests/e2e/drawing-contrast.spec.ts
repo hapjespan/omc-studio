@@ -36,6 +36,32 @@ test('a text colour below 4.5:1 shows the ratio as text, keeps the value invalid
     await expect(page.locator('[data-announcer]')).toContainText('Tekst Onderwijs: kies een tekstkleur met meer contrast, nu 1,0:1, minstens 4,5:1');
 });
 
+test('a refused text colour returns the drawing to the stored colour and keeps the typed value invalid with focus', async ({ page }) => {
+    const layers = await openDrawing(page);
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    const fill = page.getByLabel('Vulling van Onderwijs', { exact: true });
+    await fill.fill('#FFFFFF');
+    await fill.press('Enter');
+    await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
+    const text = page.getByLabel('Tekstkleur van Onderwijs', { exact: true });
+    await text.fill('#FFFFFE');
+    await text.press('Enter');
+    const message = 'Tekst Onderwijs: kies een tekstkleur met meer contrast, nu 1,0:1, minstens 4,5:1';
+    await expect(page.locator('[data-announcer]')).toContainText(message);
+    await page.waitForTimeout(1500);
+    await expect(text).toHaveValue('#FFFFFE');
+    await expect(text).toHaveAttribute('aria-invalid', 'true');
+    await expect(text).toBeFocused();
+    await expect(page.getByText(message).first()).toBeVisible();
+    await layers.getByRole('button', { name: 'Strategie', exact: true }).click();
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    await expect(page.getByLabel('Tekstkleur van Onderwijs', { exact: true })).not.toHaveValue('#FFFFFE');
+    await page.reload();
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    await expect(page.getByLabel('Tekstkleur van Onderwijs', { exact: true })).not.toHaveValue('#FFFFFE');
+});
+
 test('a dark fill returns dark own text to automatic and tells the user', async ({ page }) => {
     const layers = await openDrawing(page);
     await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();

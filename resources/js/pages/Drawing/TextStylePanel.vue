@@ -9,9 +9,9 @@ import type { StylePatch } from '../../edit-engine/commands/style';
 import { t } from '../../i18n';
 import { supportsItalic } from '../../layout/fonts';
 import ColourField from './ColourField.vue';
-import type { StyleTarget } from './StylePanel.vue';
+import type { StyleRefusal, StyleTarget } from './StylePanel.vue';
 
-const props = defineProps<{ id: string; name: string; target: StyleTarget }>();
+const props = defineProps<{ id: string; name: string; target: StyleTarget; refused?: StyleRefusal | null }>();
 const emit = defineEmits<{ style: [patch: StylePatch] }>();
 
 const colour = ref<{ focus: () => void }>();
@@ -88,6 +88,7 @@ const pickFont = (value: string): void => emit('style', value === 'space_grotesk
             :value="target.resolved.textColour"
             :invalid-message="t('layout.style.text_colour', { name })"
             :error="contrastError"
+            :refused="refused?.key === 'text_colour' ? refused : null"
             @commit="commitColour"
         />
         <p class="text-[12.5px] text-secondary" data-contrast>{{ t('drawing_style.contrast', { ratio: ratioLabel(ratio) }) }}</p>

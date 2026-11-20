@@ -5,7 +5,7 @@ import { computeCanvasLayout } from '../../layout';
 import { applyScope } from '../../layout/styleScope';
 import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
-import type { StyleTarget } from './StylePanel.vue';
+import type { StyleRefusal, StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import type { CanvasLayoutInput, DrawnCanvas, TextMeasurer } from '../../layout';
 import { modeSwitchPlacement } from '../../shell/modes';
@@ -79,6 +79,8 @@ const invalid = ref<InvalidValue | null>(null);
 const resetScope = ref<ResetScope | null>(null);
 const resetId = ref<string | null>(null);
 let typed: Omit<InvalidValue, 'message'> | null = null;
+let typedStyle: Omit<StyleRefusal, 'message'> | null = null;
+const refused = ref<StyleRefusal | null>(null);
 const view = ref('');
 const restoreTo = ref<HTMLElement | null>(null);
 let created: DrawingEngine | null = null;
@@ -143,6 +145,10 @@ const copyStyle = (): void => {
 };
 const setStyle = (patch: StylePatch, mode: 'patch' | 'paste' | 'apply' = 'patch'): void => {
     applying.value = false;
+    refused.value = null;
+    typed = null;
+    const colourKey = (['text_colour', 'fill', 'border_colour'] as const).find((key) => patch[key] !== undefined);
+    typedStyle = mode === 'patch' && single.value && colourKey ? { id: single.value, key: colourKey, value: String(patch[colourKey]) } : null;
     const count = scope.value?.ids.length ?? 0;
     const result = mode === 'paste' && copied.value ? engine.value?.pasteStyle(copied.value) : mode === 'apply' && single.value ? engine.value?.applyStyleToSiblings(single.value) : engine.value?.setStyle(patch);
     refreshBox();
@@ -153,6 +159,8 @@ const setStyle = (patch: StylePatch, mode: 'patch' | 'paste' | 'apply' = 'patch'
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {
     invalid.value = null;
+    refused.value = null;
+    typedStyle = null;
     engine.value?.apply({ kind: 'setBox', id, box: values });
     const key = Object.keys(values)[0] as InvalidValue['key'];
     typed = { id, key, value: String(values[key]) };
@@ -206,7 +214,13 @@ const onFailure = (failure: SaveFailure): void => {
         return;
     }
     const attempt = typed;
+    const styled = typedStyle;
     void refresh(false, reason).then(() => {
+        if (styled && failure.elements.includes(styled.id)) {
+            engine.value?.select([styled.id]);
+            refused.value = { ...styled, message: failure.messages[0] ?? t('drawing.value_invalid') };
+            return;
+        }
         if (!attempt || !failure.elements.includes(attempt.id)) return;
         engine.value?.select([attempt.id]);
         invalid.value = { ...attempt, message: failure.messages[0] ?? t('drawing.value_invalid') };
@@ -233,6 +247,7 @@ async function start(payload: LayoutPayload): Promise<void> {
         const live = created;
         stopSelection = live.onSelectionChange((ids) => {
             if (invalid.value && ids.join() !== invalid.value.id) invalid.value = null;
+            if (refused.value && ids.join() !== refused.value.id) refused.value = null;
             selected.value = ids;
             seen.value = [...seen.value, ...ids];
             refreshBox();
@@ -373,7 +388,7 @@ onBeforeUnmount(() => {
             <Announcer :message="notice" />
             <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel v-model:grid="grid" :count="selected.length" :path="single ? pathOf(single, layout.areas, elements) : ''" :canvas-id="canvas.id" @command="command" :invalid="invalid" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" :scope="scope?.scope ?? null" @box="setBox" @move="moveTo" @reset="askReset" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, 'paste')" @apply-style="applying = true">
+        <PropertiesPanel v-model:grid="grid" :count="selected.length" :path="single ? pathOf(single, layout.areas, elements) : ''" :canvas-id="canvas.id" @command="command" :invalid="invalid" :refused="refused" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" :scope="scope?.scope ?? null" @box="setBox" @move="moveTo" @reset="askReset" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, 'paste')" @apply-style="applying = true">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>
