@@ -9,6 +9,7 @@ use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
+use App\Services\Layout\LayoutSnapshot;
 use App\Services\Structure\ElementFields;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Inertia\Response;
 
 class CanvasEntryController extends Controller
 {
-    public function __invoke(Request $request, Canvas $canvas): Response|RedirectResponse
+    public function __invoke(Request $request, Canvas $canvas, LayoutSnapshot $layouts): Response|RedirectResponse
     {
         if (! $canvas->acceptsEntryBy($request->user())) {
             return redirect("/canvases/{$canvas->id}/view");
@@ -36,6 +37,7 @@ class CanvasEntryController extends Controller
         return Inertia::render('Canvas/Entry', [
             'areas' => $areas->values(),
             'elements' => $this->elements($canvas),
+            'layouts' => $layouts->for($canvas),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'statements' => $this->statements($canvas),

@@ -23,6 +23,7 @@ const props = defineProps<{
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
+    layouts?: CanvasLayoutInput['layouts'];
 }>();
 
 const page = usePage<{ auth: { role: string } }>();
@@ -32,7 +33,7 @@ onBeforeUnmount(() => (modeSwitchPlacement.inPage = false));
 
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
-const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
+const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 const selectedId = ref<string | null>(null);
 const content = computed(() => (selectedId.value ? detailOf(selectedId.value, { areas: props.layout.areas, elements: props.elements, statements: props.statements, modalities: props.modalities }) : null));
 const kickerOf = (id: string): string => {
@@ -66,7 +67,7 @@ const fit = (): void => {
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
     </header>
-    <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
+    <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" :administrator="page.props.auth.role === 'administrator'" />
     <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
         <CanvasView v-if="drawn" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :selected-id="selectedId" @select="select" />

@@ -126,6 +126,7 @@ export type LayoutWarning =
     | { kind: 'emptyCluster'; id: string; name: string; area: AreaKey }
     | { kind: 'domainWithoutActivities'; id: string; name: string; area: AreaKey }
     | { kind: 'beyondArtboard'; id: string; name: string; area: AreaKey }
+    | { kind: 'adjusted'; id: string; name: string; area: AreaKey }
     | { kind: 'overlap'; id: string; name: string; otherId: string; other: string; area: AreaKey }
     | { kind: 'directionTextCut'; column: DirectionColumnKey };
 
