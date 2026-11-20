@@ -65,7 +65,7 @@ class AutomaticWidths
         return $widths;
     }
 
-    private static function areaWidth(string $key): int
+    public static function areaWidth(string $key): int
     {
         return match (true) {
             $key === 'direction' => self::ARTBOARD_WIDTH,

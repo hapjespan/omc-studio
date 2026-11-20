@@ -533,5 +533,14 @@
     "layout.style.italic": "Tekst :name: kies cursief of niet cursief",
     "layout.style.text_colour": "Tekst :name: gebruik de vorm #RRGGBB",
     "layout.style.align_horizontal": "Uitlijning :name: kies links, midden of rechts",
-    "layout.style.align_vertical": "Uitlijning :name: kies boven, midden of onder"
+    "layout.style.align_vertical": "Uitlijning :name: kies boven, midden of onder",
+    "layout.rule.unknown_element": "Opmaak: element :id hoort niet bij dit canvas",
+    "layout.rule.missing_element": "Opmaak :name: dit element ontbreekt in de opmaak",
+    "layout.rule.invalid_layout": "Opmaak :name: plek en grootte zijn ongeldig",
+    "layout.rule.parent_mismatch": "Opmaak :name: dit element hangt in de opmaak onder een ander element",
+    "layout.rule.outside_parent": "Opmaak :name: dit element valt buiten de breedte van :parent",
+    "layout.rule.area_outside": "Opmaak :name: deze area valt buiten het tekenvlak of over de koersbalk",
+    "layout.rule.direction_layout": "Opmaak: de koersbalk krijgt geen opmaak",
+    "layout.rule.unknown_area": "Opmaak: onbekende area :key",
+    "layout.rule.too_small": "Opmaak :name: kies een breedte van minstens 40 en een hoogte van minstens 24 pixels"
 }
