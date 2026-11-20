@@ -6,6 +6,7 @@ use App\Enums\ElementKind;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
+use App\Services\Layout\LayoutRows;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use InvalidArgumentException;
@@ -16,7 +17,7 @@ class ElementTree
 
     private const FIELDS = ['name', 'description', 'modality_id', 'rationale', 'icon'];
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules, private readonly ModalityRules $modalities) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly ElementNames $names, private readonly SiblingPosition $positions, private readonly UnknownAllocationGuard $unknown, private readonly ElementFields $fieldRules, private readonly ModalityRules $modalities, private readonly LayoutRows $layoutRows) {}
 
     /** @param array<string, mixed> $fields */
     public function create(Canvas $canvas, Area $area, ElementKind $kind, ?string $parentId, array $fields = [], bool $raisesVersion = true): Element
@@ -48,6 +49,19 @@ class ElementTree
             }
 
             return $element;
+        });
+    }
+
+    public function moveUnder(Element $element, Area|Element $target): Element
+    {
+        $canvas = $element->canvas;
+
+        return $this->writes->run([$canvas], function () use ($canvas, $element, $target) {
+            $moved = $this->move($element, $target);
+
+            $this->layoutRows->remove($canvas, $this->subtreeIds($moved));
+
+            return $moved;
         });
     }
 
@@ -169,6 +183,18 @@ class ElementTree
 
             $canvas->raiseStructureVersion();
         });
+    }
+
+    /** @return list<string> */
+    private function subtreeIds(Element $element): array
+    {
+        $ids = [(string) $element->id];
+
+        foreach ($element->children()->get() as $child) {
+            array_push($ids, ...$this->subtreeIds($child));
+        }
+
+        return $ids;
     }
 
     private function carry(Element $element): void
