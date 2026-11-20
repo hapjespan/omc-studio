@@ -80,16 +80,19 @@ test('an Administrator creates a Reader, copies the one-time password once, and 
 
 test('the user list sorts on the E-mailadres column', async ({ page }) => {
     const admin = seedUser({ role: 'administrator' });
-    const first = `aaa-${randomUUID().slice(0, 8)}@example.test`;
-    const last = `zzz-${randomUUID().slice(0, 8)}@example.test`;
-    tinker(`App\\Models\\User::factory()->create(['name' => 'Omgekeerd A', 'email' => '${last}']); App\\Models\\User::factory()->create(['name' => 'Omgekeerd Z', 'email' => '${first}']);`);
+    const token = randomUUID().slice(0, 8);
+    const first = `aaa-${token}@example.test`;
+    const last = `zzz-${token}@example.test`;
+    tinker(`App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} A', 'email' => '${last}']); App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} Z', 'email' => '${first}']);`);
     await signIn(page, admin);
     await page.goto('/admin/users');
+    await page.getByRole('searchbox', { name: 'Zoeken' }).fill(token);
 
     const header = page.getByRole('columnheader', { name: /E-mailadres/ });
+    const cells = page.getByRole('cell', { name: /@example\.test$/ });
+    await expect(cells).toHaveCount(2);
     await header.getByRole('button').click();
     await expect(header).toHaveAttribute('aria-sort', 'ascending');
-    const cells = page.getByRole('cell', { name: /@example\.test$/ });
     await expect(cells.first()).toHaveText(first);
 
     await header.getByRole('button').click();
