@@ -20,7 +20,7 @@ export const CARD_GAP = 12;
 const CHILD_GAP = 6;
 const CLUSTER_INDENT = 8;
 const MODALITY_BADGE = 22;
-const padding: Record<ElementKind, { x: number; y: number }> = {
+export const padding: Record<ElementKind, { x: number; y: number }> = {
     domain: { x: 12, y: 12 },
     cluster: { x: 8, y: 8 },
     activity: { x: 8, y: 6 },

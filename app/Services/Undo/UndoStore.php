@@ -8,6 +8,7 @@ use App\Models\Statement;
 use App\Models\UndoRecord;
 use App\Models\User;
 use App\Services\Audit\AuditContext;
+use App\Services\Layout\LayoutRows;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Support\Str;
@@ -24,7 +25,7 @@ class UndoStore
 
     private const TOKEN_LENGTH = 40;
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly AuditContext $context) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly AuditContext $context, private readonly LayoutRows $layouts) {}
 
     /** @param array<string, mixed> $payload */
     public function remember(string $kind, array $payload, User $user): string
@@ -78,6 +79,10 @@ class UndoStore
             $this->assertEveryRuleStillHolds($rows);
             $this->context->during('undone', fn () => $this->insert($rows));
 
+            $canvas->raiseStructureVersion();
+
+            $this->layouts->restore($canvas, $this->storedLayouts($record));
+
             $record->delete();
         });
     }
@@ -119,6 +124,15 @@ class UndoStore
     {
         /** @var non-empty-list<array<string, mixed>> $rows */
         $rows = ((array) $record->payload)['elements'];
+
+        return $rows;
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function storedLayouts(UndoRecord $record): array
+    {
+        /** @var list<array<string, mixed>> $rows */
+        $rows = ((array) $record->payload)['layouts'] ?? [];
 
         return $rows;
     }

@@ -656,6 +656,54 @@
     "built_by": "claude-sonnet-5-5",
     "reviewed_by": "claude-opus-5-5"
   },
+  "T173": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T174": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T175": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T176": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T177": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T178": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T179": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T180": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T181": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T182": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T183": {
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
+  "T371": {
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
+  },
   "T373": {
     "built_by": "claude-opus-5",
     "reviewed_by": "claude-opus-5-5"
