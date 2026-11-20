@@ -3,9 +3,11 @@
 namespace App\Services\Structure;
 
 use App\Enums\ElementKind;
+use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\User;
 use App\Services\Audit\DeletesModelByModel;
+use App\Services\Layout\LayoutRows;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use App\Services\Undo\UndoStore;
@@ -23,6 +25,7 @@ class ElementDeletion
         private readonly ElementNames $names,
         private readonly SiblingPosition $positions,
         private readonly UnknownAllocationGuard $unknown,
+        private readonly LayoutRows $layouts,
     ) {}
 
     public function delete(Element $element, User $user, ?string $clusterChildren = null): string
@@ -36,9 +39,14 @@ class ElementDeletion
 
             $this->unknown->assertNone($element);
 
-            $this->liftWhenAsked($element, $clusterChildren);
+            $this->liftWhenAsked($canvas, $element, $clusterChildren);
 
-            $token = $this->undo->remember(UndoStore::ELEMENT_DELETION, ['elements' => $this->rows($element)], $user);
+            $rows = $this->rows($element);
+            $removed = array_column($rows, 'id');
+
+            $token = $this->undo->remember(UndoStore::ELEMENT_DELETION, ['elements' => $rows, 'layouts' => $this->layouts->snapshot($canvas, $removed)], $user);
+
+            $this->layouts->remove($canvas, $removed);
 
             $this->removal->delete($element);
 
@@ -48,7 +56,7 @@ class ElementDeletion
         });
     }
 
-    private function liftWhenAsked(Element $element, ?string $choice): void
+    private function liftWhenAsked(Canvas $canvas, Element $element, ?string $choice): void
     {
         if ($element->kind !== ElementKind::Cluster) {
             return;
@@ -68,11 +76,11 @@ class ElementDeletion
             $this->refuse('cluster_choice_required');
         }
 
-        $this->lift($element, $children);
+        $this->lift($canvas, $element, $children);
     }
 
     /** @param Collection<int, Element> $children */
-    private function lift(Element $cluster, Collection $children): void
+    private function lift(Canvas $canvas, Element $cluster, Collection $children): void
     {
         $taken = $children->whereNull('archived_at')->filter(fn (Element $child) => $this->names->isTaken($cluster->canvas_id, $cluster->area_id, $cluster->parent_id, $child->name, $cluster->id));
 
@@ -85,6 +93,8 @@ class ElementDeletion
         foreach ($children as $offset => $child) {
             $child->update(['parent_id' => $cluster->parent_id, 'position' => $next + $offset]);
         }
+
+        $this->layouts->remove($canvas, $children->map(fn (Element $child) => (string) $child->id)->all());
     }
 
     /** @return list<array<string, mixed>> */
