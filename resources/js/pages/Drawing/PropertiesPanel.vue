@@ -6,6 +6,7 @@ import { t } from '../../i18n';
 import type { BoxValues } from '../../edit-engine';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import StylePanel, { type StyleTarget } from './StylePanel.vue';
+import TextStylePanel from './TextStylePanel.vue';
 
 const props = defineProps<{ id: string | null; name: string; box: BoxValues | null; target?: StyleTarget | null }>();
 const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>]; style: [patch: StylePatch] }>();
@@ -45,6 +46,7 @@ function commit(key: (typeof keys)[number]): void {
             </div>
         </form>
         <StylePanel v-if="id && target" :id="id" :name="name" :target="target" @style="emit('style', $event)" />
+        <TextStylePanel v-if="id && target && target.kind !== 'area'" :id="id" :name="name" :target="target" @style="emit('style', $event)" />
         <p v-else-if="!$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>
     </Panel>
 </template>
