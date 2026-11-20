@@ -10,6 +10,7 @@ export interface Place {
     x: number;
     y: number;
     width: number;
+    height?: number;
 }
 
 function colour(hex: string) {
@@ -122,11 +123,11 @@ export function buildScene(canvas: DrawnCanvas): SceneGraph {
     return graph;
 }
 
-export function readPlaces(graph: SceneGraph, canvas: DrawnCanvas): Map<string, Place> {
+export function readPlaces(graph: SceneGraph, canvas: DrawnCanvas, sized: Set<string> = new Set()): Map<string, Place> {
     const places = new Map<string, Place>();
     for (const block of canvas.blocks) {
         const node = graph.getNode(block.id);
-        if (node) places.set(block.id, { x: Math.round(node.x), y: Math.round(node.y), width: Math.round(node.width) });
+        if (node) places.set(block.id, { x: Math.round(node.x), y: Math.round(node.y), width: Math.round(node.width), ...(sized.has(block.id) ? { height: Math.round(node.height) } : {}) });
     }
     return places;
 }

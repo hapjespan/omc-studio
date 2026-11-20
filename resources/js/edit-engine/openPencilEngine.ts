@@ -7,10 +7,14 @@ import type { DrawnCanvas } from '../layout';
 import { bundledIcons, closeNetworkBoundary } from './boundary';
 import DrawingSurface from './DrawingSurface.vue';
 import { loadFace, registerFonts } from './fonts';
-import type { DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
+import type { BoxValues, DrawingCommand, DrawingEngine, FinishedAction, LayoutPayload, MountOptions } from './DrawingEngine';
 import { toPayload } from './payload';
+import { align, distribute, equalSize } from './commands/align';
+import { snapChanges } from './commands/grid';
+import { backward, forward, stackOrders } from './commands/order';
 import { restrict } from './restrictions';
-import { ARTBOARD_ID, buildScene, readPlaces } from './scene';
+import { boxOf, nudge, resizeBy, setBox } from './transform';
+import { ARTBOARD_ID, buildScene, readPlaces, TEXT_SUFFIX } from './scene';
 import { keepSelectable, watchSelection } from './selection';
 
 const DIRECTION_ID = 'direction';
@@ -22,6 +26,12 @@ export class OpenPencilEngine implements DrawingEngine {
     private canvas: DrawnCanvas | null = null;
     private base: LayoutPayload | null = null;
     private app: App | null = null;
+    private grid = false;
+    private readonly sized = new Set<string>();
+    private readonly pushed = new Set<string>();
+    private readonly reordered = new Set<string>();
+    private readonly moved = new Set<string>();
+    private onPushBack: ((ids: string[]) => void) | undefined;
     private readonly listeners = new Set<(change: FinishedAction) => void>();
     private readonly stops: (() => void)[] = [];
 
@@ -42,9 +52,10 @@ export class OpenPencilEngine implements DrawingEngine {
         this.graph = graph;
         this.canvas = scene;
         this.base = options.layout;
+        this.onPushBack = options.onPushBack;
         this.editor = editor;
         const locked = [DIRECTION_ID];
-        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID]).release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
+        this.stops.push(restrict(editor, graph, locked, options.onTextAttempt, [ARTBOARD_ID], { onPushBack: (id) => this.pushed.add(id), onResize: (id) => this.sized.add(id), snap: () => this.grid }).release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
         this.watch(editor, graph, scene);
         await new Promise<void>((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('The drawing surface did not become ready.')), READY_TIMEOUT);
@@ -64,7 +75,8 @@ export class OpenPencilEngine implements DrawingEngine {
 
     getLayout(): LayoutPayload {
         const { base, canvas, graph } = this.mounted();
-        return toPayload(base, canvas, readPlaces(graph, canvas));
+        const { editor } = this.mounted();
+        return toPayload(base, canvas, readPlaces(graph, canvas, this.sized), stackOrders(editor, [...this.reordered], (id) => id.endsWith(TEXT_SUFFIX), (id) => this.moved.has(id) || base.elements[id]?.mode === 'manual' || id in base.areas));
     }
 
     getSelection(): string[] {
@@ -85,7 +97,54 @@ export class OpenPencilEngine implements DrawingEngine {
     }
 
     apply(command: DrawingCommand): void {
-        throw new Error(`The drawing command ${command.kind} is not built yet.`);
+        const { editor } = this.mounted();
+        const selection = { editor, ids: [...editor.state.selectedIds] };
+        switch (command.kind) {
+            case 'setBox':
+                return setBox(editor, command.id, this.grid ? snapChanges(command.box) : command.box);
+            case 'nudge':
+                return nudge(selection, command.dx, command.dy);
+            case 'resizeBy':
+                return resizeBy(selection, command.dw, command.dh);
+            case 'setGrid':
+                this.grid = command.on;
+                return;
+            case 'align':
+                return align(selection, command.axis, command.to);
+            case 'distribute':
+                return distribute(selection, command.axis);
+            case 'equalWidth':
+                return equalSize(selection, 'width');
+            case 'equalHeight':
+                return equalSize(selection, 'height');
+            case 'bringForward':
+                return this.reorder(selection, forward);
+            case 'sendBackward':
+                return this.reorder(selection, backward);
+            default:
+                throw new Error(`The drawing command ${command.kind} is not built yet.`);
+        }
+    }
+
+    getBox(id: string): BoxValues | null {
+        return boxOf(this.mounted().editor, id);
+    }
+
+    canUndo(): boolean {
+        return this.mounted().editor.undo.canUndo;
+    }
+
+    canRedo(): boolean {
+        return this.mounted().editor.undo.canRedo;
+    }
+
+    private reorder(selection: { editor: Editor; ids: string[] }, command: (selection: { editor: Editor; ids: string[] }) => void): void {
+        for (const id of selection.ids) {
+            const parent = this.mounted().graph.getNode(id)?.parentId;
+            if (parent) this.reordered.add(parent);
+            this.moved.add(id);
+        }
+        command(selection);
     }
 
     undo(): void {
@@ -143,6 +202,11 @@ export class OpenPencilEngine implements DrawingEngine {
         this.stops.push(graph.onNodeEvents({ created: (node) => note(node.id), updated: note, deleted: note, reparented: note, reordered: note }));
         this.stops.push(
             editor.onEditorEvent('history:changed', () => {
+                if (this.pushed.size > 0) {
+                    const pushed = [...this.pushed];
+                    this.pushed.clear();
+                    this.onPushBack?.(pushed);
+                }
                 if (touched.size === 0) return;
                 const ids = [...touched];
                 touched.clear();
