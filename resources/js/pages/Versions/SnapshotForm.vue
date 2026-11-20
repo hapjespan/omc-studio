@@ -4,14 +4,16 @@ import { router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import Field from '../../components/fields/Field.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
+import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextArea from '../../components/fields/TextArea.vue';
 import TextField from '../../components/fields/TextField.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import type { ListRow } from '../../components/list/ListView.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
 
 const props = defineProps<{ row: ListRow | null; canvasId: number; years: number[] }>();
-const emit = defineEmits<{ close: []; dirty: [value: boolean] }>();
+const emit = defineEmits<{ close: []; cancel: []; dirty: [value: boolean] }>();
 
 const page = usePage();
 const errors = computed(() => page.props.errors as Record<string, string>);
@@ -28,17 +30,18 @@ function submit(): void {
 </script>
 
 <template>
-    <form novalidate class="flex flex-col gap-3" @submit.prevent="submit" @input="touch" @change="touch">
+    <form novalidate class="flex flex-col gap-4" @submit.prevent="submit" @input="touch" @change="touch">
         <ErrorSummary :errors="errors" />
         <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="touch" />
         <Field v-if="!row" id="fiscal_year" :label="t('snap.field.year')" :error="errors.fiscal_year" v-slot="{ describedby, invalid }">
-            <select id="fiscal_year" v-model="draft.fiscal_year" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="rounded-md border border-[#848B95] bg-white px-2 py-1.5 text-[13px]">
+            <NativeSelect id="fiscal_year" v-model="draft.fiscal_year" :aria-describedby="describedby" :aria-invalid="invalid || undefined">
                 <option v-for="year in years" :key="year" :value="String(year)">{{ year }}</option>
-            </select>
+            </NativeSelect>
         </Field>
         <TextArea id="remark" v-model="draft.remark" :label="`${t('fields.remark')} (${t('form.optional')})`" :error="errors.remark" @update:model-value="touch" />
         <div class="flex gap-2">
-            <button type="submit" :disabled="busy" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] font-semibold">{{ t('snap.save') }}</button>
+            <AppButton type="submit" variant="primary" :disabled="busy">{{ t('snap.save') }}</AppButton>
+            <AppButton @click="emit('cancel')">{{ t('list.cancel') }}</AppButton>
         </div>
     </form>
 </template>

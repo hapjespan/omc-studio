@@ -87,7 +87,7 @@ async function png(): Promise<void> {
 
 const pending = ref(false);
 const proceed = ref<InstanceType<typeof AppButton>>();
-const item = 'block rounded px-2 py-1.5 text-[13px] hover:bg-accent-soft focus:bg-accent-soft';
+const item = 'flex min-h-dense items-center rounded-badge px-2.5 text-[13px] text-ink hover:bg-accent-soft focus:bg-accent-soft';
 
 async function print(): Promise<void> {
     close();
@@ -113,10 +113,10 @@ function printAnyway(): void {
 
 <template>
     <div class="contents print:hidden">
-        <label v-if="overlay !== 'none'" class="inline-flex items-center gap-2 text-[12.5px] text-secondary"><input v-model="withOverlay" type="checkbox" role="switch" data-with-overlay>{{ t('print.with_overlay') }}</label>
+        <label v-if="overlay !== 'none'" class="inline-flex min-h-mark items-center gap-2 text-[12.5px] text-secondary"><input v-model="withOverlay" type="checkbox" role="switch" class="size-4 accent-ink" data-with-overlay>{{ t('print.with_overlay') }}</label>
         <div ref="root" class="relative inline-block" @keydown.esc="close" @focusout="leave">
             <AppButton ref="trigger" variant="primary" aria-haspopup="menu" :aria-expanded="open" aria-controls="export-menu" @click="toggle">{{ t('jsonx.export_menu') }}</AppButton>
-            <ul v-show="open" id="export-menu" ref="list" role="menu" :aria-label="t('jsonx.export_menu')" class="absolute right-0 z-20 mt-1 min-w-[16rem] rounded-control border border-edge bg-white p-1 shadow-md" @keydown.down.prevent="move($event, 1)" @keydown.up.prevent="move($event, -1)">
+            <ul v-show="open" id="export-menu" ref="list" role="menu" :aria-label="t('jsonx.export_menu')" class="absolute right-0 z-20 mt-1 min-w-[16rem] rounded-control border border-hairline bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,.12)]" @keydown.down.prevent="move($event, 1)" @keydown.up.prevent="move($event, -1)">
                 <li role="none"><a role="menuitem" tabindex="-1" :href="routes.canvasJsonExport(canvasId)" download :class="item" @click="close">{{ t('jsonx.export') }}</a></li>
                 <li v-if="organisationId" role="none"><button role="menuitem" tabindex="-1" type="button" :class="[item, 'w-full text-left']" @click="csv(routes.costRecordsCsvExport(organisationId), 'cost-records.csv')">{{ t('csvx.export_cost_records') }}</button></li>
                 <li role="none"><button role="menuitem" tabindex="-1" type="button" :class="[item, 'w-full text-left']" @click="csv(routes.allocationsCsvExport(canvasId), 'allocations.csv')">{{ t('csvx.export_allocations') }}</button></li>

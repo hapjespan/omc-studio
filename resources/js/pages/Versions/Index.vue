@@ -2,6 +2,8 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
+import AppButton from '../../components/ui/AppButton.vue';
+import Pill from '../../components/ui/Pill.vue';
 import ListView, { type ListColumn, type ListRow, type ListState } from '../../components/list/ListView.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
@@ -12,6 +14,7 @@ const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; ca
 const page = usePage();
 const canvasId = computed(() => (page.props.canvas as { id: number } | null)?.id ?? 0);
 const list = ref<InstanceType<typeof ListView>>();
+const dock = ref<HTMLElement>();
 const keep = { preserveScroll: true, preserveState: true };
 
 watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | undefined)?.status && announce((flash as { status: string }).status));
@@ -22,9 +25,11 @@ const columns: ListColumn[] = [
     { key: 'created', label: t('snap.column.created') },
     { key: 'maker', label: t('snap.column.maker') },
     { key: 'remark', label: t('snap.column.remark') },
+    { key: 'importedText', label: t('snap.imported') },
+    { key: 'open', label: t('snap.open') },
 ];
 
-const shownRows = computed(() => props.rows.map((row) => ({ ...row, remark: row.remark ?? '', maker: row.maker ?? '' })));
+const shownRows = computed(() => props.rows.map((row) => ({ ...row, remark: row.remark ?? '', maker: row.maker ?? '', open: t('snap.open') })));
 
 const consequence = (row: ListRow): string => t('snap.delete_consequence', { name: row.name });
 const focusList = async (): Promise<void> => {
@@ -42,17 +47,32 @@ function load(query: ListState): void {
 
 <template>
     <Head :title="t('snap.title')" />
-    <h1 class="text-[20px] font-semibold">{{ t('snap.title') }}</h1>
-    <div class="mt-3">
-        <ListView ref="list" :title="t('snap.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" archivable :can-delete="canWrite" :can-create="canWrite" :create-label="t('snap.create')" :create-title="t('snap.create')" :undoable="false" :consequence="consequence" @change="load" @delete="remove" @restore="restore">
-            <template #cell="{ row, column }">
-                <template v-if="column.key === 'name'"><Link :href="routes.snapshotView(row.id)" class="font-semibold text-[#1F4FB4] underline">{{ row.name }}</Link><span v-if="row.imported" class="ml-2 rounded border border-[#848B95] px-1 text-[11.5px]">{{ t('snap.imported') }}</span></template>
-                <template v-else>{{ row[column.key] }}</template>
-            </template>
-            <template v-if="canWrite" #form="{ row, close, setDirty }">
-                <SnapshotForm :key="row?.id ?? 'new'" :row="row" :canvas-id="canvasId" :years="years" @close="close" @dirty="setDirty" />
-                <button v-if="row && !row.archived_at" type="button" class="mt-3 rounded-md border border-[#848B95] px-3 py-1.5 text-[13px]" @click="archive(row, close)">{{ t('snap.archive') }}</button>
-            </template>
-        </ListView>
+    <div class="grid items-start gap-x-4 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto]">
+        <div class="flex min-w-0 flex-col gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('snap.title') }}</h1>
+                <AppButton v-if="canWrite" variant="primary" icon="plus" @click="list?.create($event.currentTarget as HTMLElement)">{{ t('snap.create') }}</AppButton>
+            </div>
+            <ListView ref="list" :title="t('snap.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :dock="dock" archivable :can-delete="canWrite" :can-create="canWrite" :create-title="t('snap.create')" :undoable="false" :consequence="consequence" @change="load" @delete="remove" @restore="restore">
+                <template #cell="{ row, column }">
+                    <template v-if="column.key === 'importedText'"><Pill v-if="row.imported">{{ t('snap.imported') }}</Pill></template>
+                    <Link v-else-if="column.key === 'open'" :href="routes.snapshotView(row.id)" class="rounded-control font-medium text-accent underline">{{ t('snap.open') }}<span class="sr-only"> {{ row.name }}</span></Link>
+                    <span v-else-if="column.key === 'name'" class="font-semibold">{{ row.name }}</span>
+                    <span v-else-if="column.key === 'remark' || column.key === 'maker'" :class="row[column.key] ? '' : 'text-muted'">{{ row[column.key] || t('cost_records.none_text') }}</span>
+                    <template v-else>{{ row[column.key] }}</template>
+                </template>
+                <template v-if="canWrite" #form="{ row, close, requestClose, setDirty, requestDelete }">
+                    <SnapshotForm :key="row?.id ?? 'new'" :row="row" :canvas-id="canvasId" :years="years" @close="close" @cancel="requestClose" @dirty="setDirty" />
+                    <div v-if="row" class="mt-4 border-t border-hairline pt-4">
+                        <p class="text-[12.5px] text-secondary">{{ consequence(row) }}</p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <AppButton v-if="!row.archived_at" @click="archive(row, close)">{{ t('snap.archive') }}</AppButton>
+                            <AppButton variant="danger" @click="requestDelete">{{ t('list.delete') }}</AppButton>
+                        </div>
+                    </div>
+                </template>
+            </ListView>
+        </div>
+        <aside ref="dock" :aria-label="t('snap.title')" class="w-full empty:hidden lg:w-detail-panel" />
     </div>
 </template>

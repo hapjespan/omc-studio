@@ -26,7 +26,8 @@ test('deleting states what goes, removes the row and offers no undo', async ({ p
     const panel = page.getByRole('dialog', { name: 'Momentopname maken' });
     await panel.getByLabel('Naam').fill('Tijdelijk');
     await panel.getByRole('button', { name: 'Opslaan' }).click();
-    await page.getByRole('button', { name: 'Verwijderen Tijdelijk' }).click();
+    await page.getByRole('button', { name: 'Tijdelijk', exact: true }).click();
+    await page.getByRole('dialog', { name: 'Tijdelijk' }).getByRole('button', { name: 'Verwijderen' }).click();
 
     const dialog = page.getByRole('dialog', { name: 'Tijdelijk verwijderen?' });
     await expect(dialog).toContainText('Ongedaan maken kan niet');
