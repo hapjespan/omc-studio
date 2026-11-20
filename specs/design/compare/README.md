@@ -86,6 +86,49 @@ States
 
 Five most visible: K-01 (page structure and card row), K-05 (table columns missing, no panel), K-04 (one-column form), K-03 (modal over table), K-08 (filter bar).
 
+### Status after T379 (feat/d210-kosten)
+
+Evidence: `kostenposten-built-v2.png` (1440 pixels, full page, Canvas variant, panel open) next to `kostenposten-board.png`; measured values are asserted in `tests/e2e/design-kostenposten.spec.ts`.
+
+| Finding | Status | Commit and note |
+|---|---|---|
+| K-01 | opgelost | 7a8b6cf: header row with title left and actions right, then one row of four cards, toolbar, one table panel, form docked right. The organisation page has no summary data (no Canvas), so it shows no cards: bewust afwijkend there. |
+| K-02 | opgelost | 7a8b6cf: three summary cards then the finalise card, one row of four equal columns; height 129 against 124. |
+| K-03 | opgelost | 2caa564: the form is a docked panel beside the table (`ListDock`), the table stays usable, Escape inside the panel closes it with the unsaved-changes guard. |
+| K-04 | opgelost | 7a8b6cf: Naam full width, Code and Soort, Eigenaar, Applicatie, Leverancier and Kostenplaats (decision 42), Omschrijving; Jaarwaarden in two columns, Peildatum present. Label "Soort kosten" kept (specs address it by name). |
+| K-05 | opgelost | 2caa564, 7a8b6cf: Soort, Eigenaar, Applicatie columns, code beneath the name, right-aligned amounts, delta; the per-row Verwijderen button moved into the panel as on the board. |
+| K-06 | opgelost | 2caa564: white panel, 1px `#DCDFE2`, radius 10, header 11.5/600. |
+| K-07 | opgelost | 2caa564: padding 10 by 12 (right 8 to fit cents), two-line rows 54px. |
+| K-08 | opgelost | 2caa564: one row with search, four inline-label filter chips, archive toggle and count. |
+| K-09 | opgelost | 7a8b6cf: "Kostenposten 2026" in Space Grotesk 20/600 with -0.2px; the organisation name is in the breadcrumb. |
+| K-10 | opgelost | 7a8b6cf: Space Grotesk on the H1, card amounts and panel headings (foundation tokens). |
+| K-11 | opgelost | 7a8b6cf: card label 11.5 muted, 400. |
+| K-12 | opgelost | 7a8b6cf: card amount Space Grotesk 22/700, -0.22px, whole euros (the table keeps cents, see K-15). |
+| K-13 | opgelost | 7a8b6cf: sub line 12px `#454C57`, "Prognose € 752.000". |
+| K-14 | opgelost | 2caa564: header 11.5/600 `#454C57`. |
+| K-15 | bewust afwijkend | Table amounts keep cents ("€ 84.000,00") because the contract (decision 40) shows cents in tables; right-aligned and 600 as on the board (2caa564). |
+| K-16 | opgelost | 2caa564: name 13/600 without underline, code 11.5 muted beneath. |
+| K-17 | opgelost | 7a8b6cf: "Jaarwaarden 2026" Space Grotesk 13/600. |
+| K-18 | opgelost | Foundation page `#F2F3F1`; panels white with `#DCDFE2` (2caa564, 7a8b6cf). |
+| K-19 | opgelost | 2caa564: docked panel white, hairline, radius 10, padding 16, on the grey page. |
+| K-20 | opgelost | 7a8b6cf: success `#1F7A4D` with filled dot, warning `#8A5200` with open ring, 12/600. The text "Onbekende allocatie" stays (ADR 0008 term and existing specs) where the board says "Niet toegewezen". |
+| K-21 | opgelost | 7a8b6cf: delta amber when above budget, green below, signed. |
+| K-22 | opgelost | 7a8b6cf: cards 14 by 16, radius 10, hairline border. |
+| K-23 | opgelost | 7a8b6cf: 12px between cards, 16px between sections. |
+| K-24 | opgelost | 7a8b6cf: finalise card with `AppButton` and lock icon, disabled fill `#E6E8E6`. The sentence keeps "alle kostenposten zijn toegewezen" (finalise-card spec) instead of "met budget": bewust afwijkend in wording only. |
+| K-25 | opgelost | 2caa564: selected row `#F6F7F5` with a 2px ink bar. |
+| K-26 | bewust afwijkend | 2caa564: 16px box in a 24px target with ink accent; the 4px radius needs a styled checkbox that the foundation lacks (foundation gap). |
+| K-27 | opgelost | 7a8b6cf: Opslaan ink and Annuleren side by side, Archiveren and Verwijderen (danger) below a rule with the consequence text. The record and the Jaarwaarden save separately (two resources), so the panel has Opslaan plus Jaarwaarden opslaan: bewust afwijkend. |
+| K-28 | bewust afwijkend | 7a8b6cf: selects are 36px, radius 6, chevron, but the border is `#848B95` (decision 45) not `#AEB4BC`; native select kept so keyboard and specs stay as they are (foundation gap: no native select component). |
+| K-29 | opgelost | 2caa564: search field with icon and placeholder "Zoek op naam of code", 253 by 36. |
+| K-30 | opgelost | 7a8b6cf: ink "+ Nieuw" with plus icon, "Importeren uit CSV", 8px gaps. "Jaar overnemen" keeps its label (the source year is chosen in the dialog): bewust afwijkend in wording only. |
+| K-31 | opgelost | 2caa564: archive toggle and count right-aligned in the filter row. |
+| K-32 | opgelost | 7a8b6cf: hint 11.5 `#5F6772` (foundation `Field`). |
+| K-33 | bewust afwijkend | Focus ring is the dark plus light double ring of decision 46 (foundation); on opening the panel focus goes to its heading, so no text is selected and no ring sits on a field (2caa564). |
+| K-34 | opgelost | 7a8b6cf: disabled finalise with lock and `#E6E8E6`; empty table shows "Geen resultaten". |
+
+Follow-up commits: 935f646 and the name column width fix.
+
 ## Toewijzen (board 3)
 
 Files: `resources/js/pages/Finance/Allocation.vue`, `CostRecordStatusList.vue`, `AllocationEditor.vue`, `AllocationQuick.vue`, `TargetTree.vue`, `TargetNode.vue`.
