@@ -37,6 +37,14 @@ class Canvas extends Model
         'layout_saved_at' => 'datetime',
     ];
 
+    public function raiseStructureVersion(): void
+    {
+        static::query()->whereKey($this->getKey())->increment('structure_version');
+
+        $this->structure_version = (int) $this->structure_version + 1;
+        $this->syncOriginalAttribute('structure_version');
+    }
+
     public function acceptsEntryBy(?User $user): bool
     {
         return $user?->role === Role::Administrator && ($this->kind === CanvasKind::Template || $this->archived_at === null);

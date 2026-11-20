@@ -78,6 +78,8 @@ class UndoStore
             $this->assertEveryRuleStillHolds($rows);
             $this->context->during('undone', fn () => $this->insert($rows));
 
+            $canvas->raiseStructureVersion();
+
             $record->delete();
         });
     }

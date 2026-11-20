@@ -30,6 +30,8 @@ class ElementArchive
 
             if ($element->archived_at === null) {
                 $this->stamp($element, now(), null);
+
+                $canvas->raiseStructureVersion();
             }
         });
     }
@@ -55,6 +57,8 @@ class ElementArchive
             $element->position = $this->positions->next($element->canvas_id, $element->area_id, $element->parent_id, $element->kind);
 
             $this->stamp($element, null, $element->archived_at);
+
+            $canvas->raiseStructureVersion();
         });
     }
 

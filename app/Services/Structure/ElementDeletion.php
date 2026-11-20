@@ -42,6 +42,8 @@ class ElementDeletion
 
             $this->removal->delete($element);
 
+            $canvas->raiseStructureVersion();
+
             return $token;
         });
     }
