@@ -24,7 +24,7 @@ import ResetDialogs from './ResetDialogs.vue';
 import { resetIds, type ResetScope } from '../../edit-engine/commands/reset';
 import { leaveGuards } from '../../shell/fullLoad';
 import type { InvalidValue } from './PropertiesPanel.vue';
-import { SaveQueue, sendLayout, type SaveFailure, type SaveStatus } from './SaveQueue';
+import { MoveConflict, SaveQueue, sendLayout, type SaveFailure, type SaveStatus } from './SaveQueue';
 import { sendReset } from './resetRequest';
 import DirectionBand from './DirectionBand.vue';
 import Header from './Header.vue';
@@ -70,6 +70,8 @@ const leaveTarget = ref<string | null>(null);
 const resetScope = ref<ResetScope | null>(null);
 const resetId = ref<string | null>(null);
 let typed: Omit<InvalidValue, 'message'> | null = null;
+let leaveWaiting: string | null = null;
+const retried = ref(false);
 const view = ref('');
 const restoreTo = ref<HTMLElement | null>(null);
 let created: DrawingEngine | null = null;
@@ -182,7 +184,7 @@ const onFailure = (failure: SaveFailure): void => {
     }
     const attempt = typed;
     void refresh(false, reason).then(() => {
-        if (!attempt) return;
+        if (!attempt || !failure.elements.includes(attempt.id)) return;
         engine.value?.select([attempt.id]);
         invalid.value = { ...attempt, message: failure.messages[0] ?? t('drawing.value_invalid') };
     });
@@ -238,17 +240,22 @@ async function start(payload: LayoutPayload): Promise<void> {
 const onStatus = (next: SaveStatus): void => {
     saveStatus.value = next;
     if (next === 'layoutChanged') void refresh(false, moveFlow.hasLost() ? `${t('drawing.layout_changed')}. ${t('drawing.move_not_saved')}` : t('drawing.layout_changed'));
-    if (next === 'saved' && leaveTarget.value) window.location.assign(leaveTarget.value);
+    if (next === 'saved' && (leaveTarget.value || leaveWaiting)) window.location.assign((leaveTarget.value ?? leaveWaiting) as string);
 };
 
-async function refresh(keepOwn: boolean, message = ''): Promise<void> {
+async function loadStored(): Promise<LayoutPayload> {
+    await new Promise<void>((resolve) => router.reload({ only: ['layout', 'elements', 'statements', 'layouts', 'versions', 'newElements'], onFinish: () => resolve() }));
+
+    return storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions);
+}
+
+async function refresh(keepOwn: boolean, message = '', focusTo: HTMLElement | null = null): Promise<void> {
     if (refreshing) return;
     refreshing = true;
     const own = keepOwn && engine.value ? engine.value.getLayout() : null;
     const base = loaded;
     try {
-        await new Promise<void>((resolve) => router.reload({ only: ['layout', 'elements', 'statements', 'layouts', 'versions', 'newElements'], onFinish: () => resolve() }));
-        const fresh = storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions);
+        const fresh = await loadStored();
         await start(own && base ? mergeLayout(own, base, fresh) : fresh);
         if (own && base) {
             queue?.resolveStructureChange(props.versions.structure, props.versions.layout);
@@ -259,45 +266,71 @@ async function refresh(keepOwn: boolean, message = ''): Promise<void> {
         else moveFlow.structureReload(message !== '');
     } finally {
         refreshing = false;
-        host.value?.focus();
+        (focusTo?.isConnected ? focusTo : host.value)?.focus();
     }
 }
 
 const resetName = computed(() => (resetId.value ? (names.value.get(resetId.value) ?? '') : ''));
-const resetCount = computed(() => (resetScope.value ? resetIds(props.elements, resetScope.value, resetId.value).length : 0));
+const resetCount = computed(() => (resetScope.value ? (props.layout.areas.some((area) => area.key === resetId.value) ? props.elements.filter((element) => element.area === resetId.value).length : resetIds(props.elements, resetScope.value, resetId.value).length) : 0));
+const resetOpener = ref<HTMLElement | null>(null);
 const askReset = (scope: ResetScope): void => {
+    resetOpener.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     resetScope.value = scope;
     resetId.value = scope === 'canvas' ? null : single.value;
 };
+const resetting = ref(false);
 const performReset = (): void => {
     const scope = resetScope.value;
     const id = resetId.value;
+    const opener = resetOpener.value;
     resetScope.value = null;
     if (!scope) return;
     const area = id !== null && props.layout.areas.some((candidate) => candidate.key === id);
+    resetting.value = true;
     queue?.enqueueMove(async (versions) => {
-        const response = area
-            ? await sendLayout(props.canvas.id, { ...(engine.value?.getLayout() as LayoutPayload), areas: Object.fromEntries(Object.entries(engine.value?.getLayout().areas ?? {}).filter(([key]) => key !== id)), structure_version: versions.structure, layout_version: versions.layout })
-            : await sendReset(props.canvas.id, scope, id);
-        if (response.outcome !== 'saved') {
-            say(t('drawing.save_failed'));
-            return versions;
-        }
-        setTimeout(() => void refresh(false, ''), 0);
+        try {
+            const current = engine.value?.getLayout() as LayoutPayload;
+            const response = area
+                ? await sendLayout(props.canvas.id, { ...current, areas: Object.fromEntries(Object.entries(current.areas).filter(([key]) => key !== id)), structure_version: versions.structure, layout_version: versions.layout })
+                : await sendReset(props.canvas.id, scope, id);
+            if (response.outcome === 'conflict') throw new MoveConflict(response.conflict);
+            if (response.outcome === 'refused') {
+                say(response.messages.join(' ') || t('drawing.save_failed'));
+                await start(await loadStored());
 
-        return { structure: versions.structure, layout: response.layoutVersion };
+                return { structure: props.versions.structure, layout: props.versions.layout };
+            }
+            if (response.outcome !== 'saved') throw new Error('unreachable');
+            await start(await loadStored());
+            say(t('drawing.reset_done'));
+            (opener?.isConnected ? opener : host.value)?.focus();
+
+            return { structure: props.versions.structure, layout: props.versions.layout };
+        } finally {
+            resetting.value = false;
+        }
     });
 };
 const guard = (destination: string): boolean => {
+    if (saveStatus.value === 'saving') {
+        leaveWaiting = destination;
+
+        return true;
+    }
     if (saveStatus.value !== 'failed') return false;
     leaveTarget.value = destination;
 
     return true;
 };
 const beforeUnload = (event: BeforeUnloadEvent): void => {
-    if (saveStatus.value === 'failed') event.preventDefault();
+    if (saveStatus.value !== 'failed' && saveStatus.value !== 'saving') return;
+    event.preventDefault();
+    event.returnValue = '';
 };
-const leaveRetry = (): void => queue?.retry();
+const leaveRetry = (): void => {
+    retried.value = true;
+    queue?.retry();
+};
 const leaveDiscard = (): void => {
     const destination = leaveTarget.value;
     leaveGuards.delete(guard);
@@ -327,15 +360,15 @@ onBeforeUnmount(() => {
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
     </header>
     <DragLabel :event="verdict" />
-    <LeaveDialog :open="leaveTarget !== null" @retry="leaveRetry" @discard="leaveDiscard" @stay="leaveTarget = null" />
+    <LeaveDialog :open="leaveTarget !== null" :failed="saveStatus === 'failed' && retried" @retry="leaveRetry" @discard="leaveDiscard" @stay="leaveTarget = null" />
     <ResetDialogs :scope="resetScope" :name="resetName" :count="resetCount" @confirm="performReset" @cancel="resetScope = null" />
     <MoveDialog :open="moveFlow.pending.value !== null" :busy="moveFlow.busy.value" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
-    <Header class="mt-3" :inert="moveFlow.busy.value || moveFlow.pending.value !== null" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" @reset="askReset('canvas')" />
+    <Header class="mt-3" :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" @reset="askReset('canvas')" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>
     <DirectionBand v-if="drawn" class="mt-3" :drawn="drawn" :statements="statements" @peek="peeked = $event" />
-    <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]" :inert="moveFlow.busy.value || moveFlow.pending.value !== null">
+    <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[14rem_minmax(0,1fr)_16rem]" :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting">
         <LayersPanel :fresh="fresh" :areas="layout.areas" @keydown="onKey" :elements="elements" :selected="selected" class="max-h-[40vh] overflow-auto lg:max-h-[calc(100vh-14rem)]" @select="pick" />
         <div class="flex min-w-0 flex-col gap-3">
             <div ref="host" role="group" tabindex="0" @keydown="onKey" :aria-label="t('drawing.artboard', { name: canvas.name })" class="h-[60vh] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#c3c9cf_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[calc(100vh-17rem)]" :data-state="state" :data-view="view"></div>

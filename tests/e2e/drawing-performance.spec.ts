@@ -6,7 +6,7 @@ import { seedBulkCanvas } from './support/view';
 const FIRST_USE_MS = 3000;
 
 test('Tekenen first use of a 500 Element Canvas within 3 seconds', { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(480_000);
     const canvas = seedBulkCanvas(25, 9);
     await signInAs(page, 'administrator');
 
@@ -16,15 +16,13 @@ test('Tekenen first use of a 500 Element Canvas within 3 seconds', { tag: PERFOR
         await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
 
         return page.evaluate(() => performance.now());
-    }, 8);
+    });
 
-    const sorted = [...samples].sort((left, right) => left - right);
-    console.log(`first use of Tekenen, ${browserName}: ${sorted.join(' ')} ms`);
-    expect(sorted[Math.ceil(0.95 * sorted.length) - 1]).toBeLessThan(FIRST_USE_MS);
+    expectWithinBudget(samples, 'first use of Tekenen, 500 Elements', browserName, FIRST_USE_MS);
 });
 
 test('one automatic save of a 500 Element Canvas within one second', { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(480_000);
     const canvas = seedBulkCanvas(25, 9);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas.id}/drawing`);
@@ -35,14 +33,15 @@ test('one automatic save of a 500 Element Canvas within one second', { tag: PERF
 
     const samples = await sample(async () => {
         at += 2;
+        const saved = page.waitForResponse((response) => response.request().method() === 'PUT' && response.url().endsWith('/layout'));
         const started = Date.now();
         await x.fill(String(at));
         await x.press('Enter');
-        await expect(page.locator('[data-save-state]')).toHaveText('Opslaan…', { timeout: 5000 }).catch(() => undefined);
-        await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen', { timeout: 5000 });
+        await saved;
 
         return Date.now() - started;
-    }, 10);
+    });
 
-    expectWithinBudget(samples, 'one automatic save in Tekenen', browserName);
+    expect(samples).toHaveLength(20);
+    expectWithinBudget(samples, 'one automatic save in Tekenen, 500 Elements', browserName);
 });

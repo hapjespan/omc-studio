@@ -14,7 +14,7 @@ export async function sendReset(canvas: string | number, scope: ResetScope, elem
     if (response === null) return { outcome: 'unreachable' };
     const answer = (await response.json().catch(() => ({}))) as { layout_version?: number; errors?: { rule?: string[] } };
     if (response.ok && typeof answer.layout_version === 'number') return { outcome: 'saved', layoutVersion: answer.layout_version };
-    if (response.status === 422) return { outcome: 'refused', messages: answer.errors?.rule ?? [], codes: [] };
+    if (response.status === 422) return { outcome: 'refused', messages: answer.errors?.rule ?? [], codes: [], elements: [] };
 
     return { outcome: 'unreachable' };
 }

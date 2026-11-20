@@ -32,7 +32,7 @@ class LayoutStore
             $refused = (new LayoutValidator($elements))->refusals($payload);
 
             if ($refused !== []) {
-                throw ValidationException::withMessages(['rule' => array_column($refused, 'message'), 'codes' => array_values(array_unique(array_column($refused, 'rule')))]);
+                throw ValidationException::withMessages(['rule' => array_column($refused, 'message'), 'codes' => array_values(array_unique(array_column($refused, 'rule'))), 'elements' => array_values(array_unique(array_filter(array_column($refused, 'element'))))]);
             }
 
             $before = $this->audit->current($canvas);

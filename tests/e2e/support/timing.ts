@@ -16,9 +16,9 @@ export async function sample(measure: () => Promise<number>, count = SAMPLES): P
     return samples;
 }
 
-export function expectWithinBudget(samples: number[], label: string, browser: string): void {
+export function expectWithinBudget(samples: number[], label: string, browser: string, budget = BUDGET_MS): void {
     const sorted = [...samples].sort((left, right) => left - right);
 
     console.log(`machine: ${machine(browser)}; ${label}; ${samples.length} samples; median ${percentile(samples, 50)} ms; p95 ${percentile(samples, 95)} ms; max ${sorted[sorted.length - 1]} ms; all ${sorted.join(' ')}`);
-    expect(percentile(samples, 95), `${label}: 95th percentile of ${samples.length} samples`).toBeLessThan(BUDGET_MS);
+    expect(percentile(samples, 95), `${label}: 95th percentile of ${samples.length} samples`).toBeLessThan(budget);
 }

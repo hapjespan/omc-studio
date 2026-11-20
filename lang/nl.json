@@ -634,7 +634,8 @@
     "drawing.reset_title_element": "Terug naar automatische plek voor :name?",
     "drawing.reset_title_domain": "Domein :name terug naar automatisch?",
     "drawing.reset_title_canvas": "Alles automatisch opmaken?",
-    "drawing.reset_body": "Plek, grootte en stijl van :count elementen gaan terug naar de automatische opmaak.",
+    "drawing.reset_body": "Plek, grootte en stijl gaan terug naar de automatische opmaak.",
     "drawing.reset_confirm": "Terugzetten",
-    "drawing.value_invalid": "Deze waarde is niet opgeslagen"
+    "drawing.value_invalid": "Deze waarde is niet opgeslagen",
+    "drawing.reset_done": "Opmaak teruggezet naar automatisch"
 }

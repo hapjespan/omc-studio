@@ -1,5 +1,5 @@
 import { expect, test } from './support/guards';
-import { dragTo, LES_GEVEN, openDrawing, seedMoveCanvas, VERKOOP } from './support/drawing';
+import { dragTo, ACTIVITY, openDrawing, seedMoveCanvas, DOMAIN_TARGET } from './support/drawing';
 
 const title = 'Verplaatsen naar Primaire activiteiten › Verkoop?';
 
@@ -8,7 +8,7 @@ test('a Shift-drag asks before anything is stored, Escape cancels and focus retu
     await layers.getByRole('button', { name: 'Les geven', exact: true }).first().click();
     const x = await page.getByLabel('X van Les geven').inputValue();
     const y = await page.getByLabel('Y van Les geven').inputValue();
-    await dragTo(page, LES_GEVEN, VERKOOP);
+    await dragTo(page, ACTIVITY, DOMAIN_TARGET);
     const dialog = page.getByRole('dialog', { name: title });
     await expect(dialog).toBeVisible();
     await page.keyboard.press('Escape');
@@ -24,7 +24,7 @@ test('a Shift-drag asks before anything is stored, Escape cancels and focus retu
 
 test('Enter confirms the move and it survives a reload', async ({ page }) => {
     await openDrawing(page, seedMoveCanvas());
-    await dragTo(page, LES_GEVEN, VERKOOP);
+    await dragTo(page, ACTIVITY, DOMAIN_TARGET);
     await expect(page.getByRole('dialog', { name: title })).toBeVisible();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('dialog')).toBeHidden();
@@ -37,7 +37,7 @@ test('Enter confirms the move and it survives a reload', async ({ page }) => {
 
 test('Tekenen takes no other action while the dialog is open: the drawing is inert', async ({ page }) => {
     await openDrawing(page, seedMoveCanvas());
-    await dragTo(page, LES_GEVEN, VERKOOP);
+    await dragTo(page, ACTIVITY, DOMAIN_TARGET);
     await expect(page.getByRole('dialog', { name: title })).toBeVisible();
     await expect(page.locator('[inert]')).toHaveCount(2);
     await page.getByRole('button', { name: 'Annuleren' }).click();

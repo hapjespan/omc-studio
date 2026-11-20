@@ -1,5 +1,5 @@
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { dragTo, LES_GEVEN, openDrawing, seedMoveCanvas, VERKOOP } from './support/drawing';
+import { dragTo, ACTIVITY, openDrawing, seedMoveCanvas, DOMAIN_TARGET } from './support/drawing';
 
 test('the Tekenen journey: arrange, save, reload, Bekijken equals Tekenen, axe clean in every state', async ({ page }) => {
     const canvas = seedMoveCanvas();
@@ -20,7 +20,7 @@ test('the Tekenen journey: arrange, save, reload, Bekijken equals Tekenen, axe c
     await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
     await expectNoAxeViolations(page);
 
-    await dragTo(page, { x: LES_GEVEN.x + 24, y: LES_GEVEN.y + 24 }, VERKOOP);
+    await dragTo(page, { x: ACTIVITY.x + 24, y: ACTIVITY.y + 24 }, DOMAIN_TARGET);
     await expect(page.getByRole('dialog')).toBeVisible();
     await expectNoAxeViolations(page);
     await page.keyboard.press('Escape');
@@ -62,4 +62,32 @@ test('the keyboard-only journey: select, move, resize, undo and redo without a p
     await expect(width).toHaveValue(String(wide + 1));
     await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
     await expectNoAxeViolations(page);
+});
+
+test('axe is clean in the reset dialog, the failed state, the invalid field and the leave dialog', async ({ page, context }) => {
+    const layers = await openDrawing(page, seedMoveCanvas());
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    await page.getByRole('button', { name: 'Terug naar automatische plek' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expectNoAxeViolations(page);
+    await page.keyboard.press('Escape');
+
+    const id = await layers.getByRole('button', { name: 'Onderwijs', exact: true }).getAttribute('data-layer');
+    await page.route('**/layout', (route) => (route.request().method() === 'PUT' ? route.fulfill({ status: 422, contentType: 'application/json', body: JSON.stringify({ message: 'refused', errors: { rule: ['Opmaak Onderwijs: plek en grootte zijn ongeldig'], codes: ['invalid_layout'], elements: [id] } }) }) : route.continue()));
+    await page.getByLabel('X van Onderwijs').fill('50');
+    await page.getByLabel('X van Onderwijs').press('Enter');
+    await expect(page.locator('[data-announcer]')).toContainText('plek en grootte zijn ongeldig');
+    await expectNoAxeViolations(page);
+    await page.unroute('**/layout');
+
+    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
+    await context.setOffline(true);
+    await page.getByLabel('X van Onderwijs').fill('52');
+    await page.getByLabel('X van Onderwijs').press('Enter');
+    await expect(page.locator('[data-save-state]')).toContainText('Opmaak niet opgeslagen');
+    await expectNoAxeViolations(page);
+    await page.getByRole('link', { name: 'Bekijken' }).click();
+    await expect(page.getByRole('dialog', { name: 'Wijziging niet opgeslagen' })).toBeVisible();
+    await expectNoAxeViolations(page);
+    await context.setOffline(false);
 });

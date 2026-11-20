@@ -52,10 +52,10 @@ export async function shiftDrag(page: Page, from: Spot, to: Spot, beforeRelease?
     await page.keyboard.up('Shift');
 }
 
-export const LES_GEVEN: Spot = { x: 830, y: 535 };
-export const VERKOOP: Spot = { x: 1200, y: 460 };
-export const SMAL: Spot = { x: 1200, y: 700 };
-export const LESSEN: Spot = { x: 830, y: 490 };
+export const ACTIVITY: Spot = { x: 830, y: 535 };
+export const DOMAIN_TARGET: Spot = { x: 1200, y: 460 };
+export const NARROW_TARGET: Spot = { x: 1200, y: 700 };
+export const CLUSTER: Spot = { x: 830, y: 490 };
 
 export async function dragTo(page: Page, from: Spot, to: Spot): Promise<void> {
     await shiftDrag(page, await screenOf(page, from), await screenOf(page, to));
@@ -72,4 +72,11 @@ export function layoutChanges(canvas: number): void {
 
 export function tinker(code: string): void {
     execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+}
+
+export function seedMoveContent(): ViewCanvas {
+    const canvas = seedMoveCanvas();
+    tinker(`App\\Models\\Layout::where('canvas_id', ${canvas.id})->delete();`);
+
+    return canvas;
 }
