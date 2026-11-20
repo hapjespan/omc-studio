@@ -21,7 +21,8 @@ watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | 
 const errors = computed(() => page.props.errors as Record<string, string>);
 const listError = computed(() => (errors.value.rule ? { rule: errors.value.rule } : {}));
 const columns = [
-    { key: 'name', label: t('fields.name'), sortable: true, secondary: 'email' },
+    { key: 'name', label: t('fields.name'), sortable: true },
+    { key: 'email', label: t('fields.email'), sortable: true },
     { key: 'roleLabel', label: t('users.role') },
 ];
 const roleOptions = [

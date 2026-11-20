@@ -78,6 +78,28 @@ test('an Administrator creates a Reader, copies the one-time password once, and 
     await expect(onePassword(page)).toHaveCount(0);
 });
 
+test('the user list sorts on the E-mailadres column', async ({ page }) => {
+    const admin = seedUser({ role: 'administrator' });
+    const token = randomUUID().slice(0, 8);
+    const first = `aaa-${token}@example.test`;
+    const last = `zzz-${token}@example.test`;
+    tinker(`App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} A', 'email' => '${last}']); App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} Z', 'email' => '${first}']);`);
+    await signIn(page, admin);
+    await page.goto('/admin/users');
+    await page.getByRole('searchbox', { name: 'Zoeken' }).fill(token);
+
+    const header = page.getByRole('columnheader', { name: /E-mailadres/ });
+    const cells = page.getByRole('cell', { name: /@example\.test$/ });
+    await expect(cells).toHaveCount(2);
+    await header.getByRole('button').click();
+    await expect(header).toHaveAttribute('aria-sort', 'ascending');
+    await expect(cells.first()).toHaveText(first);
+
+    await header.getByRole('button').click();
+    await expect(header).toHaveAttribute('aria-sort', 'descending');
+    await expect(cells.first()).toHaveText(last);
+});
+
 test('an e-mail address that differs only in case is refused', async ({ page }) => {
     const existing = seedUser();
     await signInAs(page, 'administrator');
