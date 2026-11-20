@@ -18,6 +18,7 @@ use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\CanvasEntryController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
+use App\Http\Controllers\DrawingController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
@@ -140,4 +141,8 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}')->grou
 Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/quick-entry')->group(function () {
     Route::post('/preview', [QuickEntryController::class, 'preview']);
     Route::post('/', [QuickEntryController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/drawing', DrawingController::class);
 });

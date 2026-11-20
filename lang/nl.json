@@ -86,6 +86,7 @@
     "shell.tab.admin": "Beheer",
     "shell.mode_group": "Modus",
     "shell.mode.entry": "Invoeren",
+    "shell.mode.drawing": "Tekenen",
     "shell.mode.view": "Bekijken",
     "shell.admin.users": "Gebruikers",
     "shell.admin.organisations": "Organisaties",
