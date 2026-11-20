@@ -48,11 +48,25 @@ describe('Manual layout', () => {
         expect([child.x, child.y, child.width, child.drawnHeight, child.z]).toEqual([parent.x + 10, parent.y + 40, 120, 30, 3007]);
     });
 
-    it('leaves the other Domains in automatic flow', () => {
-        const plain = run(tree, {});
+    it('places the other Domains under the lowest Manual Domain of the Area', () => {
         const canvas = run(tree, { d: manual(30, 60, 300, 100) });
-        expect(find(canvas, 'e').x).toBe(find(plain, 'd').x);
-        expect(find(canvas, 'e').y).toBe(find(plain, 'd').y);
+        const hand = find(canvas, 'd');
+        const other = find(canvas, 'e');
+        expect(other.y).toBeGreaterThanOrEqual(hand.y + hand.drawnHeight);
+        expect(canvas.warnings.filter((warning) => warning.kind === 'overlap')).toEqual([]);
+    });
+
+    it('keeps the other Domains in order and automatic under the lowest of several Manual Domains', () => {
+        const more = [...tree, element('f', 'primary_activities', 'domain', 'Zakelijk', null, 3), element('g', 'primary_activities', 'domain', 'Extra', null, 4)];
+        const canvas = run(more, { d: manual(30, 60, 300, 100), f: manual(400, 200, 300, 150) });
+        const lowest = Math.max(...['d', 'f'].map((id) => find(canvas, id).y + find(canvas, id).drawnHeight));
+        expect(find(canvas, 'e').y).toBeGreaterThanOrEqual(lowest);
+        expect(find(canvas, 'g').x).toBeGreaterThan(find(canvas, 'e').x);
+    });
+
+    it('keeps automatic Domains at the top of an Area without a Manual Domain', () => {
+        const canvas = run(tree, {});
+        expect(find(canvas, 'e').y).toBe(find(canvas, 'd').y);
     });
 
     it('ignores an incomplete or automatic entry', () => {

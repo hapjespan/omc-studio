@@ -78,7 +78,14 @@ export function flowDomains(domains: TreeNode[], area: AreaKey, innerWidth: numb
     const cardWidth = Math.floor((innerWidth - (columns - 1) * CARD_GAP) / columns);
     const blocks: DrawnBlock[] = [];
     const automatic = domains.filter((domain) => !context.rect?.(domain.element.id));
-    let y = 0;
+    const hanging = automatic.length === 0 ? 0 : domains.reduce((lowest, domain) => {
+        const rect = context.rect?.(domain.element.id);
+        if (!rect) return lowest;
+        const top = rect.y - AREA_HEADER - AREA_PADDING;
+
+        return Math.max(lowest, top + place(domain, area, rect.x - AREA_PADDING, top, rect.width, [], context, rect).drawnHeight + CARD_GAP);
+    }, 0);
+    let y = automaticStart(0, hanging);
 
     for (let start = 0; start < automatic.length; start += columns) {
         const row = automatic.slice(start, start + columns).map((domain, index) => place(domain, area, index * (cardWidth + CARD_GAP), y, cardWidth, blocks, context));
