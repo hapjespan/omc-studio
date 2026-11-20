@@ -97,6 +97,18 @@ class ResetLayoutTest extends StructureTestCase
         $this->assertSame(5, Layout::query()->count());
     }
 
+    public function test_a_template_is_refused(): void
+    {
+        $template = Canvas::factory()->template()->create();
+
+        $this->actingAs($this->administrator)->postJson('/canvases/'.$template->id.'/layout/reset', ['scope' => 'canvas'])->assertUnprocessable()->assertJsonValidationErrors('rule');
+    }
+
+    public function test_an_element_id_that_is_not_a_uuid_is_invalid(): void
+    {
+        $this->reset(['scope' => 'element', 'element_id' => 'abc'])->assertUnprocessable()->assertJsonValidationErrors('element_id');
+    }
+
     public function test_an_archived_canvas_is_refused(): void
     {
         $this->canvas->update(['archived_at' => now()]);

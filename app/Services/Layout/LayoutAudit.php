@@ -108,7 +108,7 @@ class LayoutAudit
     {
         [$kind, $key] = explode(':', $owner, 2);
         $subject = $kind === 'element' ? Element::query()->findOrFail($key) : Area::query()->where('key', $key)->firstOrFail();
-        $previous = $this->mergeable($subject);
+        $previous = $this->mergeable($subject, $canvas);
 
         if ($previous === null) {
             $this->trail->record($subject, self::ACTION, $changes, $canvas);
@@ -130,11 +130,12 @@ class LayoutAudit
         $merged === [] ? $previous->delete() : $previous->update(['occurred_at' => now(), 'changes' => $merged]);
     }
 
-    private function mergeable(Model $subject): ?AuditEntry
+    private function mergeable(Model $subject, Canvas $canvas): ?AuditEntry
     {
         $latest = AuditEntry::query()
             ->where('subject_type', $this->trail->kind($subject))
             ->where('subject_id', (string) $subject->getKey())
+            ->where('canvas_id', $canvas->getKey())
             ->orderByDesc('id')
             ->first();
 

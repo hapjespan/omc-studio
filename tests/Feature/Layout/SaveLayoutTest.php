@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Layout;
 
+use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Layout;
 use App\Models\User;
@@ -160,6 +161,18 @@ class SaveLayoutTest extends StructureTestCase
         $this->actingAs(User::factory()->create())
             ->putJson($this->url(), $this->payload())
             ->assertForbidden();
+
+        $this->assertSame(0, Layout::query()->count());
+    }
+
+    public function test_a_template_is_refused(): void
+    {
+        $template = Canvas::factory()->template()->create();
+
+        $this->actingAs($this->administrator)
+            ->putJson('/canvases/'.$template->id.'/layout', ['structure_version' => 0, 'layout_version' => 0, 'format_version' => 1, 'areas' => [], 'elements' => []])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('rule');
 
         $this->assertSame(0, Layout::query()->count());
     }

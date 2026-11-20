@@ -24,7 +24,7 @@ class LayoutStore
     public function save(Canvas $canvas, array $payload): int
     {
         return $this->writes->run([$canvas], function () use ($canvas, $payload): int {
-            $this->assertStructureWritable($canvas);
+            $this->assertWritable($canvas);
 
             if ((int) $payload['structure_version'] !== (int) $canvas->structure_version) {
                 $this->conflict('structure_changed');
@@ -53,7 +53,7 @@ class LayoutStore
     public function reset(Canvas $canvas, string $scope, ?string $elementId): int
     {
         return $this->writes->run([$canvas], function () use ($canvas, $scope, $elementId): int {
-            $this->assertStructureWritable($canvas);
+            $this->assertWritable($canvas);
 
             $before = $this->audit->current($canvas);
 

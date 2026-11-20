@@ -3,6 +3,7 @@
 namespace Tests\Feature\Layout;
 
 use App\Models\AuditEntry;
+use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\User;
 use App\Services\Structure\ElementTree;
@@ -116,6 +117,25 @@ class LayoutAuditTest extends StructureTestCase
         $this->save(['elements' => [(string) $this->domain->id => $this->box(['x' => 10])]]);
 
         $this->assertCount(2, $this->entries()->where('action', 'layout_changed'));
+    }
+
+    public function test_an_area_change_in_another_canvas_does_not_merge(): void
+    {
+        $other = Canvas::factory()->create();
+
+        $this->save(['areas' => ['primary_activities' => ['x' => 600, 'y' => 180, 'width' => 900, 'height' => 400]]]);
+        $this->actingAs($this->administrator)->putJson('/canvases/'.$other->id.'/layout', [
+            'structure_version' => 0,
+            'layout_version' => 0,
+            'format_version' => 1,
+            'areas' => ['primary_activities' => ['x' => 700, 'y' => 180, 'width' => 900, 'height' => 400]],
+            'elements' => [],
+        ])->assertOk();
+
+        $entries = $this->entries();
+
+        $this->assertCount(2, $entries);
+        $this->assertEqualsCanonicalizing([$this->canvas->id, $other->id], $entries->pluck('canvas_id')->all());
     }
 
     public function test_another_user_does_not_merge(): void
