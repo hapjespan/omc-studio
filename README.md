@@ -1,62 +1,55 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# OMC Studio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+OMC Studio is een lokale webtoepassing om een Operating Model Canvas op te bouwen, er kosten aan te koppelen, het te tekenen en er momentopnamen van te bewaren. Alles draait op uw eigen machine en maakt nooit verbinding met internet.
 
-## About Laravel
+## Starten
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Zet Docker klaar en voer in deze map twee commando's uit:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+cp env.example .env
+docker compose up -d
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+De eerste keer heeft de machine eenmalig internet nodig om de installatie te bouwen. De bouw duurde 7 seconden met een warme Docker-cache; op een schone machine duurt hij langer, afhankelijk van uw verbinding. Daarna werkt alles zonder internet. Open http://localhost:8080. Stoppen kan met `docker compose down`; uw gegevens blijven bewaard.
 
-## Importing
+## Eerste keer inloggen
 
-A Canvas exported as JSON is imported by an Administrator as a new Canvas, after a dry run without errors, all at once or not at all. One limit follows from the rule that an Allocation set needs Yearly figures for its year: an export that holds a carry-over Allocation set without Yearly figures in its year is refused on import, and the refusal names the Cost record. CSV exports can be imported again unchanged: a leading apostrophe added on export before `=`, `+`, `-`, `@`, a tab or a carriage return is removed on import.
+Het eerste wachtwoord staat eenmalig in het logboek van de toepassing. Lees het met `docker compose logs app`. Log in als `admin@localhost` en kies meteen een nieuw wachtwoord van minstens 12 tekens. Het eerste wachtwoord vervalt na 24 uur.
 
-## Contributing
+## Wachtwoord kwijt
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Een nieuw eenmalig wachtwoord maakt u zo:
 
-## Code of Conduct
+```
+docker compose exec app php artisan app:reset-admin-password admin@localhost
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Voeg `--second-factor` toe als ook de tweede stap van het inloggen kwijt is. Het commando toont het nieuwe wachtwoord en beëindigt alle sessies van die gebruiker.
 
-## Security Vulnerabilities
+## Back-up en terugzetten
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+make backup
+make restore FOLDER=<map>
+```
 
-## License
+`make backup` kopieert de database, de bestanden en de sleutel van de toepassing naar een map met datum en tijd en toont die map. Bewaar de map veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import. `make restore` zet precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Importeren
+
+Op het Overzicht kiest u Importeren uit JSON voor een canvas of voor alles. Kostenposten, structuur en verdelingen kunnen met een CSV-bestand van hoogstens 5 MB; een JSON-bestand mag tot 50 MB zijn. U ziet eerst een controle per regel. Importeren kan pas als er geen fouten meer zijn, en gebeurt dan helemaal of niet.
+
+## Als de browser niet wil inloggen
+
+De toepassing zet veilige cookies. Weigert uw browser die op http://localhost:8080, dan komt de inlogpagina steeds terug. Zet in het bestand `.env` de regel `SESSION_SECURE_COOKIE=false` en start opnieuw met `docker compose up -d`. Chrome en Edge zijn getest met Chromium; voor Firefox en Safari is dit niet vastgesteld.
+
+## Veelgestelde vragen
+
+**Kan een collega meekijken?** Ja, via een SSH-tunnel naar uw machine: `ssh -L 8080:127.0.0.1:8080 gebruiker@machine`, daarna http://localhost:8080 op de eigen computer. De toepassing luistert alleen op uw eigen machine.
+
+**Waar staan mijn gegevens?** In één Docker-volume op uw machine en in uw back-ups.
+
+**Hoe verwijder ik de voorbeeldgegevens?** In het beheerscherm, onder voorbeeldgegevens.
+
+**Wat als een momentopname beschadigd is?** U krijgt een melding bij de systeemmeldingen en die momentopname is dan niet te openen. De rest werkt gewoon.
