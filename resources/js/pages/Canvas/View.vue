@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
 import CanvasView from '../../canvas/CanvasView.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
 import { contentHeight } from '../../canvas/extent';
@@ -9,6 +9,9 @@ import ViewDetail, { detailOf } from '../../canvas/ViewDetail.vue';
 import ZoomToolbar, { fitZoom } from '../../canvas/ZoomToolbar.vue';
 import { ARTBOARD } from '../../layout';
 import { detail, openDetail } from '../../shell/detail';
+import { modeSwitchPlacement } from '../../shell/modes';
+import ModeSwitch from '../../shell/ModeSwitch.vue';
+import type { ShellCanvas } from '../../shell/TopBar.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
@@ -21,6 +24,11 @@ const props = defineProps<{
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
 }>();
+
+const page = usePage<{ auth: { role: string } }>();
+const shellCanvas = computed(() => page.props.canvas as unknown as ShellCanvas);
+modeSwitchPlacement.inPage = true;
+onBeforeUnmount(() => (modeSwitchPlacement.inPage = false));
 
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
@@ -42,7 +50,10 @@ const fit = (): void => {
 
 <template>
     <Head :title="canvas.name" />
-    <h1 class="font-display text-[20px] font-semibold">{{ canvas.name }}</h1>
+    <header class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
+        <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
+    </header>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
     <ZoomToolbar v-if="drawn" v-model:zoom="zoom" class="mt-3" @fit="fit" />
     <div ref="scroller" class="mt-3 h-[calc(100vh-14rem)] overflow-auto" tabindex="-1" data-scroller>
