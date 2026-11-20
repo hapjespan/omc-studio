@@ -2,11 +2,17 @@
 import { ref, watch } from 'vue';
 import TextField from '../../components/fields/TextField.vue';
 import Panel from '../../components/ui/Panel.vue';
+import SelectField from '../../components/fields/SelectField.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import { t } from '../../i18n';
+import type { MoveTarget } from './moveTargets';
 import type { BoxValues } from '../../edit-engine';
 
-const props = defineProps<{ id: string | null; name: string; box: BoxValues | null }>();
-const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>] }>();
+const props = defineProps<{ id: string | null; name: string; box: BoxValues | null; targets: MoveTarget[] }>();
+const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>]; move: [targetId: string, opener: HTMLElement | null] }>();
+const chosen = ref('');
+const opener = ref<{ focus: () => void; $el?: HTMLElement } | null>(null);
+watch(() => props.id, () => (chosen.value = ''));
 
 const keys = ['x', 'y', 'width', 'height'] as const;
 const labels = { x: 'drawing.field_x', y: 'drawing.field_y', width: 'drawing.field_width', height: 'drawing.field_height' } as const;
@@ -42,6 +48,10 @@ function commit(key: (typeof keys)[number]): void {
                 <TextField v-for="key in keys" :id="`box-${key}`" :key="key" v-model="values[key]" type="number" :label="t(labels[key], { name })" @change="commit(key)" />
             </div>
         </form>
+        <div v-if="id && targets.length > 0" class="mt-3 flex flex-col gap-2" data-move-panel>
+            <SelectField id="move-target" v-model="chosen" :label="t('drawing.move_to')" :options="targets.map((target) => ({ value: target.id, label: target.path }))" :placeholder="t('drawing.move_choose')" />
+            <AppButton ref="opener" :disabled="chosen === ''" @click="emit('move', chosen, (opener?.$el as HTMLElement) ?? null)">{{ t('drawing.move_confirm') }}</AppButton>
+        </div>
         <p v-else-if="!$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>
     </Panel>
 </template>

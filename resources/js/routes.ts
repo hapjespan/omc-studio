@@ -35,6 +35,7 @@ export const routes = {
     entry: (canvas: Id) => `/canvases/${canvas}/entry`,
     drawing: (canvas: Id) => `/canvases/${canvas}/drawing`,
     layout: (canvas: Id) => `/canvases/${canvas}/layout`,
+    drawingMoves: (canvas: Id) => `/canvases/${canvas}/drawing/moves`,
     view: (canvas: Id, year?: number) => withYear(`/canvases/${canvas}/view`, year),
     elements: (canvas: Id) => `/canvases/${canvas}/elements`,
     element: (canvas: Id, element: Id) => `/canvases/${canvas}/elements/${element}`,

@@ -111,3 +111,17 @@ export function landing(model: MoveModel, draggedId: string, targetId: string, t
         z: dragged.z,
     };
 }
+
+export interface ChildBox {
+    id: string;
+    x: number;
+    width: number;
+}
+
+export function fitChildren(children: ChildBox[], blockWidth: number, minimum = 40): ChildBox[] {
+    return children.map((child) => {
+        const x = Math.min(child.x, Math.max(0, blockWidth - child.width));
+
+        return { id: child.id, x, width: Math.max(minimum, Math.min(child.width, blockWidth - x)) };
+    });
+}

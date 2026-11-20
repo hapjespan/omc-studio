@@ -3,7 +3,7 @@ import type { SceneGraph } from '@open-pencil/scene-graph';
 import type { MoveVerdict, PlacedMove, RefusalReason, ShiftVerdictEvent } from './DrawingEngine';
 import type { Restrictions } from './restrictions';
 import { ARTBOARD_ID, TEXT_SUFFIX } from './scene';
-import { innermostAt, judge, landing, type MoveModel, type Point } from './shiftMove';
+import { fitChildren, innermostAt, judge, landing, type ChildBox, type MoveModel, type Point } from './shiftMove';
 
 export interface SavedPlace {
     id: string;
@@ -13,6 +13,7 @@ export interface SavedPlace {
     width: number;
     height: number;
     index: number;
+    children?: ChildBox[];
 }
 
 export class MovePlacement {
@@ -42,7 +43,7 @@ export class MovePlacement {
         const node = this.graph.getNode(elementId);
         const parent = node?.parentId ? this.graph.getNode(node.parentId) : null;
         if (!node || !parent) return null;
-        return { id: elementId, parentId: parent.id, x: node.x, y: node.y, width: node.width, height: node.height, index: parent.childIds.indexOf(elementId) };
+        return { id: elementId, parentId: parent.id, x: node.x, y: node.y, width: node.width, height: node.height, index: parent.childIds.indexOf(elementId), children: this.children(elementId) };
     }
 
     restore(place: SavedPlace): void {
@@ -50,6 +51,7 @@ export class MovePlacement {
             this.graph.reparentNode(place.id, place.parentId);
             this.graph.updateNode(place.id, { x: place.x, y: place.y, width: place.width, height: place.height });
             this.graph.reorderChild(place.id, place.parentId, place.index);
+            for (const child of place.children ?? []) this.graph.updateNode(child.id, { x: child.x, width: child.width });
         });
     }
 
@@ -63,6 +65,7 @@ export class MovePlacement {
         this.restrictions.privileged(() => {
             this.graph.reparentNode(elementId, targetId);
             this.graph.updateNode(elementId, { x: layout.x, y: layout.y, width: layout.width, height: layout.height });
+            if (layout.width < place.width) for (const child of fitChildren(place.children ?? [], layout.width)) this.graph.updateNode(child.id, { x: child.x, width: child.width });
         });
         return { kind: 'move', elementId, targetId, layout };
     }
@@ -72,6 +75,17 @@ export class MovePlacement {
         if (!place || place.id !== elementId) return;
         this.saved = null;
         this.restore(place);
+    }
+
+    private children(elementId: string): ChildBox[] {
+        const node = this.graph.getNode(elementId);
+
+        return (node?.childIds ?? [])
+            .filter((id) => !id.endsWith(TEXT_SUFFIX))
+            .flatMap((id) => {
+                const child = this.graph.getNode(id);
+                return child ? [{ id, x: child.x, width: child.width }] : [];
+            });
     }
 
     private lowestChild(targetId: string): number {

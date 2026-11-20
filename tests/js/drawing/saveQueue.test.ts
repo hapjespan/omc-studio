@@ -342,3 +342,28 @@ describe('SaveQueue discard and robustness', () => {
         expect(failures).toEqual(['unreachable']);
     });
 });
+
+describe('SaveQueue move conflicts', () => {
+    it('halts on a move that meets a newer structure and does not repeat the move', async () => {
+        const { MoveConflict } = await import('../../../resources/js/pages/Drawing/SaveQueue');
+        let runs = 0;
+        const queue = new SaveQueue({ canvas: 1, versions: { structure: 1, layout: 1 }, getLayout: () => payload(900), send: async () => ({ outcome: 'saved', layoutVersion: 2 }) });
+        queue.enqueueMove(async () => {
+            runs++;
+            throw new MoveConflict('structure_changed');
+        });
+        await flush();
+        expect(queue.status).toBe('structureChanged');
+        queue.resolveStructureChange(5, 3);
+        await flush();
+        expect(runs).toBe(1);
+    });
+
+    it('stops with layoutChanged for a move that meets a newer Layout', async () => {
+        const { MoveConflict } = await import('../../../resources/js/pages/Drawing/SaveQueue');
+        const queue = new SaveQueue({ canvas: 1, versions: { structure: 1, layout: 1 }, getLayout: () => payload(900), send: async () => ({ outcome: 'saved', layoutVersion: 2 }) });
+        queue.enqueueMove(async () => Promise.reject(new MoveConflict('layout_changed')));
+        await flush();
+        expect(queue.status).toBe('layoutChanged');
+    });
+});

@@ -608,5 +608,21 @@
     "drawing.conflict_apply": "Opmaak toepassen op wat nog bestaat",
     "drawing.conflict_reload": "Opnieuw laden",
     "rule.drawing_move_domain": "Een domein verplaats je met Hangt onder in Invoeren",
-    "rule.drawing_move_same_parent": "Dit blok hangt hier al onder"
+    "rule.drawing_move_same_parent": "Dit blok hangt hier al onder",
+    "drawing.drag_to": "Naar :target",
+    "drawing.drag_to_narrower": "Naar :target (wordt smaller)",
+    "drawing.drag_refused": "Kan hier niet: :reason",
+    "drawing.refusal_other_kind": "Verplaatsen kan alleen naar een area van dezelfde soort",
+    "drawing.refusal_unknown_allocation": "Onbekende allocatie wordt door het systeem beheerd",
+    "drawing.refusal_name_taken": "Naam: er staat al een element met deze naam op deze plek",
+    "drawing.refusal_cluster_needs_domain": "Een cluster hoort onder een domein",
+    "drawing.refusal_no_clusters_in_list": "Een lijstgebied heeft geen clusters",
+    "drawing.move_title": "Verplaatsen naar :target?",
+    "drawing.move_confirm": "Verplaatsen",
+    "drawing.move_cancel": "Annuleren",
+    "drawing.move_not_saved": "De verplaatsing is niet opgeslagen",
+    "drawing.moved": ":block hangt nu onder :target",
+    "drawing.moved_narrower": ":block is smaller gemaakt tot de breedte van :target",
+    "drawing.move_to": "Verplaatsen naar",
+    "drawing.move_choose": "Kies een plek"
 }
