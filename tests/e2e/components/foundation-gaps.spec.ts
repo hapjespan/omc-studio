@@ -59,3 +59,36 @@ test('the report table is a bordered card with a caption, column and row headers
     await expect(page.getByRole('table', { name: 'Lege tabel' }).getByRole('cell')).toHaveText('Geen regels');
     await expectNoAxeViolations(page);
 });
+
+test.describe('at 320 CSS pixels', () => {
+    test.use({ viewport: { width: 320, height: 640 } });
+
+    test('a report table that overflows scrolls inside a focusable named region and passes axe', async ({ page }) => {
+        await page.goto('/?demo=Gaps');
+        const region = page.getByRole('region', { name: 'Brede tabel' });
+
+        expect(await region.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+        await region.focus();
+        await expect(region).toBeFocused();
+        await expectNoAxeViolations(page);
+    });
+});
+
+test('the disabled inline field and native select are grey with a muted chevron, and the bare select keeps its own label', async ({ page }) => {
+    await page.goto('/?demo=Gaps');
+    const input = page.getByLabel('Percentage uitgeschakeld');
+    const select = page.getByRole('combobox', { name: 'Soort uitgeschakeld' });
+
+    await expect(input).toBeDisabled();
+    await expect(select).toBeDisabled();
+    for (const control of [input, select]) {
+        expect((await style(control, ['background-color', 'color']))).toEqual({ 'background-color': 'rgb(230, 232, 230)', color: 'rgb(95, 103, 114)' });
+    }
+    expect(await style(select.locator('xpath=../*[local-name()="svg"]'), ['color'])).toEqual({ color: 'rgb(95, 103, 114)' });
+
+    const bare = page.getByRole('combobox', { name: 'Soort los' });
+    expect((await bare.boundingBox())?.height).toBe(36);
+    expect((await bare.boundingBox())?.width).toBe(192);
+    await expect(bare.locator('option').first()).toHaveText('Alle soorten');
+});

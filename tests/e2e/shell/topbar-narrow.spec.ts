@@ -12,6 +12,7 @@ test.describe('at 320 CSS pixels', () => {
         await page.goto('/?demo=TopBar');
         await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible();
         await expect(page.getByText('Boekjaar 2026')).toBeVisible();
+        await expect(page.getByText('Voorbeelddata')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Administrator' })).toBeVisible();
 
         expect(await overflow(page)).toBeLessThanOrEqual(0);

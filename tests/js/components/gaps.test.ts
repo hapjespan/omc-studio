@@ -50,8 +50,34 @@ describe('NativeSelect', () => {
     });
 });
 
+describe('disabled and bare variants', () => {
+    it('disables the inline field and the native select and mutes the chevron', async () => {
+        expect(await render(InlineField, { id: 'a', label: 'A', disabled: true })).toMatch(/ disabled(?=[\s>=])/);
+        const html = await render(NativeSelect, { id: 'b', label: 'B', options: [], disabled: true });
+        expect(html).toMatch(/ disabled(?=[\s>=])/);
+        expect(html).toContain('text-muted');
+    });
+
+    it('renders the bare select without a Field wrapper and puts attributes on the select', async () => {
+        const html = await render(NativeSelect, { id: 'c', label: 'C', bare: true, options: [{ value: 'a', label: 'Eerste' }], class: 'w-48' });
+        expect(html).not.toContain('<label');
+        expect(html).toContain('aria-label="C"');
+        expect(html).toMatch(/<select[^>]*class="[^"]*w-48/);
+        expect(html).toContain('Eerste');
+    });
+});
+
 describe('ReportTable', () => {
     const columns = [{ key: 'name', label: 'Naam' }, { key: 'count', label: 'Aantal', align: 'right' as const }];
+
+    it('is a focusable named region around the table and the empty text is optional', async () => {
+        const html = await render(ReportTable, { caption: 'Samenvatting', columns, rows: [] });
+
+        expect(html).toContain('role="region"');
+        expect(html).toContain('tabindex="0"');
+        expect(html).toContain('aria-label="Samenvatting"');
+        expect(html).not.toContain('colspan');
+    });
 
     it('has a caption, column scopes, aligned tabular figures and an optional row header', async () => {
         const html = await render(ReportTable, { caption: 'Samenvatting', columns, rows: [{ name: 'Nieuw', count: 3 }], empty: 'Geen regels', rowHeader: 'name' });

@@ -5,13 +5,13 @@ export interface ReportColumn {
     align?: 'left' | 'right';
 }
 
-defineProps<{ caption: string; columns: ReportColumn[]; rows: Record<string, unknown>[]; empty: string; rowHeader?: string }>();
+defineProps<{ caption: string; columns: ReportColumn[]; rows: Record<string, unknown>[]; empty?: string; rowHeader?: string }>();
 
 const alignment = (column: ReportColumn): string => (column.align === 'right' ? 'text-right tabular-nums' : 'text-left');
 </script>
 
 <template>
-    <div class="overflow-x-auto rounded-card border border-hairline bg-white">
+    <div role="region" tabindex="0" :aria-label="caption" class="overflow-x-auto rounded-card border border-hairline bg-white">
         <table class="w-full border-collapse text-[13px] text-ink">
             <caption class="sr-only">{{ caption }}</caption>
             <thead>
@@ -24,7 +24,7 @@ const alignment = (column: ReportColumn): string => (column.align === 'right' ? 
                         <td v-else :class="['px-3 py-2.5', alignment(column)]"><slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]">{{ row[column.key] }}</slot></td>
                     </template>
                 </tr>
-                <tr v-if="rows.length === 0" class="border-t border-hairline"><td :colspan="columns.length" class="px-3 py-2.5 text-muted">{{ empty }}</td></tr>
+                <tr v-if="rows.length === 0 && empty !== undefined" class="border-t border-hairline"><td :colspan="columns.length" class="px-3 py-2.5 text-muted">{{ empty }}</td></tr>
             </tbody>
         </table>
     </div>
