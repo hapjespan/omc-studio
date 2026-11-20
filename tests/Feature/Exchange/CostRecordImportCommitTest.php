@@ -109,7 +109,7 @@ class CostRecordImportCommitTest extends TestCase
         $subjects = AuditEntry::where('action', 'imported')->orderBy('id')->pluck('subject_type')->all();
 
         $this->assertSame(['owner', 'application', 'cost_record', 'yearly_figure'], $subjects);
-        $this->assertNull(AuditEntry::where('subject_type', 'yearly_figure')->value('organisation_id'));
+        $this->assertSame(AuditEntry::where('subject_type', 'cost_record')->value('organisation_id'), AuditEntry::where('subject_type', 'yearly_figure')->value('organisation_id'));
         $this->assertSame(0, AuditEntry::whereIn('action', ['created', 'changed'])->where('subject_type', 'cost_record')->count());
     }
 

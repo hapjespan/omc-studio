@@ -54,7 +54,7 @@ class CostRecordBatch
             DB::table('yearly_figures')->insert(array_map(fn (array $row) => [...$row, 'created_at' => $now, 'updated_at' => $now], $chunk));
             $ids = DB::table('yearly_figures')->whereIn('cost_record_id', array_unique(array_column($chunk, 'cost_record_id')))->get(['id', 'cost_record_id', 'fiscal_year_id'])
                 ->mapWithKeys(fn (object $row) => [$row->cost_record_id.'|'.$row->fiscal_year_id => (string) $row->id]);
-            $this->trail->recordMany('yearly_figure', $this->context->action('created'), null, array_map(function (array $row) use ($ids) {
+            $this->trail->recordMany('yearly_figure', $this->context->action('created'), $this->organisationId, array_map(function (array $row) use ($ids) {
                 $id = $ids[$row['cost_record_id'].'|'.$row['fiscal_year_id']];
 
                 return [$id, $id, $this->changes($row, [])];
