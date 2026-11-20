@@ -1,71 +1,153 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { openDrawing, seedMoveCanvas } from './support/drawing';
+import { openDrawing, screenOf, seedMoveCanvas, tinker } from './support/drawing';
+import { ARTBOARD_WIDTH } from './support/artboard';
 
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
-
-const tinker = (code: string): string => execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env, maxBuffer: 64 * 1024 * 1024 }).toString();
-
-interface Box {
+interface Row {
+    key: string;
+    name: string;
+    parent: string | null;
+    parentName: string | null;
     x: number;
     y: number;
     width: number;
+    height: number;
 }
 
-interface Stored {
-    area: Box;
-    domain: Box;
-}
+const matched = (output: string, tag: string): string => {
+    const found = new RegExp(`${tag}=(.*)`).exec(output);
+    expect(found, `${tag} missing in: ${output.slice(0, 300)}`).not.toBeNull();
 
-const storedLayout = (canvas: number): Stored => {
-    const output = tinker(`$rows = App\\Models\\Layout::where('canvas_id', ${canvas})->get(); $domain = $rows->firstWhere('element_id', App\\Models\\Element::where('canvas_id', ${canvas})->where('name', 'Onderwijs')->value('id')); $area = $rows->firstWhere('area_id', App\\Models\\Area::where('key', 'primary_activities')->value('id')); echo 'STORED=' . json_encode(['area' => $area->only(['x', 'y', 'width']), 'domain' => $domain->only(['x', 'y', 'width'])]);`);
-
-    return JSON.parse(/STORED=(.*)/.exec(output)![1]) as Stored;
+    return found![1];
 };
 
-const measure = async (page: Page, name: string): Promise<Stored> => {
+const storedRows = (canvas: number | string): Row[] =>
+    JSON.parse(
+        matched(
+            tinker(`$names = App\\Models\\Element::where('canvas_id', ${canvas})->pluck('name', 'id'); $areas = App\\Models\\Area::pluck('key', 'id'); $elements = App\\Models\\Element::where('canvas_id', ${canvas})->get()->keyBy('id'); echo 'ROWS=' . json_encode(App\\Models\\Layout::where('canvas_id', ${canvas})->get()->map(function ($row) use ($names, $areas, $elements) { $element = $row->element_id === null ? null : $elements[$row->element_id]; $parent = $element === null ? null : ($element->parent_id ?? $areas[$element->area_id]); return ['key' => $row->element_id ?? $areas[$row->area_id], 'name' => $element === null ? $areas[$row->area_id] : $element->name, 'parent' => $parent, 'parentName' => $parent === null ? null : ($names[$parent] ?? $parent), 'x' => $row->x, 'y' => $row->y, 'width' => $row->width, 'height' => $row->height]; })->values());`),
+            'ROWS',
+        ),
+    ) as Row[];
+
+const identity = (row: Row): string => `${row.name}|${row.parentName ?? ''}`;
+
+const keyed = (rows: Row[]): Record<string, Row> => Object.fromEntries(rows.map((row) => [identity(row), row]));
+
+const expectDrawn = async (page: Page, rows: Row[], drawnRows: Row[] = rows): Promise<void> => {
     await page.locator('[data-artboard]').waitFor();
     const artboard = (await page.locator('[data-artboard]').boundingBox())!;
-    const scale = artboard.width / 1680;
-    const box = async (locator: ReturnType<Page['locator']>): Promise<Box> => {
-        const found = (await locator.boundingBox())!;
+    const scale = artboard.width / ARTBOARD_WIDTH;
+    const box = async (key: string | null) => {
+        if (key === null) return { x: artboard.x, y: artboard.y, width: artboard.width, height: artboard.height };
+        const found = await page.locator(`[data-block="${key}"]`).boundingBox();
+        expect(found, `no block ${key}`).not.toBeNull();
 
-        return { x: (found.x - artboard.x) / scale, y: (found.y - artboard.y) / scale, width: found.width / scale };
+        return found!;
     };
-    const area = await box(page.locator('[data-block="primary_activities"]'));
-    const domain = await box(page.locator('[data-block]', { has: page.getByText(name, { exact: true }) }).first());
+    const byIdentity = keyed(drawnRows);
 
-    return { area, domain: { x: domain.x - area.x, y: domain.y - area.y, width: domain.width } };
-};
+    for (const row of rows) {
+        const drawn = byIdentity[identity(row)];
+        expect(drawn, `no layout row for ${identity(row)}`).toBeDefined();
+        const block = await box(drawn.key);
+        const parent = await box(drawn.parent);
 
-const expectAlike = (actual: Stored, stored: Stored): void => {
-    for (const key of ['x', 'y', 'width'] as const) {
-        expect(Math.abs(actual.area[key] - stored.area[key]), `area ${key}`).toBeLessThanOrEqual(1);
-        expect(Math.abs(actual.domain[key] - stored.domain[key]), `domain ${key}`).toBeLessThanOrEqual(1);
+        expect(Math.abs((block.x - parent.x) / scale - row.x), `${identity(row)} x`).toBeLessThanOrEqual(1);
+        expect(Math.abs((block.y - parent.y) / scale - row.y), `${identity(row)} y`).toBeLessThanOrEqual(1);
+        expect(Math.abs(block.width / scale - row.width), `${identity(row)} width`).toBeLessThanOrEqual(1);
+        expect(block.height / scale + 1, `${identity(row)} height`).toBeGreaterThanOrEqual(row.height);
     }
 };
 
-test('Tekenen, Bekijken, a Snapshot and an imported copy draw every block at its stored place within 1 pixel', async ({ page }) => {
-    const canvas = seedMoveCanvas();
-    const stored = storedLayout(canvas.id);
+const fillEdges = async (page: Page, shot: Buffer, spot: { x: number; y: number; width: number; height: number }): Promise<{ left: number; top: number; right: number }> => {
+    const edges = await page.evaluate(
+        async ({ data, at }) => {
+            const bitmap = await createImageBitmap(new Blob([Uint8Array.from(atob(data), (character) => character.charCodeAt(0))], { type: 'image/png' }));
+            const canvas = document.createElement('canvas');
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+            const context = canvas.getContext('2d', { willReadFrequently: true })!;
+            context.drawImage(bitmap, 0, 0);
+            const isFill = (x: number, y: number): boolean => {
+                const [red, green, blue] = context.getImageData(Math.round(x), Math.round(y), 1, 1).data;
 
-    const layers = await openDrawing(page, canvas);
-    await layers.getByRole('button', { name: 'Onderwijs', exact: true }).click();
-    expect(Number(await page.getByLabel('X van Onderwijs').inputValue())).toBe(stored.domain.x);
-    expect(Number(await page.getByLabel('Y van Onderwijs').inputValue())).toBe(stored.domain.y);
-    expect(Number(await page.getByLabel('B (breedte) van Onderwijs').inputValue())).toBe(stored.domain.width);
+                return Math.abs(red - 0xf6) + Math.abs(green - 0xe6) + Math.abs(blue - 0xcc) <= 12;
+            };
+            const middleY = at.y + at.height / 2;
+            const middleX = at.x + at.width / 2;
+            let left = Number.NaN;
+            let right = Number.NaN;
+            let top = Number.NaN;
+            for (let x = at.x - 10; x < at.x + 10; x += 1) if (Number.isNaN(left) && isFill(x, middleY)) left = x;
+            for (let x = at.x + at.width + 10; x > at.x + at.width - 10; x -= 1) if (Number.isNaN(right) && isFill(x, middleY)) right = x + 1;
+            for (let y = at.y - 10; y < at.y + 10; y += 1) if (Number.isNaN(top) && isFill(middleX, y)) top = y;
+
+            return { left, right, top };
+        },
+        { data: shot.toString('base64'), at: spot },
+    );
+
+    return edges;
+};
+
+test('Tekenen, Bekijken, a Snapshot, a copy and an import draw every block at its stored place within 1 pixel', async ({ page, browserName }) => {
+    test.setTimeout(180_000);
+    const canvas = seedMoveCanvas();
+    const rows = storedRows(canvas.id);
+    expect(rows.length).toBeGreaterThan(5);
+    const onderwijs = rows.find((row) => row.name === 'Onderwijs')!;
+    const area = rows.find((row) => row.name === onderwijs.parent)!;
+
+    await openDrawing(page, canvas);
+    const origin = await screenOf(page, { x: area.x + onderwijs.x, y: area.y + onderwijs.y });
+    const { zoom } = JSON.parse((await page.locator('[data-view]').getAttribute('data-view')) ?? '{}') as { zoom: number };
+    const width = onderwijs.width * zoom;
+    if (browserName === 'chromium') {
+        const ratio = await page.evaluate(() => window.devicePixelRatio);
+        const spot = { x: origin.x * ratio, y: origin.y * ratio, width: width * ratio, height: onderwijs.height * zoom * ratio };
+        let edges = { left: Number.NaN, top: Number.NaN, right: Number.NaN };
+        for (let attempt = 0; attempt < 10 && Number.isNaN(edges.left); attempt += 1) {
+            await page.waitForTimeout(500);
+            edges = await fillEdges(page, await page.screenshot(), spot);
+        }
+        expect(Math.abs(edges.left - spot.x) / ratio, 'Tekenen left edge').toBeLessThanOrEqual(1);
+        expect(Math.abs(edges.top - spot.y) / ratio, 'Tekenen top edge').toBeLessThanOrEqual(1);
+        expect(Math.abs(edges.right - (spot.x + spot.width)) / ratio, 'Tekenen right edge').toBeLessThanOrEqual(1);
+    } else {
+        test.info().annotations.push({ type: 'not measured here', description: 'a WebKit screenshot injects an inline style that the CSP guard refuses and the Tekenen drawing is not captured on Firefox (known defect of the Tekenen suite); the picture of Tekenen against Bekijken is covered by drawing-equal and h11-picture' });
+    }
 
     await page.goto(`/canvases/${canvas.id}/view`);
-    expectAlike(await measure(page, 'Onderwijs'), stored);
+    await expectDrawn(page, rows);
 
-    const snapshot = /SNAP=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $y = App\\Models\\FiscalYear::firstOrCreate(['organisation_id' => $c->organisation_id, 'year' => 2026]); echo 'SNAP=' . app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $y, 'Opmaak ${randomUUID().slice(0, 8)}')->id;`))![1];
+    const snapshot = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $y = App\\Models\\FiscalYear::firstOrCreate(['organisation_id' => $c->organisation_id, 'year' => 2026]); echo 'SNAP=' . app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $y, 'Opmaak ${randomUUID().slice(0, 8)}')->id;`), 'SNAP');
+    tinker(`$id = App\\Models\\Element::where('canvas_id', ${canvas.id})->where('name', 'Onderwijs')->value('id'); App\\Models\\Layout::where('element_id', $id)->increment('x', 30); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version');`);
+    const moved = storedRows(canvas.id);
+    expect(moved.find((row) => row.name === 'Onderwijs')!.x).toBe(onderwijs.x + 30);
+
     await page.goto(`/snapshots/${snapshot}/view`);
-    expectAlike(await measure(page, 'Onderwijs'), stored);
+    await expectDrawn(page, rows);
 
-    const copy = /COPY=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode(app(App\\Services\\Exchange\\CanvasExport::class)->build($c)), null, 'Kopie ${randomUUID().slice(0, 8)}', 'Doel ${randomUUID().slice(0, 8)}'); echo 'COPY=' . $r['canvas_id'];`))![1];
-    await page.goto(`/canvases/${copy}/view`);
-    expectAlike(await measure(page, 'Onderwijs'), stored);
-    expectAlike(await measure(page, 'Onderwijs'), storedLayout(Number(copy)));
+    await page.goto(`/canvases/${canvas.id}/view`);
+    await expectDrawn(page, moved);
+
+    const copied = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); echo 'COPY=' . app(App\\Services\\Canvas\\CanvasLifecycle::class)->copy($c, $c->organisation, 'Kopie ${randomUUID().slice(0, 8)}')->id;`), 'COPY');
+    const copiedRows = storedRows(copied);
+    expect(copiedRows).toHaveLength(moved.length);
+    await page.goto(`/canvases/${copied}/view`);
+    await expectDrawn(page, moved, copiedRows);
+
+    const imported = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode(app(App\\Services\\Exchange\\CanvasExport::class)->build($c)), null, 'Import ${randomUUID().slice(0, 8)}', 'Doel ${randomUUID().slice(0, 8)}'); echo 'IMPORT=' . $r['canvas_id'];`), 'IMPORT');
+    const importedRows = storedRows(imported);
+    expect(importedRows).toHaveLength(moved.length);
+    await page.goto(`/canvases/${imported}/view`);
+    await expectDrawn(page, moved, importedRows);
+
+    const plain = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $file = app(App\\Services\\Exchange\\CanvasExport::class)->build($c); $file['canvas']['layout'] = null; $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode($file), null, 'Zonder ${randomUUID().slice(0, 8)}', 'Zonder doel ${randomUUID().slice(0, 8)}'); echo 'PLAIN=' . $r['canvas_id'] . ',' . App\\Models\\Layout::where('canvas_id', $r['canvas_id'])->count();`), 'PLAIN');
+    const [plainCanvas, plainRows] = plain.split(',');
+    expect(plainRows).toBe('0');
+    await page.goto(`/canvases/${plainCanvas}/view`);
+    await page.locator('[data-artboard]').waitFor();
+    await expect(page.locator('[data-block="primary_activities"]')).toBeVisible();
 });

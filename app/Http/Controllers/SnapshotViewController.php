@@ -45,7 +45,7 @@ class SnapshotViewController extends Controller
                 'year' => $snapshot->fiscal_year,
             ],
             'versions' => SnapshotVersions::for($canvas, $snapshot),
-            'layouts' => array_map(fn (array $box) => [...$box, 'style' => $box['style'] === [] ? new \stdClass : $box['style']], $content['layout']),
+            'layouts' => array_map(fn (array $box) => [...$box, 'style' => ($box['style'] ?? []) === [] ? new \stdClass : $box['style']], $content['layout']),
             'overlay' => $overlay,
             'year' => $snapshot->fiscal_year,
             'costKinds' => array_map(fn (CostKind $kind) => $kind->value, CostKind::cases()),

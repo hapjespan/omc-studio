@@ -153,12 +153,24 @@ class SnapshotLayoutTest extends AllocationTestCase
         $this->get("/snapshots/{$snapshot->getKey()}/view")->assertOk()->assertInertia(fn (Assert $page) => $page->where('damaged', true));
     }
 
-    public function test_an_empty_style_reaches_the_page_as_an_object_while_the_stored_bytes_stay_as_they_are(): void
+    public function test_an_empty_style_reaches_the_page_as_an_object(): void
     {
         $snapshot = $this->take();
 
         $html = $this->get('/snapshots/'.$snapshot->getKey().'/view')->assertOk()->getContent();
 
         $this->assertStringContainsString('"style":{}', (string) $html);
+    }
+
+    public function test_content_whose_layout_is_not_a_list_of_boxes_counts_as_damaged(): void
+    {
+        $content = $this->content();
+        $built = $content->build($this->canvas, $this->fiscalYear(2026));
+
+        $this->assertNotNull($content->upgraded($built));
+        $this->assertNull($content->upgraded([...$built, 'layout' => ['x' => 'text']]));
+
+        unset($built['layout']);
+        $this->assertNull($content->upgraded($built));
     }
 }

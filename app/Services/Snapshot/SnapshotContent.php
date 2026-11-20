@@ -50,7 +50,10 @@ class SnapshotContent
             $content = [...$content, 'schema_version' => 2, 'layout' => [], 'artboard' => Artboard::size()];
         }
 
-        return ($content['schema_version'] ?? null) === self::SCHEMA_VERSION ? $content : null;
+        $layout = $content['layout'] ?? null;
+        $sound = is_array($layout) && count(array_filter($layout, 'is_array')) === count($layout);
+
+        return ($content['schema_version'] ?? null) === self::SCHEMA_VERSION && $sound ? $content : null;
     }
 
     /** @param array<string, mixed> $content */

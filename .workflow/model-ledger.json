@@ -1368,10 +1368,12 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T362": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T363": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T371": {
     "built_by": "claude-opus-5",
