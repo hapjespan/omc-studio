@@ -2,12 +2,15 @@
 import { computed, ref } from 'vue';
 import { activitiesOf } from '../../allocation/helpers';
 import type { TargetRow } from '../../allocation/types';
+import SelectField from '../../components/fields/SelectField.vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import { t } from '../../i18n';
 
 const props = defineProps<{ count: number; domains: TargetRow[]; disabled: boolean }>();
 const emit = defineEmits<{ even: []; domain: [id: string] }>();
 const open = ref(false);
 const picked = ref('');
+const options = computed(() => props.domains.map((domain) => ({ value: String(domain.id), label: domain.name })));
 const empty = computed(() => picked.value !== '' && activitiesOf(props.domains.find((domain) => String(domain.id) === picked.value) ?? { id: '', kind: 'domain' }).length === 0);
 
 function apply(): void {
@@ -18,18 +21,14 @@ function apply(): void {
 </script>
 
 <template>
-    <div class="relative">
-        <button type="button" :disabled="disabled" :aria-expanded="open" aria-controls="allocation-quick" class="rounded-md border border-[#848B95] px-3 py-1.5 text-[13px] disabled:opacity-60" @click="open = !open" @keydown.esc="open = false">{{ t('allocation_page.quick') }}</button>
-        <div v-if="open" id="allocation-quick" role="group" :aria-label="t('allocation_page.quick')" class="absolute z-10 mt-1 w-72 rounded-md border border-[#848B95] bg-white p-3 text-[13px]" @keydown.esc="open = false">
-            <button type="button" :disabled="count < 1" class="block w-full rounded-md border border-[#848B95] px-2 py-1.5 text-left disabled:opacity-60" @click="emit('even'); open = false">{{ t('allocation_page.even', { count }) }}</button>
-            <p class="mt-3 font-semibold">{{ t('allocation_page.over_domain') }}</p>
-            <label for="allocation-quick-domain" class="mt-1 block">{{ t('allocation_page.pick_domain') }}</label>
-            <select id="allocation-quick-domain" v-model="picked" class="mt-1 w-full rounded-md border border-[#848B95] bg-white px-2 py-1.5">
-                <option value="" />
-                <option v-for="domain in domains" :key="domain.id" :value="String(domain.id)">{{ domain.name }}</option>
-            </select>
-            <p v-if="empty" role="status" class="mt-1 text-[#8A5A00]">{{ t('allocation_page.domain_empty') }}</p>
-            <button type="button" :disabled="picked === '' || empty" class="mt-2 rounded-md border border-[#848B95] px-2 py-1.5 font-semibold disabled:opacity-60" @click="apply">{{ t('allocation_page.over_domain') }}</button>
+    <div class="relative flex flex-wrap items-center gap-2" @keydown.esc="open = false">
+        <span class="text-[13px] text-muted">{{ t('allocation_page.quick') }}</span>
+        <AppButton :disabled="disabled || count < 1" @click="emit('even')">{{ t('allocation_page.even', { count }) }}</AppButton>
+        <AppButton :disabled="disabled" :aria-expanded="open" aria-controls="allocation-quick" @click="open = !open">{{ t('allocation_page.over_domain') }}</AppButton>
+        <div v-if="open" id="allocation-quick" role="group" :aria-label="t('allocation_page.quick')" class="absolute left-0 top-full z-10 mt-1 w-72 rounded-card border border-hairline bg-white p-3 text-[13px] shadow-[0_1px_3px_rgba(0,0,0,.12)]">
+            <SelectField id="allocation-quick-domain" v-model="picked" :label="t('allocation_page.pick_domain')" :options="options" />
+            <p v-if="empty" role="status" class="mt-1 text-warning">{{ t('allocation_page.domain_empty') }}</p>
+            <AppButton class="mt-2" variant="primary" :disabled="picked === '' || empty" @click="apply">{{ t('allocation_page.over_domain') }}</AppButton>
         </div>
     </div>
 </template>
