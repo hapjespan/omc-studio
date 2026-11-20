@@ -2,14 +2,12 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
-import { backdropOf, behindOf } from '../../layout/backdrop';
-import { resolveStyle } from '../../layout/resolveStyle';
 import { applyScope } from '../../layout/styleScope';
 import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import type { StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { BlockStyle, CanvasLayoutInput, DrawnCanvas, ElementStyle, TextMeasurer } from '../../layout';
+import type { CanvasLayoutInput, DrawnCanvas, TextMeasurer } from '../../layout';
 import { modeSwitchPlacement } from '../../shell/modes';
 import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
@@ -29,7 +27,8 @@ import ConflictDialog from './ConflictDialog.vue';
 import LeaveDialog from './LeaveDialog.vue';
 import ResetDialogs from './ResetDialogs.vue';
 import { resetIds, type ResetScope } from '../../edit-engine/commands/reset';
-import { leaveGuards } from '../../shell/fullLoad';
+import { createLeaveGuard } from './leaveGuard';
+import { styleTargetOf } from './styleTarget';
 import type { InvalidValue } from './PropertiesPanel.vue';
 import { MoveConflict, SaveQueue, sendLayout, type SaveFailure, type SaveStatus } from './SaveQueue';
 import { sendReset } from './resetRequest';
@@ -77,12 +76,9 @@ const zoom = ref(1);
 const selected = ref<string[]>([]);
 const verdict = ref<ShiftVerdictEvent | null>(null);
 const invalid = ref<InvalidValue | null>(null);
-const leaveTarget = ref<string | null>(null);
 const resetScope = ref<ResetScope | null>(null);
 const resetId = ref<string | null>(null);
 let typed: Omit<InvalidValue, 'message'> | null = null;
-let leaveWaiting: string | null = null;
-const retried = ref(false);
 const view = ref('');
 const restoreTo = ref<HTMLElement | null>(null);
 let created: DrawingEngine | null = null;
@@ -139,11 +135,7 @@ const moveTo = (targetId: string, opener: HTMLElement | null): void => {
 };
 const refreshBox = (): void => {
     box.value = single.value ? (engine.value?.getBox(single.value) ?? null) : null;
-    const blocks = new Map((drawn.value?.blocks ?? []).map((candidate) => [candidate.id, candidate]));
-    const block = single.value ? blocks.get(single.value) : undefined;
-    const live = engine.value;
-    const styleOf = (id: string): BlockStyle => resolveStyle(blocks.get(id)!.areaKey, blocks.get(id)!.kind, (live?.getStyle(id) ?? {}) as ElementStyle);
-    target.value = block && block.areaKey !== 'direction' && live ? { kind: block.kind, resolved: resolveStyle(block.areaKey, block.kind, (live.getStyle(block.id) ?? {}) as ElementStyle, behindOf(block, blocks, styleOf)), backdrop: backdropOf(block, blocks, styleOf) } : null;
+    target.value = styleTargetOf(drawn.value, single.value, engine.value);
 };
 const copyStyle = (): void => {
     copied.value = single.value ? (engine.value?.copyStyle(single.value) ?? null) : null;
@@ -271,7 +263,7 @@ async function start(payload: LayoutPayload): Promise<void> {
 const onStatus = (next: SaveStatus): void => {
     saveStatus.value = next;
     if (next === 'layoutChanged') void refresh(false, moveFlow.hasLost() ? `${t('drawing.layout_changed')}. ${t('drawing.move_not_saved')}` : t('drawing.layout_changed'));
-    if (next === 'saved' && (leaveTarget.value || leaveWaiting)) window.location.assign((leaveTarget.value ?? leaveWaiting) as string);
+    if (next === 'saved' && leave.destination()) window.location.assign(leave.destination() as string);
 };
 
 async function loadStored(): Promise<LayoutPayload> {
@@ -342,43 +334,16 @@ const performReset = (): void => {
         }
     });
 };
-const guard = (destination: string): boolean => {
-    if (saveStatus.value === 'saving') {
-        leaveWaiting = destination;
-
-        return true;
-    }
-    if (saveStatus.value !== 'failed') return false;
-    leaveTarget.value = destination;
-
-    return true;
-};
-const beforeUnload = (event: BeforeUnloadEvent): void => {
-    if (saveStatus.value !== 'failed' && saveStatus.value !== 'saving') return;
-    event.preventDefault();
-    event.returnValue = '';
-};
-const leaveRetry = (): void => {
-    retried.value = true;
-    queue?.retry();
-};
-const leaveDiscard = (): void => {
-    const destination = leaveTarget.value;
-    leaveGuards.delete(guard);
-    window.removeEventListener('beforeunload', beforeUnload);
-    if (destination) window.location.assign(destination);
-};
+const leave = createLeaveGuard(saveStatus, () => queue?.retry());
 
 onMounted(async () => {
-    leaveGuards.add(guard);
-    window.addEventListener('beforeunload', beforeUnload);
+    leave.install();
     queue = new SaveQueue({ canvas: props.canvas.id, versions: props.versions, getLayout: () => engine.value?.getLayout() as LayoutPayload, onStatus, onFailure });
     await start(storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions));
 });
 onBeforeUnmount(() => {
     unmounted = true;
-    leaveGuards.delete(guard);
-    window.removeEventListener('beforeunload', beforeUnload);
+    leave.uninstall();
     modeSwitchPlacement.inPage = false;
     release();
 });
@@ -392,7 +357,7 @@ onBeforeUnmount(() => {
         <Header :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" @reset="askReset('canvas')" />
     </header>
     <DragLabel :event="verdict" />
-    <LeaveDialog :open="leaveTarget !== null" :failed="saveStatus === 'failed' && retried" @retry="leaveRetry" @discard="leaveDiscard" @stay="leaveTarget = null" />
+    <LeaveDialog :open="leave.target.value !== null" :failed="saveStatus === 'failed' && leave.retried.value" @retry="leave.retry" @discard="leave.discard" @stay="leave.target.value = null" />
     <ResetDialogs :scope="resetScope" :name="resetName" :count="resetCount" @confirm="performReset" @cancel="resetScope = null" />
     <MoveDialog :open="moveFlow.pending.value !== null" :busy="moveFlow.busy.value" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
