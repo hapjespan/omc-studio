@@ -1,4 +1,5 @@
 import type { DrawnCanvas, TextMeasurer } from '../layout';
+import type { CopiedStyle } from './commands/pasteStyle';
 import type { StyleChange, StylePatch } from './commands/style';
 
 export type LayoutStyle = Record<string, string | number | boolean>;
@@ -71,6 +72,8 @@ export interface DrawingEngine {
     getBox(id: string): BoxValues | null;
     getStyle(id: string): LayoutStyle;
     setStyle(patch: StylePatch): StyleChange;
+    copyStyle(id: string): CopiedStyle | null;
+    pasteStyle(copied: CopiedStyle): StyleChange;
     canUndo(): boolean;
     canRedo(): boolean;
     onSelectionChange(listener: (ids: string[]) => void): () => void;

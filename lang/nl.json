@@ -641,5 +641,8 @@
     "drawing_style.middle": "midden",
     "drawing_style.bottom": "onder",
     "drawing_style.contrast": "Contrast tussen tekst en vulling: :ratio:1 (minstens 4,5:1)",
-    "drawing_style.auto_text": "De tekstkleur van :names is weer automatisch, zodat de tekst leesbaar blijft op de nieuwe vulling"
+    "drawing_style.auto_text": "De tekstkleur van :names is weer automatisch, zodat de tekst leesbaar blijft op de nieuwe vulling",
+    "drawing_style.copy": "Stijl kopiëren",
+    "drawing_style.paste": "Stijl plakken",
+    "drawing_style.copied": "Stijl van :name gekopieerd"
 }

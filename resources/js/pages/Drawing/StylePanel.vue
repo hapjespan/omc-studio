@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import AppButton from '../../components/ui/AppButton.vue';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
+import { canPaste, type CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import { t } from '../../i18n';
 import type { BlockStyle } from '../../layout';
@@ -13,8 +15,8 @@ export interface StyleTarget {
     backdrop: string;
 }
 
-const props = defineProps<{ id: string; name: string; target: StyleTarget }>();
-const emit = defineEmits<{ style: [patch: StylePatch] }>();
+const props = defineProps<{ id: string; name: string; target: StyleTarget; copied: CopiedStyle | null }>();
+const emit = defineEmits<{ style: [patch: StylePatch]; copy: []; paste: [] }>();
 
 const RANGES = {
     fill_opacity: { low: 0, high: 100, message: 'layout.style.fill_opacity' },
@@ -88,5 +90,9 @@ const borderStyles = [
             <NativeSelect id="style-border-style" :label="t('drawing_style.border_style_of', { name })" :model-value="target.resolved.borderStyle" :options="borderStyles" @update:model-value="emit('style', { border_style: $event })" />
         </div>
         <TextField id="style-corner-radius" v-model="numbers.corner_radius" type="number" :label="t('drawing_style.corner_radius_of', { name })" :error="errors.corner_radius" @change="commitNumber('corner_radius')" />
+        <div class="flex flex-col gap-2">
+            <AppButton size="dense" @click="emit('copy')">{{ t('drawing_style.copy') }}</AppButton>
+            <AppButton v-if="canPaste(copied, target.kind)" size="dense" @click="emit('paste')">{{ t('drawing_style.paste') }}</AppButton>
+        </div>
     </section>
 </template>

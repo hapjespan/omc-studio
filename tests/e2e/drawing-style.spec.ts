@@ -48,3 +48,23 @@ test('the fields of the Kleur group are operated by keyboard and labelled with t
     await opacity.press('Enter');
     await expect(page.getByText('Vulling Onderwijs: kies een dekking van 0 tot 100')).toBeVisible();
 });
+
+test('a style is copied and pasted onto the same kind only', async ({ page }) => {
+    const layers = await openDrawing(page);
+    const layer = (name: string) => layers.getByRole('button', { name, exact: true });
+    await layer('Onderwijs').click();
+    await page.getByLabel('Vulling van Onderwijs', { exact: true }).fill('#112233');
+    await page.getByLabel('Vulling van Onderwijs', { exact: true }).press('Enter');
+    await expect(page.getByRole('button', { name: 'Stijl plakken' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Stijl kopiëren' }).click();
+    await expect(page.locator('[data-announcer]')).toContainText('Stijl van Onderwijs gekopieerd');
+
+    await layer('Les geven').click();
+    await expect(page.getByRole('button', { name: 'Stijl kopiëren' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Stijl plakken' })).toHaveCount(0);
+
+    await layer('Beheer').click();
+    await page.getByRole('button', { name: 'Stijl plakken' }).click();
+    await expect(page.getByLabel('Vulling van Beheer', { exact: true })).toHaveValue('#112233');
+    await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
+});

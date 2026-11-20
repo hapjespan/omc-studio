@@ -13,6 +13,7 @@ import { align, distribute, equalSize } from './commands/align';
 import { snapChanges } from './commands/grid';
 import { backward, forward, stackOrders } from './commands/order';
 import { restrict, type Restrictions } from './restrictions';
+import { copyStyle, pasteStyle, type CopiedStyle } from './commands/pasteStyle';
 import { setStyle, storedStyle, styleData, type StyleChange, type StylePatch } from './commands/style';
 import { boxOf, nudge, resizeBy, setBox } from './transform';
 import { ARTBOARD_ID, buildScene, readPlaces, TEXT_SUFFIX } from './scene';
@@ -140,6 +141,18 @@ export class OpenPencilEngine implements DrawingEngine {
         const result = this.guarded(() => setStyle({ editor, ids: [...editor.state.selectedIds] }, canvas, patch, { measurer: this.measurer }));
         for (const id of result.ids) this.sized.add(id);
         return result;
+    }
+
+    pasteStyle(copied: CopiedStyle): StyleChange {
+        const { editor, canvas } = this.mounted();
+        const result = this.guarded(() => pasteStyle({ editor, ids: [...editor.state.selectedIds] }, canvas, copied, { measurer: this.measurer }));
+        for (const id of result.ids) this.sized.add(id);
+        return result;
+    }
+
+    copyStyle(id: string): CopiedStyle | null {
+        const { graph, canvas } = this.mounted();
+        return copyStyle(graph, canvas, id);
     }
 
     getStyle(id: string): LayoutStyle {

@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { backdropOf } from '../../layout/backdrop';
 import { resolveStyle } from '../../layout/resolveStyle';
+import type { CopiedStyle } from '../../edit-engine/commands/pasteStyle';
 import type { StylePatch } from '../../edit-engine/commands/style';
 import type { StyleTarget } from './StylePanel.vue';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
@@ -50,6 +51,7 @@ const hint = ref('');
 const notice = ref('');
 const box = ref<BoxValues | null>(null);
 const target = ref<StyleTarget | null>(null);
+const copied = ref<CopiedStyle | null>(null);
 const grid = ref(false);
 const saveStatus = ref<SaveStatus>('idle');
 const seen = ref<string[]>([]);
@@ -92,8 +94,12 @@ const refreshBox = (): void => {
     const styleOf = (id: string): BlockStyle => resolveStyle(blocks.get(id)!.areaKey, blocks.get(id)!.kind, (live?.getStyle(id) ?? {}) as ElementStyle);
     target.value = block && block.areaKey !== 'direction' && live ? { kind: block.kind, resolved: styleOf(block.id), backdrop: backdropOf(block, blocks, styleOf) } : null;
 };
-const setStyle = (patch: StylePatch): void => {
-    const result = engine.value?.setStyle(patch);
+const copyStyle = (): void => {
+    copied.value = single.value ? (engine.value?.copyStyle(single.value) ?? null) : null;
+    if (copied.value && single.value) say(t('drawing_style.copied', { name: names.value.get(single.value) ?? single.value }));
+};
+const setStyle = (patch: StylePatch, paste = false): void => {
+    const result = paste && copied.value ? engine.value?.pasteStyle(copied.value) : engine.value?.setStyle(patch);
     refreshBox();
     if (!result || result.ids.length === 0) return;
     const named = (ids: string[]) => ids.map((id) => names.value.get(id) ?? id).join(', ');
@@ -237,7 +243,7 @@ onBeforeUnmount(() => {
             <Announcer :message="notice" />
             <Toolbar v-model:grid="grid" :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" @box="setBox" @style="setStyle">
+        <PropertiesPanel :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" :target="target" :copied="copied" @box="setBox" @style="setStyle($event)" @copy-style="copyStyle" @paste-style="setStyle({}, true)">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>
