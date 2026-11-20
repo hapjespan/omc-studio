@@ -21,7 +21,7 @@ test('the segmented control is 36 high outside, 34 inside the border so the segm
 
 test('the chip select is a native select, 36 high with the edge colour and a name', async ({ page }) => {
     await page.goto('/?demo=Foundation');
-    const select = page.getByRole('combobox', { name: 'Soort filter' });
+    const select = page.getByRole('combobox', { name: 'Soort' });
     const chip = select.locator('xpath=..');
 
     expect((await chip.boundingBox())?.height).toBe(36);
@@ -125,4 +125,29 @@ test('a page fills the header targets and the row exists only then', async ({ pa
     await page.goto('/?demo=Foundation&header=1');
     await expect(page.locator('#page-title #page-heading')).toHaveText('Bekijken');
     await expect(page.locator('#page-actions').getByRole('button', { name: 'Exporteren' })).toBeVisible();
+});
+
+test('the opt-in wide padding gives the main 24 pixels and the default keeps 16', async ({ page }) => {
+    await page.goto('/?demo=Foundation');
+    expect((await style(page.locator('main'), ['padding-left']))['padding-left']).toBe('16px');
+
+    await page.goto('/?demo=Foundation&header=1');
+    expect((await style(page.locator('main'), ['padding-left']))['padding-left']).toBe('24px');
+});
+
+test('the status region shows text by default and is visually hidden but announced when a page opts in', async ({ page }) => {
+    await page.goto('/?demo=Foundation');
+    await page.locator('#post').click();
+    const region = page.getByRole('status');
+    await expect(region).toHaveText('Alles opgeslagen');
+    expect((await region.boundingBox())?.height).toBeGreaterThan(5);
+
+    await page.goto('/?demo=Foundation&quiet=1');
+    await page.locator('#post').click();
+    const quiet = page.getByRole('status');
+    await expect(quiet).toHaveText('Alles opgeslagen');
+    await expect(quiet).toHaveAttribute('aria-live', 'polite');
+    const box = await quiet.boundingBox();
+    expect(box?.width).toBeLessThanOrEqual(1);
+    expect(box?.height).toBeLessThanOrEqual(1);
 });

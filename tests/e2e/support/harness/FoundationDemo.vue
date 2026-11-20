@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import StatusRegion from '../../../../resources/js/components/feedback/StatusRegion.vue';
+import { announce } from '../../../../resources/js/components/feedback/status';
 import FileField from '../../../../resources/js/components/fields/FileField.vue';
 import ActionMenu from '../../../../resources/js/components/ui/ActionMenu.vue';
 import AppButton from '../../../../resources/js/components/ui/AppButton.vue';
@@ -11,7 +13,7 @@ import Panel from '../../../../resources/js/components/ui/Panel.vue';
 import Pill from '../../../../resources/js/components/ui/Pill.vue';
 import SegmentedControl from '../../../../resources/js/components/ui/SegmentedControl.vue';
 import HeaderSlot from '../../../../resources/js/shell/HeaderSlot.vue';
-import { shellLayout } from '../../../../resources/js/shell/layout';
+import { shellLayout, useQuietStatus, useWideMain } from '../../../../resources/js/shell/layout';
 import PageHeader from '../../../../resources/js/shell/PageHeader.vue';
 
 const overlay = ref('none');
@@ -19,15 +21,21 @@ const kind = ref('');
 const checked = ref(false);
 const picked = ref('');
 const chosenAction = ref('');
-const withHeader = new URLSearchParams(location.search).get('header') === '1';
+const params = new URLSearchParams(location.search);
+const withHeader = params.get('header') === '1';
+
+if (withHeader) useWideMain();
+if (params.get('quiet') === '1') useQuietStatus();
 </script>
 
 <template>
-    <main :class="['flex max-w-2xl flex-col gap-3', withHeader ? 'p-6' : 'p-4']">
+    <main :class="['flex max-w-2xl flex-col gap-3', shellLayout.widePadding ? 'p-6' : 'p-4']">
         <PageHeader v-if="shellLayout.headerSlots > 0" />
         <HeaderSlot v-if="withHeader" to="title"><h1 id="page-heading">Bekijken</h1></HeaderSlot>
         <HeaderSlot v-if="withHeader" to="actions"><AppButton>Exporteren</AppButton></HeaderSlot>
         <h2 v-if="!withHeader">Fundament</h2>
+        <StatusRegion />
+        <button id="post" type="button" @click="announce('Alles opgeslagen')">Meld</button>
         <SegmentedControl :items="[{ key: 'none', label: 'Geen' }, { key: 'modality', label: 'Modaliteit' }]" :active="overlay" label="Laag" @select="overlay = $event" />
         <ChipSelect id="kind" v-model="kind" label="Soort" name="Soort filter" :options="[{ value: '', label: 'Alle' }, { value: 'a', label: 'Eerste' }]" />
         <Panel id="panel" :padding="24" heading="Exporteren"><p>Inhoud</p></Panel>

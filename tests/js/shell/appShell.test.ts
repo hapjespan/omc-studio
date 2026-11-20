@@ -76,12 +76,20 @@ describe('AppShell with a Canvas', () => {
 });
 
 describe('AppShell layout options', () => {
-    it('keeps 16 pixel padding, no header targets and a visually hidden status region by default', async () => {
+    it('keeps 16 pixel padding, no header targets and a visible status region by default', async () => {
         const html = await render();
 
         expect(html).toMatch(/<main[^>]*class="shell-main p-4"/);
         expect(html).not.toContain('page-title');
         expect(html).not.toContain('page-actions');
+        expect(html).toMatch(/<div role="status"[^>]*class="text-\[12.5px\] text-secondary"/);
+    });
+
+    it('hides the status text visually only when a page asks for it', async () => {
+        shellLayout.quietStatus = true;
+        const html = await render();
+        shellLayout.quietStatus = false;
+
         expect(html).toMatch(/<div role="status"[^>]*class="sr-only"/);
     });
 

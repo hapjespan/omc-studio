@@ -198,9 +198,9 @@ describe('SegmentedControl', () => {
     });
 
     it('renders buttons with aria-pressed when the items have no href', async () => {
-        const html = (await render(SegmentedControl, { items: [{ key: 'a', label: 'Geen' }, { key: 'b', label: 'Modaliteit' }], active: 'a', label: 'Laag', role: 'toolbar' })).replace(/<!--.*?-->/g, '');
+        const html = (await render(SegmentedControl, { items: [{ key: 'a', label: 'Geen' }, { key: 'b', label: 'Modaliteit' }], active: 'a', label: 'Laag' })).replace(/<!--.*?-->/g, '');
 
-        expect(html).toContain('role="toolbar"');
+        expect(html).toContain('role="group"');
         expect(html).toMatch(/aria-pressed="true"[^>]*>Geen/);
         expect(html).toMatch(/aria-pressed="false"[^>]*>Modaliteit/);
     });
@@ -208,11 +208,11 @@ describe('SegmentedControl', () => {
 
 describe('ChipSelect', () => {
     it('shows the label and a native select with its options', async () => {
-        const html = await render(ChipSelect, { id: 'kind', label: 'Soort', name: 'Soort filter', modelValue: '', options: [{ value: '', label: 'Alle' }, { value: 'a', label: 'Eerste' }] });
+        const html = await render(ChipSelect, { id: 'kind', label: 'Soort', modelValue: '', options: [{ value: '', label: 'Alle' }, { value: 'a', label: 'Eerste' }] });
 
         expect(html).toContain('<label for="kind"');
         expect(html).toContain('<select id="kind"');
-        expect(html).toContain('aria-label="Soort filter"');
+        expect(html).not.toContain('aria-label');
         expect(html).toContain('border-edge');
         expect(html).toContain('h-control');
         expect(html).toContain('Alle');
@@ -251,5 +251,26 @@ describe('ActionMenu', () => {
         expect(html).toContain('Meer acties');
         expect(html).toContain('<svg');
         expect(html).toContain('aria-haspopup="menu"');
+    });
+});
+
+describe('CheckBox states in the stylesheet', () => {
+    const css = readFileSync(fileURLToPath(new URL('../../../resources/css/app.css', import.meta.url)), 'utf8');
+
+    it('greys a disabled box and keeps the marks visible in forced colours', () => {
+        expect(css).toContain('.check-target > input:disabled');
+        expect(css).toContain('var(--color-disabled)');
+        expect(css).toMatch(/@media \(forced-colors: active\)[\s\S]*HighlightText/);
+    });
+});
+
+describe('FileField with a value', () => {
+    it('shows the name of the file the parent holds and the placeholder once it is reset', async () => {
+        const held = await render(FileField, { id: 'upload', label: 'Bestand', modelValue: { name: 'export.json' } });
+        const reset = await render(FileField, { id: 'upload', label: 'Bestand', modelValue: null });
+
+        expect(held).toContain('export.json');
+        expect(held).not.toContain('Geen bestand gekozen');
+        expect(reset).toContain('Geen bestand gekozen');
     });
 });

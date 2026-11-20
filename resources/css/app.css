@@ -110,6 +110,39 @@
         background-color: #ffffff;
         transform: none;
     }
+
+    .check-target > input:disabled {
+        border-color: var(--color-edge);
+        background-color: var(--color-disabled);
+    }
+
+    .check-target > input:disabled:checked,
+    .check-target > input:disabled:indeterminate {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+    }
+
+    @media (forced-colors: active) {
+        .check-target > input {
+            border-color: ButtonText;
+            background-color: Field;
+        }
+
+        .check-target > input:checked,
+        .check-target > input:indeterminate {
+            border-color: Highlight;
+            background-color: Highlight;
+            forced-color-adjust: none;
+        }
+
+        .check-target > input:checked::after {
+            border-color: HighlightText;
+        }
+
+        .check-target > input:indeterminate::after {
+            background-color: HighlightText;
+        }
+    }
 }
 
 #nprogress {

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { shellLayout } from './layout';
+import { nextTick, onMounted, ref } from 'vue';
+import { useHeaderSlot } from './layout';
 
 defineProps<{ to: 'title' | 'actions' }>();
 const ready = ref(false);
 
-shellLayout.headerSlots++;
+useHeaderSlot();
 onMounted(() => nextTick(() => (ready.value = true)));
-onBeforeUnmount(() => shellLayout.headerSlots--);
 </script>
 
 <template>

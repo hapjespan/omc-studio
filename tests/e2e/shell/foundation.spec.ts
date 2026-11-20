@@ -54,14 +54,12 @@ test('an icon button measures 28 by 28 and keeps its name', async ({ page }) => 
     expect(box?.height).toBe(28);
 });
 
-test('the status region is announced but not visible text, and delivery 1 keeps 16 pixel main padding and no header row', async ({ page }) => {
+test('delivery 1 keeps its visible status text, 16 pixel main padding and no header row', async ({ page }) => {
     await signInAs(page, 'administrator');
 
     const region = page.getByRole('status');
-    const box = await region.boundingBox();
-    expect(box?.width).toBeLessThanOrEqual(1);
-    expect(box?.height).toBeLessThanOrEqual(1);
     await expect(region).toHaveAttribute('aria-live', 'polite');
+    await expect(region).toHaveClass(/text-secondary/);
     expect(await styleOf(page.locator('#main'), 'padding-left')).toBe('16px');
     await expect(page.locator('#page-title')).toHaveCount(0);
 });

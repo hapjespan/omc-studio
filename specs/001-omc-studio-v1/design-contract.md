@@ -124,19 +124,26 @@ All live under `resources/js/components/` and are the only way to build these pa
 |---|---|
 | `ui/AppButton` | `variant` primary, secondary or danger; `size` control, dense or small; `type`; `icon`; `disabled`; `href` renders an anchor with the same classes (`download`, `target` and `rel` pass through as attributes); `focus()` exposed |
 | `ui/IconButton` | `label` (accessible name), `icon`, `size` 28 (default) or 36, `type`, `disabled` |
-| `ui/SegmentedControl` | `items` as `{ key, label, href? }`, `active` (key), `label` (accessible name), `role` group or toolbar; items with `href` are links with `aria-current`, others are buttons with `aria-pressed` and emit `select(key)`; 36 high outside, 34 inside, active segment ink |
-| `ui/ChipSelect` | `v-model` string, `id`, `label` (visible, muted), `name` (optional accessible name), `options` as `{ value, label }`; native select with a chevron, 36 high, edge `#848B95` |
+| `ui/SegmentedControl` | `items` as `{ key, label, href? }`, `active` (key), `label` (accessible name); items with `href` are links with `aria-current`, others are buttons with `aria-pressed` and emit `select(key)`; 36 high outside, 34 inside, active segment ink |
+| `ui/ChipSelect` | `v-model` string, `id`, `label` (visible, muted), `options` as `{ value, label }`; native select with a chevron, 36 high, edge `#848B95` |
 | `ui/Panel` | `padding` 16 (default) or 24, `heading` (Space Grotesk 16), `level` 2, 3 or 4; white, hairline `#DCDFE2`, radius 10 |
 | `ui/Pill` | `tone` neutral, warning, success or danger; `icon` |
 | `ui/Callout` | `tone` warning, success or danger; `label` |
-| `ui/CheckBox` | `v-model`, `value`, attributes pass to the input; 16 pixel box, radius 4, ink when checked or indeterminate, inside a 24 pixel target |
+| `ui/CheckBox` | `v-model`, `value`, attributes pass to the input; 16 pixel box, radius 4, ink when checked or indeterminate, grey `#E6E8E6` when disabled, marks kept in forced-colours mode, inside a 24 pixel target |
 | `ui/ActionMenu` | `label` (button text, chevron), `items` as `{ key, label, disabled? }`, emits `select(key)`; reka-ui DropdownMenu, keyboard operable |
-| `ui/icons` | adds `minus` and `fit` next to `plus` and the chevrons |
-| `fields/FileField` | `id`, `label`, `accept`, `hint`, `error`, emits `pick(file or null)`; 36 high box, 28 high button reading "Kies een bestand", the file name beside it; the native input stays the labelled, focusable control |
+| `ui/icons` | adds `fit`; `minus` already existed |
+| `fields/FileField` | `id`, `label`, `accept`, `hint`, `error`, `v-model` (`File` or null: a reset to null clears the shown name), emits `pick(file or null)`; 36 high box, 28 high button reading "Kies een bestand", the file name beside it; the native input stays the labelled, focusable control |
 | `shell/HeaderSlot` | `to` title or actions; the page puts its title or actions inside it and they appear in the page header row of the shell; the row exists only while a page uses a slot |
-| `shell/layout` | `useWideMain()` in a page setup sets the main padding to 24 instead of 16 and resets on unmount |
+| `shell/layout` | `useWideMain()` in a page setup sets the main padding to 24 instead of 16, `useQuietStatus()` makes the shell status region visually hidden but still announced; both reset on unmount, the defaults are 16 pixels and visible text |
 
-The shell status region is visually hidden (`sr-only`) and still announced politely.
+The shell status region shows its message as text by default, as in delivery 1 (flash statuses, "Wachtwoord gekopieerd"); a page that shows the confirmation elsewhere opts in to the visually hidden mode.
+
+Foundation gaps of the later deliveries that this set does not cover, tracked here:
+
+- F-2: a compact inline field with a hidden label and a "%" suffix (Toewijzen percentage input).
+- F-6: the top bar overflows at 320 pixels once a Fiscal year selector and notices sit in it.
+- G-8: one shared report table for the three report tables (`ImportReport`, `CountsReport`, the Toewijzen lines).
+- K-28: a styled native select with an empty value item, or `SelectField` accepting one (the specs use `selectOption`).
 
 ## States
 

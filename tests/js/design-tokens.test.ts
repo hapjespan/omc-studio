@@ -117,6 +117,10 @@ describe('design tokens', () => {
         expect(rounded(measured)).toBe(documented);
     });
 
+    it('keeps the drop-zone grey below 3:1 so it stays decorative', () => {
+        expect(contrast(value('color-drop-zone'), white)).toBeLessThan(3);
+    });
+
     it('keeps the dashed add line off the page and the panel surface, where it misses 3:1', () => {
         expect(contrast(value('color-dashed'), value('color-page'))).toBeLessThan(3);
         expect(contrast(value('color-dashed'), value('color-surface'))).toBeLessThan(3);
