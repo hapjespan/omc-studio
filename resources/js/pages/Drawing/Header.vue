@@ -4,7 +4,7 @@ import { t } from '../../i18n';
 import type { SaveStatus } from './SaveQueue';
 
 defineProps<{ status: SaveStatus; canUndo: boolean; canRedo: boolean }>();
-defineEmits<{ undo: []; redo: []; fit: []; retry: [] }>();
+defineEmits<{ undo: []; redo: []; fit: []; retry: []; reset: [] }>();
 </script>
 
 <template>
@@ -20,7 +20,7 @@ defineEmits<{ undo: []; redo: []; fit: []; retry: [] }>();
         </p>
         <p class="text-[13px] text-secondary">{{ t('drawing.engine_note') }}</p>
         <div class="ml-auto flex items-center gap-2">
-            <AppButton size="dense" disabled>{{ t('drawing.auto_all') }}</AppButton>
+            <AppButton size="dense" @click="$emit('reset')">{{ t('drawing.auto_all') }}</AppButton>
             <AppButton size="dense" @click="$emit('fit')">{{ t('drawing.fit') }}</AppButton>
         </div>
     </div>

@@ -192,10 +192,10 @@ describe('SaveQueue', () => {
         const { queue, sender, statuses, failures, current } = open();
 
         queue.changed();
-        await sender.reply({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'] });
+        await sender.reply({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'], codes: ['too_small'], elements: [] });
 
         expect(statuses).toEqual(['saving', 'failed']);
-        expect(failures).toEqual([{ kind: 'refused', messages: ['Domein Zorg: breedte minstens 40'] }]);
+        expect(failures).toEqual([{ kind: 'refused', messages: ['Domein Zorg: breedte minstens 40'], codes: ['too_small'], elements: [] }]);
 
         current.width = 950;
         queue.changed();
@@ -291,7 +291,7 @@ describe('the sender of SaveQueue', () => {
         expect(await sendLayout(7, body)).toEqual({ outcome: 'conflict', conflict: 'layout_changed' });
 
         stub(answering(422, { errors: { rule: ['Domein Zorg: breedte minstens 40'] } }));
-        expect(await sendLayout(7, body)).toEqual({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'] });
+        expect(await sendLayout(7, body)).toEqual({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'], codes: [], elements: [] });
 
         stub(answering(419, {}));
         expect(await sendLayout(7, body)).toEqual({ outcome: 'unreachable' });
@@ -365,5 +365,18 @@ describe('SaveQueue move conflicts', () => {
         queue.enqueueMove(async () => Promise.reject(new MoveConflict('layout_changed')));
         await flush();
         expect(queue.status).toBe('layoutChanged');
+    });
+});
+
+describe('SaveQueue retry with nothing pending', () => {
+    it('settles to idle instead of staying failed', async () => {
+        const statuses: string[] = [];
+        const queue = new SaveQueue({ canvas: 1, versions: { structure: 1, layout: 1 }, getLayout: () => payload(900), onStatus: (status) => statuses.push(status), send: async () => ({ outcome: 'saved', layoutVersion: 2 }) });
+        queue.enqueueMove(async () => Promise.reject(new Error('down')));
+        await flush();
+        expect(queue.status).toBe('failed');
+        queue.retry();
+        expect(queue.status).toBe('idle');
+        expect(statuses.at(-1)).toBe('idle');
     });
 });
