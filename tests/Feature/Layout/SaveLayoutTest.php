@@ -114,7 +114,8 @@ class SaveLayoutTest extends StructureTestCase
 
         $this->save($payload)
             ->assertStatus(422)
-            ->assertJsonPath('errors.rule.0', 'Opmaak Offreren: dit element ontbreekt in de opmaak');
+            ->assertJsonPath('errors.rule.0', 'Opmaak Offreren: dit element ontbreekt in de opmaak')
+            ->assertJsonPath('errors.codes', ['missing_element']);
 
         $this->assertSame(0, Layout::query()->count());
         $this->assertSame(0, $this->canvas->fresh()?->layout_version);

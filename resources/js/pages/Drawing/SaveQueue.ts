@@ -11,7 +11,7 @@ export interface LayoutVersions {
 export type SaveResult =
     | { outcome: 'saved'; layoutVersion: number }
     | { outcome: 'conflict'; conflict: 'structure_changed' | 'layout_changed' }
-    | { outcome: 'refused'; messages: string[] }
+    | { outcome: 'refused'; messages: string[]; codes: string[] }
     | { outcome: 'unreachable' };
 
 export type LayoutSender = (canvas: string | number, payload: LayoutPayload) => Promise<SaveResult>;
@@ -24,7 +24,7 @@ export class MoveConflict extends Error {
 
 export type MoveTask = (versions: LayoutVersions) => Promise<LayoutVersions>;
 
-export type SaveFailure = { kind: 'refused'; messages: string[] } | { kind: 'unreachable' };
+export type SaveFailure = { kind: 'refused'; messages: string[]; codes: string[] } | { kind: 'unreachable' };
 
 export interface SaveQueueOptions {
     canvas: string | number;
@@ -38,7 +38,7 @@ export interface SaveQueueOptions {
 interface LayoutAnswer {
     layout_version?: number;
     conflict?: 'structure_changed' | 'layout_changed';
-    errors?: { rule?: string[] };
+    errors?: { rule?: string[]; codes?: string[] };
 }
 
 function xsrfToken(): string {
@@ -59,7 +59,7 @@ export const sendLayout: LayoutSender = async (canvas, payload) => {
 
     if (response.ok && typeof answer.layout_version === 'number') return { outcome: 'saved', layoutVersion: answer.layout_version };
     if (response.status === 409 && answer.conflict !== undefined) return { outcome: 'conflict', conflict: answer.conflict };
-    if (response.status === 422) return { outcome: 'refused', messages: answer.errors?.rule ?? [] };
+    if (response.status === 422) return { outcome: 'refused', messages: answer.errors?.rule ?? [], codes: answer.errors?.codes ?? [] };
 
     return { outcome: 'unreachable' };
 };
@@ -165,7 +165,7 @@ export class SaveQueue {
             return;
         }
 
-        this.fail(result.outcome === 'refused' ? { kind: 'refused', messages: result.messages } : { kind: 'unreachable' });
+        this.fail(result.outcome === 'refused' ? { kind: 'refused', messages: result.messages, codes: result.codes } : { kind: 'unreachable' });
     }
 
     private halt(status: SaveStatus): void {

@@ -192,10 +192,10 @@ describe('SaveQueue', () => {
         const { queue, sender, statuses, failures, current } = open();
 
         queue.changed();
-        await sender.reply({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'] });
+        await sender.reply({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'], codes: ['too_small'] });
 
         expect(statuses).toEqual(['saving', 'failed']);
-        expect(failures).toEqual([{ kind: 'refused', messages: ['Domein Zorg: breedte minstens 40'] }]);
+        expect(failures).toEqual([{ kind: 'refused', messages: ['Domein Zorg: breedte minstens 40'], codes: ['too_small'] }]);
 
         current.width = 950;
         queue.changed();
@@ -291,7 +291,7 @@ describe('the sender of SaveQueue', () => {
         expect(await sendLayout(7, body)).toEqual({ outcome: 'conflict', conflict: 'layout_changed' });
 
         stub(answering(422, { errors: { rule: ['Domein Zorg: breedte minstens 40'] } }));
-        expect(await sendLayout(7, body)).toEqual({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'] });
+        expect(await sendLayout(7, body)).toEqual({ outcome: 'refused', messages: ['Domein Zorg: breedte minstens 40'], codes: [] });
 
         stub(answering(419, {}));
         expect(await sendLayout(7, body)).toEqual({ outcome: 'unreachable' });

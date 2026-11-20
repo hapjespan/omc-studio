@@ -19,7 +19,13 @@ import MoveDialog from './MoveDialog.vue';
 import { createMoveFlow } from './moveFlow';
 import { moveTargets, pathOf } from './moveTargets';
 import ConflictDialog from './ConflictDialog.vue';
-import { SaveQueue, type SaveFailure, type SaveStatus } from './SaveQueue';
+import LeaveDialog from './LeaveDialog.vue';
+import ResetDialogs from './ResetDialogs.vue';
+import { resetIds, type ResetScope } from '../../edit-engine/commands/reset';
+import { leaveGuards } from '../../shell/fullLoad';
+import type { InvalidValue } from './PropertiesPanel.vue';
+import { SaveQueue, sendLayout, type SaveFailure, type SaveStatus } from './SaveQueue';
+import { sendReset } from './resetRequest';
 import DirectionBand from './DirectionBand.vue';
 import Header from './Header.vue';
 import LayersPanel from './LayersPanel.vue';
@@ -59,6 +65,11 @@ const tool = ref<'select' | 'pan'>('select');
 const zoom = ref(1);
 const selected = ref<string[]>([]);
 const verdict = ref<ShiftVerdictEvent | null>(null);
+const invalid = ref<InvalidValue | null>(null);
+const leaveTarget = ref<string | null>(null);
+const resetScope = ref<ResetScope | null>(null);
+const resetId = ref<string | null>(null);
+let typed: Omit<InvalidValue, 'message'> | null = null;
 const view = ref('');
 const restoreTo = ref<HTMLElement | null>(null);
 let created: DrawingEngine | null = null;
@@ -116,7 +127,10 @@ const refreshBox = (): void => {
     box.value = single.value ? (engine.value?.getBox(single.value) ?? null) : null;
 };
 const setBox = (id: string, values: Partial<BoxValues>): void => {
+    invalid.value = null;
     engine.value?.apply({ kind: 'setBox', id, box: values });
+    const key = Object.keys(values)[0] as InvalidValue['key'];
+    typed = { id, key, value: String(values[key]) };
     refreshBox();
 };
 const step = (which: 'undo' | 'redo'): void => {
@@ -157,8 +171,21 @@ function say(text: string): void {
     void nextTick(() => (notice.value = text));
 }
 
+const BYPASS_CODES = ['missing_element', 'unknown_element'];
+
 const onFailure = (failure: SaveFailure): void => {
-    say(failure.kind === 'refused' && failure.messages.length > 0 ? failure.messages.join(' ') : t('drawing.save_failed'));
+    if (failure.kind !== 'refused') return say(t('drawing.save_failed'));
+    const reason = failure.messages.join(' ') || t('drawing.save_failed');
+    if (failure.codes.some((code) => BYPASS_CODES.includes(code))) {
+        void refresh(false, `${reason}. ${t('drawing.rebuilt')}`);
+        return;
+    }
+    const attempt = typed;
+    void refresh(false, reason).then(() => {
+        if (!attempt) return;
+        engine.value?.select([attempt.id]);
+        invalid.value = { ...attempt, message: failure.messages[0] ?? t('drawing.value_invalid') };
+    });
 };
 
 async function start(payload: LayoutPayload): Promise<void> {
@@ -180,6 +207,7 @@ async function start(payload: LayoutPayload): Promise<void> {
         engine.value = created;
         const live = created;
         stopSelection = live.onSelectionChange((ids) => {
+            if (invalid.value && ids.join() !== invalid.value.id) invalid.value = null;
             selected.value = ids;
             seen.value = [...seen.value, ...ids];
             refreshBox();
@@ -189,6 +217,7 @@ async function start(payload: LayoutPayload): Promise<void> {
                 moveFlow.onIntent(change);
                 return;
             }
+            typed = null;
             refreshBox();
             queue?.changed();
         });
@@ -208,7 +237,8 @@ async function start(payload: LayoutPayload): Promise<void> {
 
 const onStatus = (next: SaveStatus): void => {
     saveStatus.value = next;
-    if (next === 'layoutChanged') void refresh(false, `${t('drawing.layout_changed')}. ${t('drawing.move_not_saved')}`);
+    if (next === 'layoutChanged') void refresh(false, moveFlow.hasLost() ? `${t('drawing.layout_changed')}. ${t('drawing.move_not_saved')}` : t('drawing.layout_changed'));
+    if (next === 'saved' && leaveTarget.value) window.location.assign(leaveTarget.value);
 };
 
 async function refresh(keepOwn: boolean, message = ''): Promise<void> {
@@ -233,12 +263,58 @@ async function refresh(keepOwn: boolean, message = ''): Promise<void> {
     }
 }
 
+const resetName = computed(() => (resetId.value ? (names.value.get(resetId.value) ?? '') : ''));
+const resetCount = computed(() => (resetScope.value ? resetIds(props.elements, resetScope.value, resetId.value).length : 0));
+const askReset = (scope: ResetScope): void => {
+    resetScope.value = scope;
+    resetId.value = scope === 'canvas' ? null : single.value;
+};
+const performReset = (): void => {
+    const scope = resetScope.value;
+    const id = resetId.value;
+    resetScope.value = null;
+    if (!scope) return;
+    const area = id !== null && props.layout.areas.some((candidate) => candidate.key === id);
+    queue?.enqueueMove(async (versions) => {
+        const response = area
+            ? await sendLayout(props.canvas.id, { ...(engine.value?.getLayout() as LayoutPayload), areas: Object.fromEntries(Object.entries(engine.value?.getLayout().areas ?? {}).filter(([key]) => key !== id)), structure_version: versions.structure, layout_version: versions.layout })
+            : await sendReset(props.canvas.id, scope, id);
+        if (response.outcome !== 'saved') {
+            say(t('drawing.save_failed'));
+            return versions;
+        }
+        setTimeout(() => void refresh(false, ''), 0);
+
+        return { structure: versions.structure, layout: response.layoutVersion };
+    });
+};
+const guard = (destination: string): boolean => {
+    if (saveStatus.value !== 'failed') return false;
+    leaveTarget.value = destination;
+
+    return true;
+};
+const beforeUnload = (event: BeforeUnloadEvent): void => {
+    if (saveStatus.value === 'failed') event.preventDefault();
+};
+const leaveRetry = (): void => queue?.retry();
+const leaveDiscard = (): void => {
+    const destination = leaveTarget.value;
+    leaveGuards.delete(guard);
+    window.removeEventListener('beforeunload', beforeUnload);
+    if (destination) window.location.assign(destination);
+};
+
 onMounted(async () => {
+    leaveGuards.add(guard);
+    window.addEventListener('beforeunload', beforeUnload);
     queue = new SaveQueue({ canvas: props.canvas.id, versions: props.versions, getLayout: () => engine.value?.getLayout() as LayoutPayload, onStatus, onFailure });
     await start(storedPayload(props.layouts, props.elements.map(({ id }) => id), props.versions));
 });
 onBeforeUnmount(() => {
     unmounted = true;
+    leaveGuards.delete(guard);
+    window.removeEventListener('beforeunload', beforeUnload);
     modeSwitchPlacement.inPage = false;
     release();
 });
@@ -251,8 +327,10 @@ onBeforeUnmount(() => {
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
     </header>
     <DragLabel :event="verdict" />
+    <LeaveDialog :open="leaveTarget !== null" @retry="leaveRetry" @discard="leaveDiscard" @stay="leaveTarget = null" />
+    <ResetDialogs :scope="resetScope" :name="resetName" :count="resetCount" @confirm="performReset" @cancel="resetScope = null" />
     <MoveDialog :open="moveFlow.pending.value !== null" :busy="moveFlow.busy.value" :target="targetPath" :restore="restore" @confirm="moveFlow.confirm()" @cancel="moveFlow.cancel()" />
-    <Header class="mt-3" :inert="moveFlow.busy.value || moveFlow.pending.value !== null" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" />
+    <Header class="mt-3" :inert="moveFlow.busy.value || moveFlow.pending.value !== null" :status="saveStatus" :can-undo="canUndo" :can-redo="canRedo" @undo="step('undo')" @redo="step('redo')" @fit="engine?.zoomToFit()" @retry="queue?.retry()" @reset="askReset('canvas')" />
     <ConflictDialog :open="saveStatus === 'structureChanged'" @apply="refresh(true)" @reload="refresh(false)" />
     <p v-if="state === 'loading'" class="mt-2 text-[13px] text-secondary" role="status">{{ t('drawing.loading') }}</p>
     <p v-if="state === 'failed'" class="mt-2 text-[13px] text-danger" role="alert">{{ t('drawing.failed') }}</p>
@@ -265,7 +343,7 @@ onBeforeUnmount(() => {
             <Announcer :message="notice" />
             <Toolbar v-model:grid="grid" :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
         </div>
-        <PropertiesPanel :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" @box="setBox" @move="moveTo">
+        <PropertiesPanel :invalid="invalid" :domain="single !== null && props.elements.find((candidate) => candidate.id === single)?.kind === 'domain'" :targets="targets" :id="single" :name="single ? (names.get(single) ?? '') : ''" :box="box" @box="setBox" @move="moveTo" @reset="askReset">
             <template v-if="peeked" #peek><p class="whitespace-pre-line text-[13px]" data-detail>{{ peeked }}</p></template>
         </PropertiesPanel>
     </div>

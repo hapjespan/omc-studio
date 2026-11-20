@@ -69,3 +69,7 @@ export function structureChanges(canvas: number, code: string): void {
 export function layoutChanges(canvas: number): void {
     execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Canvas::whereKey(${canvas})->increment('layout_version');`], { env });
 }
+
+export function tinker(code: string): void {
+    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+}

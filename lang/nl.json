@@ -624,5 +624,17 @@
     "drawing.moved": ":block hangt nu onder :target",
     "drawing.moved_narrower": ":block is smaller gemaakt tot de breedte van :target",
     "drawing.move_to": "Verplaatsen naar",
-    "drawing.move_choose": "Kies een plek"
+    "drawing.move_choose": "Kies een plek",
+    "drawing.rebuilt": "De tekening is opnieuw opgebouwd uit de opgeslagen gegevens",
+    "drawing.leave_title": "Wijziging niet opgeslagen",
+    "drawing.leave_body": "De laatste wijziging in de opmaak is niet opgeslagen. Probeer het opnieuw of gooi de wijziging weg.",
+    "drawing.leave_discard": "Wijziging weggooien",
+    "drawing.reset_element": "Terug naar automatische plek",
+    "drawing.reset_domain": "Domein terug naar automatisch",
+    "drawing.reset_title_element": "Terug naar automatische plek voor :name?",
+    "drawing.reset_title_domain": "Domein :name terug naar automatisch?",
+    "drawing.reset_title_canvas": "Alles automatisch opmaken?",
+    "drawing.reset_body": "Plek, grootte en stijl van :count elementen gaan terug naar de automatische opmaak.",
+    "drawing.reset_confirm": "Terugzetten",
+    "drawing.value_invalid": "Deze waarde is niet opgeslagen"
 }

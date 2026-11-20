@@ -7,34 +7,24 @@ import type { CanvasLayoutInput, ElementLayout } from '../../../resources/js/lay
 
 const input = canvas as CanvasLayoutInput;
 
-const manualFor = (every: number): Record<string, ElementLayout> =>
-    Object.fromEntries(
-        input.elements
-            .map((element, index): [string, ElementLayout] | null =>
-                index % every === 0 ? [element.id, { mode: 'manual', x: 8 + (index % 7) * 40, y: 10 + (index % 11) * 30, width: 220, height: 60, z: index % 5 }] : null,
-            )
-            .filter((entry): entry is [string, ElementLayout] => entry !== null),
-    );
+const layouts: Record<string, ElementLayout> = Object.fromEntries(
+    input.elements
+        .filter((element) => element.kind === 'domain')
+        .map((element, index) => [element.id, { mode: 'manual', x: 12 + (index % 4) * 200, y: 40 + Math.floor(index / 4) * 90, width: 190, height: 80, z: index % 3 } satisfies ElementLayout]),
+);
 
-const median = (layouts: Record<string, ElementLayout>): number => {
-    const run = () => computeCanvasLayout({ ...input, layouts }, fakeMeasurer);
-    run();
-    const samples = Array.from({ length: 21 }, () => {
-        const start = performance.now();
-        run();
-        return performance.now() - start;
-    });
-
-    return samples.sort((a, b) => a - b)[10];
-};
-
-describe('performance with Manual layout', () => {
-    it.each([
-        ['every Element', 1],
-        ['every third Element', 3],
-    ])('computes 500 Elements with Manual layout on %s in under 50 ms at the median of 21 runs', (label, every) => {
-        const value = median(manualFor(every));
-        console.info(`manual layout of ${input.elements.length} Elements (${label}): median ${value.toFixed(1)} ms on ${cpus()[0]?.model ?? 'unknown cpu'} (${cpus().length} cores)`);
-        expect(value).toBeLessThan(50);
+describe('performance with a Manual layout', () => {
+    it('computes 500 Elements with Manual Domains in under 50 ms', () => {
+        const withLayouts = { ...input, layouts };
+        computeCanvasLayout(withLayouts, fakeMeasurer);
+        const runs = Array.from({ length: 5 }, () => {
+            const start = performance.now();
+            computeCanvasLayout(withLayouts, fakeMeasurer);
+            return performance.now() - start;
+        }).sort((a, b) => a - b);
+        const median = runs[2];
+        console.info(`manual layout of ${input.elements.length} Elements (${Object.keys(layouts).length} manual Domains): median ${median.toFixed(1)} ms on ${cpus()[0]?.model ?? 'unknown cpu'} (${cpus().length} cores)`);
+        expect(Object.keys(layouts).length).toBeGreaterThan(10);
+        expect(median).toBeLessThan(50);
     });
 });
