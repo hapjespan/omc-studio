@@ -76,6 +76,6 @@ class UnknownAllocationDomainTest extends TestCase
         $this->assertSame('Leeg canvas', $blank->first()->name);
         $this->assertSame(CanvasKind::Template, $blank->first()->kind);
         $this->assertNull($blank->first()->organisation_id);
-        $this->assertSame(0, Element::count());
+        $this->assertSame(0, Element::where('canvas_id', $blank->first()->id)->count());
     }
 }

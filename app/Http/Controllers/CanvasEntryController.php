@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Enums\ElementKind;
 use App\Enums\StatementKind;
+use App\Http\Resources\AllocationPage;
 use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
+use App\Services\Allocation\ElementCosts;
+use App\Services\Finance\FigureService;
 use App\Services\Layout\LayoutSnapshot;
 use App\Services\Structure\ElementFields;
 use Illuminate\Http\RedirectResponse;
@@ -25,6 +28,7 @@ class CanvasEntryController extends Controller
             return redirect("/canvases/{$canvas->id}/view");
         }
 
+        $year = $request->attributes->get('fiscal_year');
         $counts = Element::where('canvas_id', $canvas->id)->whereNull('archived_at')->selectRaw('area_id, kind, count(*) as total')->groupBy('area_id', 'kind')->get()
             ->groupBy('area_id');
         $areas = Area::orderBy('position')->get()->map(fn (Area $area) => [
@@ -38,11 +42,28 @@ class CanvasEntryController extends Controller
             'areas' => $areas->values(),
             'elements' => $this->elements($canvas),
             'layouts' => $layouts->for($canvas),
+            'year' => $year,
+            'targets' => app(AllocationPage::class)->targets($canvas, null),
+            'costs' => (object) $this->costs($canvas, $year),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'statements' => $this->statements($canvas),
             'selected' => $areas->firstWhere('kind', 'activities')['key'] ?? $areas->first()['key'],
         ]);
+    }
+
+    /** @return array<string, array{years: list<int>, own: bool, cents?: int|null, records?: int}> */
+    private function costs(Canvas $canvas, ?int $year): array
+    {
+        $lines = app(ElementCosts::class)->for($canvas);
+        $figures = $lines === [] || $year === null ? null : app(FigureService::class)->figures($canvas, $year);
+
+        foreach ($lines as $id => &$line) {
+            $line['cents'] = $figures === null ? null : (int) ($figures->elements[$id]['total']['budget'] ?? 0);
+            $line['records'] = $figures === null ? 0 : count($figures->elements[$id]['contributions'] ?? []);
+        }
+
+        return $lines;
     }
 
     /** @return array{mission: ?string, vision: ?string, goals: list<array<string, mixed>>} */

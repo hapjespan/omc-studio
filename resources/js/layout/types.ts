@@ -21,6 +21,7 @@ export interface FontSpec {
     size: number;
     weight: number;
     italic: boolean;
+    tracking?: number;
 }
 
 export interface TextMeasurer {

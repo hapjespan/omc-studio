@@ -13,8 +13,10 @@ test('a Reader opens a Canvas, zooms, selects an Element and reads its fields', 
     await expect(page.locator('[data-artboard]')).toBeVisible();
     await expectNoAxeViolations(page);
 
-    await page.getByRole('button', { name: 'Uitzoomen' }).click();
-    await expect(page.locator('[data-zoom]')).toHaveText('90%');
+    await expect(page.locator('[data-zoom]')).not.toHaveText('100%');
+    const opening = Number((await page.locator('[data-zoom]').textContent())?.replace('%', ''));
+    await page.getByRole('button', { name: 'Inzoomen' }).click();
+    await expect(page.locator('[data-zoom]')).toHaveText(`${Math.floor(opening / 10) * 10 + 10}%`);
     await page.getByRole('button', { name: 'Passend maken' }).click();
     await expectNoAxeViolations(page);
 

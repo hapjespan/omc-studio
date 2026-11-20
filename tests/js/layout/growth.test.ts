@@ -1,3 +1,4 @@
+import { AMOUNT_ROOM } from '../../../resources/js/layout/flowDomains';
 import { describe, expect, it } from 'vitest';
 import { computeCanvasLayout } from '../../../resources/js/layout';
 import { fakeMeasurer } from './fakeMeasurer';
@@ -20,7 +21,7 @@ describe('Growth of Manual layout', () => {
         const canvas = run([domain('d', 'Een naam die over meerdere regels loopt in een smalle kaart')], { d: manual(10, 40, 100, 20) });
         const block = find(canvas, 'd');
         expect(block.drawnHeight).toBeGreaterThan(20);
-        expect(block.drawnHeight).toBe(12 + block.textLines.length * 20 + 12);
+        expect(block.drawnHeight).toBe(24 + block.textLines.length * 20 + AMOUNT_ROOM);
     });
 
     it('keeps a stored height that is already larger than the content', () => {

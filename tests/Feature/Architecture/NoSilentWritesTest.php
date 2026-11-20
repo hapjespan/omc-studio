@@ -16,7 +16,7 @@ class NoSilentWritesTest extends TestCase
 {
     private const WRITES = 'update|updateOrInsert|delete|forceDelete|increment|decrement|insert|insertOrIgnore|insertUsing|upsert|truncate';
 
-    private const ALLOWED = ['app/Models/Canvas.php::raiseStructureVersion', 'app/Services/Layout/LayoutRows.php::raise', 'app/Models/Canvas.php::raiseLayoutVersion'];
+    private const ALLOWED = ['app/Models/Canvas.php::raiseStructureVersion', 'app/Services/Layout/LayoutRows.php::raise', 'app/Models/Canvas.php::raiseLayoutVersion', 'app/Services/Audit/AuditTrail.php::recordMany', 'app/Services/Exchange/CostRecordBatch.php::flush'];
 
     public function test_no_source_file_writes_past_the_audit_observer(): void
     {
@@ -35,6 +35,7 @@ class NoSilentWritesTest extends TestCase
 
         $this->assertSame(['app/Planted.php::run update'], $this->violations($planted('Element::where("kind", "domain")->update(["name" => "Nieuw"])'), 'app/Planted.php'));
         $this->assertSame(['app/Planted.php::run delete'], $this->violations($planted('DB::table(\'elements\')->where(\'canvas_id\', $id)->delete()'), 'app/Planted.php'));
+        $this->assertSame(['app/Planted.php::run update'], $this->violations($planted('Snapshot::where("canvas_id", $id)->update(["name" => "Nieuw"])'), 'app/Planted.php'));
         $this->assertSame(['app/Planted.php::run delete'], $this->violations($planted('$element->children()->delete()'), 'app/Planted.php'));
         $this->assertSame([], $this->violations($planted('$element->delete()'), 'app/Planted.php'));
         $this->assertSame([], $this->violations($planted('UndoRecord::where(\'expires_at\', \'<\', now())->delete()'), 'app/Planted.php'));

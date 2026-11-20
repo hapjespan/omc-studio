@@ -1,6 +1,7 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
+import FileField from '../../../resources/js/components/fields/FileField.vue';
 import ErrorSummary from '../../../resources/js/components/fields/ErrorSummary.vue';
 import SelectField from '../../../resources/js/components/fields/SelectField.vue';
 import TextArea from '../../../resources/js/components/fields/TextArea.vue';
@@ -73,5 +74,24 @@ describe('ErrorSummary', () => {
 
         expect(html).not.toContain('href=');
         expect(html).toContain('Tweede factor staat al aan');
+    });
+});
+
+describe('FileField', () => {
+    it('ties label, hint and error to the file input', async () => {
+        const html = await render(FileField, { id: 'upload', label: 'Bestand', accept: '.csv', hint: 'Een CSV-bestand', error: 'Bestand: kies een CSV-bestand' });
+
+        expect(html).toContain('<label for="upload"');
+        expect(html).toContain('type="file"');
+        expect(html).toContain('accept=".csv"');
+        expect(html).toContain('aria-describedby="upload-hint upload-error"');
+        expect(html).toContain('aria-invalid="true"');
+    });
+
+    it('marks nothing invalid without an error or hint', async () => {
+        const html = await render(FileField, { id: 'upload', label: 'Bestand', accept: '.csv' });
+
+        expect(html).not.toContain('aria-invalid');
+        expect(html).not.toContain('aria-describedby');
     });
 });

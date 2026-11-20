@@ -127,8 +127,10 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     php-apache; 0036 Shift move in Tekenen;
     0037 session lifetime and termination; 0038 delivered stack at the root, dev
     container in .devcontainer; 0039 CSP image sources for PNG export;
-    0040 WP-E0 decision: go for Tekenen; 0042 memory limit for logo re-encoding;
-    0044 performance specs measure the 95th percentile alone
+    0040 WP-E0 decision: go for Tekenen; 0041 lines deleted before the Canvas cascade;
+    0042 memory limit for logo re-encoding; 0043 import timing binds the delivered engine;
+    0044 performance specs measure the 95th percentile alone;
+    0045 PNG export with html-to-image; 0046 referrer policy same-origin
 - `docs/architecture.md`: module and seam map (phase 4)
 - `specs/001-omc-studio-v1/plan.md`, `research.md`, `data-model.md`, `contracts/`,
   `quickstart.md`: the phase 4 plan, with the open questions for the product owner

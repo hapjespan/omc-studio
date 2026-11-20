@@ -6,6 +6,7 @@ use App\Models\AuditEntry;
 use App\Models\Canvas;
 use App\Models\Organisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AuditTrail
@@ -32,6 +33,25 @@ class AuditTrail
     public function kind(Model $subject): string
     {
         return Str::snake(class_basename($subject));
+    }
+
+    /** @param list<array{string, string, array<string, array{mixed, mixed}>}> $entries */
+    public function recordMany(string $subjectType, string $action, ?int $organisationId, array $entries, ?int $canvasId = null): void
+    {
+        $now = now();
+
+        DB::table('audit_entries')->insert(array_map(fn (array $entry) => [
+            'occurred_at' => $now,
+            'actor_type' => $this->context->actorType()->value,
+            'actor_id' => $this->context->actorId(),
+            'action' => $action,
+            'subject_type' => $subjectType,
+            'subject_id' => $entry[0],
+            'subject_label' => Str::limit($entry[1], 150, ''),
+            'organisation_id' => $organisationId,
+            'canvas_id' => $canvasId,
+            'changes' => json_encode($entry[2]),
+        ], $entries));
     }
 
     private function label(Model $subject): string

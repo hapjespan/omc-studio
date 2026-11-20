@@ -20,6 +20,8 @@ class StructureVersionRaisedTest extends TestCase
         'app/Services/Structure/ElementTree.php::update',
         'app/Services/Structure/ElementTree.php::carry',
         'app/Services/Structure/ElementDeletion.php::lift',
+        'app/Services/Allocation/CarryOver.php::copyFigures',
+        'app/Services/Allocation/CarryOver.php::copySet',
         'app/Services/Layout/DrawingMove.php::order',
     ];
 

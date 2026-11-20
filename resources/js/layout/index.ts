@@ -1,4 +1,4 @@
-import { areaChrome, AREA_HEADER, AREA_LETTER_SPACING, AREA_PADDING, arrangeAreas, areaWidth, ARTBOARD_HEIGHT, ARTBOARD_WIDTH } from './arrangeAreas';
+import { areaChrome, AREA_HEADER, AREA_PADDING, arrangeAreas, areaWidth, ARTBOARD_HEIGHT, ARTBOARD_WIDTH } from './arrangeAreas';
 import { DIRECTION_HEIGHT, layoutDirection } from './direction';
 import { flowDomains, type Flow, type FlowContext } from './flowDomains';
 import { adjustedWarnings } from './placement';
@@ -47,7 +47,7 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
             width: frame.width,
             drawnHeight: frame.height,
             z: stackOrder(0, rect(area.key)),
-            textLines: area.key === 'direction' ? [] : wrapText(area.label.toUpperCase(), frame.width - 2 * AREA_PADDING - area.label.length * AREA_LETTER_SPACING * style.font.size, style.font, measurer),
+            textLines: area.key === 'direction' ? [] : wrapText(area.label.toUpperCase(), frame.width - 2 * AREA_PADDING, style.font, measurer),
             modality: null,
             system: false,
             style,

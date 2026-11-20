@@ -1,6 +1,7 @@
 import type { FontSpec, TextMeasurer } from './types';
 
 export function wrapText(text: string, maxWidth: number, font: FontSpec, measurer: TextMeasurer): string[] {
+    const width = (value: string): number => measurer.width(value, font) + (font.tracking ?? 0) * font.size * value.length;
     const lines: string[] = [];
     let current = '';
     const flush = (): void => {
@@ -10,17 +11,17 @@ export function wrapText(text: string, maxWidth: number, font: FontSpec, measure
 
     for (const word of text.split(/\s+/).filter(Boolean)) {
         const candidate = current === '' ? word : `${current} ${word}`;
-        if (measurer.width(candidate, font) <= maxWidth) {
+        if (width(candidate) <= maxWidth) {
             current = candidate;
             continue;
         }
         flush();
-        if (measurer.width(word, font) <= maxWidth) {
+        if (width(word) <= maxWidth) {
             current = word;
             continue;
         }
         for (const char of word) {
-            if (current !== '' && measurer.width(current + char, font) > maxWidth) flush();
+            if (current !== '' && width(current + char) > maxWidth) flush();
             current += char;
         }
     }

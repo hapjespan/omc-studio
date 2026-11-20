@@ -31,8 +31,8 @@ The acceptance checklist is written for the product owner in Dutch, with the ste
 5. Bekijken: the eight Areas on the A3 Artboard, the Unknown allocation card last in Supporting activities, zoom and "Passend maken" (US16).
 6. As Reader: only Bekijken; a direct POST to any write route returns 403 (US5.7).
 7. Logboek shows the rename with old and new value (US7).
-8. Performance dataset: `php artisan app:dev-dataset --elements=500 --cost-records=1000` (a development-only command), then the end-to-end timing suite reports p95 under 1000 ms per screen (P-1).
-9. The end-to-end of the whole flow: `npx playwright test tests/e2e/d1` (Organisation, Canvas, Invoeren, Quick entry, Koers, Bekijken, with the network, CSP and axe guards; the CSP is checked before every full page load). It reloads the page once after the Canvas is created, in a function named `workaroundGapReferrerBack`, because `[GAP referrer back()]` is open: any form that answers with `back()` on a page reached through an in-app link (the Canvas card in Overzicht, the mode switch, the Beheer menu) returns to the last fully loaded page. Seen in Chromium: add a Domain or save the mission on an existing Canvas opened from its card, and the page ends on Overzicht; after a full reload it works. SC-003 reads "not passed without a reload" until the product owner decides (`Referrer-Policy: same-origin` or a return path per form).
+8. Performance dataset: `PerformanceDatasetFactory` (T279) generates 500 Elements and 1000 Cost records; `php artisan test --filter=CalculationPerformanceTest` proves the figures come within 1 second (P-1). The browser timing per screen follows with the end-to-end flow of delivery 2 (T316).
+9. The end-to-end of the whole flow: `npx playwright test tests/e2e/d1` (Organisation, Canvas, Invoeren, Quick entry, Koers, Bekijken, with the network, CSP and axe guards; the CSP is checked before every full page load). The earlier reload step for `[GAP referrer back()]` is gone since `Referrer-Policy: same-origin` (ADR 0046); `tests/e2e/entry/referrer.spec.ts` proves that saving on an existing Canvas opened from its Overzicht card keeps you on Invoeren.
 10. Refusals: `D1RefusalCoverageTest` fails when a refusal message of `lang/nl.json` has no server test; the list is [d1-refusals.md](d1-refusals.md).
 
 ## WP-E0 (after WP1)
@@ -50,11 +50,40 @@ Run the proof page, collect the report per point P1 to P9 with screenshot, test 
 
 ## Delivery 2
 
-1. Fiscal year 2026, Owners, a Cost record with Yearly figures, CSV import of 20 lines with a dry run (US17 to US19).
-2. Allocate € 230,00 at 33,33 / 33,33 / 33,34: € 76,66 / € 76,66 / € 76,68 (SC-011); 99,99% sent directly is refused (SC-012).
-3. Overlay "Financieel": the Canvas total equals the hand sum of all Budgets; Unknown allocation is its own card and line (SC-013, SC-014).
-4. Finalise with one Cost record unallocated is refused (SC-015, GATE-U1 pending); Redistribution leaves every set at 0% or 100% (SC-016).
-5. The property test of FR-095 passes with 1000 cases.
+Acceptance run: perform each step, write the result (pass or fail, date, initials) in the last column, and attach the failing output to a failure.
+
+| Step | Do | Expected | Result |
+|---|---|---|---|
+| 1 | Fiscal year 2026, Owners, a Cost record with Yearly figures, CSV import of 20 lines with a dry run (US17 to US19) | the dry run reports new, updated and unchanged lines; nothing is stored before "Importeren" | |
+| 2 | SC-009: delete a Cost record in an open year, then try it in a Finalised year | the Allocation sets go and the closing check passes; the Finalised year refuses | |
+| 3 | SC-010: delete an Owner and an Application that are in use | refused until "Vervangen door" is used | |
+| 4 | SC-011: allocate a Budget of € 230,00 at 33,33 / 33,33 / 33,34 | € 76,66 / € 76,66 / € 76,68, adding up to exactly € 230,00 | |
+| 5 | SC-012: send sets of 99,99% and 100,01% directly to the server | both refused, nothing stored | |
+| 6 | SC-013: overlay "Financieel" | each Domain shows its Total including Clusters and Activities; the Canvas total equals the hand sum of all Budgets of the year | |
+| 7 | SC-014: leave Cost records without a set | they appear in the Unknown allocation Domain of Supporting activities, as its own line in the side panel, and count in the Area and Canvas totals | |
+| 8 | SC-015: Finalise a year with one Cost record in Unknown allocation | refused (GATE-U1) | |
+| 9 | SC-016: delete an allocated Activity | Redistribution opens; afterwards every affected Cost record is at 0% or 100% | |
+| 10 | SC-020: `php artisan test --filter=CalculationPerformanceTest` (dataset from `PerformanceDatasetFactory`, T279) | figures for 500 Elements and 1000 Cost records within 1 second (P-1); the browser p95 per screen is added when the end-to-end flow T316 exists | |
+| 11 | SC-023: `php artisan test --filter=Property` (FR-095), 1000 cases | passes on every run; no open defect of the kind "figures do not close" or "rule can be bypassed" | |
+| 12 | SC-024: acceptance session, steps below | done within 30 minutes without help | |
+
+### SC-024 acceptance session
+
+Done by the product owner alone; the observer only keeps time and does not answer questions.
+
+1. Start with a clean Organisation, the Template "Leeg canvas" and 10 prepared Cost records with Yearly figures for fiscal year 2026.
+2. Start the timer when the product owner opens "Nieuw canvas".
+3. The product owner builds a Canvas with at least one Domain in each of the four activity Areas, then allocates all ten Cost records.
+4. Stop the timer when the tenth Cost record has a stored set. Record the elapsed time, every moment the product owner stopped or asked for help, and the overlay totals against the hand sum.
+5. Result: pass when the elapsed time is at most 30 minutes and no help was given; otherwise record the obstacles for the next iteration.
+
+### K-6 performance run on the reference machine
+
+CI runners are not the reference machine (K-6), so the product owner repeats the timing on the reference machine of constraint O-10 (4 cores, 8 GB memory), in the development container (the performance test is not part of the delivered stack).
+
+1. Start the development container and close other programs.
+2. Run `php artisan test --filter=CalculationPerformanceTest` once.
+3. Write down the machine (`uname -sm`, `nproc`) and whether the test passed in the Result column of step 10. The test does not print the machine on success; on failure its message does.
 
 ## Delivery 3
 

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import AppButton from '../components/ui/AppButton.vue';
+import Pill from '../components/ui/Pill.vue';
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import ImportCanvas from './Overview/ImportCanvas.vue';
 import CanvasDialogs from './Overview/CanvasDialogs.vue';
 import TemplateDialogs from './Overview/TemplateDialogs.vue';
 import Templates from './Overview/Templates.vue';
@@ -19,6 +21,7 @@ import { routes } from '../routes';
 interface OverviewOrganisation {
     id: number;
     name: string;
+    is_sample?: boolean;
     canvases: CardCanvas[];
 }
 
@@ -64,8 +67,10 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
         <ArchiveToggle :model-value="showArchived" @update:model-value="toggle" />
         <AppButton v-if="canWrite" variant="primary" icon="plus" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</AppButton>
     </div>
+    <ImportCanvas v-if="canWrite" :organisations="organisationOptions()" />
     <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-4 rounded-panel border border-hairline bg-surface p-4">
-        <h2 :id="`organisation-${organisation.id}`" class="font-display text-base font-semibold">{{ organisation.name }}</h2>
+        <h2 :id="`organisation-${organisation.id}`" class="font-display text-base font-semibold">{{ organisation.name }} <Pill v-if="organisation.is_sample">{{ t('sample.label') }}</Pill></h2>
+        <Link v-if="canWrite" :href="routes.costRecords(organisation.id)" class="mt-1 inline-block text-[13px] underline">{{ t('overview.cost_records') }}</Link>
         <p v-if="organisation.canvases.length === 0" class="mt-2 text-[13px] text-secondary">{{ t('overview.empty_organisation') }}</p>
         <ul v-else class="mt-3 flex flex-wrap gap-4">
             <li v-for="canvas in organisation.canvases" :key="canvas.id" class="max-w-full">
