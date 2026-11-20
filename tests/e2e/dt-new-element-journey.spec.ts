@@ -7,6 +7,7 @@ import { seedMoveCanvas } from './support/drawing';
 const AREA = { x: 780, y: 400 };
 const DOMAIN = { x: 20, y: 40 };
 const NAME = 'Nieuwe activiteit';
+const DOMAIN_NAME = 'Nieuw domein';
 
 interface Rectangle {
     x: number;
@@ -57,5 +58,36 @@ test('SC-026: an Activity added in Invoeren under a Manual Domain is placed by T
     const scale = artboard.width / ARTBOARD_WIDTH;
     expect(Math.abs((box.x - artboard.x) / scale - (AREA.x + DOMAIN.x + added.x))).toBeLessThanOrEqual(1);
     expect(Math.abs((box.y - artboard.y) / scale - (AREA.y + DOMAIN.y + added.y))).toBeLessThanOrEqual(1);
+    expect(Math.abs(box.width / scale - added.width)).toBeLessThanOrEqual(1);
+});
+
+test('SC-026: a Domain added in Invoeren next to Manual Domains is placed by Tekenen under the lowest of them without handwork and Bekijken draws it at the same place', async ({ page }) => {
+    const canvas = seedMoveCanvas();
+    await openEntry(page, canvas.id);
+    await page.getByRole('button', { name: 'Domein', exact: true }).click();
+    const field = page.getByLabel('+ Domein');
+    await field.fill(DOMAIN_NAME);
+    await field.press('Enter');
+    await expect(page.getByRole('list', { name: 'Structuur van Primaire activiteiten' }).getByText(DOMAIN_NAME).first()).toBeVisible();
+
+    await page.getByRole('group', { name: 'Modus' }).getByRole('link', { name: 'Tekenen' }).click();
+    await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+    const row = page.getByRole('navigation', { name: 'Lagen' }).getByRole('button', { name: DOMAIN_NAME, exact: true });
+    await expect(row.locator('xpath=..').getByText('nieuw', { exact: true })).toBeVisible();
+
+    const manual = [await rectangleOf(page, 'Onderwijs'), await rectangleOf(page, 'Verkoop'), await rectangleOf(page, 'Smal')];
+    const added = await rectangleOf(page, DOMAIN_NAME);
+    expect(added.width).toBeGreaterThan(0);
+    expect(added.height).toBeGreaterThan(0);
+    expect(added.y, 'placed under the lowest Manual Domain').toBeGreaterThanOrEqual(Math.max(...manual.map((other) => other.y + other.height)));
+    for (const other of manual) expect(overlaps(added, other)).toBe(false);
+
+    await page.goto(`/canvases/${canvas.id}/view`);
+    const artboard = (await page.locator('[data-artboard]').boundingBox())!;
+    const block = page.locator('[data-block]', { has: page.getByText(DOMAIN_NAME, { exact: true }) }).first();
+    const box = (await block.boundingBox())!;
+    const scale = artboard.width / ARTBOARD_WIDTH;
+    expect(Math.abs((box.x - artboard.x) / scale - (AREA.x + added.x))).toBeLessThanOrEqual(1);
+    expect(Math.abs((box.y - artboard.y) / scale - (AREA.y + added.y))).toBeLessThanOrEqual(1);
     expect(Math.abs(box.width / scale - added.width)).toBeLessThanOrEqual(1);
 });
