@@ -162,6 +162,7 @@ class FullImportValidator
         $sound = $this->text($snapshot['remark'] ?? null, $at.'.remark', self::TEXT) && $sound;
         $sound = $this->flag(in_array($snapshot['fiscal_year'] ?? null, $years, true), $at.'.fiscal_year', 'jsonx.year_unknown') && $sound;
         $sound = $this->flag(in_array($snapshot['schema_version'] ?? null, SnapshotContent::SUPPORTED_VERSIONS, true), $at.'.schema_version', 'jsonx.unknown_value') && $sound;
+        $sound = $this->flag(! is_array($content) || $content === [] || ($content['schema_version'] ?? null) === ($snapshot['schema_version'] ?? null), $at.'.content.schema_version', 'jsonx.unknown_value') && $sound;
         $sound = $this->flag(is_string($checksum) && strlen($checksum) === self::CHECKSUM, $at.'.checksum', 'jsonx.unknown_value') && $sound;
         $sound = $this->flag(is_array($content) && $content !== [], $at.'.content', 'jsonx.not_object') && $sound;
         $sound = $this->moment($snapshot['created_at'] ?? null, $at.'.created_at', true) && $sound;

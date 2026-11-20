@@ -118,4 +118,19 @@ class FullLayoutRoundTripTest extends CanvasExchangeTestCase
         $this->assertSame(2, $read['schema_version']);
         $this->assertSame([], $read['layout']);
     }
+
+    public function test_a_snapshot_whose_content_names_another_schema_than_its_row_is_refused_at_its_place(): void
+    {
+        $this->richCanvas();
+        $this->actingAs(User::factory()->administrator()->create());
+        app(Snapshots::class)->take($this->canvas, $this->fiscalYear(2026), 'Versie');
+
+        $full = json_decode((string) $this->get('/admin/export/full')->assertOk()->getContent(), true);
+        $full['organisations'][0]['canvases'][0]['snapshots'][0]['content']['schema_version'] = 3;
+        $this->wipe();
+
+        $response = $this->post('/admin/import/full/preview', ['file' => UploadedFile::fake()->createWithContent('full.json', (string) json_encode($full))], ['Accept' => 'application/json']);
+
+        $this->assertContains('organisations[0].canvases[0].snapshots[0].content.schema_version', array_column($response->assertOk()->json('errors'), 'location'));
+    }
 }

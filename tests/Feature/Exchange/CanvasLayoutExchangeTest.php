@@ -139,4 +139,33 @@ class CanvasLayoutExchangeTest extends CanvasExchangeTestCase
         $this->assertSame(422, $this->import($broken, 'Kapot')['status']);
         $this->assertSame($before, Canvas::count());
     }
+
+    public function test_an_unknown_element_in_the_layout_is_reported_at_its_own_place(): void
+    {
+        $this->arrange();
+        $file = $this->exported();
+        $file['canvas']['layout']['elements']['ghost'] = ['mode' => 'automatic'];
+
+        $this->assertContains('canvas.layout.elements.ghost', $this->locations($file));
+    }
+
+    public function test_a_broken_parent_is_reported_without_crashing_the_layout_check(): void
+    {
+        $this->arrange();
+        $file = $this->exported();
+        $index = array_search('Offreren', array_column($file['canvas']['elements'], 'name'), true);
+
+        $dangling = $file;
+        $dangling['canvas']['elements'][$index]['parent_id'] = 'nope';
+        $this->assertContains("canvas.elements[$index].parent_id", $this->locations($dangling));
+
+        $self = $file;
+        $self['canvas']['elements'][$index]['parent_id'] = $self['canvas']['elements'][$index]['id'];
+        $this->assertNotSame([], $this->locations($self));
+
+        $archivedParent = $file;
+        $parent = array_search($file['canvas']['elements'][$index]['parent_id'], array_column($file['canvas']['elements'], 'id'), true);
+        $archivedParent['canvas']['elements'][$parent]['archived_at'] = '2026-01-01T00:00:00+00:00';
+        $this->assertNotSame([], $this->locations($archivedParent));
+    }
 }

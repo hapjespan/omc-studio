@@ -277,12 +277,14 @@ class CanvasImportValidator
         $this->text($canvas, 'name', 'canvas.name', self::NAME, true, true);
         $this->statements($canvas['statements'] ?? null);
 
+        $before = $this->count;
         $elements = $this->elements($canvas['elements'] ?? null);
 
         $this->structure($elements);
+        $sound = $this->count === $before;
         $this->unknownAllocation($elements, $this->sets($canvas['allocation_sets'] ?? null, $elements));
         $this->finalisedYears($canvas['finalised_years'] ?? null);
-        $this->layout($canvas['layout'] ?? null, $elements);
+        $sound && $this->layout($canvas['layout'] ?? null, $elements);
     }
 
     private function statements(mixed $node): void

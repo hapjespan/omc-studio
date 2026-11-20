@@ -79,7 +79,7 @@ class LayoutValidator
 
         foreach (array_keys($entries) as $id) {
             if (! isset($this->byId[(string) $id])) {
-                $refused[] = $this->refusal('unknown_element', null, ['id' => (string) $id]);
+                $refused[] = $this->refusal('unknown_element', (string) $id, ['id' => (string) $id]);
             }
         }
 

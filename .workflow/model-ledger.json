@@ -1356,13 +1356,16 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T359": {
-    "built_by": "claude-opus-5"
+    "built_by": "claude-opus-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T360": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T361": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T371": {
     "built_by": "claude-opus-5",
