@@ -58,7 +58,7 @@ export function computeCanvasLayout(input: CanvasLayoutInput, measurer: TextMeas
 
     const direction = layoutDirection(input.statements, input.directionLabels, measurer);
     const cut: LayoutWarning[] = direction.filter((column) => column.truncated).map((column) => ({ kind: 'directionTextCut', column: column.key }));
-    const { warnings, beyondArtboardCount } = computeWarnings(domainsByArea, blocks);
+    const { warnings, beyondArtboardCount } = computeWarnings(domainsByArea, blocks, new Map([...input.areas.map((area): [string, string] => [area.key, area.label]), ...input.elements.map((element): [string, string] => [element.id, element.name])]));
 
     return { blocks, direction, warnings: [...cut, ...warnings], beyondArtboardCount };
 }

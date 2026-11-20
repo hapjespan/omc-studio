@@ -1,6 +1,6 @@
 import { buildDomains, type TreeNode } from '../../layout/tree';
 import { computeCanvasLayout } from '../../layout';
-import type { AreaKey, AreaKind, ElementKind, LayoutElement, LayoutWarning, TextMeasurer } from '../../layout/types';
+import type { AreaKey, AreaKind, ElementKind, ElementLayout, LayoutElement, LayoutWarning, TextMeasurer } from '../../layout/types';
 
 export interface EntryElement extends LayoutElement {
     description: string | null;
@@ -94,17 +94,21 @@ export interface EntryWarning {
     id: string;
     key: string;
     name: string;
+    other?: string;
 }
 
 type ElementWarning = Exclude<LayoutWarning, { kind: 'directionTextCut' }>;
 
-export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], area: AreaKey, measurer: TextMeasurer): EntryWarning[] {
+export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], area: AreaKey, measurer: TextMeasurer, layouts: Record<string, ElementLayout> = {}): EntryWarning[] {
     const layoutAreas = areas.map(({ key, kind, label }, index) => ({ key, kind: kind as AreaKind, label, position: index + 1 }));
-    const { warnings } = computeCanvasLayout({ areas: layoutAreas, elements: elements.filter(({ archived }) => !archived), statements: [], directionLabels: { mission: '', vision: '', goals: '' } }, measurer);
+    const { warnings } = computeCanvasLayout({ areas: layoutAreas, elements: elements.filter(({ archived }) => !archived), statements: [], directionLabels: { mission: '', vision: '', goals: '' }, layouts }, measurer);
     const list = areas.find(({ key }) => key === area)?.kind === 'list';
-    const keys = { emptyCluster: 'entry.warning.empty_cluster', domainWithoutActivities: list ? 'entry.warning.group_without_items' : 'entry.warning.domain_without_activities', beyondArtboard: 'entry.warning.beyond_artboard' };
+    const keys = { emptyCluster: 'entry.warning.empty_cluster', domainWithoutActivities: list ? 'entry.warning.group_without_items' : 'entry.warning.domain_without_activities', beyondArtboard: 'entry.warning.beyond_artboard', overlap: 'layout.warning.overlap' };
+    const known = new Set(elements.map(({ id }) => id));
 
-    return warnings.filter((warning): warning is ElementWarning => warning.kind !== 'directionTextCut' && warning.area === area).map((warning) => ({ id: warning.id, key: keys[warning.kind], name: warning.name }));
+    return warnings
+        .filter((warning): warning is ElementWarning => warning.kind !== 'directionTextCut' && warning.area === area && known.has(warning.id))
+        .map((warning) => ({ id: warning.id, key: keys[warning.kind], name: warning.name, ...(warning.kind === 'overlap' ? { other: warning.other } : {}) }));
 }
 
 export function filterByName(elements: EntryElement[], text: string): EntryElement[] {

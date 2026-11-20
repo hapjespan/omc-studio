@@ -518,5 +518,6 @@
     "list.kind_new": ":kind toevoegen",
     "list.kind_edit": ":kind bewerken",
     "users.kind": "Gebruiker",
-    "organisations.kind": "Organisatie"
+    "organisations.kind": "Organisatie",
+    "layout.warning.overlap": "Overlapt: :name en :other"
 }

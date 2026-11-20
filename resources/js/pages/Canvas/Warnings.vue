@@ -7,7 +7,7 @@ defineProps<{ warnings: EntryWarning[] }>();
 defineEmits<{ select: [id: string, opener: HTMLElement | null] }>();
 
 const parts = (warning: EntryWarning): [string, string] => {
-    const text = t(warning.key, { name: warning.name });
+    const text = t(warning.key, { name: warning.name, other: warning.other ?? '' });
     const cut = text.indexOf(': ');
 
     return cut < 0 ? ['', text] : [text.slice(0, cut + 1), text.slice(cut + 2)];
