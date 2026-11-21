@@ -47,10 +47,13 @@ class LayoutStore
         });
     }
 
-    public function reset(Canvas $canvas, string $scope, ?string $elementId): int
+    /** @param array<string, mixed> $versions */
+    public function reset(Canvas $canvas, string $scope, ?string $elementId, array $versions): int
     {
-        return $this->writes->run([$canvas], function () use ($canvas, $scope, $elementId): int {
+        return $this->writes->run([$canvas], function () use ($canvas, $scope, $elementId, $versions): int {
             $this->assertWritable($canvas);
+
+            $this->versions->assertCurrent($canvas, $versions);
 
             $before = $this->audit->current($canvas);
 

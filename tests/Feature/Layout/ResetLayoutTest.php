@@ -101,7 +101,20 @@ class ResetLayoutTest extends StructureTestCase
     {
         $template = Canvas::factory()->template()->create();
 
-        $this->actingAs($this->administrator)->postJson('/canvases/'.$template->id.'/layout/reset', ['scope' => 'canvas'])->assertUnprocessable()->assertJsonValidationErrors('rule');
+        $this->actingAs($this->administrator)->postJson('/canvases/'.$template->id.'/layout/reset', ['scope' => 'canvas', 'structure_version' => 0, 'layout_version' => 0])->assertUnprocessable()->assertJsonValidationErrors('rule');
+    }
+
+    public function test_a_stale_layout_version_gets_the_conflict_and_nothing_is_removed(): void
+    {
+        $this->reset(['scope' => 'canvas', 'layout_version' => 99])->assertStatus(409)->assertJsonPath('conflict', 'layout_changed');
+        $this->reset(['scope' => 'canvas', 'structure_version' => 99])->assertStatus(409)->assertJsonPath('conflict', 'structure_changed');
+
+        $this->assertSame(5, Layout::query()->count());
+    }
+
+    public function test_a_reset_without_versions_is_invalid(): void
+    {
+        $this->actingAs($this->administrator)->postJson($this->url(), ['scope' => 'canvas'])->assertUnprocessable()->assertJsonValidationErrors(['structure_version', 'layout_version']);
     }
 
     public function test_an_element_id_that_is_not_a_uuid_is_invalid(): void
@@ -123,7 +136,15 @@ class ResetLayoutTest extends StructureTestCase
      */
     private function reset(array $body): TestResponse
     {
-        return $this->actingAs($this->administrator)->postJson($this->url(), $body);
+        return $this->actingAs($this->administrator)->postJson($this->url(), $body + $this->versions());
+    }
+
+    /** @return array{structure_version: int, layout_version: int} */
+    private function versions(): array
+    {
+        $canvas = Canvas::query()->findOrFail($this->canvas->id);
+
+        return ['structure_version' => (int) $canvas->structure_version, 'layout_version' => (int) $canvas->layout_version];
     }
 
     private function url(): string
