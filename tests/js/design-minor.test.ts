@@ -133,3 +133,10 @@ describe('the form controls', () => {
         expect(read('resources/js/canvas/ExportMenu.vue')).toContain('<CheckBox');
     });
 });
+
+describe('the discard confirmation', () => {
+    it.each(['resources/js/shell/DetailPanel.vue', 'resources/js/components/overlays/Dialog.vue', 'resources/js/components/list/ListDock.vue'])('is the DiscardConfirm component in %s', (path) => {
+        expect(read(path)).toContain('<DiscardConfirm');
+        expect(read(path)).not.toContain('role="alertdialog"');
+    });
+});
