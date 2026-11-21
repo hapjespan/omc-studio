@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" gd pdo_sqlite zip \
-    && a2enmod rewrite \
+    && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
@@ -24,7 +24,8 @@ COPY --from=assets /build/public/build public/build
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && composer dump-autoload --optimize --no-dev
-RUN printf 'zend.exception_ignore_args=On\nmemory_limit=256M\nupload_max_filesize=51M\npost_max_size=56M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && printf 'variables_order=EGPCS\nexpose_php=Off\nzend.exception_ignore_args=On\nmemory_limit=256M\nupload_max_filesize=51M\npost_max_size=56M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
 ENV APP_ENV=production APP_DEBUG=false
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

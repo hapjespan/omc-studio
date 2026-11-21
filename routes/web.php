@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/account/password', [AccountController::class, 'update']);
 });
 
-Route::middleware('can:administer')->scopeBindings()->group(function () {
+Route::middleware(['auth', 'can:administer'])->scopeBindings()->group(function () {
     Route::post('/undo/{token}', UndoController::class)->name('undo');
 });
 

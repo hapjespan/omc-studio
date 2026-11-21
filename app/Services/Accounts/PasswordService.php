@@ -92,6 +92,7 @@ class PasswordService
         }
 
         $throttle->clear($identifier);
+        $session->regenerate(true);
         $session->put('signed_in_at', Carbon::now()->getTimestamp());
         SecurityLog::record('session_reauthenticated');
     }

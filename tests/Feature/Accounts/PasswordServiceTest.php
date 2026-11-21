@@ -88,8 +88,10 @@ class PasswordServiceTest extends TestCase
         $this->assertArrayHasKey('password', $this->refusal(fn () => $this->service()->confirm($this->user, 'wrong', null, $this->store()))->errors());
         $this->assertNull($this->store()->get('signed_in_at'));
 
+        $before = $this->store()->getId();
         $this->service()->confirm($this->user, 'Old-password-1234', null, $this->store());
 
         $this->assertNotNull($this->store()->get('signed_in_at'));
+        $this->assertNotSame($before, $this->store()->getId());
     }
 }
