@@ -14,3 +14,5 @@ The drawing surface of Tekenen is a CanvasKit canvas that needs a WebGL context,
 ## Consequences
 
 `tests/e2e/support/display.ts` holds the helper and `playwright.config.ts` calls it first. A second run reuses a display that is already there (the socket check). A machine without Xvfb behaves as before.
+
+The CI job runs Firefox with one worker. The drawing surface renders through software WebGL, and on a four-core runner two Firefox workers starve each other: clicks on the Tekenen layer list and the PNG download in the delivery 3 journey stalled until their timeouts, while the same specs pass on one worker even when limited to two cores.
