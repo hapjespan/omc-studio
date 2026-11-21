@@ -56,11 +56,11 @@ root and trims the context from there. Every other relative path in
   `python3` for the workflow scripts in `.workflow/` are installed explicitly.
 - `uv` and the Spec Kit CLI are baked in. Spec Kit is pinned through
   `SPECIFY_VERSION`, because an unpinned install makes every rebuild a silent
-  upgrade; upgrading is a deliberate bump plus a rebuild. Claude Code is not
+  upgrade; upgrading is a deliberate bump plus a rebuild. The agent CLI is not
   pinned, it updates itself.
 - Playwright browsers install at `PLAYWRIGHT_VERSION`, which follows the version
   `package-lock.json` pins; a bump there is a bump here plus a rebuild.
-- The Claude config directory is mounted writable because Claude Code writes
+- The agent configuration directory is mounted writable because the agent writes
   sessions and history there; it carries `.credentials.json`.
 - The host `gh` config is mounted read-only; the entrypoint copies the token into
   a container-local config directory because `gh` rewrites its config on first run.

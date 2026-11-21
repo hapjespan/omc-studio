@@ -38,7 +38,7 @@ export function formatShare(part: number, total: number): string {
     if (total === 0) return '-';
     const abs = basisPointsOf(Math.abs(part), Math.abs(total)) as number;
     const text = `${Math.floor(abs / 100)},${pad(abs % 100)}`;
-    return signed(Math.sign(part) * Math.sign(total), `${text.replace(/0+$/, '').replace(/,$/, '')}%`);
+    return signed(abs > 0 ? Math.sign(part) * Math.sign(total) : 0, `${text.replace(/0+$/, '').replace(/,$/, '')}%`);
 }
 
 export function formatFte(hundredths: number): string {
