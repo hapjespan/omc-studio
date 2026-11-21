@@ -35,3 +35,17 @@ test('the select-all checkbox is disabled until the rest of the rows has arrived
     await expect(page.locator('tbody tr')).toHaveCount(TOTAL, { timeout: 20000 });
     await expect(all).toBeEnabled();
 });
+
+test('a page opened without a year makes no repeated visits while the rest of the rows loads', async ({ page }) => {
+    const organisation = seedOrganisation(`Zonder ${randomUUID().slice(0, 8)}`, []);
+    await signInAs(page, 'administrator');
+    const visits: string[] = [];
+    page.on('request', (request) => {
+        if (request.headers()['x-inertia']) visits.push(request.url());
+    });
+    await page.goto(`/organisations/${organisation}/cost-records`);
+    await expect(page.getByRole('button', { name: 'Boekjaren' })).toBeVisible();
+    await page.waitForTimeout(2000);
+
+    expect(visits.length).toBeLessThanOrEqual(1);
+});

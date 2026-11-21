@@ -50,7 +50,7 @@ const dock = ref<HTMLElement | null>(null);
 let skipGuard = false;
 const removeGuard = router.on('before', (event) => {
     const visit = event.detail.visit;
-    if (skipGuard || visit.method !== 'get' || visit.url.pathname !== window.location.pathname || visit.url.searchParams.get('year') === String(props.year)) return;
+    if (skipGuard || visit.only.length > 0 || visit.method !== 'get' || visit.url.pathname !== window.location.pathname || visit.url.searchParams.get('year') === String(props.year)) return;
     const target = `${visit.url.pathname}${visit.url.search}`;
     list.value?.guard(
         () => {
