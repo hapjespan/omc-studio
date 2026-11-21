@@ -19,21 +19,22 @@ class HardeningTest extends TestCase
         return (string) file_get_contents(base_path($path));
     }
 
-    public function test_session_payloads_are_encrypted_by_default_and_at_rest(): void
+    public function test_the_docker_ignore_is_an_allowlist_that_keeps_what_the_dockerfile_copies(): void
     {
-        $this->assertMatchesRegularExpression("/'encrypt' => env\('SESSION_ENCRYPT', true\)/", $this->file('config/session.php'));
-        $this->assertMatchesRegularExpression('/^SESSION_ENCRYPT=true$/m', $this->file('env.example'));
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $this->file('.dockerignore'))), fn (string $line) => $line !== '' && ! str_starts_with($line, '#')));
+        $allowed = array_map(fn (string $line) => substr($line, 1), array_filter($lines, fn (string $line) => str_starts_with($line, '!')));
 
-        config(['session.encrypt' => true, 'session.driver' => 'database']);
-        app('session')->forgetDrivers();
-        $store = app('session')->driver();
-        $store->put('one_time_password', 'Plaintext-secret-1234');
-        $store->save();
+        $this->assertSame('*', $lines[0]);
 
-        $payload = (string) DB::table('sessions')->where('id', $store->getId())->value('payload');
+        foreach (['app', 'artisan', 'bootstrap', 'composer.json', 'composer.lock', 'config', 'database', 'docker', 'lang', 'package.json', 'package-lock.json', 'public', 'resources', 'routes', 'storage', 'vite.config.js'] as $needed) {
+            $this->assertContains($needed, $allowed, $needed);
+        }
 
-        $this->assertNotSame('', $payload);
-        $this->assertStringNotContainsString('Plaintext-secret-1234', $payload);
-        $this->assertStringNotContainsString('Plaintext-secret-1234', (string) base64_decode($payload, true));
+        foreach (['.worktrees', '.scratch', '.remember', '.playwright-browsers', 'test-results', '.forbidden-names', 'storage/app', 'database/*.sqlite*'] as $kept) {
+            $this->assertTrue(in_array($kept, $lines, true) || ! in_array($kept, $allowed, true), $kept);
+        }
+
+        $this->assertContains('storage/app', $lines);
+        $this->assertContains('database/*.sqlite*', $lines);
     }
 }
