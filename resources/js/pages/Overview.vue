@@ -68,6 +68,7 @@ const toggle = (archived: boolean): void => router.get(routes.overview(), archiv
         <AppButton v-if="canWrite" variant="primary" icon="plus" @click="openDialog('create', null, null)">{{ t('overview.new_canvas') }}</AppButton>
     </div>
     <ImportCanvas v-if="canWrite" :organisations="organisationOptions()" />
+    <p v-if="organisations.length === 0" role="status" class="mt-4 text-[13px] text-secondary">{{ t('overview.empty') }}</p>
     <section role="region" v-for="organisation in organisations" :key="organisation.id" :aria-labelledby="`organisation-${organisation.id}`" class="mt-4 rounded-panel border border-hairline bg-surface p-4">
         <h2 :id="`organisation-${organisation.id}`" class="font-display text-base font-semibold">{{ organisation.name }} <Pill v-if="organisation.is_sample">{{ t('sample.label') }}</Pill></h2>
         <Link v-if="canWrite" :href="routes.costRecords(organisation.id)" class="mt-1 inline-block text-[13px] underline">{{ t('overview.cost_records') }}</Link>
