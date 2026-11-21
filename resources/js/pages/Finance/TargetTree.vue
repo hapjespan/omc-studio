@@ -32,7 +32,7 @@ const groups = computed(() => {
         </div>
         <p v-if="!figuresAvailable" role="status" class="mt-1 text-[12.5px] text-warning">{{ t('allocation_page.total_hidden') }}</p>
         <div class="mt-2.5"><SearchField id="allocation-targets-search" v-model="search" :label="t('allocation_page.targets_search')" :placeholder="t('allocation_page.targets_placeholder')" /></div>
-        <div role="tree" :aria-label="t('allocation_page.targets')" class="mt-1">
+        <div class="mt-1">
             <div v-for="group in groups" :key="group.key" role="group" :aria-labelledby="`allocation-area-${group.key}`">
                 <div class="flex items-baseline justify-between px-2.5 pb-1.5 pt-3.5 text-[10.5px] font-semibold uppercase tracking-wider text-secondary">
                     <span :id="`allocation-area-${group.key}`">{{ group.key ? t(`areas.${group.key}.name`) : '' }}</span>

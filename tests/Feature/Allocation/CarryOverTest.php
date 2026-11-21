@@ -125,7 +125,7 @@ class CarryOverTest extends AllocationTestCase
         $this->assertSame([['name' => 'Licentie', 'reason' => 'doeljaar niet leeg']], $result['skipped']);
     }
 
-    public function test_an_archived_cost_record_gets_its_set_but_no_yearly_figures(): void
+    public function test_an_archived_cost_record_is_skipped_once_and_nothing_of_it_is_copied(): void
     {
         $target = $this->target('Doel');
         $record = $this->costRecord('Licentie', 2026);
@@ -134,10 +134,57 @@ class CarryOverTest extends AllocationTestCase
 
         $result = $this->carry(true);
 
-        $this->assertNotNull($this->targetSet($record));
+        $this->assertNull($this->targetSet($record));
         $this->assertSame(0, YearlyFigure::where('cost_record_id', $record->id)->where('fiscal_year_id', $this->fiscalYear(2027)->id)->count());
-        $this->assertSame([['name' => 'Licentie', 'set' => true, 'figures' => 0]], $result['copied']);
+        $this->assertSame([], $result['copied']);
         $this->assertSame([['name' => 'Licentie', 'reason' => 'gearchiveerd']], $result['skipped']);
+        $this->assertSame([], $result['manual']);
+    }
+
+    public function test_an_archived_cost_record_is_skipped_without_the_option_too(): void
+    {
+        $target = $this->target('Doel');
+        $record = $this->costRecord('Licentie', 2026);
+        $this->figure($record, 2027);
+        $this->allocate($record, 2026, [$target->id => 10000]);
+        $record->update(['archived_at' => now()]);
+
+        $result = $this->carry(false);
+
+        $this->assertNull($this->targetSet($record));
+        $this->assertSame([], $result['copied']);
+        $this->assertSame([['name' => 'Licentie', 'reason' => 'gearchiveerd']], $result['skipped']);
+    }
+
+    public function test_an_archived_cost_record_with_only_yearly_figures_is_skipped_and_its_figures_stay_uncopied(): void
+    {
+        $record = $this->costRecord('Licentie', 2026);
+        $record->update(['archived_at' => now()]);
+
+        $result = $this->carry(true);
+
+        $this->assertSame(0, YearlyFigure::where('cost_record_id', $record->id)->where('fiscal_year_id', $this->fiscalYear(2027)->id)->count());
+        $this->assertSame([], $result['copied']);
+        $this->assertSame([['name' => 'Licentie', 'reason' => 'gearchiveerd']], $result['skipped']);
+    }
+
+    public function test_every_cost_record_is_counted_once_when_an_archived_one_runs_next_to_a_live_one(): void
+    {
+        $target = $this->target('Doel');
+        $live = $this->costRecord('Actief', 2026, 80_000);
+        $archived = $this->costRecord('Oud', 2026, 90_000);
+        $this->allocate($live, 2026, [$target->id => 10000]);
+        $this->allocate($archived, 2026, [$target->id => 10000]);
+        $archived->update(['archived_at' => now()]);
+
+        $result = $this->carry(true);
+
+        $this->assertNotNull($this->targetSet($live));
+        $this->assertNull($this->targetSet($archived));
+        $this->assertSame([['name' => 'Actief', 'set' => true, 'figures' => 1]], $result['copied']);
+        $this->assertSame([['name' => 'Oud', 'reason' => 'gearchiveerd']], $result['skipped']);
+        $names = array_merge(array_column($result['copied'], 'name'), array_column($result['skipped'], 'name'), array_column($result['manual'], 'name'));
+        $this->assertSame(array_unique($names), $names);
     }
 
     public function test_a_line_on_an_element_that_is_no_longer_a_target_copies_nothing(): void

@@ -30,7 +30,7 @@ class PasswordService
             SecurityLog::record('password_change_throttled');
 
             throw ValidationException::withMessages([
-                'current_password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+                'current_password' => $throttle->message($identifier),
             ]);
         }
 
@@ -67,7 +67,8 @@ class PasswordService
         ])->save();
 
         $session->regenerate(true);
-        SecurityLog::record('password_changed');
+        $ended = $this->terminator->endOthers($user, $session->getId());
+        SecurityLog::record('password_changed', ['sessions_ended' => $ended]);
     }
 
     public function confirm(User $user, string $password, ?string $code, Session $session): void
@@ -79,7 +80,7 @@ class PasswordService
             SecurityLog::record('reauthentication_throttled');
 
             throw ValidationException::withMessages([
-                'password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+                'password' => $throttle->message($identifier),
             ]);
         }
 

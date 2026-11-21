@@ -10,22 +10,18 @@ export function createUser(): { email: string; password: string } {
     return { email, password };
 }
 
+export function createPendingAdministrator(): { email: string; password: string } {
+    const email = `${randomUUID()}@example.test`;
+    const output = seedPhp(`$u = App\\Models\\User::factory()->administrator()->create(['email' => '${email}']); echo 'OTP=' . app(App\\Services\\Accounts\\OneTimePassword::class)->issueTo($u);`);
+
+    return { email, password: /OTP=(\S+)/.exec(output)?.[1] ?? '' };
+}
+
 export function oneTimePassword(): string {
     const log = execFileSync('cat', ['.scratch/e2e-install.log']).toString();
 
-    return /One-time password: (\S+)/.exec(log)?.[1] ?? '';
-}
+    const password = /One-time password: (\S+)/.exec(log)?.[1];
+    if (!password) throw new Error('No one-time password in .scratch/e2e-install.log: run scripts/serve-e2e.sh to install a fresh database');
 
-export function firstAdministratorEmail(): string {
-    const log = execFileSync('cat', ['.scratch/e2e-install.log']).toString();
-
-    return /Administrator: (\S+)/.exec(log)?.[1] ?? '';
-}
-
-export type FirstAdministratorState = 'pending' | 'changed' | 'missing';
-
-export function firstAdministratorState(): FirstAdministratorState {
-    const code = `$u = App\\Models\\User::where('email', '${firstAdministratorEmail()}')->first(); echo 'STATE=' . ($u === null ? 'missing' : ($u->must_change_password ? 'pending' : 'changed'));`;
-
-    return (/STATE=(\w+)/.exec(seedPhp(code))?.[1] ?? 'missing') as FirstAdministratorState;
+    return password;
 }

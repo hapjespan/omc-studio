@@ -43,6 +43,17 @@ class OwnEmailChangeTest extends TestCase
         $this->assertSame(self::WANTED, $administrator->fresh()?->email);
     }
 
+    public function test_a_password_with_surrounding_spaces_is_accepted_as_the_current_password(): void
+    {
+        $administrator = User::factory()->administrator()->create(['name' => 'Bea', 'email' => self::OWN, 'password' => ' padded secret ']);
+
+        $this->actingAs($administrator)->from('/admin/users')
+            ->patch($this->path($administrator), $this->fields(['current_password' => ' padded secret ']))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(self::WANTED, $administrator->fresh()?->email);
+    }
+
     public function test_the_own_name_changes_without_the_current_password(): void
     {
         $administrator = $this->administrator();

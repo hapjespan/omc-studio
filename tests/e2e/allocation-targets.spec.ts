@@ -11,7 +11,7 @@ test('the tree offers Targets with an add button, marks the ones in the set and 
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
     await expandTarget(page, 'Inkoop');
 
-    const tree = page.getByRole('tree', { name: 'Doelen op het canvas' });
+    const tree = page.getByRole('region', { name: 'Doelen op het canvas' });
     await expect(tree.getByText('Inkoop').first()).toBeVisible();
     await page.getByRole('button', { name: 'Toevoegen aan verdeling: Offreren' }).click();
     await expect(tree.getByText('In set')).toHaveCount(1);
@@ -29,6 +29,6 @@ test('dragging a Target into the set is an addition, with the button as the sing
     await page.goto(`/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.records.Licentie}`);
     await expandTarget(page, 'Inkoop');
 
-    await page.getByRole('tree').getByText('Bestellen').dragTo(page.getByLabel('Verdeling, hier neerzetten om toe te voegen'));
+    await page.getByRole('region', { name: 'Doelen op het canvas' }).getByText('Bestellen').dragTo(page.getByLabel('Verdeling, hier neerzetten om toe te voegen'));
     await expect(page.getByLabel(/Percentage voor Inkoop > Bestellen/)).toBeVisible();
 });

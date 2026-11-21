@@ -89,4 +89,18 @@ class DeliveredStackFilesTest extends TestCase
             strpos($dockerfile, 'mkdir -p storage/framework/cache'),
         );
     }
+
+    public function test_the_docker_context_excludes_local_and_private_state(): void
+    {
+        $entries = array_map('trim', explode("\n", $this->read('.dockerignore')));
+
+        foreach (['.forbidden-names', '.scratch', '.worktrees', '.playwright-browsers', '.remember', '.env'] as $entry) {
+            $this->assertContains($entry, $entries);
+        }
+    }
+
+    public function test_the_dockerignore_carries_no_comments(): void
+    {
+        $this->assertDoesNotMatchRegularExpression('/^\s*#/m', $this->read('.dockerignore'));
+    }
 }

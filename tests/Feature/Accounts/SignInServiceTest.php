@@ -105,7 +105,7 @@ class SignInServiceTest extends TestCase
         }
 
         FrozenClock::advance('59 seconds');
-        $this->assertSame('Te veel pogingen. Probeer het over 1 seconden opnieuw', $this->refusal($user->email, 'password'));
+        $this->assertSame('Te veel pogingen. Probeer het over 1 seconde opnieuw', $this->refusal($user->email, 'password'));
 
         FrozenClock::advance('1 second');
         $this->assertTrue($this->service()->attempt($user->email, 'password')->is($user));

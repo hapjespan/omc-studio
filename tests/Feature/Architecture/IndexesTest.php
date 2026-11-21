@@ -26,6 +26,21 @@ class IndexesTest extends TestCase
         $this->assertSame([], $partial->all());
     }
 
+    public function test_the_declared_foreign_key_indexes_exist(): void
+    {
+        $this->assertSame([], SchemaRules::missingIndexes([
+            'two_factor_recovery_codes' => ['user_id'],
+            'undo_records' => ['user_id'],
+        ]));
+    }
+
+    public function test_a_primary_key_does_not_count_as_a_declared_index(): void
+    {
+        Schema::create('planted_primary_only', fn ($table) => $table->id());
+
+        $this->assertSame(['planted_primary_only(id)'], SchemaRules::missingIndexes(['planted_primary_only' => ['id']]));
+    }
+
     public function test_a_planted_table_without_an_index_is_caught(): void
     {
         Schema::create('planted_without_index', fn ($table) => $table->string('label'));

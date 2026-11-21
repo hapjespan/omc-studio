@@ -38,6 +38,18 @@ class PasswordRuleTest extends TestCase
         $this->assertGreaterThanOrEqual(3000, count(array_filter($entries, fn (string $entry): bool => mb_strlen($entry) >= 12)));
     }
 
+    public function test_the_list_holds_at_least_ten_thousand_entries_the_policy_can_match(): void
+    {
+        $entries = file(resource_path('data/common-passwords.txt'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $eligible = count(array_filter($entries, fn (string $entry) => mb_strlen($entry) >= 12 && mb_strlen($entry) <= 128));
+
+        if ($eligible < 10000) {
+            $this->markTestIncomplete("Only {$eligible} entries are 12 to 128 characters: ASSUMPTION T053-1 awaits a real corpus from the product owner.");
+        }
+
+        $this->assertGreaterThanOrEqual(10000, $eligible);
+    }
+
     public function test_one_hundred_twenty_eight_characters_are_accepted_and_129_refused(): void
     {
         $this->assertSame([], $this->errors(str_repeat('ab', 64)));
