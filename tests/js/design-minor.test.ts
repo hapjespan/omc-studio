@@ -155,3 +155,11 @@ describe('the panel surface', () => {
         expect(read(path)).not.toContain('rounded-panel border border-hairline bg-white');
     });
 });
+
+describe('the shared control classes', () => {
+    it('keeps display classes out of the modality mark constant and gives CheckBox a label slot', () => {
+        expect(read('resources/js/components/ModalityMark.vue')).toMatch(/MODALITY_MARK_CLASS = '(?!flex)/);
+        expect(read('resources/js/components/ui/CheckBox.vue')).toContain('<slot />');
+        expect(read('resources/js/components/ui/Panel.vue')).toContain("as?: 'div' | 'form' | 'li' | 'p'");
+    });
+});
