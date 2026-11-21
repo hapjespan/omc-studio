@@ -4,22 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Rules\Password;
+use App\Services\Accounts\PasswordService;
 use App\Services\Accounts\RecoveryCodes;
 use App\Services\Accounts\SecondFactorService;
-use App\Services\Accounts\SessionTerminator;
-use App\Services\Accounts\Throttle;
-use App\Services\Audit\SecurityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AccountController extends Controller
 {
-    private const NAMESPACE = 'password-change';
-
     public function show(Request $request, RecoveryCodes $codes, SecondFactorService $factor): Response
     {
         $user = $request->user();
@@ -41,16 +35,13 @@ class AccountController extends Controller
         ]]);
     }
 
-    public function update(Request $request, SessionTerminator $terminator): RedirectResponse
+    public function update(Request $request, PasswordService $passwords): RedirectResponse
     {
         $user = $request->user();
 
         if (! $user instanceof User) {
             abort(403);
         }
-
-        $throttle = new Throttle(self::NAMESPACE);
-        $identifier = (string) $user->getKey();
 
         $validated = $request->validate([
             'current_password' => ['required', 'string'],
@@ -61,32 +52,7 @@ class AccountController extends Controller
             'password.confirmed' => __('validation.password_confirmed'),
         ]);
 
-        if (! $throttle->claim($identifier)) {
-            SecurityLog::record('password_change_throttled');
-
-            throw ValidationException::withMessages([
-                'current_password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
-            ]);
-        }
-
-        if (! Hash::check($validated['current_password'], (string) $user->password)) {
-            $throttle->fail($identifier);
-            SecurityLog::record('password_change_failed');
-
-            throw ValidationException::withMessages(['current_password' => __('account.current_password_wrong')]);
-        }
-
-        if (Hash::check($validated['password'], (string) $user->password)) {
-            $throttle->refund($identifier);
-
-            throw ValidationException::withMessages(['password' => __('account.password_reused')]);
-        }
-
-        $throttle->clear($identifier);
-        $user->fill(['password' => $validated['password']])->save();
-        $request->session()->regenerate(true);
-        $ended = $terminator->endOthers($user, $request->session()->getId());
-        SecurityLog::record('password_changed', ['sessions_ended' => $ended]);
+        $passwords->change($user, $validated['current_password'], $validated['password'], $request->session());
 
         return redirect('/account')->with('status', __('account.password_changed'));
     }

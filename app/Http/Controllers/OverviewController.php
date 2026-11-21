@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\CanvasKind;
 use App\Enums\Role;
-use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
-use App\Models\Modality;
 use App\Models\Organisation;
 use App\Models\Statement;
 use App\Services\Canvas\CanvasLifecycle;
+use App\Services\Canvas\ViewData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -18,7 +17,7 @@ use Inertia\Response;
 
 class OverviewController extends Controller
 {
-    public function __construct(private readonly CanvasLifecycle $lifecycle) {}
+    public function __construct(private readonly CanvasLifecycle $lifecycle, private readonly ViewData $data) {}
 
     public function __invoke(Request $request): Response
     {
@@ -38,21 +37,12 @@ class OverviewController extends Controller
             : collect();
         $canvasIds = $organisations->flatMap->canvases->pluck('id')->merge($templateCards->pluck('id'));
         $elements = Element::whereIn('canvas_id', $canvasIds)->whereNull('archived_at')->with('area:id,key')->get()->toBase()->groupBy('canvas_id');
-        $letters = Modality::pluck('letter', 'id');
         $statements = Statement::whereIn('canvas_id', $canvasIds)->orderBy('position')->get()->toBase()->groupBy('canvas_id');
 
         return Inertia::render('Overview', [
-            'organisations' => $organisations->map(fn (Organisation $organisation) => $this->section($organisation, $elements, $statements, $letters, $canWrite))->values(),
-            'templateCards' => $templateCards->map(fn (Canvas $template) => $this->card($template, $elements, $statements, $letters, $canWrite))->values(),
-            'layout' => [
-                'areas' => Area::orderBy('position')->get()->map(fn (Area $area) => [
-                    'key' => $area->key,
-                    'kind' => $area->kind,
-                    'position' => $area->position,
-                    'label' => __('areas.'.$area->key.'.name'),
-                ])->values(),
-                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('view.direction.goals')],
-            ],
+            'organisations' => $organisations->map(fn (Organisation $organisation) => $this->section($organisation, $elements, $statements, $canWrite))->values(),
+            'templateCards' => $templateCards->map(fn (Canvas $template) => $this->card($template, $elements, $statements, $canWrite))->values(),
+            'layout' => $this->data->layout(),
             'showArchived' => $showArchived,
             'canWrite' => $canWrite,
             'templates' => $canWrite
@@ -64,26 +54,24 @@ class OverviewController extends Controller
     /**
      * @param  Collection<int|string, Collection<int, Element>>  $elements
      * @param  Collection<int|string, Collection<int, Statement>>  $statements
-     * @param  Collection<int|string, string>  $letters
      * @return array<string, mixed>
      */
-    private function section(Organisation $organisation, Collection $elements, Collection $statements, Collection $letters, bool $canWrite): array
+    private function section(Organisation $organisation, Collection $elements, Collection $statements, bool $canWrite): array
     {
         return [
             'id' => $organisation->id,
             'name' => $organisation->name,
             'is_sample' => $organisation->is_sample,
-            'canvases' => $organisation->canvases->map(fn (Canvas $canvas) => $this->card($canvas, $elements, $statements, $letters, $canWrite))->values(),
+            'canvases' => $organisation->canvases->map(fn (Canvas $canvas) => $this->card($canvas, $elements, $statements, $canWrite))->values(),
         ];
     }
 
     /**
      * @param  Collection<int|string, Collection<int, Element>>  $elements
      * @param  Collection<int|string, Collection<int, Statement>>  $statements
-     * @param  Collection<int|string, string>  $letters
      * @return array<string, mixed>
      */
-    private function card(Canvas $canvas, Collection $elements, Collection $statements, Collection $letters, bool $canWrite): array
+    private function card(Canvas $canvas, Collection $elements, Collection $statements, bool $canWrite): array
     {
         return [
             'id' => $canvas->id,
@@ -91,17 +79,8 @@ class OverviewController extends Controller
             'updated_at' => $canvas->updated_at?->toIso8601String(),
             'archived' => $canvas->archived_at !== null,
             'counts' => $canWrite ? $this->lifecycle->deletionCounts($canvas) : null,
-            'elements' => ($elements[$canvas->id] ?? collect())->map(fn (Element $element) => [
-                'id' => $element->id,
-                'area' => $element->area->key,
-                'parent' => $element->parent_id,
-                'kind' => $element->kind->value,
-                'name' => $element->name,
-                'position' => $element->position,
-                'modality' => $letters[$element->modality_id] ?? null,
-                'unknownAllocation' => $element->is_unknown_allocation,
-            ])->values(),
-            'statements' => ($statements[$canvas->id] ?? collect())->map(fn (Statement $statement) => ['kind' => $statement->kind->value, 'title' => $statement->title, 'body' => $statement->body, 'position' => $statement->position])->values(),
+            'elements' => $this->data->elements($elements[$canvas->id] ?? [], false),
+            'statements' => $this->data->statements($statements[$canvas->id] ?? []),
         ];
     }
 }
