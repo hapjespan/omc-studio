@@ -4,6 +4,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import { t } from '../../i18n';
 import AppButton from '../../components/ui/AppButton.vue';
 import { routes } from '../../routes';
+import Panel from '../../components/ui/Panel.vue';
 
 const props = defineProps<{ canvasId: number; year: number; remaining: number; finalised: boolean; writable: boolean }>();
 const page = usePage();
@@ -16,10 +17,10 @@ function finalise(): void {
 </script>
 
 <template>
-    <section role="region" aria-labelledby="finalise-card-title" class="rounded-panel border border-hairline bg-white px-4 py-3.5 text-[12.5px]">
+    <Panel role="region" aria-labelledby="finalise-card-title" class="text-[12.5px]">
         <h2 id="finalise-card-title" class="sr-only">{{ t('finalise.card_title') }}</h2>
         <p>{{ text }}</p>
         <p v-if="refusal" role="alert" class="mt-1 text-danger">{{ refusal }}</p>
         <AppButton v-if="!finalised && writable" class="mt-2.5" icon="lock" :disabled="remaining > 0" @click="finalise">{{ t('finalise.card_button') }}</AppButton>
-    </section>
+    </Panel>
 </template>

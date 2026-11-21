@@ -44,7 +44,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div v-if="warning && !reauth" class="fixed bottom-4 right-4 z-40 flex items-center gap-3 rounded-md border border-edge bg-white px-4 py-3 text-[13px] text-ink shadow">
+    <div v-if="warning && !reauth" class="fixed bottom-4 right-4 z-40 flex items-center gap-3 rounded-md border border-edge bg-white px-4 py-3 text-[13px] text-ink shadow-float">
         <span>{{ t('session.warning') }}</span>
         <AppButton variant="primary" @click="extend">{{ t('session.extend') }}</AppButton>
     </div>

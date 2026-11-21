@@ -108,13 +108,15 @@ const leave = (): void => {
 };
 const draftText = computed(() => (dirty.value ? formatPercentage(total.value) : null));
 const canClear = computed(() => writable.value && record.value?.status === 'allocated');
+const saveHint = computed(() => (canSave.value ? null : !writable.value ? t('allocation_page.read_only') : dirty.value ? t('allocation_page.save_blocked') : t('allocation_page.save_unchanged')));
+const clearHint = computed(() => (canClear.value ? null : !writable.value ? t('allocation_page.read_only') : t('allocation_page.clear_none')));
 </script>
 
 <template>
     <Head :title="t('allocation_page.title')" />
     <h1 class="sr-only">{{ t('allocation_page.title') }}: {{ canvas.name }}</h1>
-    <p v-if="finalised" role="status" class="mb-3 text-[13px] text-warning">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</p>
-    <p v-if="year === null" role="status" class="mb-3 text-[13px]">{{ t('allocation_page.no_year') }}</p>
+    <Callout v-if="finalised" role="status" class="mb-3">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</Callout>
+    <Callout v-if="year === null" role="status" class="mb-3">{{ t('allocation_page.no_year') }}</Callout>
     <div v-if="errors.rule" role="alert" class="mb-3"><ErrorSummary :errors="errors" /></div>
     <div v-if="undo.state.value" class="mb-3"><UndoMessage :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" /></div>
     <div class="grid items-start gap-5 lg:grid-cols-[346px_minmax(0,1fr)_380px]">
@@ -132,10 +134,11 @@ const canClear = computed(() => writable.value && record.value?.status === 'allo
                 </div>
                 <div class="mt-3 flex items-start gap-3">
                     <AppButton :variant="canSave ? 'primary' : 'secondary'" :icon="canSave ? undefined : 'lock'" :disabled="!canSave" aria-describedby="allocation-save-hint" @click="save">{{ t('allocation_page.save') }}</AppButton>
-                    <p v-if="dirty && !canSave && writable" id="allocation-save-hint" class="min-w-0 flex-1 pt-1.5 text-[12.5px] text-secondary">{{ t('allocation_page.save_blocked') }}</p>
+                    <p v-if="saveHint" id="allocation-save-hint" class="min-w-0 flex-1 pt-1.5 text-[12.5px] text-secondary">{{ saveHint }}</p>
                     <AppButton v-if="dirty" class="ml-auto shrink-0" @click="discard">{{ t('allocation_page.discard') }}</AppButton>
                 </div>
-                <AppButton class="mt-3" variant="danger" :disabled="!canClear" @click="clearOpen = true">{{ t('allocation_page.clear') }}</AppButton>
+                <AppButton class="mt-3" variant="danger" :disabled="!canClear" :aria-describedby="clearHint ? 'allocation-clear-hint' : undefined" @click="clearOpen = true">{{ t('allocation_page.clear') }}</AppButton>
+                <p v-if="clearHint" id="allocation-clear-hint" class="mt-1 text-[12.5px] text-secondary">{{ clearHint }}</p>
             </template>
             <p v-else id="allocation-middle" class="rounded-panel border border-hairline bg-white p-5 text-[13px]">{{ t('allocation_page.pick') }}</p>
         </section>

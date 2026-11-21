@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
-import type { ModalityMark } from '../../canvas/CanvasView.vue';
+import type { ModalityColour } from '../../canvas/CanvasView.vue';
 import ExportMenu from '../../canvas/ExportMenu.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
@@ -27,7 +27,7 @@ const props = defineProps<{
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
     layouts?: CanvasLayoutInput['layouts'];
     overlay: string;
     year: number | null;
@@ -58,6 +58,6 @@ const plain = ref(false);
         </div>
     </HeaderSlot>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" :administrator="role === 'administrator'" />
-    <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
+    <Callout v-if="figuresMessage" tone="danger" role="alert" class="mb-3" data-figures-message>{{ figuresMessage }}</Callout>
     <CanvasStage :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="filterOptions.costKinds" :canvas-id="canvas.id" :can-assign="role === 'administrator'" :plain="plain" />
 </template>

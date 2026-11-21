@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, useId, watch } from 'vue';
 import { t } from '../../i18n';
-import AppButton from '../ui/AppButton.vue';
+import DiscardConfirm from '../ui/DiscardConfirm.vue';
 import IconButton from '../ui/IconButton.vue';
 
 const props = defineProps<{ title: string; eyebrow?: string | null; confirming: boolean }>();
 const emit = defineEmits<{ requestClose: []; discard: []; keep: [] }>();
 const titleId = useId();
 const heading = ref<HTMLElement>();
-const keepEditing = ref<InstanceType<typeof AppButton>>();
+const keepEditing = ref<InstanceType<typeof DiscardConfirm>>();
 
 onMounted(() => heading.value?.focus());
 watch(() => props.confirming, async (asking) => {
@@ -28,12 +28,6 @@ watch(() => props.confirming, async (asking) => {
             <IconButton icon="close" :label="t('dialog.close')" @click="emit('requestClose')" />
         </div>
         <div class="mt-3"><slot /></div>
-        <div v-if="confirming" role="alertdialog" :aria-label="t('dialog.discard_title')" class="mt-3 rounded-card border border-edge p-3">
-            <p class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
-            <div class="mt-2 flex gap-2">
-                <AppButton ref="keepEditing" @click="emit('keep')">{{ t('dialog.keep_editing') }}</AppButton>
-                <AppButton variant="danger" @click="emit('discard')">{{ t('dialog.discard') }}</AppButton>
-            </div>
-        </div>
+        <DiscardConfirm v-if="confirming" ref="keepEditing" @keep="emit('keep')" @discard="emit('discard')" />
     </section>
 </template>

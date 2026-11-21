@@ -26,10 +26,10 @@ defineProps<{ elementId: string; figures: ElementFigures }>();
 
 <template>
     <Teleport to="#detail-body">
-        <div class="mt-4 border-t border-[#C9CED6] pt-3 text-[13px]" data-element-figures>
+        <div class="mt-4 border-t border-hairline pt-3 text-[13px]" data-element-figures>
             <dl class="flex flex-col gap-3">
                 <div v-for="field in figureFields(figures)" :key="field.label">
-                    <dt class="font-semibold text-[#454C57]">{{ field.label }}</dt>
+                    <dt class="font-semibold text-secondary">{{ field.label }}</dt>
                     <dd>{{ field.value }}</dd>
                 </div>
             </dl>

@@ -209,10 +209,10 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                             <AppButton v-if="row.archived_at" size="small" :aria-label="`${t('list.restore')} ${row.name}`" @click="emit('restore', row)">{{ t('list.restore') }}</AppButton>
                         </td>
                         <td v-if="canDelete && !dock" class="pl-3 pr-2 py-2.5">
-                            <AppButton size="small" :aria-label="`${t('list.delete')} ${row.name}`" @click="deleting = row">{{ t('list.delete') }}</AppButton>
+                            <AppButton size="small" variant="danger" :aria-label="`${t('list.delete')} ${row.name}`" @click="deleting = row">{{ t('list.delete') }}</AppButton>
                         </td>
                     </tr>
-                    <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-3 py-3 text-secondary">{{ t('list.empty') }}</td></tr>
+                    <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-3 py-3 text-muted">{{ t('list.empty') }}</td></tr>
                 </tbody>
             </table>
         </div>
