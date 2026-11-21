@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Area;
 use App\Models\Modality;
+use App\Support\FieldLimits;
 use Illuminate\Validation\Rule;
 
 class ElementRequest extends AppFormRequest
@@ -26,7 +27,7 @@ class ElementRequest extends AppFormRequest
             'description' => ['nullable', 'string'],
             'icon' => ['nullable', 'string'],
             'modality' => ['sometimes', 'string', Rule::in([...Modality::pluck('key')->all(), 'none'])],
-            'rationale' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'rationale' => ['sometimes', 'nullable', 'string', 'max:'.FieldLimits::TEXT],
             'confirm_rationale_clear' => ['sometimes', 'boolean'],
         ];
     }

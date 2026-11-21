@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
 use Illuminate\Validation\Validator;
 
 class UpdateSnapshotRequest extends AppFormRequest
@@ -18,8 +19,8 @@ class UpdateSnapshotRequest extends AppFormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', new TrimmedText(__('fields.name'), 150)],
-            'remark' => ['sometimes', 'nullable', 'string', new TrimmedText(__('fields.remark'), 2000)],
+            'name' => ['sometimes', 'required', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)],
+            'remark' => ['sometimes', 'nullable', 'string', new TrimmedText(__('fields.remark'), FieldLimits::TEXT)],
         ];
     }
 

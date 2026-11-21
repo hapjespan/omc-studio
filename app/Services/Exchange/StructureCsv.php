@@ -12,6 +12,7 @@ use App\Services\Exchange\Csv\CsvReader;
 use App\Services\Structure\ElementTree;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use App\Support\FieldLimits;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
@@ -21,9 +22,9 @@ class StructureCsv
 
     public const COLUMNS = ['area', 'domain', 'cluster', 'activity', 'description', 'modality'];
 
-    private const NAME_MAX = 150;
+    private const NAME_MAX = FieldLimits::NAME;
 
-    private const DESCRIPTION_MAX = 2000;
+    private const DESCRIPTION_MAX = FieldLimits::TEXT;
 
     /** @var array<string, Area> */
     private array $areas = [];

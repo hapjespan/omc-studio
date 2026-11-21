@@ -14,6 +14,7 @@ use App\Services\Allocation\FinalisedYears;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use App\Services\Undo\UndoStore;
+use App\Support\FieldLimits;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -24,7 +25,7 @@ class YearlyFigures
 
     private const FTE_MAX = 999_999;
 
-    private const REMARK_MAX = 2000;
+    private const REMARK_MAX = FieldLimits::TEXT;
 
     public function __construct(
         private readonly SerialisedWrite $writes,

@@ -7,6 +7,7 @@ use App\Rules\ElementName;
 use App\Rules\TrimmedText;
 use App\Services\Audit\SecurityLog;
 use App\Services\Exchange\CanvasImport;
+use App\Support\FieldLimits;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -42,7 +43,7 @@ class CanvasImportController extends Controller
             $data = $request->validate([
                 'file' => ['required', 'file'],
                 'organisation_id' => ['nullable', 'integer', 'exists:organisations,id'],
-                'organisation_name' => ['required_without:organisation_id', 'nullable', 'string', new TrimmedText(__('fields.name'), 150)],
+                'organisation_name' => ['required_without:organisation_id', 'nullable', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)],
                 'canvas_name' => ['required', 'string', new ElementName],
             ]);
         } catch (ValidationException $exception) {

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
 
 class OrganisationRequest extends AppFormRequest
 {
@@ -17,7 +18,7 @@ class OrganisationRequest extends AppFormRequest
         $label = __('fields.name');
 
         return [
-            'name' => ['required', 'string', new TrimmedText($label, 150)],
+            'name' => ['required', 'string', new TrimmedText($label, FieldLimits::NAME)],
             'logo' => ['nullable', 'file'],
         ];
     }

@@ -3,10 +3,11 @@
 namespace App\Services\Structure;
 
 use App\Models\Element;
+use App\Support\FieldLimits;
 
 class QuickEntryParser
 {
-    private const MAX = 150;
+    private const MAX = FieldLimits::NAME;
 
     /**
      * @param  array<string, string>  $existing

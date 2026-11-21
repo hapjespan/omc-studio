@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Support\FieldLimits;
+
 class StatementRequest extends AppFormRequest
 {
     public function authorize(): bool
@@ -15,12 +17,12 @@ class StatementRequest extends AppFormRequest
         $kind = $this->route('kind');
 
         if (is_string($kind)) {
-            return ['body' => ['nullable', 'string', 'max:2000']];
+            return ['body' => ['nullable', 'string', 'max:'.FieldLimits::TEXT]];
         }
 
         return [
-            'title' => [$this->isMethod('POST') ? 'required' : 'sometimes', 'string', 'max:150'],
-            'body' => ['nullable', 'string', 'max:2000'],
+            'title' => [$this->isMethod('POST') ? 'required' : 'sometimes', 'string', 'max:'.FieldLimits::NAME],
+            'body' => ['nullable', 'string', 'max:'.FieldLimits::TEXT],
         ];
     }
 
