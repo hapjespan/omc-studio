@@ -1,5 +1,16 @@
 # Phase 7 review report
 
+## Voor de producteigenaar bij poort 7
+
+1. Je keurt goed: de review van de hele code op release (tip f8a778e) is gedaan en alles wat is gevonden is opgelost of bewust vastgelegd.
+2. Opgelost: alle 6 blokkerende en alle grote bevindingen (beveiliging, privacy, rekenregels, toegankelijkheid, bewijs, prestaties), elk met een test die eerst faalde.
+3. Gemeten: elk scherm antwoordt binnen 1 seconde bij 500 elementen en 1000 kostenposten, en Tekenen start binnen 3 seconden, op de trage CI-machine.
+4. Schone start op de Mac met Docker (door de orchestrator): bouwen 60 seconden, eerste antwoord na 2 seconden (grens 180).
+5. Bewust niet gedaan, geaccepteerd of jouw besluit: wachtwoorden langer dan 72 tekens (bcrypt kapt af), cookienaam zonder voorvoegsel, vastgezette image-versies, wat het logboek na het wissen van een gebruiker bewaart, de "nieuw"-markering in Lagen, de naam van een organisatie na hernoemen, de overlaybalk onder 3:1 (D7).
+6. Nog open: T312, de aantallen per domein in de modaliteit-overlay zijn onzichtbaar; wacht op jouw besluit.
+7. Af en toe vertragen twee tests op WebKit en slagen bij herhaling; dat is vastgelegd en geen fout in het product.
+8. Na jouw goedkeuring draait de orchestrator `complete-phase.py 7`; dit document en het eindoordeel in sectie 9 zijn het bewijs.
+
 Reviewed: the tip of `integration/dt`, commit 6ec1d33 (deliveries 1 to 3 and Tekenen). Method: `docs/process/07-review-validate.md`, review as a fan-out. Nine reviewers ran blind to each other, each read-only and each without a run of the suites: correctness, design, OWASP Top 10, WCAG 2.2 AA, AVG/GDPR with NIS2, test-coverage honesty, `ponytail:ponytail-audit` over the repository and `impeccable:impeccable` in audit mode over the interface. Every blocking finding and every major finding that two or more reviewers did not report independently was checked against the code by the orchestrating session; findings that did not survive are not listed. Items marked "decision" are not code defects but need the product owner or the article owner.
 
 **Gate verdict: not passed.** Six blocking findings (B1 to B6), all small to medium and all fixable before the gate. Nothing in this report has been fixed except the seed route (B-seed, see section 6).
@@ -198,3 +209,26 @@ Each fixed item was checked by an independent reviewer; all bundles passed after
 | Visual: reorder arrows copy IconButton | niet doen: an existing guard forbids a component instance per row (500-row Invoeren performance, commit 94691cbb) | none | none |
 
 Remarks that remain for the merge: Docker cannot be built here, so `scripts/prove-clean-start.sh` must run once before the first merge that carries the image changes (SH); the branches conflict as the reviewers listed (bundle PL with M1 and M10, SH and PL with B2 on config files and .dockerignore, LT with M5 on SystemNoticePageTest, the reauth helper of B1 with SH); the first-start browser spec skips when a second engine reuses the same install.
+
+## 9. Final status on release (2026-11-21, tip f8a778e)
+
+Every finding of this report is either on release or listed as open below. The commit is the merge commit on release of the pull request that carries the fix; the fix commits are in sections 7 and 8.
+
+| Findings | Status | Pull request, merge commit on release |
+|---|---|---|
+| B1, B2, B4, B5, B6, M1 to M7, M9, M10, M16 to M19, M21, M22, D8 (Organisation switch), every small point marked opgelost in section 8 | opgelost | 411, f8a778e |
+| B3 (tooling exception, hook) | opgelost | 415, c6951ff |
+| M8 (archived Cost records at carry over) | opgelost | 416, f036102 |
+| M11, M13, M14, M15 (Invoeren at 320 px, Tekenen zoom and pan, focus ring under zoom, page titles) | opgelost | 410, d1f9131 |
+| M12 (selected layer row) | opgelost | 418, cad6454 |
+| M20, M24, M25 (Tekenen page split, Direction band, shared components) | opgelost | 409, a16adce |
+| M23 (mode switch only on the three modes) | opgelost | 417, c2f8e4e |
+| D9 (ARIA tree roles removed) | opgelost | 414, 4eea87c |
+| Evidence fixes of the second reviewer round and the ledger records | opgelost | 417, c2f8e4e; 421, 18ddb9a; 412, 1839559; 420, 9409871 |
+
+Open on release, with the reason:
+
+- **T312** (modality overlay counts strip of a Domain is drawn under the Domain fill and is invisible, assumption T312-1 in tasks.md): reopened by the second review round; waits for the decision of the product owner.
+- **D7** (the over-budget bar reaches only 2.53:1 on the darkest overlay tints, the forecast text carries the meaning): product owner decides.
+- **Recorded gaps, accepted by decision or by constraint:** no `__Host-` cookie prefix (loopback without TLS, ADR 0024); images and actions pinned by tag, not digest (cannot be resolved offline, Dependabot proposed); passwords longer than 72 bytes are cut by bcrypt (spec decision: argon2id or a cap); the user deletion scrub beyond FR-011, the lost actor link after deletion and the missing session correlation in the security log (decisions against FR-011, FR-021, SD-20); the "nieuw" marker needs a baseline and a migration; the Organisation slug is fixed at creation (FR-024); the year selector navigates on change (documented residual risk); about 330 hand-typed font sizes migrate screen by screen (tokens exist); `LayoutValidator` is split with the next layout rule; the WP-E0 prototype stays tracked until the owner decides after ADR 0040; the lazy per-row form data of Kostenposten (a possible later optimisation).
+- **Evidence limits:** the clean start was proven on the host (macOS with Docker Desktop, by the orchestrator, see wp1-evidence.md) and not in the container; SC-020 and SC-029 are measured on the CI runner and on the 11 core arm64 development container, with the budgets unchanged; two WebKit tests (drawing-text-style, view/hover) and one Firefox test (redistribution) showed as flaky on single runs and passed on retry.
