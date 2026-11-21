@@ -1,4 +1,4 @@
-import { TOOL_SHORTCUTS, type Editor, type Tool } from '@open-pencil/core/editor';
+import { type Editor, type Tool } from '@open-pencil/core/editor';
 import type { SceneGraph, SceneNode } from '@open-pencil/scene-graph';
 import { snapChanges } from './commands/grid';
 import { constrain, type Box as ConstraintBox } from './constraints';
@@ -15,26 +15,9 @@ export interface Restrictions {
     release(): void;
 }
 
-type Box = Pick<SceneNode, 'x' | 'y' | 'width' | 'height'>;
 type Method = (...args: never[]) => unknown;
 
 const ALLOWED_TOOLS = new Set<Tool>(['SELECT', 'HAND']);
-const KEYS_WITHOUT_EFFECT = ['Delete', 'Backspace', 'Control+KeyD', 'Control+KeyC', 'Control+KeyV', 'Control+KeyG', 'Control+Alt+KeyK', 'Control+KeyX'];
-
-export const inertShortcuts = [...Object.keys(TOOL_SHORTCUTS).filter((key) => !ALLOWED_TOOLS.has(TOOL_SHORTCUTS[key as keyof typeof TOOL_SHORTCUTS] as Tool)), ...KEYS_WITHOUT_EFFECT];
-
-export function clampToParent(node: Box, parent: Pick<SceneNode, 'width' | 'height'>, changes: Partial<SceneNode>): Partial<SceneNode> {
-    const next = { ...changes };
-    const touchesBox = 'x' in changes || 'y' in changes || 'width' in changes || 'height' in changes;
-    if (!touchesBox) return next;
-    const width = Math.min(changes.width ?? node.width, parent.width);
-    const height = Math.min(changes.height ?? node.height, parent.height);
-    if ('width' in changes) next.width = width;
-    if ('height' in changes) next.height = height;
-    if ('x' in changes || 'width' in changes) next.x = Math.min(Math.max(changes.x ?? node.x, 0), parent.width - width);
-    if ('y' in changes || 'height' in changes) next.y = Math.min(Math.max(changes.y ?? node.y, 0), parent.height - height);
-    return next;
-}
 
 export interface RestrictionHooks {
     onPushBack?: (id: string) => void;

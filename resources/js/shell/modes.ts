@@ -19,10 +19,6 @@ const registry: Mode[] = [
 
 export const modeSwitchPlacement = reactive({ inPage: false });
 
-export function registerMode(mode: Mode, position = registry.length): void {
-    registry.splice(position, 0, mode);
-}
-
 export function visibleModes(role: string, canvas: ShellCanvas): Mode[] {
     const readOnly = role !== 'administrator' || canvas.archived;
 
