@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppButton from '../../components/ui/AppButton.vue';
 import { nextTick, reactive, watch } from 'vue';
+import { routes } from '../../routes';
 import { Head, Link, router } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
@@ -57,11 +58,11 @@ function query(source: Filters, page?: number): Record<string, string | number> 
 }
 
 function pageHref(page: number): string {
-    return `/admin/audit-log?${new URLSearchParams(Object.entries(query(props.filters, page)).map(([key, value]) => [key, String(value)]))}`;
+    return `${routes.auditLog()}?${new URLSearchParams(Object.entries(query(props.filters, page)).map(([key, value]) => [key, String(value)]))}`;
 }
 
 function apply(): void {
-    router.get('/admin/audit-log', query(form));
+    router.get(routes.auditLog(), query(form));
 }
 
 function reset(): void {
