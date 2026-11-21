@@ -123,6 +123,23 @@ test('at zoom 100%: a Domain card shows its title, the large amount with the Sha
     expect((await style(page.locator('[data-empty]').first(), 'font-size', 'color'))['font-size']).toBe('12px');
 });
 
+test('the figures of every card are on top of the card fill, not hidden under it', async ({ page }) => {
+    await open(page, seed());
+    const hidden = await page.locator('[data-overlay-card]').evaluateAll((layers) => {
+        document.querySelectorAll<HTMLElement>('[data-overlay-card], [data-overlay-card] *').forEach((element) => element.style.setProperty('pointer-events', 'auto', 'important'));
+
+        return layers.flatMap((layer) => {
+            const amount = layer.querySelector('[data-total-amount]');
+            if (!amount) return [];
+            const box = amount.getBoundingClientRect();
+            const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            return top !== null && top.closest('[data-block]') === null ? [] : [layer.getAttribute('data-overlay-card')];
+        });
+    });
+    expect(hidden).toEqual([]);
+    expect(await page.locator('[data-total-amount]').count()).toBeGreaterThan(1);
+});
+
 test('the amount line of every card is drawn completely inside the card, also for a childless Domain', async ({ page }) => {
     await open(page, seed());
     const clipped = await page.locator('[data-overlay-card]').evaluateAll((layers) =>
