@@ -69,3 +69,12 @@ root and trims the context from there. Every other relative path in
 - `PORT`, `SERVER_PORT` and `VITE_PORT` make the servers bind the published ports.
 - Ports are published on the loopback interface only; reach them over
   `ssh -L 3000:127.0.0.1:3000 root@<host>`.
+
+## Commit hook
+
+`.githooks/commit-msg` refuses a commit message with an attribution trailer
+line or a session link (article 4 of `docs/process/00-profile-and-constitution.md`).
+Activate it once per clone with `make hooks`, which runs
+`git config core.hooksPath .githooks`. It does not conflict with the agent
+`PreToolUse` hook, which guards pushes to `main` and destructive git commands
+and does not read commit messages.
