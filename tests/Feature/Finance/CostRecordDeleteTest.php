@@ -7,6 +7,7 @@ use App\Models\AllocationSet;
 use App\Models\AuditEntry;
 use App\Models\Canvas;
 use App\Models\CostRecord;
+use App\Models\Element;
 use App\Models\FinalisedYear;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
@@ -144,6 +145,35 @@ class CostRecordDeleteTest extends TestCase
         $this->actingAs($this->administrator)->post('/undo/'.$token)->assertSessionHasErrors([
             'rule' => '2026 is definitief in canvas Canvas ICT. Heropen het jaar eerst',
         ]);
+
+        $this->assertSame(0, CostRecord::query()->count());
+        $this->assertNotNull(UndoRecord::find($token));
+    }
+
+    public function test_an_undo_is_refused_when_an_activity_of_a_restored_line_was_archived_meanwhile(): void
+    {
+        $elementId = AllocationLine::query()->orderBy('id')->firstOrFail()->element_id;
+        $this->destroy()->assertSessionHasNoErrors();
+        $token = $this->token();
+
+        $element = Element::query()->findOrFail($elementId);
+        $element->forceFill(['archived_at' => now()])->save();
+
+        $this->actingAs($this->administrator)->post('/undo/'.$token)->assertSessionHasErrors(['rule' => 'Doel '.$element->name.' kan geen kosten dragen']);
+
+        $this->assertSame(0, CostRecord::query()->count());
+        $this->assertSame(0, AllocationLine::query()->count());
+        $this->assertNotNull(UndoRecord::find($token));
+    }
+
+    public function test_an_undo_is_refused_when_a_canvas_of_a_restored_set_was_archived_meanwhile(): void
+    {
+        $this->destroy()->assertSessionHasNoErrors();
+        $token = $this->token();
+
+        Canvas::query()->orderBy('id')->firstOrFail()->forceFill(['archived_at' => now()])->save();
+
+        $this->actingAs($this->administrator)->post('/undo/'.$token)->assertSessionHasErrors(['rule' => 'Dit canvas is gearchiveerd']);
 
         $this->assertSame(0, CostRecord::query()->count());
         $this->assertNotNull(UndoRecord::find($token));

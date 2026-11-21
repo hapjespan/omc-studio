@@ -68,6 +68,8 @@ class CostRecordUndo
         $this->assertPresent(Element::class, array_column($payload['allocation_lines'], 'element_id'));
         $this->assertPresent(CostRecord::class, array_diff(array_column($payload['yearly_figures'], 'cost_record_id'), array_column($payload['cost_records'], 'id')));
 
+        $this->assertRestoredLinesCanCarry($payload);
+
         foreach ($payload['cost_records'] as $record) {
             if ($record['code_normalised'] !== null && CostRecord::where('organisation_id', $record['organisation_id'])->where('code_normalised', $record['code_normalised'])->exists()) {
                 throw ValidationException::withMessages(['rule' => __('cost_records.code_taken')]);
@@ -84,6 +86,28 @@ class CostRecordUndo
 
         foreach ($this->assertPresent(FiscalYear::class, $years) as $year) {
             $this->finalisedYears->assertOpenInOrganisation($year);
+        }
+    }
+
+    /** @param array<string, list<array<string, mixed>>> $payload */
+    private function assertRestoredLinesCanCarry(array $payload): void
+    {
+        $canvases = Canvas::query()->with('organisation')->whereKey(array_column($payload['allocation_sets'], 'canvas_id'))->get()->keyBy('id');
+
+        foreach ($canvases as $canvas) {
+            $this->assertWritable($canvas);
+        }
+
+        $canvasOfSet = array_column($payload['allocation_sets'], 'canvas_id', 'id');
+        $elements = Element::query()->with('area')->whereKey(array_column($payload['allocation_lines'], 'element_id'))->get()->keyBy('id');
+
+        foreach ($payload['allocation_lines'] as $line) {
+            $element = $elements->get($line['element_id']);
+            $canvas = $canvases->get($canvasOfSet[$line['allocation_set_id']] ?? 0);
+
+            if ($element === null || $canvas === null || ! $element->carriesCosts($canvas)) {
+                throw ValidationException::withMessages(['rule' => __('allocation.target_invalid', ['name' => (string) ($element->name ?? $line['element_id'])])]);
+            }
         }
     }
 
