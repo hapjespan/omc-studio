@@ -4,7 +4,7 @@ import { nextTick, reactive, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
-import Field from '../../components/fields/Field.vue';
+import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { hasMessage, t } from '../../i18n';
 
@@ -79,12 +79,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
     <h1 class="font-display text-[22px] font-semibold">{{ t('audit_log.title') }}</h1>
     <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
     <form class="mt-4 grid grid-cols-1 gap-3 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
-        <Field v-for="select in selects" :id="select.id" :key="select.id" :label="t(select.label)" :error="filterErrors[select.id]" v-slot="{ describedby, invalid }">
-            <select :id="select.id" v-model="form[select.id]" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink">
-                <option value="">{{ t('audit_log.filter.all') }}</option>
-                <option v-for="option in select.options()" :key="option.value" :value="option.value">{{ option.label }}</option>
-            </select>
-        </Field>
+        <NativeSelect v-for="select in selects" :id="select.id" :key="select.id" v-model="form[select.id]" :label="t(select.label)" :error="filterErrors[select.id]" :empty-label="t('audit_log.filter.all')" :options="select.options()" />
         <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
         <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
         <div class="flex items-end gap-2">

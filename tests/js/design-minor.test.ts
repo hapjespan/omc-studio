@@ -124,3 +124,12 @@ describe('the notices', () => {
         expect(line).not.toMatch(/rounded-(md|control) border/);
     });
 });
+
+describe('the form controls', () => {
+    it('uses NativeSelect, FileField and CheckBox instead of raw controls', () => {
+        expect(read('resources/js/pages/Admin/AuditLog.vue')).not.toMatch(/<select\b/);
+        expect(read('resources/js/pages/Admin/Organisations.vue')).not.toContain('type="file"');
+        expect(read('resources/js/canvas/ExportMenu.vue')).not.toContain('type="checkbox"');
+        expect(read('resources/js/canvas/ExportMenu.vue')).toContain('<CheckBox');
+    });
+});

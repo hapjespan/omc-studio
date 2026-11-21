@@ -205,7 +205,11 @@ test('Exporteren menu: hairline popover with the contract shadow, 32 pixel items
 
     const toggle = page.getByLabel('Met overlay');
     await expect(toggle).toBeVisible();
-    expect(await height(toggle.locator('..'))).toBe(28);
+    expect(await height(toggle.locator('..'))).toBe(24);
+    await page.getByText('Met overlay', { exact: true }).click();
+    await expect(toggle).not.toBeChecked();
+    await page.getByText('Met overlay', { exact: true }).click();
+    await expect(toggle).toBeChecked();
     await page.getByRole('button', { name: 'Exporteren' }).click();
     const menu = page.getByRole('menu', { name: 'Exporteren' });
     await expect(menu).toBeVisible();
