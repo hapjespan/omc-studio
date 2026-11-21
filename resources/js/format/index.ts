@@ -57,9 +57,20 @@ export function formatTime(instant: string): string {
     return `${hour}:${minute}`;
 }
 
+export function formatTenths(tenths: number): string {
+    return signed(tenths, `${Math.floor(Math.abs(tenths) / 10)},${Math.abs(tenths) % 10}%`);
+}
+
 export function formatBasisPoints(basisPoints: number): string {
     const tenths = Math.floor((Math.abs(basisPoints) + 5) / 10);
     return signed(basisPoints, `${Math.floor(tenths / 10)},${tenths % 10}%`);
+}
+
+export function tenthsOf(part: number, whole: number): number | null {
+    if (whole === 0) return null;
+    const scaled = part * 1000;
+    const remainder = scaled % whole;
+    return (scaled - remainder) / whole + (2 * remainder >= whole ? 1 : 0);
 }
 
 export function basisPointsOf(part: number, whole: number): number | null {

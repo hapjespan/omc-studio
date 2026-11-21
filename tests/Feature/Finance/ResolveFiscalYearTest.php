@@ -7,7 +7,9 @@ use App\Models\FinalisedYear;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
 use App\Models\User;
+use App\Support\Format;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -43,11 +45,20 @@ class ResolveFiscalYearTest extends TestCase
 
     public function test_the_default_is_the_current_calendar_year_when_it_exists_else_the_latest(): void
     {
-        $this->years(2025, (int) now()->year, 2099);
-        $this->get("/organisations/{$this->organisation->id}/cost-records")->assertInertia(fn (Assert $page) => $page->where('fiscalYears.selected', (int) now()->year));
+        $this->years(2025, (int) now(Format::TIMEZONE)->year, 2099);
+        $this->get("/organisations/{$this->organisation->id}/cost-records")->assertInertia(fn (Assert $page) => $page->where('fiscalYears.selected', (int) now(Format::TIMEZONE)->year));
 
-        FiscalYear::where('year', (int) now()->year)->delete();
+        FiscalYear::where('year', (int) now(Format::TIMEZONE)->year)->delete();
         $this->get("/organisations/{$this->organisation->id}/cost-records?year=1")->assertInertia(fn (Assert $page) => $page->where('fiscalYears.selected', 2099));
+    }
+
+    public function test_the_default_year_follows_amsterdam_time_on_new_year(): void
+    {
+        $this->years(2026, 2027);
+        $this->travelTo(Carbon::parse('2026-12-31 23:30:00', 'UTC'));
+        $this->actingAs(User::factory()->administrator()->create());
+
+        $this->get("/organisations/{$this->organisation->id}/cost-records")->assertInertia(fn (Assert $page) => $page->where('fiscalYears.selected', 2027));
     }
 
     public function test_an_organisation_without_years_selects_nothing(): void

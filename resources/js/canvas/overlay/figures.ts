@@ -10,6 +10,7 @@ export interface ElementFigures {
     direct: Money;
     total: Money;
     shareBp: number | null;
+    shareTenths: number | null;
     fteHundredths: number;
 }
 

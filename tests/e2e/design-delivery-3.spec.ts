@@ -83,10 +83,11 @@ test('Volledige export en import: title, two white panels, 36 pixel controls and
         expect(await style(panel, 'padding-top')).toBe('24px');
         expect(await style(panel.getByRole('heading', { level: 2 }), 'font-family')).toContain('Space Grotesk');
     }
-    const link = page.getByRole('link', { name: 'Alles exporteren' });
-    expect(await height(link)).toBe(36);
-    expect(await style(link, 'border-top-left-radius')).toBe('6px');
-    expect(await style(link, 'font-weight')).toBe('500');
+    const exportAll = page.getByRole('button', { name: 'Alles exporteren' });
+    expect(await height(exportAll)).toBe(36);
+    expect(await style(exportAll, 'border-top-left-radius')).toBe('6px');
+    expect(await style(exportAll, 'font-weight')).toBe('500');
+    expect(await style(exportAll, 'background-color')).toBe('rgb(255, 255, 255)');
     const file = page.getByLabel('Bestand met volledige export');
     expect(await height(file)).toBeGreaterThanOrEqual(36);
     expect(await style(file.locator('xpath=following-sibling::div'), 'border-top-color')).toBe('rgb(132, 139, 149)');

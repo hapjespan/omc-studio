@@ -12,6 +12,8 @@ class FullExport
 {
     public const FORMAT = 'omc-studio-full';
 
+    public int $omittedSnapshots = 0;
+
     public function __construct(private readonly CanvasExport $export, private readonly Snapshots $snapshots) {}
 
     /** @return array<string, mixed> */
@@ -53,6 +55,8 @@ class FullExport
 
         foreach (Snapshot::where('canvas_id', $canvas->getKey())->orderBy('id')->get() as $snapshot) {
             $intact = $this->snapshots->read($snapshot) !== null;
+
+            $intact || $this->omittedSnapshots++;
 
             $intact && $blocks[] = [
                 ...$snapshot->only(['name', 'fiscal_year', 'remark', 'schema_version']),

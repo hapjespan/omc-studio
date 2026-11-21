@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Canvas;
 use App\Models\FinalisedYear;
 use App\Models\Organisation;
+use App\Support\Format;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,7 +35,8 @@ class ResolveFiscalYear
         $final = $canvas === null ? collect() : FinalisedYear::where('canvas_id', $canvas->getKey())->pluck('fiscal_year_id');
         $requested = $request->query('year');
         $numbers = $years->pluck('year');
-        $selected = is_string($requested) && ctype_digit($requested) && $numbers->contains((int) $requested) ? (int) $requested : ($numbers->contains((int) now()->year) ? (int) now()->year : $numbers->last());
+        $current = (int) now(Format::TIMEZONE)->year;
+        $selected = is_string($requested) && ctype_digit($requested) && $numbers->contains((int) $requested) ? (int) $requested : ($numbers->contains($current) ? $current : $numbers->last());
 
         return [
             'selected' => $selected,

@@ -330,7 +330,7 @@ const performReset = (): void => {
             const current = engine.value?.getLayout() as LayoutPayload;
             const response = area
                 ? await sendLayout(props.canvas.id, { ...current, areas: Object.fromEntries(Object.entries(current.areas).filter(([key]) => key !== id)), structure_version: versions.structure, layout_version: versions.layout })
-                : await sendReset(props.canvas.id, scope, id);
+                : await sendReset(props.canvas.id, scope, id, versions);
             if (response.outcome === 'conflict') throw new MoveConflict(response.conflict);
             if (response.outcome === 'refused') {
                 say(response.messages.join(' ') || t('drawing.save_failed'));

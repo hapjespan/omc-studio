@@ -2,7 +2,20 @@ import { t } from '../i18n';
 
 let running = false;
 
-export async function exportCsv(url: string, fallbackName: string): Promise<string> {
+interface OmittedReport {
+    header: string;
+    none: string;
+    some: string;
+}
+
+const COST_RECORDS: OmittedReport = { header: 'X-Omitted-Cost-Records', none: 'csvx.omitted_none', some: 'csvx.omitted' };
+const SNAPSHOTS: OmittedReport = { header: 'X-Omitted-Snapshots', none: 'fullx.omitted_none', some: 'fullx.omitted' };
+
+export const exportCsv = (url: string, fallbackName: string): Promise<string> => download(url, fallbackName, COST_RECORDS);
+
+export const exportFull = (url: string, fallbackName: string): Promise<string> => download(url, fallbackName, SNAPSHOTS);
+
+async function download(url: string, fallbackName: string, report: OmittedReport): Promise<string> {
     if (running) return '';
     running = true;
     try {
@@ -14,9 +27,9 @@ export async function exportCsv(url: string, fallbackName: string): Promise<stri
         link.download = name;
         link.click();
         URL.revokeObjectURL(link.href);
-        const omitted = Number(response.headers.get('X-Omitted-Cost-Records') ?? 0);
+        const omitted = Number(response.headers.get(report.header) ?? 0);
 
-        return omitted === 0 ? t('csvx.omitted_none') : t('csvx.omitted', { count: omitted });
+        return omitted === 0 ? t(report.none) : t(report.some, { count: omitted });
     } catch {
         return t('csvx.export_failed');
     } finally {

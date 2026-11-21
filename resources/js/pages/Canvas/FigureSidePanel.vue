@@ -1,5 +1,5 @@
 <script lang="ts">
-import { basisPointsOf, formatAmount, formatBasisPoints, formatWholeEuros } from '../../format';
+import { basisPointsOf, formatAmount, formatBasisPoints, formatTenths, formatWholeEuros, tenthsOf } from '../../format';
 import { plural, t } from '../../i18n';
 import type { CanvasFigures } from '../../canvas/overlay/figures';
 
@@ -34,7 +34,7 @@ export function panelGroups(figures: CanvasFigures, costKinds: string[]): PanelG
     const modalityLabel = (key: string): string => (key === 'none' ? t('overlay.panel.no_modality') : key === 'unknown_allocation' ? t('overlay.panel.unknown') : t(`view.modality.${key}`));
     const measured = (label: string, cents: number, key?: string): PanelLine => {
         const share = basisPointsOf(cents, canvasTotal.budget);
-        return { label, key, value: formatWholeEuros(cents), share: share === null ? '-' : formatBasisPoints(share), bar: share === null ? 0 : Math.min(100, Math.max(0, share / 100)) };
+        return { label, key, value: formatWholeEuros(cents), share: share === null ? '-' : formatTenths(tenthsOf(cents, canvasTotal.budget) ?? 0), bar: share === null ? 0 : Math.min(100, Math.max(0, share / 100)) };
     };
     return [
         {

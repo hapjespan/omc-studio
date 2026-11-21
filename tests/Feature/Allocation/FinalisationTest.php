@@ -5,6 +5,7 @@ namespace Tests\Feature\Allocation;
 use App\Models\CostRecord;
 use App\Models\Element;
 use App\Models\FinalisedYear;
+use App\Models\SystemNotice;
 use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
@@ -66,6 +67,20 @@ class FinalisationTest extends AllocationTestCase
         $this->send('finalise')->assertUnprocessable()
             ->assertJsonPath('errors.rule.0', 'De cijfers sluiten niet; definitief maken kan niet');
         $this->assertSame(0, FinalisedYear::count());
+    }
+
+    public function test_a_failing_closing_check_records_a_system_notice_that_survives_the_refusal(): void
+    {
+        $record = $this->costRecord('Licentie', 2026);
+        $element = $this->target();
+        $this->allocate($record, 2026, [$element->id => 10000]);
+        Element::whereKey($element->id)->update(['archived_at' => now()]);
+
+        $this->send('finalise')->assertUnprocessable();
+
+        $notice = SystemNotice::where('kind', 'closing_check_failed')->sole();
+        $this->assertSame($this->canvas->id, $notice->canvas_id);
+        $this->assertSame(2026, $notice->details['year']);
     }
 
     public function test_finalising_records_who_and_when(): void
