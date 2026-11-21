@@ -74,7 +74,7 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await page.getByRole('button', { name: 'Opslaan' }).click();
     await expect(page.getByText('Verdeling opgeslagen').first()).toBeVisible();
     for (const [name, amount] of [['Offreren', '€ 76,66'], ['Bestellen', '€ 76,66'], ['Betalen', '€ 76,68']]) {
-        await expect(page.getByRole('treeitem', { name: new RegExp(`^${name}`) })).toContainText(amount);
+        await expect(page.getByRole('region', { name: 'Doelen op het canvas' }).getByRole('listitem').filter({ hasText: new RegExp(`^${name}`) })).toContainText(amount);
     }
 
     await page.goto(`/canvases/${canvas}/view?overlay=financial&year=2026`);

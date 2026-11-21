@@ -78,7 +78,7 @@ function confirm(): void {
                 <label class="mt-1 flex items-center gap-2 text-[13px]"><input type="radio" class="h-6 w-6" :name="`redistribute-${item.year}`" :checked="choices[item.year]?.mode === 'unknown'" @change="mode(item.year, 'unknown')" />{{ t('redistribute.unknown') }}</label>
                 <div v-if="choices[item.year]?.mode === 'move'" class="mt-2">
                     <p class="text-[13px]" role="status">{{ choices[item.year].target ? t('redistribute.chosen_target', { path: info[choices[item.year].target as string]?.path ?? '' }) : t('redistribute.no_target') }}</p>
-                    <div role="tree" :aria-label="t('redistribute.targets', { year: item.year })" class="mt-1 max-h-56 overflow-y-auto">
+                    <div class="mt-1 max-h-56 overflow-y-auto">
                         <TargetNode :rows="outside" :in-set="noMatch" needle="" :disabled="false" :hide-totals="true" :chosen="choices[item.year].target ?? ''" @add="pick(item.year, $event)" />
                     </div>
                 </div>

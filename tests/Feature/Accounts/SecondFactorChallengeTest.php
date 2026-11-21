@@ -119,6 +119,7 @@ class SecondFactorChallengeTest extends TestCase
 
     public function test_the_sixth_wrong_code_within_a_minute_states_the_waiting_time(): void
     {
+        $this->freezeTime();
         $user = $this->user();
         $this->signInWithPassword($user);
 
@@ -183,6 +184,7 @@ class SecondFactorChallengeTest extends TestCase
 
     public function test_the_waiting_time_holds_for_the_account_in_a_fresh_session(): void
     {
+        $this->freezeTime();
         $user = $this->user();
         $this->signInWithPassword($user);
 

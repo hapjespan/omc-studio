@@ -24,9 +24,9 @@ const kindLabel = (row: TargetRow): string => {
 </script>
 
 <template>
-    <ul role="group" :class="depth === 0 ? 'space-y-1.5' : 'mt-0.5'">
+    <ul :class="depth === 0 ? 'space-y-1.5' : 'mt-0.5'">
         <template v-for="row in rows" :key="row.id">
-            <li v-if="matchesTarget(row, needle)" role="treeitem" :aria-expanded="row.children.length ? isOpen(row) : undefined">
+            <li v-if="matchesTarget(row, needle)">
                 <div class="flex items-center gap-2 rounded-card px-2.5 py-2" :class="depth === 0 ? 'bg-surface' : ''" :draggable="!disabled && chosen === undefined" @dragstart="drag($event, row)">
                     <template v-if="collapsible">
                         <IconButton v-if="row.children.length" :icon="isOpen(row) ? 'chevron-down' : 'chevron-right'" :label="t(isOpen(row) ? 'allocation_page.collapse' : 'allocation_page.expand', { target: row.name })" :aria-expanded="isOpen(row)" @click="toggle(row)" />

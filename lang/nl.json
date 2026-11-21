@@ -1293,7 +1293,6 @@
     "redistribute.unknown": "Terug naar onbekende allocatie",
     "redistribute.chosen_target": "Gekozen doel: :path",
     "redistribute.no_target": "Nog geen doel gekozen",
-    "redistribute.targets": "Doelen voor :year",
     "redistribute.choose": "Kiezen",
     "redistribute.chosen": "Gekozen",
     "redistribute.target_action": "Kiezen: :target",
