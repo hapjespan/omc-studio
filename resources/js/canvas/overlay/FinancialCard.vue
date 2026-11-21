@@ -1,5 +1,5 @@
 <script lang="ts">
-import { basisPointsOf, formatBasisPoints, formatWholeEuros } from '../../format';
+import { basisPointsOf, formatTenths, formatWholeEuros, tenthsOf } from '../../format';
 import { plural, t } from '../../i18n';
 import type { ElementFigures, Money } from './figures';
 import { hasCosts } from './figures';
@@ -50,8 +50,8 @@ export interface AreaParts {
 }
 
 export function areaParts(total: Money, canvasTotal: Money): AreaParts {
-    const share = basisPointsOf(total.budget, canvasTotal.budget);
-    return { amount: formatWholeEuros(total.budget), percentage: share === null ? '-' : formatBasisPoints(share) };
+    const share = tenthsOf(total.budget, canvasTotal.budget);
+    return { amount: formatWholeEuros(total.budget), percentage: share === null ? '-' : formatTenths(share) };
 }
 
 export const areaLine = (total: Money, canvasTotal: Money): string => t('overlay.area_total', { ...areaParts(total, canvasTotal) });
@@ -69,10 +69,10 @@ export function cardLines(figures: ElementFigures, counts: CardCounts, year: num
     const amount = formatWholeEuros(budget);
     return {
         empty: hasCosts(figures) ? null : t('overlay.empty', { year: year ?? '' }),
-        header: figures.shareBp === null ? amount : t('overlay.card_header', { amount, percentage: formatBasisPoints(figures.shareBp) }),
+        header: figures.shareTenths === null ? amount : t('overlay.card_header', { amount, percentage: formatTenths(figures.shareTenths) }),
         amount,
         total: t('overlay.total', { amount }),
-        share: t('overlay.share', { percentage: figures.shareBp === null ? '-' : formatBasisPoints(figures.shareBp) }),
+        share: t('overlay.share', { percentage: figures.shareTenths === null ? '-' : formatTenths(figures.shareTenths) }),
         forecast: percentage === null ? t('overlay.forecast', { amount: formatWholeEuros(forecast) }) : t('overlay.forecast_line', { amount: formatWholeEuros(forecast), percentage: formatWholePercentage(percentage) }),
         counts: countsText(counts),
     };
