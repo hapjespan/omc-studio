@@ -8,7 +8,7 @@ Measurement machine for every figure in this file: linux 7.0.14-linuxkit arm64 (
 
 | Criterion | Evidence | Status |
 |---|---|---|
-| SC-001 clean machine in 3 minutes | `scripts/prove-clean-start.sh`, `tests/Feature/Setup/CleanStartEvidenceTest.php`, `tests/Feature/Setup/DeliveredStackFilesTest.php`, `tests/e2e/auth/first-start.spec.ts`, build time in `specs/001-omc-studio-v1/wp1-evidence.md` | met on the development host; the 3 minutes on the product owner's laptop are his acceptance run (K-6) |
+| SC-001 clean machine in 3 minutes | `scripts/prove-clean-start.sh`, `tests/Feature/Setup/CleanStartEvidenceTest.php`, `tests/Feature/Setup/DeliveredStackFilesTest.php`, `tests/e2e/auth/first-start.spec.ts`, build time in `specs/001-omc-studio-v1/wp1-evidence.md` | not run: Docker is missing in the development container, so the two commands were not run there; only the start e2e (green) and the earlier host proof of 2026-11-19 (2 s to the first answer, warm cache) exist. The product owner's acceptance run decides (K-6); same status as `specs/001-omc-studio-v1/d1-acceptance.md` |
 | SC-002 eight Areas at once | `tests/Feature/Structure/AreasImmutableTest.php`, `tests/e2e/view/draw.spec.ts` | met |
 | SC-003 Domains, Activities, Cluster, Hangt onder | `tests/e2e/d1/full-flow.spec.ts`, `tests/Feature/Structure/MoveElementTest.php`, `tests/e2e/entry/parent-select.spec.ts` | met |
 | SC-004 no Activity outside a Domain | `tests/Feature/Structure/RefusalMatrixTest.php`, `tests/Feature/Structure/CreateElementTest.php` | met |
@@ -32,8 +32,8 @@ Measurement machine for every figure in this file: linux 7.0.14-linuxkit arm64 (
 | SC-022 no request leaves the machine | the `guards` fixture of `tests/e2e/support/guards.ts` (outside request and CSP violation asserted after every spec that uses it), `tests/e2e/export-network.spec.ts`, `tests/e2e/drawing-load.spec.ts`, `scripts/check-assets.mjs` over the final build (CI job `js`) | met |
 | SC-023 property test of FR-095 | `tests/Unit/Calculation/FigurePropertyTest.php`, `tests/Unit/Calculation/ClosingCheckTest.php` | met |
 | SC-024 acceptance session of the product owner | none possible by a machine | unmet by design: the product owner runs it, recorded for him in section 8 |
-| SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts`, `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | place, size, fill and structure met: `tests/e2e/drawing-colour-acceptance.spec.ts` (move, resize and fill, reload, same place and size within 1 pixel in Bekijken, same fill, structure names unchanged), `tests/e2e/drawing-style.spec.ts`; partly met: figures unchanged after the save have no test (section 8) |
-| SC-026 added Element appears without handwork | `tests/Feature/Layout/NewPillTest.php`, `tests/js/layout/placement.test.ts`, `tests/e2e/drawing-frame.spec.ts` | partly met; no single browser journey from Invoeren to Tekenen |
+| SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts` (moved and resized through the fields, not the mouse drag), `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | place, size, fill and structure met: `tests/e2e/drawing-colour-acceptance.spec.ts` (move, resize and fill, reload, same place and size within 1 pixel in Bekijken, same fill, structure names unchanged), `tests/e2e/drawing-style.spec.ts`; partly met: figures unchanged after the save have no test (section 8); the drag with the mouse and colour is proven by `tests/e2e/drawing-colour-drag.spec.ts`, not by `dt-journey.spec.ts` |
+| SC-026 added Element appears without handwork | `tests/e2e/dt-new-element-journey.spec.ts` (Activity and Domain added in Invoeren, placed in Tekenen without handwork and without overlap, same place in Bekijken), `tests/Feature/Layout/NewPillTest.php`, `tests/js/layout/placement.test.ts`, `tests/e2e/drawing-frame.spec.ts` | met |
 | SC-027 no outside request in a Tekenen session | `tests/e2e/drawing-load.spec.ts`, `tests/e2e/csp-guard.spec.ts`, the guards fixture on every drawing spec | met |
 | SC-028 Alles automatisch opmaken equals a new Canvas | `tests/e2e/drawing-reset.spec.ts` (every Area and Element X, Y, B, H) | met for place, size and style: `tests/e2e/drawing-colour-acceptance.spec.ts` compares the computed style of a changed Domain after Alles automatisch opmaken with that Domain on a new Canvas of the same content |
 | SC-029 Tekenen usable within 3 seconds | `tests/e2e/drawing-performance.spec.ts`; section 7 | met on this machine |
@@ -147,8 +147,8 @@ DT.6 is merged; nothing waits for it any more. The style, font and colour requir
 | SC-021 keyboard-only scenario of the D3 screens | partly met: Tab-only walks exist for the earlier screens and the export menu; none for Versies, the Snapshot view and the JSON import |
 | SC-025 figures unchanged after a Layout save | not asserted by a test; structure is (`tests/Feature/Layout/SaveLayoutTest.php`), figures are not touched by the save code but have no before and after check |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
-| SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
-| SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
+| SC-001 clean start in 3 minutes | not run in the container (Docker missing); the product owner's acceptance run (K-6) |
+| SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
 
 ## 9. Acceptance list of kickoff chapter 17 against delivery 3 (T370)
 

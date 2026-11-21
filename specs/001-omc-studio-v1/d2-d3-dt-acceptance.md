@@ -55,4 +55,6 @@ Kies in een canvas "Tekenen". Links "Lagen", rechts "Eigenschappen".
 
 ## Wat nog openstaat
 
-Een nieuw **domein** naast een handmatig geplaatst domein in dezelfde Area begint bovenaan de Area en overlapt dan het handmatige domein (er komt een waarschuwing). De specificatie zegt "onder het laagste handmatige kind" voor een parent; of een Area daaronder valt, moet de PO beslissen.
+- Een nieuw domein naast een handmatig geplaatst domein in dezelfde Area komt onder het laagste handmatige domein van die Area te staan (FR-106a, FR-108, commit ef13083); dit wordt bewezen in `tests/e2e/dt-new-element-journey.spec.ts`. Dit punt is dus opgelost.
+- SC-001 (schone start binnen 3 minuten) is niet gedraaid: Docker ontbreekt in de ontwikkelcontainer. De twee commando's moeten nog op de laptop van de PO draaien (zie `d1-acceptance.md`).
+- De metingen zijn gedaan in een container; een gewone laptop is niet beschikbaar (K-6).
