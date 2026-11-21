@@ -29,15 +29,15 @@ test('Tekenen pans in four directions with buttons', async ({ page }) => {
     await openDrawing(page);
     const start = await settled(page);
 
-    await page.getByRole('button', { name: 'Naar rechts schuiven', exact: true }).click();
+    await page.getByRole('button', { name: 'Beeld naar rechts', exact: true }).click();
     const right = await settled(page);
     expect(right.x).toBeLessThan(start.x);
-    await page.getByRole('button', { name: 'Naar links schuiven', exact: true }).click();
+    await page.getByRole('button', { name: 'Beeld naar links', exact: true }).click();
     expect((await settled(page)).x).toBeGreaterThan(right.x);
 
-    await page.getByRole('button', { name: 'Omlaag schuiven', exact: true }).click();
+    await page.getByRole('button', { name: 'Beeld omlaag', exact: true }).click();
     const down = await settled(page);
     expect(down.y).toBeLessThan(start.y);
-    await page.getByRole('button', { name: 'Omhoog schuiven', exact: true }).click();
+    await page.getByRole('button', { name: 'Beeld omhoog', exact: true }).click();
     expect((await settled(page)).y).toBeGreaterThan(down.y);
 });
