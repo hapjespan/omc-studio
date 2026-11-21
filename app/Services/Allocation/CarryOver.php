@@ -45,6 +45,12 @@ class CarryOver
                 $key = (string) $record->id;
                 $set = $sourceSets[$key] ?? null;
 
+                if ($record->archived_at !== null) {
+                    $skipped[] = ['name' => (string) $record->name, 'reason' => (string) __('carry_over.archived')];
+
+                    continue;
+                }
+
                 if ($set !== null && $set->lines->contains(fn (AllocationLine $line) => ! in_array((string) $line->element_id, $targets, true))) {
                     $manual[] = ['name' => (string) $record->name];
 
@@ -63,15 +69,10 @@ class CarryOver
                     continue;
                 }
 
-                $archived = $record->archived_at !== null;
-                $figures = $withFigures && ! $archived ? $this->copyFigures($sourceFigures[$key] ?? [], $target) : 0;
+                $figures = $withFigures ? $this->copyFigures($sourceFigures[$key] ?? [], $target) : 0;
 
                 if ($set !== null) {
                     $this->copySet($set, $target);
-                }
-
-                if ($withFigures && $archived) {
-                    $skipped[] = ['name' => (string) $record->name, 'reason' => (string) __('carry_over.archived')];
                 }
 
                 if ($set !== null || $figures > 0) {
