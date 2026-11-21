@@ -18,14 +18,14 @@ A defect found by this retake and fixed in `1bb4630` and its follow-up: on the r
 
 Values are computed styles read from the running pages of the three screens with a throwaway Playwright probe at `d4b7511`; the probe is not committed and the values were not re-read on the tip `29b20eb`.
 
-| Finding | Status | Read from the retaken screens | Commit |
+| Finding | Status | Read at d4b7511 | Commit |
 |---|---|---|---|
 | S-01 font | closed | body and controls compute to Inter; page titles Space Grotesk | 8ff5310d |
 | S-02 line height | closed | 13 px text has 18.2 px (1.4), as on the board | 8ff5310d |
 | S-03 page background | closed | body `rgb(242, 243, 241)`, shell panels white | 8ff5310d |
 | S-04 top bar | deviating | 56 px, one row, white, 1 px `#DCDFE2` below, logo mark, tabs with a 2 px ink underline, boxed fiscal year selector; the user is a menu button with a chevron where the board shows plain text | 8ff5310d, adf4222 |
 | S-05 buttons | closed | 36 px high, radius 6, weight 500, primary ink fill, secondary white with border `#848B95` (the contract value, decision 45, not the board `#DCDFE2`) | 8ff5310d |
-| S-06 mode switch | closed | one segmented control, active segment ink with white text | 278dcc9 |
+| S-06 mode switch | closed | on Canvas: one segmented control, active segment ink with white text | 278dcc9 |
 | S-07 focus accent and links | closed | "Nu toewijzen" is ink, weight 600; the focus accent colour itself was not re-measured here | 8ff5310d |
 
 ### Top five per screen
