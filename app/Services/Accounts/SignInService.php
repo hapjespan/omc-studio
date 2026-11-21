@@ -53,6 +53,7 @@ class SignInService
         }
 
         $this->throttle->clear($email);
+        app(SecondFactorService::class)->discardUnconfirmed($user);
 
         if ($user->two_factor_confirmed_at !== null) {
             session()->regenerate();

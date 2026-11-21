@@ -39,9 +39,16 @@ class SecondFactorService
             throw ValidationException::withMessages(['rule' => __('second_factor.already_active')]);
         }
 
-        $user->fill(['two_factor_secret' => $this->google->generateSecretKey()])->save();
+        $user->fill(['two_factor_secret' => $this->google->generateSecretKey()])->saveQuietly();
 
         return $this->pair($user);
+    }
+
+    public function discardUnconfirmed(User $user): void
+    {
+        if ($user->two_factor_secret !== null && $user->two_factor_confirmed_at === null) {
+            $user->fill(['two_factor_secret' => null])->saveQuietly();
+        }
     }
 
     /** @return array{secret: string, qr: string}|null */
