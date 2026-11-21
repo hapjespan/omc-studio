@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { isListArea } from '../layout/arrangeAreas';
+import { withOpacity } from '../colour';
+import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
 import UnknownCard from './UnknownCard.vue';
@@ -7,11 +8,10 @@ import UnknownCard from './UnknownCard.vue';
 const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null; colour?: { background: string; text: string } | null; summary?: string | null; inert?: boolean }>();
 const emit = defineEmits<{ select: [id: string]; peek: [id: string | null, source: PeekSource] }>();
 
-const padding = { area: [12, 12], domain: [12, 12], cluster: [8, 8], activity: [8, 6] } as const;
 const HAIRLINE = 'var(--color-hairline)';
 const box = (): Record<string, string> => {
     const { block } = props;
-    const [x, y] = block.kind !== 'area' && isListArea(block.areaKey) ? [0, 0] : padding[block.kind];
+    const { x, y } = blockPadding(block);
     const border = block.style.border ?? (props.colour ? HAIRLINE : null);
     return {
         left: `${block.x}px`,
@@ -19,12 +19,15 @@ const box = (): Record<string, string> => {
         width: `${block.width}px`,
         height: `${block.drawnHeight}px`,
         zIndex: String(block.z + 1),
-        background: props.colour?.background ?? block.style.fill ?? 'transparent',
-        border: border ? `1px solid ${border}` : '0',
+        background: props.colour?.background ?? (block.style.fill ? withOpacity(block.style.fill, block.style.fillOpacity) : 'transparent'),
+        border: border ? `${block.style.border ? block.style.borderWidth : 1}px ${block.style.border && block.style.borderStyle === 'dashed' ? 'dashed' : 'solid'} ${border}` : '0',
+        textAlign: block.style.alignHorizontal,
+        justifyContent: { top: 'flex-start', middle: 'center', bottom: 'flex-end' }[block.style.alignVertical],
+        fontStyle: block.style.font.italic ? 'italic' : 'normal',
         borderRadius: `${block.style.radius}px`,
         color: props.colour?.text ?? block.style.textColour,
         letterSpacing: block.style.font.tracking ? `${block.style.font.tracking}em` : 'normal',
-        padding: `${y}px ${x}px`,
+        padding: `${y}px ${x + (block.modality ? MODALITY_BADGE : 0)}px ${y}px ${x}px`,
         fontFamily: `"${block.style.font.family}"`,
         fontSize: `${block.style.font.size}px`,
         fontWeight: String(block.style.font.weight),
@@ -36,7 +39,7 @@ const box = (): Record<string, string> => {
 <template>
     <button
         type="button"
-        class="absolute box-border flex flex-col items-stretch justify-start overflow-visible text-left"
+        class="absolute box-border flex flex-col items-stretch [text-rendering:geometricPrecision] justify-start overflow-visible text-left"
         :class="{ 'outline-2 outline-accent': selected, 'pointer-events-none': inert }"
         :inert="inert || undefined"
         :data-block="block.id"

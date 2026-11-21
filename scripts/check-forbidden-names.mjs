@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { versionedFiles, relativeTo } from './walk.mjs';
 
+const SKIPPED = 3;
+
 const root = process.argv[2] ?? '.';
 const listPath = process.argv[3] ?? process.env.FORBIDDEN_NAMES_FILE ?? '.forbidden-names';
 
@@ -8,7 +10,7 @@ const names = existsSync(listPath) ? readFileSync(listPath, 'utf8').split('\n').
 
 if (names.length === 0) {
     console.log('overgeslagen: lijst verboden namen ontbreekt');
-    process.exit(0);
+    process.exit(SKIPPED);
 }
 
 let failed = false;

@@ -25,8 +25,8 @@ class PerformanceDatasetFactory
         mt_srand($this->seed);
         $areaId = Area::firstOrCreate(['key' => 'primary_activities'], ['kind' => 'activities', 'position' => 7, 'carries_costs' => true])->id;
         Area::firstOrCreate(['key' => 'supporting_activities'], ['kind' => 'activities', 'position' => 8, 'carries_costs' => true]);
-        $organisation = Organisation::factory()->create();
-        $canvas = Canvas::factory()->create(['organisation_id' => $organisation->id]);
+        $organisation = Organisation::factory()->create(['name' => 'Performance '.Str::random(12)]);
+        $canvas = Canvas::factory()->create(['organisation_id' => $organisation->id, 'name' => 'Canvas '.Str::random(12)]);
         UnknownAllocationDomain::ensure($canvas);
         $fiscalYear = FiscalYear::factory()->create(['organisation_id' => $organisation->id, 'year' => $this->year]);
         $ownerId = DB::table('owners')->insertGetId(['organisation_id' => $organisation->id, 'name' => 'Owner', 'name_normalised' => 'owner', 'created_at' => now(), 'updated_at' => now()]);

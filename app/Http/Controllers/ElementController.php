@@ -51,9 +51,9 @@ class ElementController extends Controller
             }
 
             if ($request->filled('parent_id')) {
-                $this->tree->move($element, Element::query()->where('canvas_id', $element->canvas_id)->findOrFail($request->input('parent_id')));
+                $this->tree->moveUnder($element, Element::query()->where('canvas_id', $element->canvas_id)->findOrFail($request->input('parent_id')));
             } elseif ($request->filled('area')) {
-                $this->tree->move($element, Area::query()->where('key', $request->input('area'))->firstOrFail());
+                $this->tree->moveUnder($element, Area::query()->where('key', $request->input('area'))->firstOrFail());
             }
         });
 

@@ -126,9 +126,11 @@ class CanvasImportFaultyFilesTest extends CanvasExchangeTestCase
     public function test_a_colour_that_is_not_rrggbb_is_reported(): void
     {
         $file = $this->exported();
-        $file['canvas']['layout'] = ['elements' => ['x' => ['style' => ['fill' => 'red']]]];
+        $id = Element::where('canvas_id', $this->canvas->id)->where('name', 'Inkoop')->value('id');
+        $every = array_fill_keys(array_column(array_filter($file['canvas']['elements'], fn (array $element) => $element['archived_at'] === null), 'id'), ['mode' => 'automatic']);
+        $file['canvas']['layout'] = ['areas' => [], 'elements' => [$id => ['mode' => 'manual', 'x' => 0, 'y' => 0, 'width' => 200, 'height' => 100, 'style' => ['fill' => 'red']]] + $every];
 
-        $this->assertRefusedAt($file, 'canvas.layout.elements.x.style.fill');
+        $this->assertRefusedAt($file, "canvas.layout.elements.$id.style");
     }
 
     public function test_lines_that_do_not_make_100_percent_are_reported(): void

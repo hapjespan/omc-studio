@@ -13,6 +13,7 @@ use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
 use App\Services\Finance\FigureService;
+use App\Services\Layout\LayoutSnapshot;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,7 +23,7 @@ class CanvasViewController extends Controller
 {
     private const OVERLAYS = ['none', 'modality', 'financial'];
 
-    public function __construct(private readonly FigureService $figures) {}
+    public function __construct(private readonly FigureService $figures, private readonly LayoutSnapshot $layouts) {}
 
     public function __invoke(Request $request, Canvas $canvas): Response
     {
@@ -43,6 +44,7 @@ class CanvasViewController extends Controller
 
         return Inertia::render('Canvas/View', [
             'canWrite' => false,
+            'layouts' => $this->layouts->for($canvas),
             'versions' => SnapshotVersions::for($canvas),
             'overlay' => $overlay,
             'year' => $year,

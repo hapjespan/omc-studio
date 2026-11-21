@@ -17,11 +17,28 @@ class Colour
         return self::contrast($background, $defaults['ink']) >= self::contrast($background, $defaults['white']) ? $defaults['ink'] : $defaults['white'];
     }
 
+    public static function effectiveFill(string $fill, int $opacity, string $behind): string
+    {
+        $alpha = $opacity / 100;
+        $hex = '#';
+
+        foreach ([1, 3, 5] as $offset) {
+            $hex .= sprintf('%02X', (int) floor(hexdec(substr($fill, $offset, 2)) * $alpha + hexdec(substr($behind, $offset, 2)) * (1 - $alpha) + 0.5));
+        }
+
+        return $hex;
+    }
+
     public static function contrast(string $a, string $b): float
     {
         $values = [self::luminance($a), self::luminance($b)];
 
         return (max($values) + 0.05) / (min($values) + 0.05);
+    }
+
+    public static function ratioLabel(float $ratio): string
+    {
+        return number_format(floor($ratio * 10) / 10, 1, ',', '');
     }
 
     /** @return list<array{background: string, text: string}> */

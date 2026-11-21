@@ -20,9 +20,12 @@ use App\Http\Controllers\CanvasEntryController;
 use App\Http\Controllers\CanvasImportController;
 use App\Http\Controllers\CanvasModeController;
 use App\Http\Controllers\CanvasViewController;
+use App\Http\Controllers\DrawingController;
+use App\Http\Controllers\DrawingMoveController;
 use App\Http\Controllers\ElementController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FullExchangeController;
+use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\QuickEntryController;
@@ -210,4 +213,20 @@ Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}')->grou
 Route::middleware(['auth', 'can:administer'])->prefix('canvases/{canvas}/quick-entry')->group(function () {
     Route::post('/preview', [QuickEntryController::class, 'preview']);
     Route::post('/', [QuickEntryController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/canvases/{canvas}/drawing', DrawingController::class);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::put('/canvases/{canvas}/layout', [LayoutController::class, 'update']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/layout/reset', [LayoutController::class, 'reset']);
+});
+
+Route::middleware(['auth', 'can:administer'])->group(function () {
+    Route::post('/canvases/{canvas}/drawing/moves', DrawingMoveController::class);
 });

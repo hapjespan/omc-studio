@@ -9,7 +9,7 @@ import type { TargetRow } from '../../allocation/types';
 import { routes } from '../../routes';
 import { t } from '../../i18n';
 import EntryTree from './EntryTree.vue';
-import type { AreaKey, ElementKind } from '../../layout/types';
+import type { AreaKey, ElementKind, ElementLayout } from '../../layout/types';
 import AppButton from '../../components/ui/AppButton.vue';
 import Icon from '../../components/ui/Icon.vue';
 import { detail, discardDetail, openDetail, requestCloseDetail } from '../../shell/detail';
@@ -35,7 +35,7 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; icons: string[]; year: number | null; costs: Record<string, ElementCost>; targets: TargetRow[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; layouts?: Record<string, ElementLayout>; icons: string[]; year: number | null; costs: Record<string, ElementCost>; targets: TargetRow[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
@@ -53,7 +53,7 @@ const undo = ref<{ token: string; name: string; refusal: string | null } | null>
 const areaInfo = computed(() => props.areas as unknown as EntryAreaInfo[]);
 const labelOf = (key: string): string => props.areas.find((item) => item.key === key)?.label ?? key;
 const selectedElement = computed(() => props.elements.find(({ id }) => id === selectedId.value));
-const warnings = computed(() => (measurer.value ? entryWarnings(props.elements, areaInfo.value, area.value.key as AreaKey, measurer.value) : []));
+const warnings = computed(() => (measurer.value ? entryWarnings(props.elements, areaInfo.value, area.value.key as AreaKey, measurer.value, props.layouts) : []));
 const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
 const search = ref('');
 const showArchived = ref(false);

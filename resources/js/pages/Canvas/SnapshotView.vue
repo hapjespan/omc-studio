@@ -25,6 +25,7 @@ const props = defineProps<{
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
+    layouts?: CanvasLayoutInput['layouts'];
     overlay: string;
     year: number;
     costKinds: string[];
@@ -36,7 +37,7 @@ const props = defineProps<{
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
-const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
+const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 </script>
 
 <template>

@@ -28,6 +28,7 @@ const props = defineProps<{
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
     modalities: ModalityMark[];
+    layouts?: CanvasLayoutInput['layouts'];
     overlay: string;
     year: number | null;
     figures: CanvasFigures | null;
@@ -39,7 +40,7 @@ const props = defineProps<{
 const role = computed(() => (usePage().props.auth as { role: string | null }).role);
 const measurer = shallowRef<TextMeasurer | null>(null);
 onMounted(async () => (measurer.value = await createBrowserMeasurer()));
-const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements }, measurer.value) : null));
+const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const plain = ref(false);
 </script>
@@ -57,7 +58,7 @@ const plain = ref(false);
             <ExportMenu :canvas-id="canvas.id" :organisation-id="organisationId" :beyond="drawn?.beyondArtboardCount ?? 0" :overlay="overlay" @plain="plain = $event" />
         </div>
     </HeaderSlot>
-    <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
+    <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" :administrator="role === 'administrator'" />
     <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
     <CanvasStage :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="filterOptions.costKinds" :canvas-id="canvas.id" :can-assign="role === 'administrator'" :plain="plain" />
 </template>

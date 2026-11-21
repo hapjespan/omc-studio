@@ -8,7 +8,10 @@ export interface MiniatureRect {
     width: number;
     height: number;
     fill: string;
+    fillOpacity: number;
     stroke: string | null;
+    strokeWidth: number;
+    dashed: boolean;
 }
 
 export interface Miniature {
@@ -24,7 +27,8 @@ export function buildMiniature(canvas: DrawnCanvas, width: number): Miniature {
     return {
         width,
         height: round(ARTBOARD_HEIGHT),
-        rects: canvas.blocks
+        rects: [...canvas.blocks]
+            .sort((a, b) => a.z - b.z)
             .filter((block) => (block.kind === 'area' || block.kind === 'domain') && block.style.fill !== null)
             .map((block) => ({
                 id: block.id,
@@ -33,7 +37,10 @@ export function buildMiniature(canvas: DrawnCanvas, width: number): Miniature {
                 width: round(block.width),
                 height: round(block.drawnHeight),
                 fill: block.style.fill as string,
+                fillOpacity: block.style.fillOpacity / 100,
                 stroke: block.style.border,
+                strokeWidth: Math.max(0.5, round(block.style.borderWidth)),
+                dashed: block.style.borderStyle === 'dashed',
             })),
     };
 }

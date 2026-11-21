@@ -8,6 +8,7 @@ use App\Models\AllocationSet;
 use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\FinalisedYear;
+use App\Models\Layout;
 use App\Models\Organisation;
 use App\Models\Snapshot;
 use App\Models\Statement;
@@ -16,6 +17,7 @@ use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditRemoval;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 class CanvasLifecycle
@@ -157,12 +159,18 @@ class CanvasLifecycle
 
         $elements = $this->cloneElements($source, $canvas);
         $this->cloneStatements($source, $canvas);
+        $unknown = UnknownAllocationDomain::ensure($canvas);
+        $sourceUnknown = Element::where('canvas_id', $source->getKey())->where('is_unknown_allocation', true)->value('id');
+
+        if ($unknown !== null && $sourceUnknown !== null) {
+            $elements[(string) $sourceUnknown] = (string) $unknown->getKey();
+        }
 
         if ($source->organisation_id === $organisation->getKey()) {
             $this->cloneAllocationSets($source, $canvas, $elements);
         }
 
-        UnknownAllocationDomain::ensure($canvas);
+        $this->cloneLayouts($source, $canvas, $elements);
 
         return $canvas;
     }
@@ -186,11 +194,31 @@ class CanvasLifecycle
                 'parent_id' => $newParentId,
             ]);
 
-            $map[$element->getKey()] = $copy->getKey();
+            $map[(string) $element->getKey()] = (string) $copy->getKey();
             $map = [...$map, ...$this->cloneElements($source, $canvas, $element->getKey(), $copy->getKey())];
         }
 
         return $map;
+    }
+
+    /** @param array<string, string> $elements */
+    private function cloneLayouts(Canvas $source, Canvas $canvas, array $elements): void
+    {
+        $rows = Layout::query()
+            ->where('canvas_id', $source->getKey())
+            ->get()
+            ->filter(fn (Layout $row): bool => $row->element_id === null || isset($elements[(string) $row->element_id]))
+            ->map(fn (Layout $row): array => [
+                ...Arr::except($row->getAttributes(), [$row->getKeyName()]),
+                'canvas_id' => $canvas->getKey(),
+                'element_id' => $row->element_id === null ? null : $elements[(string) $row->element_id],
+            ])
+            ->values()
+            ->all();
+
+        if ($rows !== []) {
+            Layout::query()->insert($rows);
+        }
     }
 
     /** @param  array<string, string>  $elements */

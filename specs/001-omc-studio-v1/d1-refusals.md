@@ -44,6 +44,8 @@ Refusals of deliveries 2 and 3 are listed with the rows of delivery 1, because t
 | `rule.element_name_taken` | Naam: er staat al een element met deze naam op deze plek | ElementNamesTest |
 | `rule.icon_list_only` | Een icoon kan alleen bij elementen in een lijstarea | UpdateElementTest |
 | `rule.icon_unknown` | Dit icoon staat niet in de lijst | D1RefusalMessagesTest |
+| `rule.drawing_move_domain` | Een domein verplaats je met Hangt onder in Invoeren | DrawingMoveTargetsTest |
+| `rule.drawing_move_same_parent` | Dit blok hangt hier al onder | DrawingMoveTargetsTest |
 | `rule.list_name_taken` | Naam: deze naam staat al in de lijst | D2ListRefusalsTest |
 | `rule.move_other_kind` | Verplaatsen kan alleen naar een area van dezelfde soort | MoveElementTest |
 | `rule.name_required` | Naam: vul een naam in | D1RefusalMessagesTest |

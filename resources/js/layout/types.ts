@@ -55,8 +55,31 @@ export interface LayoutStatement {
 
 export interface ElementStyle {
     fill?: string;
-    border?: string;
-    textColour?: string;
+    fill_opacity?: number;
+    border_colour?: string;
+    border_width?: number;
+    border_style?: 'solid' | 'dashed';
+    corner_radius?: number;
+    font?: 'inter' | 'space_grotesk';
+    font_size?: number;
+    font_weight?: 'normal' | 'bold';
+    italic?: boolean;
+    text_colour?: string;
+    align_horizontal?: 'left' | 'center' | 'right';
+    align_vertical?: 'top' | 'middle' | 'bottom';
+}
+
+export interface ManualRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    z: number;
+}
+
+export interface ElementLayout extends Partial<ManualRect> {
+    mode?: 'manual' | 'automatic';
+    style?: ElementStyle;
 }
 
 export interface CanvasLayoutInput {
@@ -64,12 +87,18 @@ export interface CanvasLayoutInput {
     elements: LayoutElement[];
     statements: LayoutStatement[];
     directionLabels: { mission: string; vision: string; goals: string };
-    layouts?: Record<string, { style?: ElementStyle }>;
+    layouts?: Record<string, ElementLayout>;
 }
 
 export interface BlockStyle {
     fill: string | null;
+    fillOpacity: number;
     border: string | null;
+    borderColour: string;
+    borderWidth: number;
+    borderStyle: 'solid' | 'dashed';
+    alignHorizontal: 'left' | 'center' | 'right';
+    alignVertical: 'top' | 'middle' | 'bottom';
     textColour: string;
     labelColour: string;
     font: FontSpec;
@@ -114,6 +143,8 @@ export type LayoutWarning =
     | { kind: 'emptyCluster'; id: string; name: string; area: AreaKey }
     | { kind: 'domainWithoutActivities'; id: string; name: string; area: AreaKey }
     | { kind: 'beyondArtboard'; id: string; name: string; area: AreaKey }
+    | { kind: 'adjusted'; id: string; name: string; area: AreaKey }
+    | { kind: 'overlap'; id: string; name: string; otherId: string; other: string; area: AreaKey }
     | { kind: 'directionTextCut'; column: DirectionColumnKey };
 
 export interface DrawnCanvas {

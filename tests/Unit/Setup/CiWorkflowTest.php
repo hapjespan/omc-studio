@@ -111,7 +111,39 @@ class CiWorkflowTest extends TestCase
         $commands = $this->commands('audit');
 
         $this->assertStringContainsString('composer audit', $commands);
-        $this->assertStringContainsString('npm audit --audit-level=high', $commands);
+        $this->assertStringContainsString('node scripts/check-audit.mjs', $commands);
+    }
+
+    public function test_the_end_to_end_job_runs_under_a_virtual_display_for_the_drawing_engine(): void
+    {
+        $this->assertStringContainsString('xvfb-run -a npx playwright test', $this->commands('e2e'));
+    }
+
+    public function test_the_static_checks_run_over_the_final_build_and_report_a_skip(): void
+    {
+        $commands = $this->commands('js');
+
+        $this->assertLessThan(strpos($commands, 'npm run check'), strpos($commands, 'npm run build'));
+        $this->assertStringContainsString('npm run check', $commands);
+        $this->assertStringNotContainsString('| tee', $commands);
+
+        $step = collect((array) $this->job('js')['steps'])->first(fn ($step): bool => (((array) $step)['run'] ?? '') === 'npm run check');
+        $this->assertSame('forbidden names', ((array) ((array) $step)['env'])['ALLOWED_SKIPS']);
+    }
+
+    public function test_no_step_pipes_a_command_without_pipefail(): void
+    {
+        foreach ((array) $this->parse('.github/workflows/ci.yml')['jobs'] as $name => $job) {
+            foreach ((array) ((array) $job)['steps'] as $step) {
+                $step = (array) $step;
+                $run = (string) ($step['run'] ?? '');
+                $bare = (string) preg_replace('/\'[^\']*\'|"[^"]*"/', '', $run);
+                $piped = preg_match('/(?<!\|)\|(?!\|)/', $bare) === 1;
+                $safe = ($step['shell'] ?? '') === 'bash' || str_contains($run, 'pipefail');
+
+                $this->assertTrue(! $piped || $safe, sprintf('Job "%s" pipes without pipefail: %s', $name, trim($run)));
+            }
+        }
     }
 
     public function test_the_static_checks_run(): void

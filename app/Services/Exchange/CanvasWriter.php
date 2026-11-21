@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\FinalisedYear;
 use App\Models\FiscalYear;
+use App\Models\Layout;
 use App\Models\Modality;
 use App\Models\Organisation;
 use App\Models\Owner;
@@ -120,6 +121,8 @@ class CanvasWriter
         $this->statements($canvas, $block['statements']);
         $elements = $this->elements($canvas, $block['elements']);
 
+        $this->layout((int) $canvas->getKey(), $block['layout'] ?? null, $elements);
+
         $this->sets((int) $canvas->getKey(), $block['allocation_sets'], $records, $elements, $years);
 
         foreach ($block['finalised_years'] as $finalised) {
@@ -132,6 +135,53 @@ class CanvasWriter
         }
 
         return $canvas;
+    }
+
+    /**
+     * @param  ?array<string, mixed>  $layout
+     * @param  array<string, string>  $elements
+     */
+    private function layout(int $canvasId, ?array $layout, array $elements): void
+    {
+        $areas = Area::pluck('id', 'key')->all();
+        $rows = [];
+
+        foreach ($layout['areas'] ?? [] as $key => $box) {
+            $rows[] = $this->layoutRow($canvasId, ['area_id' => $areas[$key]], $box);
+        }
+
+        foreach ($layout['elements'] ?? [] as $id => $box) {
+            if (($box['mode'] ?? null) === 'manual') {
+                $rows[] = $this->layoutRow($canvasId, ['element_id' => $elements[$id]], $box);
+            }
+        }
+
+        foreach (array_chunk($rows, self::CHUNK) as $chunk) {
+            Layout::query()->insert($chunk);
+        }
+    }
+
+    /**
+     * @param  array<string, string|int>  $owner
+     * @param  array<string, mixed>  $box
+     * @return array<string, mixed>
+     */
+    private function layoutRow(int $canvasId, array $owner, array $box): array
+    {
+        return [
+            'canvas_id' => $canvasId,
+            'area_id' => null,
+            'element_id' => null,
+            ...$owner,
+            'x' => $box['x'],
+            'y' => $box['y'],
+            'width' => $box['width'],
+            'height' => $box['height'],
+            'z' => $box['z'] ?? 0,
+            'style' => json_encode($box['style'] ?? [], JSON_THROW_ON_ERROR | JSON_FORCE_OBJECT),
+            'format_version' => 1,
+            'updated_at' => now(),
+        ];
     }
 
     /** @param array{statements: list<array<string, mixed>>, elements: list<array<string, mixed>>} $block */

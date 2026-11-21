@@ -20,6 +20,16 @@ class ColourTest extends TestCase
         }
     }
 
+    public function test_the_effective_fill_composites_opacity_over_the_fill_behind(): void
+    {
+        foreach ($this->fixture()['effectiveCases'] as $case) {
+            $effective = Colour::effectiveFill($case['fill'], $case['opacity'], $case['behind']);
+
+            $this->assertSame($case['effective'], $effective);
+            $this->assertSame($case['text'], Colour::autoText($effective));
+        }
+    }
+
     public function test_every_default_colour_pair_meets_the_minimum_ratio(): void
     {
         $pairs = Colour::defaultPairs();
@@ -28,6 +38,20 @@ class ColourTest extends TestCase
 
         foreach ($pairs as $pair) {
             $this->assertGreaterThanOrEqual($this->fixture()['minimumRatio'], Colour::contrast($pair['background'], $pair['text']), $pair['background']);
+        }
+    }
+
+    public function test_the_ratio_cases_of_the_fixture_read_and_pass_as_in_typescript(): void
+    {
+        $cases = $this->fixture()['ratioCases'];
+
+        $this->assertCount(9, $cases);
+
+        foreach ($cases as $case) {
+            $ratio = Colour::contrast($case['text'], $case['background']);
+
+            $this->assertSame($case['label'], Colour::ratioLabel($ratio), $case['text'].' on '.$case['background']);
+            $this->assertSame($case['passes'], $ratio >= $this->fixture()['minimumRatio']);
         }
     }
 

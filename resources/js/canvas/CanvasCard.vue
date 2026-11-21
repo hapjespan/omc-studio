@@ -19,6 +19,7 @@ export interface CardCanvas {
     counts: Record<string, number> | null;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
+    layouts?: CanvasLayoutInput['layouts'];
 }
 
 const props = defineProps<{ canvas: CardCanvas; layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>; measurer: TextMeasurer | null; canWrite?: boolean; template?: boolean }>();
@@ -36,7 +37,7 @@ onMounted(() => {
     observer.observe(card.value);
 });
 onBeforeUnmount(() => observer?.disconnect());
-const drawn = computed(() => (near.value && props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements }, props.measurer) : null));
+const drawn = computed(() => (near.value && props.measurer ? computeCanvasLayout({ ...props.layout, elements: props.canvas.elements, statements: props.canvas.statements, layouts: props.canvas.layouts }, props.measurer) : null));
 </script>
 
 <template>

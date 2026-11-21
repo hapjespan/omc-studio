@@ -95,6 +95,8 @@ jobs:
       - run: npm run verify
       - run: npm run build
       - run: npm run check
+        env:
+          ALLOWED_SKIPS: forbidden names
 
   scope:
     name: Scope of the change
@@ -106,11 +108,13 @@ jobs:
         with:
           fetch-depth: 0
       - id: scope
+        shell: bash
         run: |
           only=false
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            others=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" | grep -Ev '^(specs/|docs/)|\.md$' || true)
-            [ -z "$others" ] && only=true
+            changed=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}")
+            others=$(printf '%s\n' "$changed" | grep -Ev '^(specs/|docs/)|\.md$' || true)
+            [ -n "$changed" ] && [ -z "$others" ] && only=true
           fi
           echo "documentation_only=$only" >> "$GITHUB_OUTPUT"
 
@@ -145,11 +149,13 @@ jobs:
           status=0
           for engine in chromium firefox webkit; do
             sh scripts/serve-e2e.sh
-            npx playwright test --project=$engine --grep-invert '@performance|Secure session cookie' || status=1
+            workers=2
+            [ "$engine" = firefox ] && workers=1
+            xvfb-run -a npx playwright test --project=$engine --workers=$workers --grep-invert '@performance|Secure session cookie' || status=1
           done
           exit $status
       - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
-      - run: npx playwright test --project=chromium --grep 'Secure session cookie'
+      - run: xvfb-run -a npx playwright test --project=chromium --grep 'Secure session cookie'
 
   e2e-performance:
     name: Playwright performance on three engines
@@ -193,7 +199,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm audit --audit-level=high
+      - run: node scripts/check-audit.mjs
 
   image:
     name: Delivered image build

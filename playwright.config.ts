@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ensureDisplay } from './tests/e2e/support/display';
 import { HARNESS_URL } from './tests/e2e/support/ports';
+
+ensureDisplay();
 
 export default defineConfig({
     testDir: 'tests/e2e',
@@ -18,7 +21,7 @@ export default defineConfig({
     },
     projects: [
         { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-        { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+        { name: 'firefox', use: { ...devices['Desktop Firefox'], headless: !process.env.DISPLAY, launchOptions: { firefoxUserPrefs: { 'webgl.force-enabled': true, 'webgl.forbid-software': false } } } },
         { name: 'webkit', use: { ...devices['Desktop Safari'] } },
     ],
 });

@@ -13,6 +13,7 @@ export interface Mode {
 
 const registry: Mode[] = [
     { key: 'entry', label: 'shell.mode.entry', roles: ['administrator'], writes: true, onTemplate: true, href: (canvas) => routes.entry(canvas) },
+    { key: 'drawing', label: 'shell.mode.drawing', roles: ['administrator'], writes: true, onTemplate: false, href: (canvas) => routes.drawing(canvas) },
     { key: 'view', label: 'shell.mode.view', roles: ['administrator', 'reader'], writes: false, onTemplate: false, href: (canvas) => routes.view(canvas) },
 ];
 

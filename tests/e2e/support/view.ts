@@ -8,7 +8,15 @@ export interface ViewCanvas {
     name: string;
 }
 
-const run = (code: string): string => execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env, maxBuffer: 64 * 1024 * 1024 }).toString();
+const run = (code: string): string => {
+    for (let attempt = 1; ; attempt++) {
+        try {
+            return execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env, maxBuffer: 64 * 1024 * 1024 }).toString();
+        } catch (error) {
+            if (attempt >= 3) throw error;
+        }
+    }
+};
 
 const prelude = (name: string): string =>
     `$c = App\\Models\\Canvas::factory()->create(['name' => '${name}']); $a = fn ($k) => App\\Models\\Area::where('key', $k)->value('id'); $m = fn ($k) => App\\Models\\Modality::where('key', $k)->value('id'); $e = fn ($area, $kind, $name, $parent = null, $extra = []) => App\\Models\\Element::create(array_merge(['canvas_id' => $c->id, 'area_id' => $a($area), 'kind' => $kind, 'name' => $name, 'parent_id' => $parent?->id], $extra));`;

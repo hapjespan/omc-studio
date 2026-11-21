@@ -3,6 +3,7 @@
 namespace App\Services\Structure;
 
 use App\Models\Element;
+use App\Services\Layout\LayoutRows;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 
@@ -15,6 +16,7 @@ class ElementArchive
         private readonly ElementNames $names,
         private readonly SiblingPosition $positions,
         private readonly UnknownAllocationGuard $unknown,
+        private readonly LayoutRows $layouts,
         private readonly ElementTree $tree,
     ) {}
 
@@ -32,7 +34,9 @@ class ElementArchive
             if ($element->archived_at === null) {
                 $this->tree->assertNoAllocationLines($element);
 
-                $this->stamp($element, now(), null);
+                $this->layouts->remove($canvas, $this->stamp($element, now(), null));
+
+                $canvas->raiseStructureVersion();
             }
         });
     }
@@ -58,6 +62,8 @@ class ElementArchive
             $element->position = $this->positions->next($element->canvas_id, $element->area_id, $element->parent_id, $element->kind);
 
             $this->stamp($element, null, $element->archived_at);
+
+            $canvas->raiseStructureVersion();
         });
     }
 
@@ -68,16 +74,20 @@ class ElementArchive
         }
     }
 
-    private function stamp(Element $element, mixed $archivedAt, mixed $matching): void
+    /** @return list<string> */
+    private function stamp(Element $element, mixed $archivedAt, mixed $matching): array
     {
         $element->update(['archived_at' => $archivedAt]);
 
+        $stamped = [(string) $element->id];
         $children = $element->children()->get();
 
         foreach ($children as $child) {
             if ($matching === null ? $child->archived_at === null : $child->archived_at?->equalTo($matching)) {
-                $this->stamp($child, $archivedAt, $matching);
+                array_push($stamped, ...$this->stamp($child, $archivedAt, $matching));
             }
         }
+
+        return $stamped;
     }
 }

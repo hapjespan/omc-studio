@@ -32,7 +32,29 @@ class Canvas extends Model
         'kind' => CanvasKind::class,
         'is_blank_template' => 'boolean',
         'archived_at' => 'datetime',
+        'structure_version' => 'integer',
+        'layout_version' => 'integer',
+        'layout_saved_at' => 'datetime',
     ];
+
+    public function raiseStructureVersion(): void
+    {
+        static::query()->whereKey($this->getKey())->increment('structure_version');
+
+        $this->structure_version = (int) $this->structure_version + 1;
+        $this->syncOriginalAttribute('structure_version');
+    }
+
+    public function raiseLayoutVersion(): void
+    {
+        $savedAt = now();
+
+        static::query()->whereKey($this->getKey())->increment('layout_version', 1, ['layout_saved_at' => $savedAt]);
+
+        $this->layout_version = (int) $this->layout_version + 1;
+        $this->layout_saved_at = $savedAt;
+        $this->syncOriginalAttributes(['layout_version', 'layout_saved_at']);
+    }
 
     public function acceptsEntryBy(?User $user): bool
     {
@@ -61,5 +83,11 @@ class Canvas extends Model
     public function statements(): HasMany
     {
         return $this->hasMany(Statement::class);
+    }
+
+    /** @return HasMany<Layout, $this> */
+    public function layouts(): HasMany
+    {
+        return $this->hasMany(Layout::class);
     }
 }

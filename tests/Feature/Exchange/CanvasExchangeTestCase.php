@@ -53,7 +53,7 @@ abstract class CanvasExchangeTestCase extends AllocationTestCase
 
     protected function wipe(): void
     {
-        foreach (['allocation_lines', 'allocation_sets', 'snapshots', 'yearly_figures', 'finalised_years', 'elements', 'statements', 'cost_records', 'owners', 'applications', 'fiscal_years'] as $table) {
+        foreach (['layouts', 'allocation_lines', 'allocation_sets', 'snapshots', 'yearly_figures', 'finalised_years', 'elements', 'statements', 'cost_records', 'owners', 'applications', 'fiscal_years'] as $table) {
             DB::table($table)->delete();
         }
 
