@@ -18,8 +18,8 @@ test('the focus ring on the Bekijken canvas is at least 2 CSS px on screen at ev
 
     const measure = async (): Promise<void> => {
         await page.locator('[data-block="steering"]').focus();
-        await page.keyboard.press('Shift');
         await expect(page.locator('[data-block="steering"]')).toBeFocused();
+        await expect(page.locator('[data-block="steering"]')).toHaveCSS('outline-style', 'solid');
         const ring = await renderedRing(page);
         const zoom = await page.locator('[data-zoom]').textContent();
         seen.add(zoom ?? '');
@@ -27,11 +27,13 @@ test('the focus ring on the Bekijken canvas is at least 2 CSS px on screen at ev
         expect(ring.offset, `offset at ${zoom}`).toBeGreaterThanOrEqual(1.99);
     };
 
+    await page.keyboard.press('Shift');
     await measure();
     for (const button of ['Uitzoomen', 'Inzoomen'] as const) {
         const control = page.getByRole('button', { name: button });
         while ((await control.getAttribute('aria-disabled')) !== 'true') {
-            await control.click();
+            await control.focus();
+            await page.keyboard.press('Enter');
             await measure();
         }
     }
