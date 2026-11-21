@@ -25,3 +25,12 @@ export function oneTimePassword(): string {
 
     return password;
 }
+
+export function installedAdministratorEmail(): string {
+    const log = execFileSync('cat', ['.scratch/e2e-install.log']).toString();
+
+    const email = /Administrator: (\S+)/.exec(log)?.[1];
+    if (!email) throw new Error('No administrator e-mail in .scratch/e2e-install.log: run scripts/serve-e2e.sh to install a fresh database');
+
+    return email;
+}

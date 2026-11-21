@@ -20,7 +20,7 @@ const onKey = (event: KeyboardEvent): void => {
 <template>
     <li>
         <div class="flex items-center gap-1">
-            <button type="button" class="min-w-0 flex-1 rounded-control px-2 py-1 text-left text-[13px] aria-pressed:bg-accent-soft" :class="{ 'font-semibold': strong }" :aria-pressed="selected.includes(node.id)" :data-layer="node.id" @click="emit('select', node.id, false)" @keydown="onKey">{{ node.name }}</button>
+            <button type="button" class="min-w-0 flex-1 rounded-control border border-transparent px-2 py-1 text-left text-[13px] aria-pressed:bg-accent-soft aria-pressed:selected-ring" :class="{ 'font-semibold': strong }" :aria-pressed="selected.includes(node.id)" :data-layer="node.id" @click="emit('select', node.id, false)" @keydown="onKey">{{ node.name }}</button>
             <Pill v-if="fresh.includes(node.id)">{{ t('drawing.new') }}</Pill>
         </div>
         <ul v-if="node.children.length" class="ml-3">

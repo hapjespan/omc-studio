@@ -18,12 +18,14 @@
 bootstrap/cache
 database/*.sqlite*
 public/build
+public/hot
 storage/*
 .worktrees
 .scratch
 .remember
 .playwright-browsers
 test-results
+playwright-report
 .forbidden-names
 .env
 .env.*

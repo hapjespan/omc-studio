@@ -45,8 +45,8 @@ class HardeningTest extends TestCase
             '*',
             '!app', '!artisan', '!bootstrap', '!composer.json', '!composer.lock', '!config', '!database', '!docker', '!lang',
             '!package.json', '!package-lock.json', '!public', '!resources', '!routes', '!storage', '!vite.config.js',
-            'bootstrap/cache', 'database/*.sqlite*', 'public/build', 'storage/*',
-            '.worktrees', '.scratch', '.remember', '.playwright-browsers', 'test-results', '.forbidden-names', '.env', '.env.*',
+            'bootstrap/cache', 'database/*.sqlite*', 'public/build', 'public/hot', 'storage/*',
+            '.worktrees', '.scratch', '.remember', '.playwright-browsers', 'test-results', 'playwright-report', '.forbidden-names', '.env', '.env.*',
         ], $lines);
     }
 

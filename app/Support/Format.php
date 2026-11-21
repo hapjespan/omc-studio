@@ -28,7 +28,7 @@ final class Format
         $basisPoints = intdiv(abs($part) * 20000 + abs($total), 2 * abs($total));
         $text = sprintf('%d,%02d', intdiv($basisPoints, 100), $basisPoints % 100);
 
-        return self::signed($basisPoints > 0 ? $part * $total : 0, rtrim(rtrim($text, '0'), ',').'%');
+        return self::signed($basisPoints > 0 ? ($part <=> 0) * ($total <=> 0) : 0, rtrim(rtrim($text, '0'), ',').'%');
     }
 
     public static function formatFte(int $hundredths): string

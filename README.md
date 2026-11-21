@@ -34,11 +34,11 @@ make backup
 make restore FOLDER=<map>
 ```
 
-`make backup` maakt in het opslagvolume van de toepassing een map `storage/backups/<datum_tijd>` met de database, de geüploade bestanden en de sleutel van de toepassing, en toont die map. Die map staat dus nog in dezelfde container: kopieer hem naar een andere plek met `docker compose cp app:/var/www/html/storage/backups/<datum_tijd> .`. Bewaar de kopie veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import.
+`make backup` maakt in het opslagvolume van de toepassing een map `storage/backups/<datum_tijd>` met de database, de geüploade bestanden en de sleutel van de toepassing, en toont die map. Die map staat dus nog in dezelfde container: kopieer hem naar een andere plek met `docker compose cp app:/var/www/html/storage/backups/<datum_tijd> .`. Bewaar de kopie veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import. Verwijder back-ups die u niet meer nodig hebt; ze bevatten ook de gebruikersgegevens.
 
 De beveiligingslogboeken (`storage/logs/security-*.log`, 90 dagen) staan niet in de back-up: kopieer ze mee met `docker compose cp app:/var/www/html/storage/logs .` als je ze langer wilt bewaren dan die 90 dagen of bij een incident nodig hebt.
 
-Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/` zet de map over naar de gebruiker van de toepassing met `docker compose exec -u root app chown -R www-data:www-data storage/backups` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
+Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/`. Zet de map over naar de gebruiker van de toepassing met `docker compose exec -u root app chown -R www-data:www-data storage/backups` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
 
 ## Importeren
 
