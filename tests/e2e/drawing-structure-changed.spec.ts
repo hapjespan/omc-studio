@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { expect, test } from './support/guards';
+import { expect, expectNoAxeViolations, test } from './support/guards';
 import { openDrawing } from './support/drawing';
 import { seedViewCanvas } from './support/view';
 
@@ -35,6 +35,7 @@ test('a newer structure pauses saving and the user applies the layout to what st
     await x.press('Enter');
     const dialog = page.getByRole('dialog', { name: 'De structuur is gewijzigd' });
     await expect(dialog).toBeVisible();
+    await expectNoAxeViolations(page);
     await dialog.getByRole('button', { name: 'Opmaak toepassen op wat nog bestaat' }).click();
     await expect(dialog).toBeHidden();
     await expect(page.locator('[data-save-state]')).toHaveText('Opmaak opgeslagen');
