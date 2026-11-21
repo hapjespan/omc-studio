@@ -1,6 +1,6 @@
 # Bekijken with the financial overlay (board 2): status of findings B-01 to B-40 after T386
 
-Branch feat/d210-bekijken. Statuses: closed (with the commit), open (with the reason) or deviating (with the reason). The findings themselves are in README.md of this folder; the screenshot is `bekijken-financieel-built-v2.png`.
+Branch feat/d210-bekijken. Statuses: closed (with the commit), open (with the reason) or deviating (with the reason). The findings themselves are in `findings-d2.md` of this folder; the screenshot is `bekijken-financieel-built-v2.png`.
 
 Open question for the product owner: should the screen show the Artboard at 100% with horizontal scroll, or fit it to the column? The fit (about 62% at 1440) keeps the whole canvas in view but makes every Artboard text about 0.62 times the size of the board; at 100% the Direction band and Areas run under the side panel unless the page scrolls sideways. Until answered, the screen fits (ASSUMPTION T386-1) and the computed values below are measured at zoom 100%.
 

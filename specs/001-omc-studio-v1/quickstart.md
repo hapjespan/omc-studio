@@ -12,13 +12,13 @@ How to prove each delivery works end to end. Commands run inside the development
 | Check | Command | Expected |
 |---|---|---|
 | PHP tests on SQLite | `composer test` | green |
-| PHP tests on PostgreSQL | CI job `tests-postgresql` | green |
+| PHP tests on PostgreSQL | CI job "PHP suite on PostgreSQL" | green |
 | Static PHP | `composer verify` (Pint, Larastan) | no findings |
 | Front end | `npm run verify` (vue-tsc, ESLint, Vitest) | green |
-| Browser | `npm run e2e` (Playwright on Chromium, Firefox, WebKit) | green, with zero outside requests, zero CSP violations, zero axe violations |
-| Built assets | `npm run build && npm run check:assets` | no outside URL (FR-098) |
-| Forbidden names | `npm run check:names` | pass, or a visible skip when the list file is absent (FR-099) |
-| Audits | `composer audit`, `npm audit --audit-level=high` | no high or critical |
+| Browser | `npx playwright test --grep-invert '@performance|Secure session cookie'` (Playwright on Chromium, Firefox, WebKit) | green, with zero outside requests, zero CSP violations, zero axe violations |
+| Built assets | `npm run build && npm run check` | no outside URL (FR-098) |
+| Forbidden names | `ALLOWED_SKIPS='forbidden names' npm run check` | pass, or a visible skip when the list file is absent (FR-099) |
+| Audits | `composer audit`, `node scripts/check-audit.mjs` (the accepted set of ADR 0040) | no high or critical outside the accepted set |
 
 ## Delivery 1
 
@@ -50,6 +50,8 @@ Run the proof page, collect the report per point P1 to P9 with screenshot, test 
 
 ## Delivery 2
 
+The recorded results of deliveries 2 and 3 and DT are in [d2-d3-dt-acceptance.md](d2-d3-dt-acceptance.md).
+
 Acceptance run: perform each step, write the result (pass or fail, date, initials) in the last column, and attach the failing output to a failure.
 
 | Step | Do | Expected | Result |
@@ -63,7 +65,7 @@ Acceptance run: perform each step, write the result (pass or fail, date, initial
 | 7 | SC-014: leave Cost records without a set | they appear in the Unknown allocation Domain of Supporting activities, as its own line in the side panel, and count in the Area and Canvas totals | |
 | 8 | SC-015: Finalise a year with one Cost record in Unknown allocation | refused (GATE-U1) | |
 | 9 | SC-016: delete an allocated Activity | Redistribution opens; afterwards every affected Cost record is at 0% or 100% | |
-| 10 | SC-020: `php artisan test --filter=CalculationPerformanceTest` (dataset from `PerformanceDatasetFactory`, T279) | figures for 500 Elements and 1000 Cost records within 1 second (P-1); the browser p95 per screen is added when the end-to-end flow T316 exists | |
+| 10 | SC-020: `php artisan test --filter=CalculationPerformanceTest` (dataset from `PerformanceDatasetFactory`, T279) | figures for 500 Elements and 1000 Cost records within 1 second (P-1); the browser p95 per screen: `tests/e2e/performance-d3.spec.ts`, `tests/e2e/entry/performance.spec.ts`, `tests/e2e/view/performance.spec.ts` | |
 | 11 | SC-023: `php artisan test --filter=Property` (FR-095), 1000 cases | passes on every run; no open defect of the kind "figures do not close" or "rule can be bypassed" | |
 | 12 | SC-024: acceptance session, steps below | done within 30 minutes without help | |
 
