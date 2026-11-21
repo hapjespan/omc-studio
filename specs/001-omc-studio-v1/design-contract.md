@@ -91,7 +91,7 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
   - the user's role and menu on the right.
 - Direction band: fixed place across the top, 180 pixels high on the Artboard, locked in Tekenen, one arrangement in every mode, four columns side by side: logo, mission, vision, strategic goals (decision 38; board 1b stacks the goals below, which does not apply).
 - Artboard: fixed, 1680 by 1188 pixels, landscape A3, never growing or scaling (ADR 0020). Content beyond its bottom edge sits below a 1-pixel ink line labelled "Rand A3" (11 px muted text) on a hatch of ink at 6% in 45-degree lines, and a warning callout above the canvas reads "Niet alles past op het A3-tekenvlak: <n> blokken vallen erbuiten".
-- Page header: the title, then the mode switch Invoeren | Tekenen | Bekijken (a segmented control; the active segment is ink with white text), then the save state and the actions on the right.
+- Page header: the title, then, on Invoeren, Tekenen and Bekijken only, the mode switch Invoeren | Tekenen | Bekijken (a segmented control; the active segment is ink with white text; absent on Toewijzen, Kostenposten and Versies, product owner decision 2026-11-21, review finding M23), then the save state and the actions on the right.
 - Body: a left panel of 210 to 225 pixels (Area list, Layers, cost record list), the main work area, and a detail panel of 320 to 390 pixels on the right. All three are white panels on the page background.
 
 ## Components
