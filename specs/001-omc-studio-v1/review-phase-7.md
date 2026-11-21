@@ -113,8 +113,88 @@ Each finding below was fixed on its own branch cut from 6ec1d33, with a test tha
 | M23 | open, decision of the product owner | none | none | none |
 | Seed route (section 6) | opgelost | review/b1-indexes | 4c55733 | no tinker failure in the full Chromium and WebKit runs (it was four per run before) |
 
-Not in this round, still open: M11, M13 to M15, M20, M24, M25 (with the second review session) and every minor and nit of sections 2 and 3 that no row above names.
+Not in these rounds, still open: M11, M13 to M15, M20, M24, M25 (with session 2). Every minor and nit of section 3 has a row in section 8.
 
 Remarks the reviewers left on the fixed items: B5's "five wrong attempts count one lockout" test guards against a future double count and does not prove the fix; `clear()` is not under the lock, so parallel requests can count one extra lockout; M1 prunes when the channel first logs, so an idle installation keeps old files until the next write; M10 does not delete undo records at the forced sign-outs (absolute session expiry, forced password change), because ADR 0033 says only "at sign-out"; M4 does not backfill existing entries without an organisation; M7 copies the element check from the set undo instead of sharing it; the seed route run on WebKit still showed four failures that are timeouts of the page server under machine load and two content failures, which have not yet been rerun on a quiet machine.
 
 Second round (2026-11-21): the seed route was rerun on a quiet machine: the three Chromium specs that timed out under load passed 10 of 10 and the four WebKit specs 12 of 12, so those failures came from load and not from the seed route. Each branch of M6, M16 to M19, M21 and M22 was checked by an independent reviewer; findings of that review were reworked and the reworked commits are the ids above. Open remarks of the reviewers: M16 to M19 evidence rows were measured on an arm64 container with eight gigabytes, the D2 timings of M19 are noisy under load; the B5 five-failures test only guards against double counting; SecondFactorChallengeTest::test_a_reused_code_counts_towards_the_waiting_time showed a one-second boundary flake (60 s expected, 59 s seen) in one run on the M22 branch that predates the change.
+
+Hand-off notes to the M25 owner (session 2): D9 (ARIA tree and treeitem roles in TargetTree.vue, TargetNode.vue and RedistributionDialog.vue, 4.1.2) belongs with M25; the `[role="treeitem"]` wait in tests/e2e/sc020-screens.spec.ts must change with it; the Toewijzen percentage line error that does not name its line (AllocationEditor.vue) and the one-line `useMeasurer` in Overview.vue:38 (it keeps its own `createBrowserMeasurer` without a catch) are in the same files.
+
+## 8. Section 3 points: commit or motivated 'niet doen' (2026-11-21)
+
+Each fixed item was checked by an independent reviewer; all bundles passed after rework. Branches: SH = review/s3-security-hardening (on M22), PL = review/s3-privacy-logging (on SH), CM = review/s3-correctness-minors, LT = review/s3-lean-tests-backend (on B1), WC = review/s3-wcag-minor, TH = review/s3-test-honesty-e2e, FL = review/s3-frontend-lean, VM = review/s3-visual-minor, S20 = review/sc020-all-screens (on M17).
+
+**SC-020 on every screen (S20, 611210e on the stack M18, M19, M16, M17):** tests/e2e/sc020-screens.spec.ts times Overview, Beheer, Account, Kostenposten importeren, Toewijzen with a selected record, Logboek, Gebruikers, Eigenaren, Applicaties, Organisaties, Volledige export, Voorbeeldgegevens and the sign-in, new password and second factor screens, 20 samples, p95 under 1000 ms, no code fix needed. Status: met on this machine; red only in runs under heavy load (WebKit Gebruikers p95 1179 ms at load 5 to 8, Applicaties 1007 ms), budget unchanged; figures in docs/review-evidence.md section 7.
+
+| Point | Status | Commit | Branch |
+|---|---|---|---|
+| Security: bcrypt truncates over 72 bytes | niet doen: spec decision (spec and an existing test name bcrypt and allow 128 characters; argon2id or a cap changes FR-002) | none | none |
+| Security: re-authentication keeps the session id | opgelost | 3eabbc1 | SH |
+| Security: one-time passwords and recovery codes in the sessions table | opgelost (SESSION_ENCRYPT true, reauth e2e helper moved to the session store) | 70e8f30 | SH |
+| Security: .dockerignore leaves secrets in the build context | opgelost (allowlist plus storage/*) | 30cf5aa | SH |
+| Security: php.ini and X-Powered-By; static files without nosniff | opgelost (variables_order restored to EGPCS) | bab3cb1 | SH |
+| Security: session cookie prefix | niet doen: loopback without TLS cannot carry Secure (ADR 0024); accepted gap recorded in constraints.md V3 and V7 | 5183716 | SH |
+| Security: database errors logged without origin | opgelost | 4dd9367 | SH |
+| Security: undo route lacks auth | opgelost | 89bca2c | SH |
+| Security: images and actions pinned by tag | niet doen: digests cannot be resolved offline; Dependabot proposal recorded | 5183716 | SH |
+| Privacy: PII inventory gaps; throttle files outlive 60 s | opgelost (documents, guarded) | 24df229 | PL |
+| Privacy: abandoned second-factor enrolment keeps the secret | opgelost | b0f3dc7 | PL |
+| Privacy: dormant outbound log and mail channels | opgelost (pruned at boot, ADR 0027 sentence) | a77cd0b | PL |
+| Privacy: log file permission and key names | opgelost | a5fb48e | PL |
+| Privacy: user deletion scrub beyond FR-011, lost actor linkability, session correlation | niet doen: product decisions (FR-011, FR-021, SD-20) | none | none |
+| Correctness: share rounded twice | opgelost | d537d5e | CM |
+| Correctness: Finalise records no notice | opgelost | 27b1aba | CM |
+| Correctness: "nieuw" marker depends on the last save | niet doen: a faithful marker needs a baseline for Elements that existed before it, a migration and a client change; product decision | none | none |
+| Correctness: layout reset ignores versions | opgelost | f71a7d3 | CM |
+| Correctness: Shift move stores client size and style | opgelost | 355a955 | CM |
+| Correctness: full export omits damaged Snapshots silently | opgelost (header and a line on the Exchange page; the control stays a button with the old look) | 23988f6 | CM |
+| Correctness: Organisation rename keeps the slug | niet doen: FR-024 derives the slug at creation and an existing test pins it; changing it renames export files | none | none |
+| Correctness: default Fiscal year in UTC | opgelost | d1757e9 | CM |
+| WCAG: over-budget bar under 3:1 on dark tints (D7) | niet doen: product owner decides | none | none |
+| WCAG: Organisation switch navigates on change (D8) | opgelost (explicit "Tonen" button) | 897cb3f | WC |
+| WCAG: year selector navigates on change (D8) | niet doen: documented reason and residual risk in review-evidence.md section 8 (it reloads like a filter); the apply-button pattern is a product choice | 7072666 | WC |
+| WCAG: ARIA tree roles (D9) and the Toewijzen line error naming | niet doen: files of M25 (see the hand-off notes above) | none | none |
+| WCAG: empty X, Y, B or H reverts silently | opgelost | 0ece242 | WC |
+| WCAG: axe gaps (error pages, two dialogs) | opgelost | b624325 | WC |
+| WCAG: 200% text test enlarges nothing | opgelost (computed sizes doubled, plus a text-spacing test; true text-only zoom is not possible in Playwright, said so) | 5cb1fd3 | WC |
+| Tests: SC-001 browser test ignores the logged password | opgelost | 5b4fb91 | TH |
+| Tests: SC-005 assertion cannot fail | opgelost | 3ef21c1 | TH |
+| Tests: SC-002 cites a constant | opgelost | 154dc9f | LT |
+| Tests: functional Playwright retried in CI | opgelost (--retries=0 on every run, guarded) | ac47e6e | LT |
+| Tests: tautology and WebKit skip in drawing-restrictions | opgelost (gap documented) | 55d02a4 | TH |
+| Tests: style "repaint" spec measures two frames | opgelost (retitled to what it measures) | bca98d0 | TH |
+| Tests: referrer second half racy | opgelost | 05ff99d | TH |
+| Tests: SC-009 closing check after deletion | opgelost | 154dc9f | LT |
+| Tests: SC-008 Organisation race | opgelost | fee9377 | LT |
+| Tests: no requirement-level trace for 16 FRs | opgelost (table with tests; FR-044 and FR-053 gaps stated) | 3ab715f | LT |
+| Tests: drawing-two-admins and other specs without the guards fixture | opgelost (secure-cookie left as is on purpose) | 7e5930e | TH |
+| Tests nit: refusal coverage is a text search; route enumeration wording; FR-095 generator narrow; block 500 of 508 wait | niet doen: documented heuristics or harmless, no behaviour at stake | none | none |
+| Design: dead backend code, `laravel/pail`, `laravel/tinker` in require | opgelost | 71c34f4 | LT |
+| Design: dead JS, `@lucide/vue`, `concurrently` | opgelost | 08f1d54 | FL |
+| Design: two import error toolkits | opgelost | a50a99b | LT |
+| Design: admin filter controllers and the notices N+1 | opgelost | bafdb3f | LT |
+| Design: layout engine has no narrow interface | niet doen: seam refactor in the files of the Tekenen engine owner (M13 to M15, M20, M24); no behaviour at stake | none | none |
+| Design: WP-E0 prototype still tracked | niet doen: owner decision after ADR 0040 | none | none |
+| Design: second page-to-shell flag; `useWideMain` | niet doen: part of the mode switch placement (M23) | none | none |
+| Design: measurer bootstrap repeated | opgelost for Invoeren, Bekijken and Snapshot view; Overview.vue is an M25 file (hand-off above) | f18f113 | FL |
+| Design: routes.ts parity unproven | opgelost | 1ef8e3a | LT |
+| Design: seven files near the 400-line cap | niet doen: none is over the cap; LayoutValidator is split with the next layout rule | none | none |
+| Design: PHP test helpers copied | opgelost (5 tests keep a cached admin() on purpose) | d328408 | LT |
+| Design: APP_TIMEZONE does nothing | opgelost | 9ff4cb8 | LT |
+| Nit: XSRF cookie reader in 8 files | opgelost | 0f2954a | TH |
+| Nit: AI provider endpoints in scripts/vendored-urls.txt | niet doen: article owner rules with B3 | none | none |
+| Visual: typography tokens; off-scale sizes; seven page titles | opgelost for the tokens, the off-scale sizes and the seven titles; the other ~330 hand-typed sizes are staged by screen (niet doen now: no logic, each needs its own screen run) | 43ae724 | VM |
+| Visual: page titles of View.vue and SnapshotView.vue | niet doen: M23 | none | none |
+| Visual: elevation token | opgelost; the toolbar shadow stays (M13 file) | 43ae724 | VM |
+| Visual: hard-coded #C9CED6 and #454C57; empty sentences; row Verwijderen; wordmark | opgelost | 43ae724 | VM |
+| Visual: Modality badge outside ModalityMark; interface name | opgelost (class constant in Block.vue to avoid a component per block) | e1274ae | VM |
+| Visual: CardMenu and UserMenu re-implement ActionMenu | opgelost | 99b2495 | VM |
+| Visual: hand-built notices | opgelost | 9fd917b | VM |
+| Visual: raw form controls | opgelost | 8cb96d8 | VM |
+| Visual: three discard confirmations | opgelost | f71f62c | VM |
+| Visual: Panel bypassed | opgelost | 4353544 | VM |
+| Visual: disabled Toewijzen actions without explanation | opgelost | 8460455 | VM |
+| Visual: reorder arrows copy IconButton | niet doen: an existing guard forbids a component instance per row (500-row Invoeren performance, commit 94691cbb) | none | none |
+
+Remarks that remain for the merge: Docker cannot be built here, so `scripts/prove-clean-start.sh` must run once before the first merge that carries the image changes (SH); the branches conflict as the reviewers listed (bundle PL with M1 and M10, SH and PL with B2 on config files and .dockerignore, LT with M5 on SystemNoticePageTest, the reauth helper of B1 with SH); the first-start browser spec skips when a second engine reuses the same install.
