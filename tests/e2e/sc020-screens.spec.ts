@@ -1,10 +1,10 @@
 import type { Page } from '@playwright/test';
 import { test } from './support/guards';
-import { tinker } from './support/finance';
+import { seedPhp } from './support/seed';
 import { seedPerformanceCanvas } from './support/overlay';
 import { signInAs } from './support/shell';
 import { percentile } from './support/percentile';
-import { expectWithinBudget, PERFORMANCE_TAG, sample } from './support/timing';
+import { expectWithinBudget, sample } from './support/timing';
 
 const LIST_VOLUME = 1000;
 const FIRST_CHUNK = 60;
@@ -23,7 +23,7 @@ interface Seed {
 
 const number = (output: string, key: string): number => Number(new RegExp(`${key}=(\\d+)`).exec(output)?.[1]);
 
-const count = (code: string): number => number(tinker(`echo 'N=' . (${code});`), 'N');
+const count = (code: string): number => number(seedPhp(`echo 'N=' . (${code});`), 'N');
 
 type Condition = readonly [selector: string, expected: number];
 
@@ -83,7 +83,7 @@ test.describe('SC-020: every remaining screen answers within one second at 500 E
     test.beforeAll(() => {
         seed.canvas = seedPerformanceCanvas();
         seed.organisation = count(`App\\Models\\Canvas::find(${seed.canvas})->organisation_id`);
-        seed.record = tinker(`echo 'R=' . App\\Models\\CostRecord::where('organisation_id', ${seed.organisation})->orderBy('name')->value('id');`).replace(/^.*R=/s, '').trim();
+        seed.record = seedPhp(`echo 'R=' . App\\Models\\CostRecord::where('organisation_id', ${seed.organisation})->orderBy('name')->value('id');`).replace(/^.*R=/s, '').trim();
     });
 
     test('Overview shows every canvas card with its drawn miniature', async ({ page, browserName }) => {
@@ -112,31 +112,31 @@ test.describe('SC-020: every remaining screen answers within one second at 500 E
     });
 
     test('Logboek with 1000 audit entries shows its first page', async ({ page, browserName }) => {
-        tinker(`$now = now(); $rows = []; for ($i = 0; $i < ${LIST_VOLUME}; $i++) { $rows[] = ['occurred_at' => $now->copy()->subSeconds($i), 'actor_type' => 'user', 'actor_id' => null, 'action' => 'changed', 'subject_type' => 'element', 'subject_id' => (string) $i, 'subject_label' => 'Element ' . $i, 'organisation_id' => ${seed.organisation}, 'canvas_id' => ${seed.canvas}, 'changes' => json_encode(['name' => ['a', 'b']])]; } foreach (array_chunk($rows, 200) as $chunk) { DB::table('audit_entries')->insert($chunk); }`);
+        seedPhp(`$now = now(); $rows = []; for ($i = 0; $i < ${LIST_VOLUME}; $i++) { $rows[] = ['occurred_at' => $now->copy()->subSeconds($i), 'actor_type' => 'user', 'actor_id' => null, 'action' => 'changed', 'subject_type' => 'element', 'subject_id' => (string) $i, 'subject_label' => 'Element ' . $i, 'organisation_id' => ${seed.organisation}, 'canvas_id' => ${seed.canvas}, 'changes' => json_encode(['name' => ['a', 'b']])]; } foreach (array_chunk($rows, 200) as $chunk) { DB::table('audit_entries')->insert($chunk); }`);
         await signInAs(page, 'administrator');
         await measure(page, 'Logboek', browserName, '/admin/audit-log', 'li.rounded-panel', 50);
     });
 
     test('Gebruikers with 1000 users', async ({ page, browserName }) => {
-        tinker(`App\\Models\\User::factory()->count(${LIST_VOLUME})->create();`);
+        seedPhp(`App\\Models\\User::factory()->count(${LIST_VOLUME})->create();`);
         await signInAs(page, 'administrator');
         await measure(page, 'Gebruikers', browserName, '/admin/users', 'tbody tr', count('App\\Models\\User::count()'));
     });
 
     test('Eigenaren with 1000 owners', async ({ page, browserName }) => {
-        tinker(`App\\Models\\Owner::factory()->count(${LIST_VOLUME})->create(['organisation_id' => ${seed.organisation}]);`);
+        seedPhp(`App\\Models\\Owner::factory()->count(${LIST_VOLUME})->create(['organisation_id' => ${seed.organisation}]);`);
         await signInAs(page, 'administrator');
         await measure(page, 'Eigenaren', browserName, `/admin/organisations/${seed.organisation}/owners`, 'tbody tr', count(`App\\Models\\Owner::where('organisation_id', ${seed.organisation})->count()`));
     });
 
     test('Applicaties with 1000 applications', async ({ page, browserName }) => {
-        tinker(`App\\Models\\Application::factory()->count(${LIST_VOLUME})->create(['organisation_id' => ${seed.organisation}]);`);
+        seedPhp(`App\\Models\\Application::factory()->count(${LIST_VOLUME})->create(['organisation_id' => ${seed.organisation}]);`);
         await signInAs(page, 'administrator');
         await measure(page, 'Applicaties', browserName, `/admin/organisations/${seed.organisation}/applications`, 'tbody tr', count(`App\\Models\\Application::where('organisation_id', ${seed.organisation})->count()`));
     });
 
     test('Organisaties with 1000 organisations', async ({ page, browserName }) => {
-        tinker(`App\\Models\\Organisation::factory()->count(${LIST_VOLUME})->create();`);
+        seedPhp(`App\\Models\\Organisation::factory()->count(${LIST_VOLUME})->create();`);
         await signInAs(page, 'administrator');
         await measure(page, 'Organisaties', browserName, '/admin/organisations', 'tbody tr', count('App\\Models\\Organisation::count()'));
     });
@@ -147,14 +147,14 @@ test.describe('SC-020: every remaining screen answers within one second at 500 E
 
     test('Nieuw wachtwoord page', async ({ page, browserName }) => {
         const email = `new-${Date.now()}@example.test`;
-        tinker(`App\\Models\\User::factory()->administrator()->create(['email' => '${email}', 'password' => 'one-time-pass-123', 'must_change_password' => true]);`);
+        seedPhp(`App\\Models\\User::factory()->administrator()->create(['email' => '${email}', 'password' => 'one-time-pass-123', 'must_change_password' => true]);`);
         await signInByForm(page, email, 'one-time-pass-123');
         await measure(page, 'Nieuw wachtwoord', browserName, '/password/new', 'input[autocomplete="new-password"]');
     });
 
     test('Tweede factor page', async ({ page, browserName }) => {
         const email = `two-${Date.now()}@example.test`;
-        tinker(`App\\Models\\User::factory()->administrator()->create(['email' => '${email}', 'password' => 'second-factor-pass-1'])->forceFill(['two_factor_secret' => 'JBSWY3DPEHPK3PXP', 'two_factor_confirmed_at' => now()])->save();`);
+        seedPhp(`App\\Models\\User::factory()->administrator()->create(['email' => '${email}', 'password' => 'second-factor-pass-1'])->forceFill(['two_factor_secret' => 'JBSWY3DPEHPK3PXP', 'two_factor_confirmed_at' => now()])->save();`);
         await signInByForm(page, email, 'second-factor-pass-1');
         await measure(page, 'Tweede factor', browserName, '/sign-in/second-factor', 'input[autocomplete="one-time-code"]');
     });
