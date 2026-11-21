@@ -25,10 +25,10 @@ final class Format
             return '-';
         }
 
-        $basisPoints = intdiv(abs($part) * 20000 + $total, 2 * $total);
+        $basisPoints = intdiv(abs($part) * 20000 + abs($total), 2 * abs($total));
         $text = sprintf('%d,%02d', intdiv($basisPoints, 100), $basisPoints % 100);
 
-        return self::signed($part, rtrim(rtrim($text, '0'), ',').'%');
+        return self::signed($part * $total, rtrim(rtrim($text, '0'), ',').'%');
     }
 
     public static function formatFte(int $hundredths): string
