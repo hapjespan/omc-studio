@@ -6,11 +6,10 @@ use App\Models\Area;
 use App\Models\Canvas;
 use App\Models\Element;
 use App\Models\Layout;
+use App\Support\LayoutLimits;
 
 class MovedBlockFit
 {
-    private const MIN_WIDTH = 40;
-
     public function __construct(private readonly LayoutRows $rows) {}
 
     /**
@@ -66,7 +65,7 @@ class MovedBlockFit
         foreach ($rows as $row) {
             $x = min($row->x, max(0, $width - $row->width));
 
-            $row->update(['x' => $x, 'width' => max(self::MIN_WIDTH, min($row->width, $width - $x))]);
+            $row->update(['x' => $x, 'width' => max(LayoutLimits::minWidth(), min($row->width, $width - $x))]);
         }
     }
 
