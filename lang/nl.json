@@ -766,6 +766,7 @@
     "shell.admin.owners": "Eigenaren",
     "shell.admin.applications": "Applicaties",
     "lists.choose_organisation": "Organisatie",
+    "lists.show_organisation": "Tonen",
     "fiscal_years.year_invalid": "Boekjaar: kies een jaar van 2000 tot en met 2100 dat nog niet bestaat",
     "fiscal_years.has_figures": "Dit boekjaar heeft nog jaarwaarden",
     "fiscal_years.added": "Boekjaar toegevoegd",
