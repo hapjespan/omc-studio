@@ -89,7 +89,7 @@ Each finding below was fixed on its own branch cut from 6ec1d33, with a test tha
 |---|---|---|---|---|
 | B1 | opgelost | review/b1-indexes | d8a8d02 | tests/Feature/Architecture/IndexesTest (user_id indexes) |
 | B2 | opgelost | review/b2-comments | c05d2da | tests/Feature/Architecture/NoCodeCommentsTest (every tracked PHP file; .devcontainer left to B3) |
-| B3 | open, decision of the product owner | none | none | none |
+| B3 | opgelost (product owner, option A, 2026-11-21) | review/b3-tooling-exception | 278507f, merged as c6951ff (pull request 415) | tests/Feature/Architecture/CommitMessageHookTest (9 tests, red before the hook existed); dated exceptions for the tooling files and for the commits d66a78c and d0fc304 in docs/process/00-profile-and-constitution.md; `.githooks/commit-msg` refuses Co-Authored-By trailers and session links, activated by `make hooks`; history not rewritten |
 | B4 | opgelost | review/b4-english-keys | 29e64b4 | tests/Feature/Exchange/EnglishExchangeKeysTest |
 | B5 | opgelost | review/b5-throttle | a05961d | tests/Feature/Concurrency/ThrottleRaceTest (8 real processes), tests/Feature/Accounts/ThrottleTest |
 | B6 | opgelost | review/b6-csv-archive (stacked on B4) | bb55ee2 | CostRecordImportCommitTest and CostRecordImportPreviewTest (archived Organisation, archived record, record archived between scan and write) |
@@ -100,7 +100,7 @@ Each finding below was fixed on its own branch cut from 6ec1d33, with a test tha
 | M5 | opgelost | review/m5-seen-by | 30e343f | tests/Feature/SystemNoticePageTest |
 | M6 | opgelost | review/m6-common-passwords | a2c5fd3 | tests/Unit/Rules/PasswordRuleTest (at least 3,000 entries at the policy length, a listed password refused whatever its case); independent review passed; docs/constraints.md V6 names the source; the list is 10,000 entries of 12 or more characters filtered from the SecLists xato-net top 1,000,000, with the MIT licence and the source in resources/data/common-passwords.LICENSE and common-passwords.SOURCE |
 | M7 | opgelost | review/m7-undo-archived | d1384f2 | tests/Feature/Finance/CostRecordDeleteTest |
-| M8 | open, decision of the product owner | none | none | none |
+| M8 | opgelost (product owner, option A, 2026-11-21) | review/m8-carry-over-archived | 0fe7211, merged as f036102 (pull request 416) | tests/Feature/Allocation/CarryOverTest (an archived Cost record is skipped and reported once; red before); spec.md User Story 23 scenarios 3 and 6, FR-056 and FR-070 agree |
 | M9 | opgelost | review/m9-audit-labels | 6a4c097 | AuditLabelsTest, AllocationCsvImportTest |
 | M10 | opgelost | review/m10-undo-signout | 54d34d9 | undo tests at sign-out and restore |
 | M16 | opgelost | review/m16-sc029-cold (stacked on M19) | bc56548 | tests/e2e/drawing-performance.spec.ts, cold first use in five fresh browser contexts, slowest against 3000 ms (slowest 1967 ms Chromium, 1401 ms Firefox, 1046 ms WebKit; browser cache empty except for what the sign-in pages loaded, server caches warm); warm and cold are two rows in dt-results.md and review-evidence.md |
