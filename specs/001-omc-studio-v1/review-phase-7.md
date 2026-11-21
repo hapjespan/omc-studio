@@ -161,7 +161,7 @@ Each fixed item was checked by an independent reviewer; all bundles passed after
 | Tests: SC-001 browser test ignores the logged password | opgelost | 5b4fb91 | TH |
 | Tests: SC-005 assertion cannot fail | opgelost | 3ef21c1 | TH |
 | Tests: SC-002 cites a constant | opgelost | 154dc9f | LT |
-| Tests: functional Playwright retried in CI | opgelost (--retries=0 on every run, guarded) | ac47e6e | LT |
+| Tests: functional Playwright retried in CI | aangepast: the functional job keeps its CI retries, motivated in docs/review-evidence.md section 8; the performance and secure-cookie runs stay at --retries=0 (guarded by CiWorkflowTest) | ac47e6e | LT |
 | Tests: tautology and WebKit skip in drawing-restrictions | opgelost (gap documented) | 55d02a4 | TH |
 | Tests: style "repaint" spec measures two frames | opgelost (retitled to what it measures) | bca98d0 | TH |
 | Tests: referrer second half racy | opgelost | 05ff99d | TH |

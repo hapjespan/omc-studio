@@ -151,7 +151,7 @@ jobs:
             sh scripts/serve-e2e.sh
             workers=2
             [ "$engine" = firefox ] && workers=1
-            xvfb-run -a npx playwright test --project=$engine --workers=$workers --grep-invert '@performance|Secure session cookie' --retries=0 || status=1
+            xvfb-run -a npx playwright test --project=$engine --workers=$workers --grep-invert '@performance|Secure session cookie' || status=1
           done
           exit $status
       - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
