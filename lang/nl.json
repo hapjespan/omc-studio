@@ -1259,6 +1259,8 @@
     "csvx.export_cost_records": "Kostenposten exporteren",
     "csvx.export_allocations": "Toewijzingen exporteren",
     "csvx.omitted": "Niet geëxporteerd: :count kostenposten zonder code",
+    "fullx.omitted": "Niet opgenomen in de export: :count beschadigde versies",
+    "fullx.omitted_none": "Geëxporteerd: alle versies zijn opgenomen",
     "csvx.omitted_none": "Geëxporteerd: alle kostenposten zijn opgenomen",
     "csvx.export_failed": "Exporteren is niet gelukt",
     "print.export_png": "Exporteren als PNG",

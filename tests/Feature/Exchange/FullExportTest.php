@@ -52,7 +52,8 @@ class FullExportTest extends CanvasExchangeTestCase
 
         DB::table('snapshots')->where('id', $damaged->getKey())->update(['content' => '{"schema_version":1}']);
 
-        $data = json_decode((string) $this->get('/admin/export/full')->assertOk()->getContent(), true);
+        $response = $this->get('/admin/export/full')->assertOk()->assertHeader('X-Omitted-Snapshots', '1');
+        $data = json_decode((string) $response->getContent(), true);
         $exported = $data['organisations'][0]['canvases'][0]['snapshots'];
 
         $this->assertSame(['Voor de stuurgroep'], array_column($exported, 'name'));

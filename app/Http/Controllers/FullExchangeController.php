@@ -27,7 +27,7 @@ class FullExchangeController extends Controller
 
         SecurityLog::record('full_exported');
 
-        return response()->json($data, 200, ['Content-Disposition' => 'attachment; filename='.$export->fileName()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return response()->json($data, 200, ['Content-Disposition' => 'attachment; filename='.$export->fileName(), 'X-Omitted-Snapshots' => (string) $export->omittedSnapshots], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function preview(Request $request, FullImport $import): JsonResponse
