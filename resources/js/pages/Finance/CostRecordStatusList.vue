@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import SearchField from '../../components/ui/SearchField.vue';
 import { formatAmount } from '../../format';
@@ -12,6 +12,24 @@ const search = ref('');
 const unallocatedOnly = ref(false);
 const done = computed(() => props.records.filter((record) => record.status === 'allocated').length);
 const shown = computed(() => props.records.filter((record) => (!unallocatedOnly.value || record.status === 'unallocated') && `${record.code ?? ''} ${record.name}`.toLowerCase().includes(search.value.trim().toLowerCase())));
+const FIRST_CHUNK = 60;
+const NEXT_CHUNK = 200;
+const count = ref(FIRST_CHUNK);
+const visible = computed(() => shown.value.slice(0, count.value));
+let growing: ReturnType<typeof setTimeout> | undefined;
+function grow(): void {
+    clearTimeout(growing);
+    if (count.value >= shown.value.length) return;
+    growing = setTimeout(() => {
+        count.value += NEXT_CHUNK;
+        grow();
+    }, count.value === FIRST_CHUNK ? 400 : 40);
+}
+watch(shown, (rows) => {
+    count.value = Math.max(FIRST_CHUNK, Math.min(count.value, rows.length));
+    grow();
+}, { immediate: true });
+onBeforeUnmount(() => clearTimeout(growing));
 const statusText = (record: CostRecordRow): string => (record.id === props.chosen && props.draft !== null ? t('allocation_page.draft', { percentage: props.draft }) : t(`allocation_page.status_${record.status}`));
 const allocated = (record: CostRecordRow): boolean => record.status === 'allocated' && !(record.id === props.chosen && props.draft !== null);
 </script>
@@ -29,7 +47,7 @@ const allocated = (record: CostRecordRow): boolean => record.status === 'allocat
         <p id="allocation-filter-hint" class="sr-only">{{ t('allocation_page.filter_hint') }}</p>
         <p v-if="shown.length === 0" role="status" class="mt-2.5 text-[13px] text-secondary">{{ t('allocation_page.records_empty') }}</p>
         <ul v-else class="mt-2.5 space-y-1.5">
-            <li v-for="record in shown" :key="record.id">
+            <li v-for="record in visible" :key="record.id">
                 <button type="button" :aria-current="record.id === chosen ? 'true' : undefined" class="block w-full rounded-card bg-white text-left" :class="record.id === chosen ? 'border-2 border-ink px-[11px] py-[9px]' : 'border border-hairline px-3 py-2.5'" @click="emit('choose', record.id)">
                     <span class="flex items-baseline justify-between gap-2 text-[13px]">
                         <span class="min-w-0 font-semibold text-ink">{{ record.name }}</span>

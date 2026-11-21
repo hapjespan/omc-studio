@@ -37,7 +37,7 @@ class LayoutVersionTest extends TestCase
     {
         $environment = $this->race->prepare();
 
-        $area = Area::on('race')->create(['key' => 'primary_activities', 'kind' => 'activities', 'position' => 7, 'carries_costs' => true]);
+        $area = Area::on('race')->firstOrCreate(['key' => 'primary_activities'], ['kind' => 'activities', 'position' => 7, 'carries_costs' => true]);
         $canvas = Canvas::on('race')->create(['kind' => CanvasKind::Canvas, 'name' => 'Race']);
         $element = Element::on('race')->create([
             'canvas_id' => $canvas->getKey(),
