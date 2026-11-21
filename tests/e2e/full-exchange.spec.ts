@@ -20,15 +20,18 @@ test('an Administrator finds the page under Beheer and an import into a filled a
 test('Alles exporteren asks for the full export by mouse and by keyboard and says how many damaged versions were left out', async ({ page }) => {
     await signInAs(page, 'administrator');
     await page.goto('/admin/exchange');
+    let omitted = '0';
+    await page.route('**/admin/export/full', (route) => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Content-Disposition': 'attachment; filename=full-export.json', 'X-Omitted-Snapshots': omitted }, body: '{}' }));
     const exportAll = page.getByRole('button', { name: 'Alles exporteren' });
     const asked = (): Promise<unknown> => page.waitForRequest((request) => new URL(request.url()).pathname === '/admin/export/full' && request.method() === 'GET');
 
     await Promise.all([asked(), exportAll.click()]);
     await expect(page.getByTestId('full-export-result')).toHaveText('Geëxporteerd: alle versies zijn opgenomen');
 
+    omitted = '2';
     await exportAll.focus();
     await Promise.all([asked(), page.keyboard.press('Enter')]);
-    await expect(page.getByTestId('full-export-result')).toBeVisible();
+    await expect(page.getByTestId('full-export-result')).toHaveText('Niet opgenomen in de export: 2 beschadigde versies');
 });
 
 test('Alles exporteren says that the export failed when the server cannot be reached', async ({ page }) => {
