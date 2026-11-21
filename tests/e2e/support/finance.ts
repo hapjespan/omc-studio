@@ -36,7 +36,7 @@ export function seedAllocation(name: string, records: Record<string, number>, st
 }
 
 export async function expandTarget(page: Page, name: string): Promise<void> {
-    await page.getByRole('tree').waitFor();
+    await page.getByRole('region', { name: 'Doelen op het canvas' }).waitFor();
     const button = page.getByRole('button', { name: `Uitklappen: ${name}` });
     if ((await button.count()) > 0) await button.click();
 }

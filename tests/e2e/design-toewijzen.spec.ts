@@ -92,13 +92,13 @@ test('Toewijzen follows board 3: white panels on the grey page, header card, amb
     const add = page.getByRole('button', { name: 'Toevoegen aan verdeling: Betalen' });
     const addBox = (await add.boundingBox())!;
     expect([Math.round(addBox.width), Math.round(addBox.height)]).toEqual([28, 28]);
-    const row = targets.getByRole('treeitem', { name: /^Betalen/ });
+    const row = targets.getByRole('listitem').filter({ hasText: /^Betalen/ });
     expect((await row.boundingBox())!.height).toBeLessThanOrEqual(48);
     await expect(targets.getByText('In set')).toHaveCount(2);
     expect(await style(targets.getByText('In set').first(), 'color')).toBe('rgb(31, 122, 77)');
     await expect(targets.getByText('geen').first()).toBeVisible();
     await expect(targets.getByText('leeg', { exact: false }).first()).toBeVisible();
-    const domain = targets.getByRole('treeitem').filter({ hasText: 'Inkoop' }).first().locator('> div').first();
+    const domain = targets.getByRole('listitem').filter({ hasText: 'Inkoop' }).first().locator('> div').first();
     expect(await style(domain, 'background-color')).toBe('rgb(246, 247, 245)');
     const fold = targets.getByRole('button', { name: 'Inklappen: Inkoop' });
     await expect(fold).toHaveAttribute('aria-expanded', 'true');
