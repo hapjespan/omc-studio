@@ -147,6 +147,7 @@ DT.6 is merged; nothing waits for it any more. The style, font and colour requir
 | Item | Reason |
 |---|---|
 | SC-025 figures unchanged after a Layout save | not asserted by a test; structure is (`tests/Feature/Layout/SaveLayoutTest.php`), figures are not touched by the save code but have no before and after check |
+| FR-077 counts per Domain in the Modaliteit overlay (T312 reopened) | the counts strip is drawn under the Domain fill and is not visible in the running app; `tests/e2e/overlay-modality.spec.ts` asserts the text only and passes; the layout decision is open as `[ASSUMPTION T312-1]` in `specs/001-omc-studio-v1/tasks.md`, the visibility assertion comes with the fix |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
 
