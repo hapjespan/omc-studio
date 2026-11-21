@@ -1312,5 +1312,10 @@
     "cost_records.delta": "Prognose ten opzichte van budget:",
     "allocation_page.records_empty": "Geen kostenposten gevonden",
     "allocation_page.targets_empty": "Geen doelen gevonden",
-    "overview.empty": "Er zijn nog geen organisaties"
+    "overview.empty": "Er zijn nog geen organisaties",
+    "drawing.zoom_100": "100%",
+    "drawing.pan_left": "Beeld naar links",
+    "drawing.pan_right": "Beeld naar rechts",
+    "drawing.pan_up": "Beeld omhoog",
+    "drawing.pan_down": "Beeld omlaag"
 }

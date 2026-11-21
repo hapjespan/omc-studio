@@ -137,7 +137,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
 </script>
 
 <template>
-    <Head :title="canvas.name" />
+    <Head :title="`${canvas.name} - ${t('shell.mode.entry')}`" />
     <header class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="auth.role" :canvas="shellCanvas" :url="page.url" />
@@ -148,8 +148,8 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         </div>
     </header>
     <ImportStructure :canvas-id="canvas.id" />
-    <div class="mt-4 flex items-start gap-4">
-        <nav :aria-label="t('entry.areas')" class="w-[216px] shrink-0">
+    <div class="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
+        <nav :aria-label="t('entry.areas')" class="w-full shrink-0 md:w-[216px]">
             <h2 class="mb-2 font-display text-[13px] font-semibold">{{ t('entry_design.areas_heading') }}</h2>
             <ul class="flex flex-col gap-2">
                 <li v-for="item in areas" :key="item.key">
@@ -164,7 +164,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
         <section :aria-label="area.label" class="min-w-0 flex-1 rounded-panel border border-hairline bg-surface p-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h2 class="font-display text-base font-semibold">{{ area.label }}</h2>
-                <div v-if="area.kind !== 'text'" class="flex items-center gap-2">
+                <div v-if="area.kind !== 'text'" class="flex flex-wrap items-center gap-2">
                     <EntrySearch v-model="search" />
                     <AppButton id="add-domain-open" variant="primary" icon="plus" aria-controls="add-domain-form" :aria-expanded="adding" @click="adding = !adding">{{ t(`areas.${area.key}.level_1`) }}</AppButton>
                 </div>

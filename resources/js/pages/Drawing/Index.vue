@@ -29,6 +29,7 @@ import Header from './Header.vue';
 import LayersPanel from './LayersPanel.vue';
 import PropertiesPanel from './PropertiesPanel.vue';
 import Toolbar from './Toolbar.vue';
+import { navigate, type NavigateAction } from './navigate';
 
 const props = defineProps<{
     canvas: { id: number; name: string; archived: boolean };
@@ -168,7 +169,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <Head :title="canvas.name" />
+    <Head :title="`${canvas.name} - ${t('shell.mode.drawing')}`" />
     <header class="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
@@ -208,7 +209,7 @@ onBeforeUnmount(() => {
             ></div>
             <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Announcer :message="notice" />
-            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" />
+            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" @navigate="(action: NavigateAction) => engine && navigate(engine, action)" />
         </div>
         <PropertiesPanel
             v-model:grid="grid"

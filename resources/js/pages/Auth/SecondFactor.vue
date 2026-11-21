@@ -2,7 +2,7 @@
 import AuthPanel from './AuthPanel.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { nextTick } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
@@ -21,7 +21,6 @@ function submit(): void {
 
 <template>
     <AuthPanel :title="t('sign_in.second_factor.title')">
-        <Head :title="t('sign_in.second_factor.title')" />
         <p class="text-[13px] text-secondary">{{ t('sign_in.second_factor.intro') }}</p>
         <ErrorSummary :errors="form.errors" />
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">

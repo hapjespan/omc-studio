@@ -253,6 +253,14 @@ export class OpenPencilEngine implements DrawingEngine {
         this.mounted().editor.zoomTo100();
     }
 
+    zoomTo(level: number): void {
+        this.mounted().editor.zoomToLevel(level);
+    }
+
+    panBy(dx: number, dy: number): void {
+        this.mounted().editor.pan(dx, dy);
+    }
+
     getView(): { x: number; y: number; zoom: number } {
         const { panX, panY, zoom } = this.mounted().editor.state;
         return { x: panX, y: panY, zoom };

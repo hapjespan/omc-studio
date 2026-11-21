@@ -4,3 +4,9 @@
     box-shadow: 0 0 0 2px #ffffff;
     scroll-margin-block: 4rem;
 }
+
+[data-artboard] :focus-visible {
+    outline-width: round(up, 2px / var(--artboard-scale, 1), 1px);
+    outline-offset: round(up, 2px / var(--artboard-scale, 1), 1px);
+    box-shadow: 0 0 0 round(up, 2px / var(--artboard-scale, 1), 1px) #ffffff;
+}
