@@ -25,6 +25,10 @@ class NoConfigCommentsTest extends TestCase
         $this->assertSame([], array_filter($tokens, fn ($token) => is_array($token) && $token[0] === T_COMMENT));
     }
 
+    /**
+     * @param  list<string>  $roots
+     * @return list<string>
+     */
     private function commented(array $roots): array
     {
         $commented = [];
@@ -48,6 +52,7 @@ class NoConfigCommentsTest extends TestCase
         return $commented;
     }
 
+    /** @param  array{0: int, 1: string, 2: int}  $token */
     private function isComment(array $token): bool
     {
         if ($token[0] === T_COMMENT) {
