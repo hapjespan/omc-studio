@@ -8,10 +8,12 @@ use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class CanvasRoutesTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -19,11 +21,6 @@ class CanvasRoutesTest extends TestCase
         parent::setUp();
 
         (new ReferenceDataStep)();
-    }
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
     }
 
     public function test_a_canvas_is_started_from_a_template_and_entry_opens(): void

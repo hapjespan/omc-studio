@@ -15,10 +15,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use RuntimeException;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class SampleDataRemoveTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -31,11 +33,6 @@ class SampleDataRemoveTest extends TestCase
         'organisations', 'canvases', 'statements', 'elements', 'owners', 'applications',
         'fiscal_years', 'cost_records', 'yearly_figures', 'allocation_sets', 'allocation_lines',
     ];
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
-    }
 
     public function test_the_page_reports_whether_the_sample_exists(): void
     {

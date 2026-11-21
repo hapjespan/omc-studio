@@ -12,11 +12,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Validation\ValidationException;
+use Tests\Support\StoresSessions;
 use Tests\TestCase;
 
 class UserDeletionTest extends TestCase
 {
     use RefreshDatabase;
+    use StoresSessions;
 
     private const NAME = 'Target Person';
 
@@ -180,15 +182,5 @@ class UserDeletionTest extends TestCase
         $this->storedSession(self::DEVICE, $target);
 
         return $target;
-    }
-
-    private function storedSession(string $id, User $user): void
-    {
-        DB::table('sessions')->insert([
-            'id' => $id,
-            'user_id' => $user->getKey(),
-            'payload' => base64_encode((string) json_encode([Auth::guard('web')->getName() => $user->getKey()])),
-            'last_activity' => Carbon::now()->getTimestamp(),
-        ]);
     }
 }

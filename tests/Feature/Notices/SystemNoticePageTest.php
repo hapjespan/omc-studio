@@ -2,11 +2,14 @@
 
 namespace Tests\Feature\Notices;
 
+use App\Models\Application;
 use App\Models\Canvas;
+use App\Models\Element;
 use App\Models\Owner;
 use App\Models\SystemNotice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -126,5 +129,34 @@ class SystemNoticePageTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('notices.0.details.check', 'Budget: uitsplitsing naar soort kosten sluit niet')
                 ->where('notices.0.details.filter', 'Soort kosten: Personeel, Eigenaar: Inkoop'));
+    }
+
+    public function test_the_page_asks_the_database_the_same_number_of_questions_for_two_notices_as_for_twelve(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create());
+        $owner = Owner::factory()->create();
+        $application = Application::factory()->create();
+
+        $queries = function (int $notices) use ($owner, $application): int {
+            SystemNotice::query()->delete();
+
+            foreach (range(1, $notices) as $number) {
+                $element = Element::factory()->create();
+                SystemNotice::factory()->create(['fingerprint' => 'fact-'.$number, 'details' => [
+                    'year' => 2026,
+                    'filter' => ['ownerId' => (string) $owner->id, 'applicationId' => (string) $application->id],
+                    'check' => 'total.budget.'.$element->id,
+                    'differenceCents' => 1,
+                ]]);
+            }
+
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            $this->get('/admin/system-notices')->assertOk();
+
+            return count(DB::getQueryLog());
+        };
+
+        $this->assertSame($queries(2), $queries(12));
     }
 }

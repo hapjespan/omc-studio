@@ -9,21 +9,18 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class OrganisationListsTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     /** @return array<string, array{string, class-string}> */
     public static function lists(): array
     {
         return ['owners' => ['owners', Owner::class], 'applications' => ['applications', Application::class]];
-    }
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
     }
 
     #[DataProvider('lists')]

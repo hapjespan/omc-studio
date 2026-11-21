@@ -9,16 +9,13 @@ use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class D1RefusalMessagesTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
-    }
 
     public function test_a_user_sent_without_a_name_with_a_bad_email_or_an_unknown_role_is_refused_by_message(): void
     {

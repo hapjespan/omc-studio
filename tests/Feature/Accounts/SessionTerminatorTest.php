@@ -9,16 +9,17 @@ use App\Services\Accounts\SessionTerminator;
 use App\Services\Accounts\TotpVerifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Validation\ValidationException;
 use PragmaRX\Google2FA\Google2FA;
+use Tests\Support\StoresSessions;
 use Tests\TestCase;
 
 class SessionTerminatorTest extends TestCase
 {
     use RefreshDatabase;
+    use StoresSessions;
 
     private const PASSWORD = 'a-long-enough-secret';
 
@@ -182,19 +183,6 @@ class SessionTerminatorTest extends TestCase
         $user->fill(['two_factor_secret' => self::SECRET, 'two_factor_confirmed_at' => Carbon::now()])->save();
 
         return $user;
-    }
-
-    private function storedSession(string $id, User $user): void
-    {
-        DB::table('sessions')->insert([
-            'id' => $id,
-            'user_id' => $user->getKey(),
-            'payload' => base64_encode((string) json_encode([
-                Auth::guard('web')->getName() => $user->getKey(),
-                'signed_in_at' => Carbon::now()->getTimestamp(),
-            ])),
-            'last_activity' => Carbon::now()->getTimestamp(),
-        ]);
     }
 
     private function emptySecurityLog(): string
