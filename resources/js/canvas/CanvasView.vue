@@ -82,7 +82,7 @@ const segments = computed(() => new Map(props.drawn.direction.map((column) => [c
 
 <template>
     <div class="relative" :style="{ width: `${ARTBOARD.width * scale}px`, height: `${height * scale}px` }">
-    <div class="absolute left-0 top-0 origin-top-left" :style="{ width: `${ARTBOARD.width}px`, height: `${height}px`, transform: `scale(${scale})` }" ref="artboard" data-artboard @keydown="move">
+    <div class="absolute left-0 top-0 origin-top-left" :style="{ width: `${ARTBOARD.width}px`, height: `${height}px`, transform: `scale(${scale})`, '--artboard-scale': scale }" ref="artboard" data-artboard @keydown="move">
         <ArtboardEdge :height="height" />
         <Block
             v-for="block in blocks"

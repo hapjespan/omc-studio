@@ -126,6 +126,8 @@ export interface DrawingEngine {
     zoomToFit(): void;
     getZoom(): number;
     zoomTo100(): void;
+    zoomTo(level: number): void;
+    panBy(dx: number, dy: number): void;
     getView(): { x: number; y: number; zoom: number };
     setTool(tool: 'select' | 'pan'): void;
     destroy(): void;
