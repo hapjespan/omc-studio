@@ -2,7 +2,7 @@
 
 ## Result after D2.10
 
-Screenshots of the three screens of deliveries 2 and 3 were retaken on 2026-11-21 after the D2.10 work was merged: the release tip `55b95c8` plus the branch commit `1bb4630`, taken at `d4b7511`. Chromium, viewport 1440 wide, full page, signed in as the Administrator of the committed seed `tests/Support/DesignComparisonSeeder.php` (organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", fiscal year 2026, ten Cost records KP-001 to KP-010 with the budgets and forecasts of the boards, eight of them allocated, so the canvas total is 744.000, assigned 663.000 and unknown 81.000 as on the boards). The shots are made by `scripts/design-compare-shots.mjs`, repeated on an empty database with `php artisan migrate:fresh && php artisan db:seed --class='Tests\Support\DesignComparisonSeeder' && node scripts/design-compare-shots.mjs <base-url> specs/design/compare` (the seed uses fixed e-mail addresses); every file below is the retake of the same name written by that script:
+Screenshots of the three screens of deliveries 2 and 3 were retaken on 2026-11-21 after the D2.10 work was merged: the release tip `29b20eb`, with an empty SQLite database. Chromium, viewport 1440 wide, full page, signed in as the Administrator of the committed seed `tests/Support/DesignComparisonSeeder.php` (organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", fiscal year 2026, ten Cost records KP-001 to KP-010 with the budgets and forecasts of the boards, eight of them allocated, so the canvas total is 744.000, assigned 663.000 and unknown 81.000 as on the boards). The shots are made by `scripts/design-compare-shots.mjs`, repeated on an empty database with `php artisan migrate:fresh && php artisan db:seed --class='Tests\Support\DesignComparisonSeeder' && node scripts/design-compare-shots.mjs <base-url> specs/design/compare` (the seed uses fixed e-mail addresses); every file below is the retake of the same name written by that script on that tip (the Bekijken file came out byte for byte equal to the one already committed, the other two differ):
 
 | Screen | Per-screen status | Built (retaken) | Board |
 |---|---|---|---|
@@ -16,28 +16,28 @@ A defect found by this retake and fixed in `1bb4630` and its follow-up: on the r
 
 ### Shared findings S-01 to S-07
 
-Values are computed styles read from the running pages of the three retaken screens with a throwaway Playwright probe at `d4b7511`; the probe is not committed and the values were not re-read after the later commits of this branch (none changes the shell).
+Values are computed styles read from the running pages of the three screens with a throwaway Playwright probe at `d4b7511`; the probe is not committed and the values were not re-read on the tip `29b20eb`.
 
-| Finding | Status | Read from the retaken screens | Commit |
+| Finding | Status | Read at d4b7511 | Commit |
 |---|---|---|---|
 | S-01 font | closed | body and controls compute to Inter; page titles Space Grotesk | 8ff5310d |
 | S-02 line height | closed | 13 px text has 18.2 px (1.4), as on the board | 8ff5310d |
 | S-03 page background | closed | body `rgb(242, 243, 241)`, shell panels white | 8ff5310d |
 | S-04 top bar | deviating | 56 px, one row, white, 1 px `#DCDFE2` below, logo mark, tabs with a 2 px ink underline, boxed fiscal year selector; the user is a menu button with a chevron where the board shows plain text | 8ff5310d, adf4222 |
 | S-05 buttons | closed | 36 px high, radius 6, weight 500, primary ink fill, secondary white with border `#848B95` (the contract value, decision 45, not the board `#DCDFE2`) | 8ff5310d |
-| S-06 mode switch | closed | one segmented control, active segment ink with white text | 278dcc9 |
+| S-06 mode switch | closed | on Canvas: one segmented control, active segment ink with white text | 278dcc9 |
 | S-07 focus accent and links | closed | "Nu toewijzen" is ink, weight 600; the focus accent colour itself was not re-measured here | 8ff5310d |
 
 ### Top five per screen
 
 | Screen | Finding | Status | Commit |
 |---|---|---|---|
-| Kostenposten | K-01 page structure and card row | deviating (six header actions wrap with the panel open, no menu component) | 7a8b6cf, 39721e8 |
+| Kostenposten | K-01 page structure and card row | deviating (six header actions where the board has three, one row at 1440 with the panel open, no menu component) | 7a8b6cf, 39721e8 |
 | Kostenposten | K-05 table columns and panel | closed | 2caa564, 7a8b6cf |
 | Kostenposten | K-04 one-column form | closed | 7a8b6cf |
 | Kostenposten | K-03 modal over the table | closed | 2caa564 |
 | Kostenposten | K-08 filter bar | closed | 2caa564 |
-| Toewijzen | T-02 page height | closed (the page is 1479 px tall on this seed against 1390 px on the board) | ef8cc99, a59c138 |
+| Toewijzen | T-02 page height | closed (the page is 1427 px tall on this seed against 1390 px on the board) | ef8cc99, a59c138 |
 | Toewijzen | T-04 summary card, amber block and bar | closed | ef8cc99, a59c138 |
 | Toewijzen | T-09 flat target tree | deviating (amounts with cents, decision 40) | ef8cc99, a59c138 |
 | Toewijzen | T-01 white panels and grey page | closed | ef8cc99, a59c138 |
@@ -48,7 +48,7 @@ Values are computed styles read from the running pages of the three retaken scre
 | Bekijken | B-04 two side panels | closed | 9fc33eb |
 | Bekijken | B-12 card amount | closed again with `1bb4630` (visible at last), deviating in size: 13.6 px on screen at the 62 percent fit | 1c2ea75, 1bb4630 |
 
-Differences the retake shows that are not new findings. The seed itself differs from the boards in these ways, so they are not product deviations: Strategie and Financiële sturing have no activities (their cards show no bar or forecast line for lack of room), Plaatsing & planning has no cluster, no modalities are set (the side panel shows "Geen modaliteit 89,1%"), Run and Change are 70 and 30 percent on every record, and Ondersteunende activiteiten shows 414.400 where the board shows 333.400 because the Unknown allocation counts in Supporting activities (ADR 0008). Differences of the product: the Kostenposten rows are ordered by name where the board orders by code; the long name "Leerlingadministratie" still breaks inside the word beside the open panel (known rough edge of `README-kostenposten.md`); the card and list status says "Onbekende allocatie" where the board says "Niet toegewezen" (the glossary term).
+Differences the retake shows that are not new findings. Kostenposten and Toewijzen carry no mode switch in the retake (removed in the M23 change after the first shots), Canvas keeps it. The seed itself differs from the boards in these ways, so they are not product deviations: Strategie and Financiële sturing have no activities (their cards show no bar or forecast line for lack of room), Plaatsing & planning has no cluster, no modalities are set (the side panel shows "Geen modaliteit 89,1%"), Run and Change are 70 and 30 percent on every record, and Ondersteunende activiteiten shows 414.400 where the board shows 333.400 because the Unknown allocation counts in Supporting activities (ADR 0008). Differences of the product: the Kostenposten rows are ordered by name where the board orders by code; the long name "Leerlingadministratie" still breaks inside the word beside the open panel (known rough edge of `README-kostenposten.md`); the card and list status says "Onbekende allocatie" where the board says "Niet toegewezen" (the glossary term).
 
 ## Result after D1.20
 

@@ -115,9 +115,15 @@ export interface EntryWarning {
 
 type ElementWarning = Exclude<LayoutWarning, { kind: 'directionTextCut' }>;
 
-export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], area: AreaKey, measurer: TextMeasurer, layouts: Record<string, ElementLayout> = {}): EntryWarning[] {
+type LayoutWarnings = ReturnType<typeof computeCanvasLayout>['warnings'];
+
+export function canvasWarnings(elements: EntryElement[], areas: EntryAreaInfo[], measurer: TextMeasurer, layouts: Record<string, ElementLayout> = {}): LayoutWarnings {
     const layoutAreas = areas.map(({ key, kind, label }, index) => ({ key, kind: kind as AreaKind, label, position: index + 1 }));
-    const { warnings } = computeCanvasLayout({ areas: layoutAreas, elements: elements.filter(({ archived }) => !archived), statements: [], directionLabels: { mission: '', vision: '', goals: '' }, layouts }, measurer);
+
+    return computeCanvasLayout({ areas: layoutAreas, elements: elements.filter(({ archived }) => !archived), statements: [], directionLabels: { mission: '', vision: '', goals: '' }, layouts }, measurer).warnings;
+}
+
+export function warningsOfArea(warnings: LayoutWarnings, elements: EntryElement[], areas: EntryAreaInfo[], area: AreaKey): EntryWarning[] {
     const list = areas.find(({ key }) => key === area)?.kind === 'list';
     const keys = { emptyCluster: 'entry.warning.empty_cluster', domainWithoutActivities: list ? 'entry.warning.group_without_items' : 'entry.warning.domain_without_activities', beyondArtboard: 'entry.warning.beyond_artboard', overlap: 'layout.warning.overlap', adjusted: 'layout.warning.adjusted' };
     const known = new Set(elements.map(({ id }) => id));
@@ -126,6 +132,9 @@ export function entryWarnings(elements: EntryElement[], areas: EntryAreaInfo[], 
         .filter((warning): warning is ElementWarning => warning.kind !== 'directionTextCut' && warning.area === area && known.has(warning.id))
         .map((warning) => ({ id: warning.id, key: keys[warning.kind], name: warning.name, ...(warning.kind === 'overlap' ? { other: warning.other } : {}) }));
 }
+
+export const entryWarnings = (elements: EntryElement[], areas: EntryAreaInfo[], area: AreaKey, measurer: TextMeasurer, layouts: Record<string, ElementLayout> = {}): EntryWarning[] =>
+    warningsOfArea(canvasWarnings(elements, areas, measurer, layouts), elements, areas, area);
 
 export function filterByName(elements: EntryElement[], text: string): EntryElement[] {
     const needle = text.trim().toLowerCase();

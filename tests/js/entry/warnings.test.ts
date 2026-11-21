@@ -1,7 +1,7 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
-import { buildRows, entryWarnings, type EntryAreaInfo } from '../../../resources/js/pages/Canvas/entry';
+import { buildRows, canvasWarnings, entryWarnings, warningsOfArea, type EntryAreaInfo } from '../../../resources/js/pages/Canvas/entry';
 import Warnings from '../../../resources/js/pages/Canvas/Warnings.vue';
 import { fakeMeasurer } from '../layout/fakeMeasurer';
 import { eightAreas } from '../layout/support';
@@ -27,6 +27,19 @@ describe('entryWarnings', () => {
     it('says group without items in list Areas and ignores archived Elements', () => {
         expect(entryWarnings(rows, areas, 'actors', fakeMeasurer).map(({ key }) => key)).toEqual(['entry.warning.group_without_items']);
         expect(entryWarnings(rows.map((row) => ({ ...row, archived: true })), areas, 'actors', fakeMeasurer)).toEqual([]);
+    });
+});
+
+describe('warningsOfArea', () => {
+    it('reads the warnings of any Area from one layout run without measuring again', () => {
+        let measured = 0;
+        const counting = { ...fakeMeasurer, width: (...args: Parameters<typeof fakeMeasurer.width>) => (measured++, fakeMeasurer.width(...args)) };
+        const all = canvasWarnings(rows, areas, counting);
+        const afterRun = measured;
+
+        expect(warningsOfArea(all, rows, areas, 'primary_activities')).toEqual(entryWarnings(rows, areas, 'primary_activities', fakeMeasurer));
+        expect(warningsOfArea(all, rows, areas, 'actors')).toEqual(entryWarnings(rows, areas, 'actors', fakeMeasurer));
+        expect(measured).toBe(afterRun);
     });
 });
 
