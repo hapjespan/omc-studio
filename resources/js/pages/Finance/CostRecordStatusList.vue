@@ -27,7 +27,8 @@ const allocated = (record: CostRecordRow): boolean => record.status === 'allocat
             <AppButton :variant="unallocatedOnly ? 'primary' : 'secondary'" :aria-pressed="unallocatedOnly" aria-describedby="allocation-filter-hint" :title="t('allocation_page.filter_hint')" @click="unallocatedOnly = !unallocatedOnly">{{ t('allocation_page.filter') }}</AppButton>
         </div>
         <p id="allocation-filter-hint" class="sr-only">{{ t('allocation_page.filter_hint') }}</p>
-        <ul class="mt-2.5 space-y-1.5">
+        <p v-if="shown.length === 0" role="status" class="mt-2.5 text-[13px] text-secondary">{{ t('allocation_page.records_empty') }}</p>
+        <ul v-else class="mt-2.5 space-y-1.5">
             <li v-for="record in shown" :key="record.id">
                 <button type="button" :aria-current="record.id === chosen ? 'true' : undefined" class="block w-full rounded-card bg-white text-left" :class="record.id === chosen ? 'border-2 border-ink px-[11px] py-[9px]' : 'border border-hairline px-3 py-2.5'" @click="emit('choose', record.id)">
                     <span class="flex items-baseline justify-between gap-2 text-[13px]">

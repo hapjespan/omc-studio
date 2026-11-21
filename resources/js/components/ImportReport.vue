@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { t } from '../i18n';
 import Pill from './ui/Pill.vue';
+import ReportTable from './ui/ReportTable.vue';
 
 export interface ImportReportData {
     lines: { line: number; status: string; messages: string[] }[];
@@ -8,23 +10,18 @@ export interface ImportReportData {
     creates?: Record<string, string[]>;
 }
 
-withDefaults(defineProps<{ report: ImportReportData; heading?: 'h2' | 'h3' }>(), { heading: 'h2' });
+const props = withDefaults(defineProps<{ report: ImportReportData; heading?: 'h2' | 'h3' }>(), { heading: 'h2' });
 
 const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
+const totalRows = computed(() => totalKeys.map((key) => ({ key, label: t(`import.total_${key}`), count: props.report.totals[key] })));
 </script>
 
 <template>
     <section role="region" aria-labelledby="import-summary" class="mt-6">
         <component :is="heading" id="import-summary" class="font-display text-[16px] font-semibold">{{ t('import.summary') }}</component>
-        <div class="mt-3 overflow-x-auto rounded-card border border-hairline">
-            <table class="w-full border-collapse text-[13px]">
-                <caption class="sr-only">{{ t('import.summary') }}</caption>
-                <thead><tr><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_status') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-right">{{ t('import.col_count') }}</th></tr></thead>
-                <tbody>
-                    <tr v-for="key in totalKeys" :key="key" class="border-t border-hairline"><th scope="row" class="px-3 py-2.5 text-left font-normal">{{ t(`import.total_${key}`) }}</th><td :class="['px-3 py-2.5 text-right font-semibold', key === 'errors' ? (report.totals.errors ? 'text-danger' : 'text-success') : '']">{{ report.totals[key] }}</td></tr>
-                </tbody>
-            </table>
-        </div>
+        <ReportTable class="mt-3" :caption="t('import.summary')" :columns="[{ key: 'label', label: t('import.col_status') }, { key: 'count', label: t('import.col_count'), align: 'right' }]" :rows="totalRows" row-header="label">
+            <template #cell-count="{ row }"><span :class="['font-semibold', row.key === 'errors' ? (report.totals.errors ? 'text-danger' : 'text-success') : '']">{{ row.count }}</span></template>
+        </ReportTable>
     </section>
     <template v-for="(names, kind) in report.creates ?? {}" :key="kind">
         <section v-if="names.length" role="region" :aria-labelledby="`import-creates-${kind}`" class="mt-6">
@@ -34,18 +31,9 @@ const totalKeys = ['new', 'updated', 'unchanged', 'errors'] as const;
     </template>
     <section role="region" aria-labelledby="import-lines" class="mt-6">
         <component :is="heading" id="import-lines" class="font-display text-[16px] font-semibold">{{ t('import.lines') }}</component>
-        <div class="mt-3 overflow-x-auto rounded-card border border-hairline">
-            <table class="w-full border-collapse text-[13px]">
-                <caption class="sr-only">{{ t('import.lines') }}</caption>
-                <thead><tr><th scope="col" class="whitespace-nowrap px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_line') }}</th><th scope="col" class="whitespace-nowrap px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_status') }}</th><th scope="col" class="px-3 py-2.5 text-[11.5px] font-semibold text-secondary text-left">{{ t('import.col_messages') }}</th></tr></thead>
-                <tbody>
-                    <tr v-for="row in report.lines" :key="row.line" class="border-t border-hairline align-top">
-                        <th scope="row" class="whitespace-nowrap px-3 py-2.5 text-left font-normal">{{ row.line }}</th>
-                        <td class="whitespace-nowrap px-3 py-2.5"><Pill :tone="row.status === 'error' ? 'warning' : row.status === 'new' ? 'success' : 'neutral'">{{ t(`import.status_${row.status}`) }}</Pill></td>
-                        <td class="px-3 py-2.5"><p v-for="message in row.messages" :key="message" class="text-danger">{{ message }}</p></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <ReportTable class="mt-3" :caption="t('import.lines')" :columns="[{ key: 'line', label: t('import.col_line') }, { key: 'status', label: t('import.col_status') }, { key: 'messages', label: t('import.col_messages') }]" :rows="report.lines" row-header="line">
+            <template #cell-status="{ row }"><Pill :tone="row.status === 'error' ? 'warning' : row.status === 'new' ? 'success' : 'neutral'">{{ t(`import.status_${row.status}`) }}</Pill></template>
+            <template #cell-messages="{ row }"><p v-for="message in row.messages as string[]" :key="message" class="text-danger">{{ message }}</p></template>
+        </ReportTable>
     </section>
 </template>

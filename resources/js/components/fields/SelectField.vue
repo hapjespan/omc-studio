@@ -2,6 +2,7 @@
 import { SelectContent, SelectItem, SelectItemText, SelectPortal, SelectRoot, SelectTrigger, SelectValue} from 'reka-ui';
 import Icon from '../ui/Icon.vue';
 import Field from './Field.vue';
+import { invalidEdge } from './edge';
 
 defineProps<{ id: string; label: string; options: { value: string; label: string }[]; hint?: string; error?: string; placeholder?: string; disabled?: boolean }>();
 const model = defineModel<string>();
@@ -10,7 +11,7 @@ const model = defineModel<string>();
 <template>
     <Field :id="id" :label="label" :hint="hint" :error="error" v-slot="{ describedby, invalid }">
         <SelectRoot v-model="model" :disabled="disabled">
-            <SelectTrigger :id="id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="flex h-control items-center justify-between gap-2 rounded-control border border-edge bg-white px-2.5 text-left text-[13px] text-ink">
+            <SelectTrigger :id="id" :aria-describedby="describedby" :aria-invalid="invalid || undefined" :class="['flex h-control items-center justify-between gap-2 rounded-control border bg-white px-2.5 text-left text-[13px] text-ink', invalidEdge(invalid)]">
                 <SelectValue :placeholder="placeholder ?? ''" />
                 <Icon name="chevron-down" class="text-muted" />
             </SelectTrigger>
