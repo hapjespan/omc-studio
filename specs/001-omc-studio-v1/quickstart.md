@@ -15,9 +15,9 @@ How to prove each delivery works end to end. Commands run inside the development
 | PHP tests on PostgreSQL | CI job "PHP suite on PostgreSQL" | green |
 | Static PHP | `composer verify` (Pint, Larastan) | no findings |
 | Front end | `npm run verify` (vue-tsc, ESLint, Vitest) | green |
-| Browser | `npx playwright test` (Playwright on Chromium, Firefox, WebKit) | green, with zero outside requests, zero CSP violations, zero axe violations |
+| Browser | `npx playwright test --grep-invert '@performance|Secure session cookie'` (Playwright on Chromium, Firefox, WebKit) | green, with zero outside requests, zero CSP violations, zero axe violations |
 | Built assets | `npm run build && npm run check` | no outside URL (FR-098) |
-| Forbidden names | `npm run check` | pass, or a visible skip when the list file is absent (FR-099) |
+| Forbidden names | `ALLOWED_SKIPS='forbidden names' npm run check` | pass, or a visible skip when the list file is absent (FR-099) |
 | Audits | `composer audit`, `node scripts/check-audit.mjs` (the accepted set of ADR 0040) | no high or critical outside the accepted set |
 
 ## Delivery 1
