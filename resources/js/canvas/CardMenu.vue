@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui';
+import { computed } from 'vue';
+import ActionMenu, { type MenuAction } from '../components/ui/ActionMenu.vue';
 import AppButton from '../components/ui/AppButton.vue';
 import { t } from '../i18n';
 
 export type CardAction = 'copy' | 'rename' | 'archive' | 'restore' | 'delete' | 'save_template';
 
-defineProps<{ name: string; archived: boolean; template?: boolean }>();
+const props = defineProps<{ name: string; archived: boolean; template?: boolean }>();
 const emit = defineEmits<{ select: [action: CardAction] }>();
 
-const item = 'cursor-pointer rounded px-3 py-1.5 data-[highlighted]:bg-accent-soft';
+const items = computed<MenuAction[]>(() =>
+    [
+        { key: 'copy', label: t('canvas_card.copy'), shown: !props.template },
+        { key: 'rename', label: t('canvas_card.rename'), shown: !props.archived },
+        { key: 'save_template', label: t('entry.save_template'), shown: !props.template },
+        { key: 'restore', label: t('canvas_card.restore'), shown: props.archived },
+        { key: 'archive', label: t('canvas_card.archive'), shown: !props.archived && !props.template },
+        { key: 'delete', label: t('canvas_card.delete'), shown: true },
+    ].filter((item) => item.shown),
+);
 </script>
 
 <template>
-    <DropdownMenuRoot :modal="false">
-        <DropdownMenuTrigger as-child :aria-label="t('canvas_card.actions', { name })"><AppButton class="self-start">{{ t('canvas_card.actions_label') }}</AppButton></DropdownMenuTrigger>
-        <DropdownMenuPortal>
-            <DropdownMenuContent align="start" class="z-40 min-w-44 rounded-md border border-edge bg-white p-1 text-[13px] shadow-float">
-                <DropdownMenuItem v-if="!template" :class="item" @select="emit('select', 'copy')">{{ t('canvas_card.copy') }}</DropdownMenuItem>
-                <DropdownMenuItem v-if="!archived" :class="item" @select="emit('select', 'rename')">{{ t('canvas_card.rename') }}</DropdownMenuItem>
-                <DropdownMenuItem v-if="!template" :class="item" @select="emit('select', 'save_template')">{{ t('entry.save_template') }}</DropdownMenuItem>
-                <DropdownMenuItem v-if="archived" :class="item" @select="emit('select', 'restore')">{{ t('canvas_card.restore') }}</DropdownMenuItem>
-                <DropdownMenuItem v-else-if="!template" :class="item" @select="emit('select', 'archive')">{{ t('canvas_card.archive') }}</DropdownMenuItem>
-                <DropdownMenuItem :class="item" @select="emit('select', 'delete')">{{ t('canvas_card.delete') }}</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenuPortal>
-    </DropdownMenuRoot>
+    <ActionMenu :items="items" align="start" :trigger-label="t('canvas_card.actions', { name })" @select="emit('select', $event as CardAction)">
+        <template #trigger><AppButton class="self-start">{{ t('canvas_card.actions_label') }}</AppButton></template>
+    </ActionMenu>
 </template>

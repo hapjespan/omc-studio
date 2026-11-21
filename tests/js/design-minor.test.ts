@@ -47,7 +47,7 @@ describe('typography and elevation tokens', () => {
     });
 
     it('uses the one float shadow on every floating surface', () => {
-        const floating = ['components/ui/ActionMenu.vue', 'shell/UserMenu.vue', 'components/fields/SelectField.vue', 'canvas/CardMenu.vue', 'shell/SessionTimer.vue', 'pages/Drawing/DragLabel.vue', 'pages/Drawing/DirectionBand.vue', 'canvas/HoverContent.vue'];
+        const floating = ['components/ui/ActionMenu.vue', 'components/fields/SelectField.vue', 'shell/SessionTimer.vue', 'pages/Drawing/DragLabel.vue', 'pages/Drawing/DirectionBand.vue', 'canvas/HoverContent.vue'];
 
         for (const path of floating) expect(read(`resources/js/${path}`), path).toContain('shadow-float');
         for (const path of sources('resources/js')) expect(read(path), path).not.toMatch(/shadow-lg|shadow-\[0_1px_3px/);
@@ -92,5 +92,21 @@ describe('the modality badge', () => {
         expect(read('resources/js/canvas/Block.vue')).not.toMatch(/h-4 w-4[^"]*text-white/);
         expect(read('resources/js/canvas/CanvasView.vue')).toContain('export interface ModalityColour');
         expect(read('resources/js/canvas/CanvasView.vue')).not.toContain('interface ModalityMark');
+    });
+});
+
+describe('the action menus', () => {
+    it('builds CardMenu and UserMenu on ActionMenu instead of their own dropdown markup', () => {
+        for (const path of ['resources/js/canvas/CardMenu.vue', 'resources/js/shell/UserMenu.vue']) {
+            expect(read(path), path).toContain('<ActionMenu');
+            expect(read(path), path).not.toContain('DropdownMenuContent');
+        }
+    });
+
+    it('gives ActionMenu a trigger slot and an optional trigger label', () => {
+        const source = read('resources/js/components/ui/ActionMenu.vue');
+
+        expect(source).toContain('name="trigger"');
+        expect(source).toContain('triggerLabel');
     });
 });
