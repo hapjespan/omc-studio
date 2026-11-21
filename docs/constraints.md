@@ -112,8 +112,13 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 | Password hash | Until changed or the account is deleted | Overwritten on change; row deleted with the account |
 | Second-factor key, recovery code hashes | Until turned off, reset, used (codes), regenerated, or account deleted | Removed by the user, by an Administrator's reset, by the console command (FR-008), or with the account |
 | Actor reference in Audit log, "Definitief door", "Gemaakt door" | As long as the record | Pseudonymised at user deletion; removed with its Canvas or Organisation |
-| Session record | 120 minutes idle or sign-out | R-6 |
-| Throttle key | 60 seconds | R-7 |
+| Session record and session payload (encrypted at rest; holds the user reference, sign-in time and flashed one-time passwords or recovery codes) | 120 minutes idle or sign-out | R-6 |
+| Throttle key | Expires after 60 seconds; the file is removed on the next read or on a cache clear | R-7 |
+| Undo record (user identifier and deleted rows) | 10 minutes, removed at restore and at sign-out | ADR 0033 |
+| User identifier in the application error log | 14 days | R-5 |
+| First Administrator e-mail address in the container log | As long as the operator keeps the container log | R-25 |
+| Account state columns (one-time password expiry, must-change flag, second-factor times) | Until the account is deleted | Row deleted with the account |
+| User identifiers inside Audit values | As long as the Audit entry | Pseudonymised at user deletion |
 | User identifier in the security log | 90 days | R-4 |
 | Personal data in backups | The product owner's | R-9 |
 
@@ -139,7 +144,7 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 
 **Notification**: the warned Administrator informs the product owner; the product owner starts the ISO notification policy of their organisation, which sets the windows, the parties to notify and the channels (GATE-U2). The application names no window or contact of its own.
 
-**Reconstruction**: the Audit log answers who changed what; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026).
+**Reconstruction**: the Audit log answers who changed what; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026). "From where" a session came is not recorded by the application (SD-20); the host's sshd log of the SSH tunnel (ADR 0024) shows which connection was open at that time.
 
 ## 9. ADRs that close off design options
 
