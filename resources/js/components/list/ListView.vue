@@ -20,7 +20,7 @@ export type ListColumn = { key: string; label: string; sortable?: boolean; align
 export type UndoState = { id: number | string; message: string; refusal?: string | null };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; kind?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean; undoable?: boolean; createLabel?: string; searchPlaceholder?: string; dock?: HTMLElement | null; eyebrow?: (row: ListRow | null) => string | null }>(), { canCreate: true, undoable: true });
+const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; kind?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean; undoable?: boolean; complete?: boolean; createLabel?: string; searchPlaceholder?: string; dock?: HTMLElement | null; eyebrow?: (row: ListRow | null) => string | null }>(), { canCreate: true, undoable: true, complete: true });
 const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; undo: []; dismissUndo: []; bulk: [key: string, rows: ListRow[]]; restore: [row: ListRow] }>();
 
 const editing = ref<ListRow | 'new' | null>(null);
@@ -195,7 +195,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                 <caption class="sr-only">{{ title }}</caption>
                 <thead>
                     <tr class="border-b border-hairline">
-                        <th v-if="bulkActions?.length" scope="col" class="pl-3 pr-2 py-2.5"><CheckBox v-model="allChecked" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" /></th>
+                        <th v-if="bulkActions?.length" scope="col" class="pl-3 pr-2 py-2.5"><CheckBox v-model="allChecked" :disabled="!complete" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" /></th>
                         <template v-for="column in columns" :key="column.key">
                             <SortHeader v-if="column.sortable" :label="column.label" :direction="directionOf(column.key)" :align="column.align" @sort="sortBy(column.key)" />
                             <th v-else scope="col" :class="['pl-3 pr-2 py-2.5 text-[11.5px] font-semibold text-secondary', column.align === 'right' ? 'text-right' : 'text-left']">{{ column.label }}</th>
