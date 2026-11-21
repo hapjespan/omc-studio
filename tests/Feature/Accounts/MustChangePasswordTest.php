@@ -145,7 +145,9 @@ class MustChangePasswordTest extends TestCase
 
         $this->assertDatabaseMissing('sessions', ['id' => 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb']);
         $this->assertSame(1, DB::table('sessions')->where('user_id', $user->id)->count());
+        $this->assertDatabaseHas('sessions', ['id' => session()->getId(), 'user_id' => $user->id]);
         $this->assertAuthenticatedAs($user);
+        $this->get('/')->assertOk();
     }
 
     private function storedSession(string $id, User $user): void
