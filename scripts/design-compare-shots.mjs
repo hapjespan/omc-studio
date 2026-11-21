@@ -26,7 +26,7 @@ await page.getByRole('dialog', { name: 'Team ICT' }).waitFor();
 await shot('kostenposten-built-v2');
 
 await page.goto(`${base}/canvases/${canvas}/allocation?year=2026&cost_record=${licences}`);
-await page.getByRole('tree').waitFor();
+await page.getByRole('region', { name: 'Doelen op het canvas' }).waitFor();
 for (const name of ['Financiën', 'ICT']) {
     const button = page.getByRole('button', { name: `Uitklappen: ${name}` });
     if ((await button.count()) > 0) await button.click();
