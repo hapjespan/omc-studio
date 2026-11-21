@@ -11,7 +11,7 @@ import type { TargetRow } from '../../allocation/types';
 import { descendantNames, NAME_LIMIT, type ElementCost, type EntryElement } from './entry';
 import RedistributionDialog from './RedistributionDialog.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; cost?: ElementCost; targets: TargetRow[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; cost?: ElementCost; targets: TargetRow[]; loaded: boolean; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
 const refusal = ref('');
 const archiving = ref(false);
 const deleting = ref(false);
@@ -51,8 +51,8 @@ const choose = (choice: 'delete' | 'lift'): void => {
     <p v-if="refusal" role="alert" class="mb-2 text-[12.5px] font-medium text-danger">{{ refusal }}</p>
     <div class="flex flex-wrap gap-2">
         <slot />
-        <AppButton @click="startArchive">{{ t('entry.archive') }}</AppButton>
-        <AppButton variant="danger" @click="startDelete">{{ t('entry.delete') }}</AppButton>
+        <AppButton :disabled="!loaded" @click="startArchive">{{ t('entry.archive') }}</AppButton>
+        <AppButton variant="danger" :disabled="!loaded" @click="startDelete">{{ t('entry.delete') }}</AppButton>
     </div>
     <Dialog v-model:open="archiving" :title="t('entry.archive_title', { name: element.name })" :description="names.length ? t('entry.archive_with', { names: listed }) : t('entry.archive_alone')">
         <div class="flex gap-2">

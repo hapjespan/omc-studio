@@ -1357,6 +1357,7 @@
     "snap.panel": "Momentopname bewerken",
     "snap.none": "geen",
     "entry_costs.none": "Geen kosten toegewezen in :year. Verwijderen kan direct.",
+    "entry_costs.loading": "Kosten worden geladen",
     "entry_costs.none_no_year": "Geen kosten toegewezen. Verwijderen kan direct.",
     "entry_costs.allocated": ":amount toegewezen in :year, verdeeld over :records. Herverdelen is nodig voor archiveren of verwijderen.",
     "entry_costs.other_years": "Geen kosten toegewezen in :year, wel in :years. Herverdelen is nodig voor archiveren of verwijderen.",
