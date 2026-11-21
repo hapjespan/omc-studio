@@ -137,7 +137,7 @@ class SecondFactorService
             SecurityLog::record('second_factor_password_throttled');
 
             throw ValidationException::withMessages([
-                'current_password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+                'current_password' => $throttle->message($identifier),
             ]);
         }
 

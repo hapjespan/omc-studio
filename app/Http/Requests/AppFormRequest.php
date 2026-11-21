@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 abstract class AppFormRequest extends FormRequest
 {
+    private const NEVER_TRIMMED = ['current_password', 'password', 'password_confirmation'];
+
     protected function prepareForValidation(): void
     {
         $this->replace($this->trimStrings($this->all()));
@@ -15,10 +17,17 @@ abstract class AppFormRequest extends FormRequest
      * @return array<array-key, mixed> */
     private function trimStrings(array $values): array
     {
-        return array_map(fn ($value) => match (true) {
-            is_string($value) => trim($value),
-            is_array($value) => $this->trimStrings($value),
-            default => $value,
-        }, $values);
+        $trimmed = [];
+
+        foreach ($values as $key => $value) {
+            $trimmed[$key] = match (true) {
+                in_array($key, self::NEVER_TRIMMED, true) => $value,
+                is_string($value) => trim($value),
+                is_array($value) => $this->trimStrings($value),
+                default => $value,
+            };
+        }
+
+        return $trimmed;
     }
 }

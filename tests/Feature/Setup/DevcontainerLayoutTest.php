@@ -57,12 +57,14 @@ class DevcontainerLayoutTest extends TestCase
         $this->assertStringNotContainsString('- .:/workspace/omc-studio', $compose);
     }
 
-    public function test_the_compose_file_heads_the_dev_setup_with_the_local_env_lines(): void
+    public function test_the_devcontainer_files_carry_no_comments_and_no_stale_frontend_text(): void
     {
-        $compose = $this->read('.devcontainer/docker-compose.yml');
+        foreach (['.devcontainer/docker-compose.yml', '.devcontainer/Dockerfile'] as $file) {
+            $content = $this->read($file);
 
-        $this->assertStringContainsString('# COMPOSE_FILE=.devcontainer/docker-compose.yml', $compose);
-        $this->assertStringContainsString('# COMPOSE_PROJECT_NAME=omc-studio', $compose);
+            $this->assertDoesNotMatchRegularExpression('/^\s*#/m', $content, $file);
+            $this->assertStringNotContainsString('React', $content, $file);
+        }
     }
 
     public function test_the_devcontainer_readme_lists_every_local_env_line(): void
