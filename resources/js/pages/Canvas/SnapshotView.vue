@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowRef } from 'vue';
+import { computed } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
@@ -11,8 +11,8 @@ import SnapshotBanner from '../../canvas/SnapshotBanner.vue';
 import VersionSelect from '../../canvas/VersionSelect.vue';
 import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
-import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import type { CanvasLayoutInput } from '../../layout';
+import { useMeasurer } from '../../canvas/useMeasurer';
 import HeaderSlot from '../../shell/HeaderSlot.vue';
 import { useQuietStatus } from '../../shell/layout';
 
@@ -35,8 +35,7 @@ const props = defineProps<{
 }>();
 
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
-const measurer = shallowRef<TextMeasurer | null>(null);
-onMounted(async () => (measurer.value = await createBrowserMeasurer()));
+const measurer = useMeasurer();
 const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 </script>
 
