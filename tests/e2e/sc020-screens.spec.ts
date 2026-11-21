@@ -135,21 +135,21 @@ test.describe('SC-020: every remaining screen answers within one second at 500 E
     });
 
     test('Eigenaren with 1000 owners', async ({ page, browserName }) => {
-        seedPhp(`App\\Models\\Owner::factory()->count(${LIST_VOLUME})->create(['organisation_id' => ${seed.organisation}]);`);
+        seedPhp(`App\\Models\\Owner::factory()->count(${LIST_VOLUME})->sequence(fn ($sequence) => ['name' => 'Eigenaar '.$sequence->index])->create(['organisation_id' => ${seed.organisation}]);`);
         await signInAs(page, 'administrator');
         await measure(page, 'Eigenaren', browserName, `/admin/organisations/${seed.organisation}/owners`, 'tbody tr', count(`App\\Models\\Owner::where('organisation_id', ${seed.organisation})->count()`));
     });
 
     test('Applicaties with 1000 applications', async ({ page, browserName }) => {
-        seedPhp(`App\\Models\\Application::factory()->count(${LIST_VOLUME})->create(['organisation_id' => ${seed.organisation}]);`);
+        seedPhp(`App\\Models\\Application::factory()->count(${LIST_VOLUME})->sequence(fn ($sequence) => ['name' => 'Applicatie '.$sequence->index])->create(['organisation_id' => ${seed.organisation}]);`);
         await signInAs(page, 'administrator');
         await measure(page, 'Applicaties', browserName, `/admin/organisations/${seed.organisation}/applications`, 'tbody tr', count(`App\\Models\\Application::where('organisation_id', ${seed.organisation})->count()`));
     });
 
     test('Organisaties with 1000 organisations', async ({ page, browserName }) => {
-        seedPhp(`App\\Models\\Organisation::factory()->count(${LIST_VOLUME})->create();`);
+        seedPhp(`App\\Models\\Organisation::factory()->count(${LIST_VOLUME})->sequence(fn ($sequence) => ['name' => 'Organisatie '.$sequence->index])->create();`);
         await signInAs(page, 'administrator');
-        await measure(page, 'Organisaties', browserName, '/admin/organisations', 'tbody tr', count('App\\Models\\Organisation::count()'));
+        await measure(page, 'Organisaties', browserName, '/admin/organisations', 'tbody tr', count('App\\Models\\Organisation::whereNull("archived_at")->count()'));
     });
 
     test('Inloggen page', async ({ page, browserName }) => {
