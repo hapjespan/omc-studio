@@ -1,6 +1,9 @@
 import { SceneGraph } from '@open-pencil/scene-graph';
 import { ARTBOARD, type DrawnBlock, type DrawnCanvas } from '../layout';
 import { textOffset } from './fontCalibration';
+import { splitDirectionLine, type DirectionSegment } from '../canvas/directionLines';
+import { t } from '../i18n';
+import { DIRECTION_BODY_LINE as BODY_LINE, DIRECTION_PADDING, GOAL_INDENT } from '../layout/direction';
 import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 
 export const ARTBOARD_ID = 'artboard';
@@ -51,15 +54,16 @@ export function placesOf(canvas: DrawnCanvas): Map<string, Place> {
     return places;
 }
 
-const DIRECTION_PADDING = 16;
 const LABEL_LINE = 14;
 const LABEL_GAP = 8;
-const BODY_LINE = 18;
+const LOGO_BOX = { width: 160, height: 92, radius: 8 };
+type TextAdder = (id: string, x: number, y: number, width: number, lines: string[], size: number, weight: number, lineHeight: number, hex: string) => string;
 
 function addDirectionText(graph: SceneGraph, canvas: DrawnCanvas, block: DrawnBlock): void {
-    const text = (id: string, x: number, y: number, width: number, lines: string[], size: number, weight: number, lineHeight: number, hex: string) =>
-        graph.createNodeWithId(`${block.id}-${id}${TEXT_SUFFIX}`, 'TEXT', block.id, {
-            name: `${block.id}-${id}${TEXT_SUFFIX}`,
+    const text: TextAdder = (id, x, y, width, lines, size, weight, lineHeight, hex) => {
+        const nodeId = `${block.id}-${id}${TEXT_SUFFIX}`;
+        graph.createNodeWithId(nodeId, 'TEXT', block.id, {
+            name: nodeId,
             x,
             y,
             width,
@@ -73,11 +77,55 @@ function addDirectionText(graph: SceneGraph, canvas: DrawnCanvas, block: DrawnBl
             textAlignHorizontal: 'LEFT',
             fills: solid(hex),
         });
+        return nodeId;
+    };
     for (const column of canvas.direction) {
+        const left = column.x + DIRECTION_PADDING;
         const width = column.width - 2 * DIRECTION_PADDING;
-        if (column.label) text(`${column.key}-label`, column.x + DIRECTION_PADDING, DIRECTION_PADDING, width, [column.label.toUpperCase()], 11, 600, LABEL_LINE, block.style.labelColour);
-        if (column.lines.length > 0) text(column.key, column.x + DIRECTION_PADDING, DIRECTION_PADDING + LABEL_LINE + LABEL_GAP, width, column.lines, 13, column.key === 'goals' ? 600 : 400, BODY_LINE, block.style.textColour);
+        const top = DIRECTION_PADDING + (column.label ? LABEL_LINE + LABEL_GAP : 0);
+        if (column.label) text(`${column.key}-label`, left, DIRECTION_PADDING, width, [column.label.toUpperCase()], 11, 600, LABEL_LINE, block.style.labelColour);
+        if (column.key === 'logo') addLogoBox(graph, block, left, text);
+        const segments = column.lines.map((line, index) => splitDirectionLine(line, column.marks[index]));
+        if (segments.length === 0) continue;
+        if (column.key !== 'goals') {
+            text(column.key, left, top, width, column.lines, 13, 400, BODY_LINE, block.style.textColour);
+            continue;
+        }
+        segments.forEach((segment, index) => {
+            if (segment.number) text(`goals-number-${index}`, left, top + index * BODY_LINE, GOAL_INDENT, [segment.number.trim()], 13, 400, BODY_LINE, block.style.textColour);
+        });
+        const body = segments.map((segment) => segment.bold + segment.rest);
+        const node = text('goals', left + GOAL_INDENT, top, width - GOAL_INDENT, body, 13, 400, BODY_LINE, block.style.textColour);
+        const runs = boldRuns(segments);
+        if (runs.length > 0) graph.updateNode(node, { styleRuns: runs });
     }
+}
+
+function boldRuns(segments: DirectionSegment[]): { start: number; length: number; style: { fontWeight: number } }[] {
+    const runs: { start: number; length: number; style: { fontWeight: number } }[] = [];
+    let offset = 0;
+    for (const segment of segments) {
+        if (segment.bold.length > 0) runs.push({ start: offset, length: segment.bold.length, style: { fontWeight: 600 } });
+        offset += segment.bold.length + segment.rest.length + 1;
+    }
+    return runs;
+}
+
+function addLogoBox(graph: SceneGraph, block: DrawnBlock, left: number, text: TextAdder): void {
+    const id = `${block.id}-logo-box${TEXT_SUFFIX}`;
+    graph.createNodeWithId(id, 'FRAME', block.id, {
+        name: id,
+        x: left,
+        y: DIRECTION_PADDING,
+        width: LOGO_BOX.width,
+        height: LOGO_BOX.height,
+        fills: [],
+        strokes: [{ ...strokePaint('#ffffff', 1, true), opacity: 0.4 }],
+        cornerRadius: LOGO_BOX.radius,
+        clipsContent: false,
+    });
+    const label = text('logo-label', left, DIRECTION_PADDING + (LOGO_BOX.height - LABEL_LINE) / 2, LOGO_BOX.width, [t('view.direction.logo').toUpperCase()], 11, 600, LABEL_LINE, block.style.labelColour);
+    graph.updateNode(label, { textAlignHorizontal: 'CENTER' });
 }
 
 export function buildScene(canvas: DrawnCanvas): SceneGraph {
