@@ -113,8 +113,8 @@ const canClear = computed(() => writable.value && record.value?.status === 'allo
 <template>
     <Head :title="t('allocation_page.title')" />
     <h1 class="sr-only">{{ t('allocation_page.title') }}: {{ canvas.name }}</h1>
-    <p v-if="finalised" role="status" class="mb-3 text-[13px] text-warning">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</p>
-    <p v-if="year === null" role="status" class="mb-3 text-[13px]">{{ t('allocation_page.no_year') }}</p>
+    <Callout v-if="finalised" role="status" class="mb-3">{{ t('allocation_page.finalised', { year: year ?? '' }) }}</Callout>
+    <Callout v-if="year === null" role="status" class="mb-3">{{ t('allocation_page.no_year') }}</Callout>
     <div v-if="errors.rule" role="alert" class="mb-3"><ErrorSummary :errors="errors" /></div>
     <div v-if="undo.state.value" class="mb-3"><UndoMessage :message="undo.state.value.message" :refusal="undo.state.value.refusal" @undo="undo.run" @close="undo.dismiss" /></div>
     <div class="grid items-start gap-5 lg:grid-cols-[346px_minmax(0,1fr)_380px]">

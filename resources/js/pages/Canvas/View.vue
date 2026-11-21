@@ -59,6 +59,6 @@ const plain = ref(false);
         </div>
     </HeaderSlot>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" :administrator="role === 'administrator'" />
-    <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
+    <Callout v-if="figuresMessage" tone="danger" role="alert" class="mb-3" data-figures-message>{{ figuresMessage }}</Callout>
     <CanvasStage :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="filterOptions.costKinds" :canvas-id="canvas.id" :can-assign="role === 'administrator'" :plain="plain" />
 </template>

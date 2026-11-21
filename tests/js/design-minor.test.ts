@@ -110,3 +110,17 @@ describe('the action menus', () => {
         expect(source).toContain('triggerLabel');
     });
 });
+
+describe('the notices', () => {
+    it.each([
+        ['resources/js/canvas/OverflowNotice.vue', 'data-overflow-notice'],
+        ['resources/js/pages/Canvas/View.vue', 'data-figures-message'],
+        ['resources/js/pages/Canvas/SnapshotView.vue', 'data-figures-message'],
+        ['resources/js/pages/Finance/Allocation.vue', 'allocation_page.finalised'],
+    ])('are Callout components in %s', (path, marker) => {
+        const line = read(path).split('\n').find((candidate) => candidate.includes(marker)) ?? '';
+
+        expect(line).toContain('<Callout');
+        expect(line).not.toMatch(/rounded-(md|control) border/);
+    });
+});

@@ -52,6 +52,6 @@ const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLa
         <VersionSelect :canvas-id="canvas.id" :versions="versions" :current="snapshot.id" />
     </SnapshotBanner>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
-    <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
+    <Callout v-if="figuresMessage" tone="danger" role="alert" class="mb-3" data-figures-message>{{ figuresMessage }}</Callout>
     <CanvasStage v-if="!damaged" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="costKinds" :canvas-id="canvas.id" :can-assign="false" />
 </template>

@@ -36,7 +36,7 @@ describe('Warnings and the empty mark', () => {
 
         const html = await render([{ id: 'c1', key: 'entry.warning.empty_cluster', name: 'Peuters' }]);
         expect(html).toContain('Waarschuwingen (1)');
-        expect(html).toMatch(/Leeg cluster:<\/span> (<!--\[-->)?Peuters/);
+        expect(html).toMatch(/Leeg cluster:<\/span> (<!--\]-->)?(<!--\[-->)?Peuters/);
         expect(await render([])).not.toContain('Waarschuwingen');
     });
 

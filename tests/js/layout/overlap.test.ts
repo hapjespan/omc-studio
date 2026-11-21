@@ -67,6 +67,6 @@ describe('Warnings list', () => {
         const { renderToString } = await import('vue/server-renderer');
         const { default: Warnings } = await import('../../../resources/js/pages/Canvas/Warnings.vue');
         const html = await renderToString(createSSRApp({ render: () => h(Warnings, { warnings: [{ id: 'a', key: 'layout.warning.overlap', name: 'Alfa', other: 'Beta' }] }) }));
-        expect(html).toMatch(/Overlapt:<\/span> (<!--\[-->)?Alfa en Beta/);
+        expect(html).toMatch(/Overlapt:<\/span> (<!--\]-->)?(<!--\[-->)?Alfa en Beta/);
     });
 });
