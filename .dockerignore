@@ -25,3 +25,5 @@ storage/*
 .playwright-browsers
 test-results
 .forbidden-names
+.env
+.env.*

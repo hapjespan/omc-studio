@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, ref, useId, watch } from 'vue';
 import { t } from '../../i18n';
 import DiscardConfirm from '../ui/DiscardConfirm.vue';
 import IconButton from '../ui/IconButton.vue';
@@ -8,6 +8,7 @@ import IconButton from '../ui/IconButton.vue';
 const props = defineProps<{ title: string; description?: string; kind?: string; dirty?: boolean; variant?: 'dialog' | 'panel' }>();
 const open = defineModel<boolean>('open', { default: false });
 const confirming = ref(false);
+const discardTitleId = useId();
 const keepEditing = ref<InstanceType<typeof DiscardConfirm>>();
 
 watch(open, () => (confirming.value = false));
@@ -47,7 +48,7 @@ function discard(): void {
                 <DialogTitle class="pr-9 font-display text-[18px] font-semibold">{{ title }}</DialogTitle>
                 <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-secondary">{{ description }}</DialogDescription>
                 <div class="mt-3"><slot :request-close="requestClose" /></div>
-                <DiscardConfirm v-if="confirming" ref="keepEditing" @keep="confirming = false" @discard="discard" />
+                <DiscardConfirm v-if="confirming" ref="keepEditing" :title-id="discardTitleId" @keep="confirming = false" @discard="discard" />
                 <IconButton :label="t('dialog.close')" icon="close" class="absolute right-3 top-3" @click="requestClose" />
             </DialogContent>
         </DialogPortal>
