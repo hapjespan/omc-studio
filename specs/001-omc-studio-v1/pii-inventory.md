@@ -45,7 +45,7 @@ No new personal field. Checked per addition against the elements above:
 ## Residual risk
 
 - Free-text fields (Supplier, Owner, descriptions, remarks, Rationales, Statements) could receive a person's name by mistake, or name a sole trader as Supplier. Mitigation: the Owner hint, and the Audit log shows who entered it so it can be corrected. No automatic detection.
-- `make backup` copies the whole database file, user data included, to a folder on the same machine. Retention of backups is the product owner's; the README says to delete backups that are no longer needed and to keep them on the same protected machine.
+- `make backup` copies the whole database file, user data included, to a folder on the same machine. Retention of backups is the product owner's; the README says to delete backups that are no longer needed and to keep the copy safe.
 - Exports (JSON, CSV, PNG, PDF) hold Organisation and cost data but no user data; where they go after download is the product owner's responsibility.
 
 ## Change rule
