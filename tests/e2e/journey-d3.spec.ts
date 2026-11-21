@@ -116,10 +116,10 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     expect(JSON.parse(exported).canvas.elements.length).toBeGreaterThanOrEqual(4);
     await page.goto('/overview');
     await activate(page, page.getByRole('button', { name: 'Importeren uit JSON' }));
-    await type(page, page.getByLabel('Naam van de nieuwe organisatie'), unique('Import'));
-    await type(page, page.getByLabel('Naam van het canvas'), unique('Terug'));
     await tabTo(page, page.getByLabel('JSON-bestand'));
     await page.getByLabel('JSON-bestand').setInputFiles({ name: 'canvas.json', mimeType: 'application/json', buffer: Buffer.from(exported) });
+    await type(page, page.getByLabel('Naam van de nieuwe organisatie'), unique('Import'));
+    await type(page, page.getByLabel('Naam van het canvas'), unique('Terug'));
     await activate(page, page.getByRole('button', { name: 'Controleren' }));
     await expect(page.getByRole('status').filter({ hasText: 'Controle klaar: geen fouten' })).toBeVisible();
     await activate(page, page.getByRole('button', { name: 'Importeren', exact: true }));
