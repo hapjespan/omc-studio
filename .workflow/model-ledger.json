@@ -36,7 +36,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T010": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T011": {
     "built_by": "claude-opus-5",
@@ -1458,7 +1459,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T366": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T367": {
     "built_by": "claude-sonnet-5-5",
@@ -1469,10 +1471,12 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T369": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T370": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T371": {
     "built_by": "claude-opus-5",
@@ -1543,6 +1547,7 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T388": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   }
 }
