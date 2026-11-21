@@ -149,11 +149,11 @@ jobs:
           status=0
           for engine in chromium firefox webkit; do
             sh scripts/serve-e2e.sh
-            xvfb-run -a npx playwright test --project=$engine --grep-invert '@performance|Secure session cookie' || status=1
+            xvfb-run -a npx playwright test --project=$engine --grep-invert '@performance|Secure session cookie' --retries=0 || status=1
           done
           exit $status
       - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
-      - run: xvfb-run -a npx playwright test --project=chromium --grep 'Secure session cookie'
+      - run: xvfb-run -a npx playwright test --project=chromium --grep 'Secure session cookie' --retries=0
 
   e2e-performance:
     name: Playwright performance on three engines
