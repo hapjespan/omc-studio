@@ -22,5 +22,8 @@ export function createPendingAdministrator(): { email: string; password: string 
 export function oneTimePassword(): string {
     const log = execFileSync('cat', ['.scratch/e2e-install.log']).toString();
 
-    return /One-time password: (\S+)/.exec(log)?.[1] ?? '';
+    const password = /One-time password: (\S+)/.exec(log)?.[1];
+    if (!password) throw new Error('No one-time password in .scratch/e2e-install.log: run scripts/serve-e2e.sh to install a fresh database');
+
+    return password;
 }
