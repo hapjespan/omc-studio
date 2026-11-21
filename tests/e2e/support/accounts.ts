@@ -11,16 +11,22 @@ export function createUser(): { email: string; password: string } {
     return { email, password };
 }
 
-export function createPendingAdministrator(): { email: string; password: string } {
-    const email = `${randomUUID()}@example.test`;
-    const code = `$u = App\\Models\\User::factory()->administrator()->create(['email' => '${email}']); echo 'OTP=' . app(App\\Services\\Accounts\\OneTimePassword::class)->issueTo($u);`;
-    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
-
-    return { email, password: /OTP=(\S+)/.exec(output)?.[1] ?? '' };
-}
-
 export function oneTimePassword(): string {
     const log = execFileSync('cat', ['.scratch/e2e-install.log']).toString();
 
     return /One-time password: (\S+)/.exec(log)?.[1] ?? '';
+}
+
+export function firstAdministratorEmail(): string {
+    const log = execFileSync('cat', ['.scratch/e2e-install.log']).toString();
+
+    return /Administrator: (\S+)/.exec(log)?.[1] ?? '';
+}
+
+export type FirstAdministratorState = 'pending' | 'changed' | 'missing';
+
+export function firstAdministratorState(): FirstAdministratorState {
+    const code = `$u = App\\Models\\User::where('email', '${firstAdministratorEmail()}')->first(); echo 'STATE=' . ($u === null ? 'missing' : ($u->must_change_password ? 'pending' : 'changed'));`;
+
+    return (/STATE=(\w+)/.exec(execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString())?.[1] ?? 'missing') as FirstAdministratorState;
 }
