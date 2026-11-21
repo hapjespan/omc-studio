@@ -1,10 +1,13 @@
-.PHONY: up down
+.PHONY: up down hooks
 
 up:
 	docker compose up -d
 
 down:
 	docker compose down
+
+hooks:
+	git config core.hooksPath .githooks
 
 .PHONY: backup restore
 
