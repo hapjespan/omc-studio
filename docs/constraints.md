@@ -122,7 +122,7 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 | User identifier in the security log | 90 days | R-4 |
 | Personal data in backups | The product owner's | R-9 |
 
-**Processors: none.** The application runs on one machine and connects to nothing (ADR 0027). The drawing library runs in the browser and sends nothing out. GitHub and its CI hold code and synthetic test data only, never client data or user accounts (FR-099). Full detail: `specs/001-omc-studio-v1/pii-inventory.md`.
+**Processors: none.** The application runs on one machine and connects to nothing (ADR 0027). The framework's own default log channels and mailers (Slack, Papertrail, SMTP, SES, Postmark, Resend, sendmail) are removed from the configuration at boot, because the framework merges its defaults back into a config file that lacks them; an architecture test fails if any of them returns. The drawing library runs in the browser and sends nothing out. GitHub and its CI hold code and synthetic test data only, never client data or user accounts (FR-099). Full detail: `specs/001-omc-studio-v1/pii-inventory.md`.
 
 ## 8. Logging, monitoring and incident readiness (NIS2)
 
