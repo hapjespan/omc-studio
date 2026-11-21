@@ -5,13 +5,13 @@ export interface ReportColumn {
     align?: 'left' | 'right';
 }
 
-defineProps<{ caption: string; columns: ReportColumn[]; rows: Record<string, unknown>[]; empty?: string; rowHeader?: string }>();
+withDefaults(defineProps<{ caption: string; columns: ReportColumn[]; rows: Record<string, unknown>[]; empty?: string; rowHeader?: string; landmark?: boolean; cellClass?: (row: Record<string, unknown>, key: string) => string | undefined }>(), { landmark: true });
 
 const alignment = (column: ReportColumn): string => (column.align === 'right' ? 'text-right tabular-nums' : 'text-left');
 </script>
 
 <template>
-    <div role="region" tabindex="0" :aria-label="caption" class="overflow-x-auto rounded-card border border-hairline bg-white">
+    <div :role="landmark ? 'region' : 'group'" tabindex="0" :aria-label="caption" class="overflow-x-auto rounded-card border border-hairline bg-white">
         <table class="w-full border-collapse text-[13px] text-ink">
             <caption class="sr-only">{{ caption }}</caption>
             <thead>
@@ -20,8 +20,8 @@ const alignment = (column: ReportColumn): string => (column.align === 'right' ? 
             <tbody>
                 <tr v-for="(row, index) in rows" :key="index" class="border-t border-hairline align-top">
                     <template v-for="column in columns" :key="column.key">
-                        <th v-if="column.key === rowHeader" scope="row" :class="['px-3 py-2.5 font-normal', alignment(column)]"><slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]">{{ row[column.key] }}</slot></th>
-                        <td v-else :class="['px-3 py-2.5', alignment(column)]"><slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]">{{ row[column.key] }}</slot></td>
+                        <th v-if="column.key === rowHeader" scope="row" :class="['px-3 py-2.5 font-normal', alignment(column), cellClass?.(row, column.key)]"><slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]">{{ row[column.key] }}</slot></th>
+                        <td v-else :class="['px-3 py-2.5', alignment(column), cellClass?.(row, column.key)]"><slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]">{{ row[column.key] }}</slot></td>
                     </template>
                 </tr>
                 <tr v-if="rows.length === 0 && empty !== undefined" class="border-t border-hairline"><td :colspan="columns.length" class="px-3 py-2.5 text-muted">{{ empty }}</td></tr>

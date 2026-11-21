@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Field from './Field.vue';
+import { invalidEdge } from './edge';
 
 defineProps<{ id: string; label: string; hint?: string; error?: string; type?: string; autocomplete?: string; hideLabel?: boolean }>();
 const model = defineModel<string>({ default: '' });
@@ -7,6 +8,6 @@ const model = defineModel<string>({ default: '' });
 
 <template>
     <Field :id="id" :label="label" :hide-label="hideLabel" :hint="hint" :error="error" v-slot="{ describedby, invalid }">
-        <input :id="id" v-model="model" :type="type ?? 'text'" :autocomplete="autocomplete" :aria-describedby="describedby" :aria-invalid="invalid || undefined" class="h-control rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink placeholder:text-muted" />
+        <input :id="id" v-model="model" :type="type ?? 'text'" :autocomplete="autocomplete" :aria-describedby="describedby" :aria-invalid="invalid || undefined" :class="['h-control rounded-control border bg-white px-2.5 text-[13px] text-ink placeholder:text-muted', invalidEdge(invalid)]" />
     </Field>
 </template>

@@ -41,6 +41,7 @@ const groups = computed(() => {
                 <TargetNode :rows="group.rows" :in-set="set" :needle="needle" :disabled="disabled" :hide-totals="!figuresAvailable" collapsible @add="emit('add', $event)" />
             </div>
         </div>
+        <p v-if="groups.length === 0" role="status" class="mt-2.5 text-[13px] text-secondary">{{ t('allocation_page.targets_empty') }}</p>
         <p class="mt-3.5 text-[11.5px] leading-snug text-muted">{{ t('allocation_page.footnote') }}</p>
     </section>
 </template>

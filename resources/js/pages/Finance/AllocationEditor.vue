@@ -7,6 +7,7 @@ export const stripeClass = (index: number): string => STRIPES[index % STRIPES.le
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { formatPercentage, lineAmounts, parsePercentage, remaining } from '../../allocation/helpers';
+import InlineField from '../../components/fields/InlineField.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import IconButton from '../../components/ui/IconButton.vue';
 import { formatAmount } from '../../format';
@@ -55,9 +56,7 @@ function dropped(event: DragEvent): void {
                         <p class="text-[15px] font-semibold">{{ target(line).name }}</p>
                     </div>
                     <div class="ml-auto flex shrink-0 items-center gap-3">
-                    <label :for="`allocation-line-${index}`" class="sr-only">{{ t('allocation_page.percentage_of', { target: target(line).path }) }}</label>
-                    <input :id="`allocation-line-${index}`" :value="text(line.basisPoints)" inputmode="decimal" :disabled="disabled" :aria-invalid="invalid === index || undefined" :aria-describedby="invalid === index ? `allocation-line-${index}-error` : undefined" class="h-control w-[84px] rounded-control border border-edge bg-white px-2.5 text-right font-display text-[13px] font-bold text-ink disabled:border-hairline disabled:text-muted" @change="commit(index, $event)" />
-                    <span aria-hidden="true" class="font-semibold">%</span>
+                    <InlineField :id="`allocation-line-${index}`" :label="t('allocation_page.percentage_of', { target: target(line).path })" :model-value="text(line.basisPoints)" suffix="%" inputmode="decimal" :disabled="disabled" :error="invalid === index ? t('allocation_page.invalid_percentage') : undefined" alert @change="commit(index, $event)" />
                     <span :aria-label="t('allocation_page.amount')" class="w-28 shrink-0 text-right font-display text-[13px] font-bold">{{ formatAmount(amounts[index]) }}</span>
                     </div>
                 </div>
@@ -65,7 +64,6 @@ function dropped(event: DragEvent): void {
                     <AppButton :disabled="disabled" :aria-label="t('allocation_page.rest_to_line', { target: target(line).path })" @click="emit('rest', index)">{{ t('allocation_page.rest_label') }}</AppButton>
                     <IconButton icon="close" :disabled="disabled" :label="t('allocation_page.remove', { target: target(line).path })" @click="emit('remove', index)" />
                 </div>
-                <p v-if="invalid === index" :id="`allocation-line-${index}-error`" role="alert" class="mt-1 text-danger">{{ t('allocation_page.invalid_percentage') }}</p>
             </li>
         </ul>
         <p class="mt-2.5 flex min-h-12 items-center justify-center rounded-card border border-dashed border-edge px-3 py-2 text-center text-[13px] text-secondary"><span class="hidden lg:inline">{{ t('allocation_page.no_lines') }}</span><span class="lg:hidden">{{ t('allocation_page.no_lines_stacked') }}</span></p>

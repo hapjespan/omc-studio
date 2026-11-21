@@ -197,6 +197,7 @@ Date: 2026-11-20. Built from the dt/b branch after DT.7 and the DT.5 review fixe
 | 16 | Bottom toolbar: Selecteren en verplaatsen, Schuiven, Uitlijnen, Gelijk verdelen, Zoom | opgelost | before the toolbar also held equal width, equal height, order and Raster; they moved to the right panel as the design contract lists them in the property panel (US35 scenarios 7 to 9); Uitlijnen and Gelijk verdelen are menus |
 | 17 | Tool icon on "Selecteren en verplaatsen" and the zoom as a chip | bewust afwijkend | text only, no pointer icon, the zoom is plain text; no icon exists in the foundation set; assumption DT9-3 |
 | 18 | Top navigation tabs (Kostenposten, Toewijzen, Versies) and the period select | not applicable | delivery 2 |
+| 19 | Direction band arrangement the same in every mode | opgelost | review finding M24: Tekenen draws the dashed Logo box (160 by 92, locked) and the goals list as Bekijken does, numbers apart and only the title bold; both modes read the same `splitDirectionLine` segments |
 
 Questions only the product owner can answer, recorded as assumptions in `tasks.md` (DT9-1 to DT9-3).
 
