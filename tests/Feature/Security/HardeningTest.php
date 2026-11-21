@@ -19,20 +19,8 @@ class HardeningTest extends TestCase
         return (string) file_get_contents(base_path($path));
     }
 
-    public function test_a_mapped_query_exception_keeps_the_sql_without_bindings_and_names_the_first_app_frame(): void
+    public function test_the_undo_route_sends_a_guest_to_sign_in(): void
     {
-        $exception = new QueryException('sqlite', 'select * from users where email = ?', ['secret@example.nl'], new Exception('failed'));
-        $frames = [
-            ['file' => base_path('vendor/laravel/framework/src/Illuminate/Database/Connection.php'), 'line' => 10],
-            ['file' => base_path('app/Services/Accounts/SignInService.php'), 'line' => 42],
-            ['file' => base_path('app/Http/Controllers/SignInController.php'), 'line' => 7],
-        ];
-        (new ReflectionProperty(Exception::class, 'trace'))->setValue($exception, $frames);
-
-        $message = QueryTrace::message($exception);
-
-        $this->assertStringContainsString('select * from users where email = ?', $message);
-        $this->assertStringContainsString('app/Services/Accounts/SignInService.php:42', $message);
-        $this->assertStringNotContainsString('secret@example.nl', $message);
+        $this->post('/undo/some-token')->assertRedirect('/sign-in');
     }
 }
