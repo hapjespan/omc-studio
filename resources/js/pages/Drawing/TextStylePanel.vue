@@ -16,7 +16,8 @@ const props = defineProps<{ id: string; name: string; target: StyleTarget; refus
 const emit = defineEmits<{ style: [patch: StylePatch] }>();
 
 const colour = ref<{ focus: () => void }>();
-const ratio = computed(() => contrastRatio(props.target.resolved.textColour, props.target.backdrop));
+const shownColour = computed(() => (props.refused?.key === 'text_colour' && /^#[0-9a-f]{6}$/i.test(props.refused.value) ? props.refused.value : props.target.resolved.textColour));
+const ratio = computed(() => contrastRatio(shownColour.value, props.target.backdrop));
 const failing = computed(() => ratio.value < MINIMUM_CONTRAST);
 const contrastError = computed(() => (failing.value ? t('layout.rule.contrast', { name: props.name, ratio: ratioLabel(ratio.value) }) : undefined));
 const size = ref(String(props.target.resolved.font.size));

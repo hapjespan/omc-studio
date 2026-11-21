@@ -149,7 +149,9 @@ jobs:
           status=0
           for engine in chromium firefox webkit; do
             sh scripts/serve-e2e.sh
-            xvfb-run -a npx playwright test --project=$engine --grep-invert '@performance|Secure session cookie' --retries=0 || status=1
+            workers=2
+            [ "$engine" = firefox ] && workers=1
+            xvfb-run -a npx playwright test --project=$engine --workers=$workers --grep-invert '@performance|Secure session cookie' --retries=0 || status=1
           done
           exit $status
       - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
