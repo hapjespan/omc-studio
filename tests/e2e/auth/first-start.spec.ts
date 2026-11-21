@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { expectNoAxeViolations, expect, test } from '../support/guards';
-import { createPendingAdministrator } from '../support/accounts';
+import { firstAdministratorEmail, firstAdministratorState, oneTimePassword } from '../support/accounts';
 
 test('clean start: sign in with the logged password, choose a new one, sign out, sign in again', async ({ page }) => {
     test.slow();
-    const administrator = createPendingAdministrator();
+    const administrator = { email: firstAdministratorEmail(), password: oneTimePassword() };
+    expect([administrator.email, administrator.password], 'the install log holds the administrator and the one-time password').not.toContain('');
+    const state = firstAdministratorState();
+    expect(state, 'the first administrator from the install log exists').not.toBe('missing');
+    test.skip(state === 'changed', 'needs a fresh install (scripts/serve-e2e.sh)');
     const chosen = `new-${randomUUID()}`;
 
     await page.goto('/sign-in');

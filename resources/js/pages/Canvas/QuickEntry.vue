@@ -6,6 +6,7 @@ import { announce } from '../../components/feedback/status';
 import TextArea from '../../components/fields/TextArea.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
+import { xsrfToken } from '../../xsrf';
 
 interface PreviewLine {
     line: number;
@@ -43,16 +44,13 @@ async function close(): Promise<void> {
     opener.value?.focus();
 }
 
-function token(): string {
-    return decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
-}
 
 async function preview(): Promise<void> {
     const current = ++sequence;
     const response = await fetch(routes.quickEntryPreview(props.canvasId), {
         method: 'POST',
         credentials: 'same-origin',
-        headers: { 'X-XSRF-TOKEN': token(), Accept: 'application/json', 'Content-Type': 'application/json' },
+        headers: { 'X-XSRF-TOKEN': xsrfToken(), Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ area: props.area, text: text.value }),
     }).catch(() => null);
     if (current !== sequence) return;

@@ -9,6 +9,7 @@ import AppButton from '../../components/ui/AppButton.vue';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 import { useQuietStatus } from '../../shell/layout';
+import { xsrfToken } from '../../xsrf';
 
 useQuietStatus();
 
@@ -22,7 +23,7 @@ const canCommit = computed(() => report.value !== null && report.value.totals.er
 
 async function send(url: string): Promise<Response | null> {
     if (!file.value) return null;
-    const token = decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
+    const token = xsrfToken();
     const body = new FormData();
     body.append('file', file.value);
     busy.value = true;

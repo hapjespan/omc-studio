@@ -1,8 +1,8 @@
 import { routes } from '../../routes';
 import type { SaveResult } from './SaveQueue';
 import type { ResetScope } from '../../edit-engine/commands/reset';
+import { xsrfToken } from '../../xsrf';
 
-const xsrfToken = (): string => decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
 
 export async function sendReset(canvas: string | number, scope: ResetScope, elementId: string | null, versions: { structure: number; layout: number }): Promise<SaveResult> {
     const response = await fetch(routes.layoutReset(canvas), {

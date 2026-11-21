@@ -1,6 +1,7 @@
 import type { MoveIntent } from '../../edit-engine';
 import { routes } from '../../routes';
 import type { LayoutVersions } from './SaveQueue';
+import { xsrfToken } from '../../xsrf';
 
 export type MoveResult =
     | { outcome: 'saved'; versions: LayoutVersions; layout: { width: number } | null }
@@ -18,7 +19,6 @@ interface MoveAnswer {
     errors?: { rule?: string[] };
 }
 
-const xsrfToken = (): string => decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
 
 export const sendMove: MoveSender = async (canvas, versions, intent) => {
     const response = await fetch(routes.drawingMoves(canvas), {

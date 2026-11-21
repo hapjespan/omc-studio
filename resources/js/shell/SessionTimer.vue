@@ -7,6 +7,7 @@ import { t } from '../i18n';
 import { routes } from '../routes';
 import { startIdleTimer } from './idle';
 import { inReauthWindow, reauth } from './session';
+import { xsrfToken } from '../xsrf';
 
 const warning = ref(false);
 
@@ -25,7 +26,7 @@ const stopListening = router.on('start', () => {
 });
 
 async function extend(): Promise<void> {
-    const token = decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
+    const token = xsrfToken();
     const response = await fetch(routes.keepAlive(), { method: 'POST', credentials: 'same-origin', headers: { 'X-XSRF-TOKEN': token, Accept: 'application/json' } });
     if (!response.ok) {
         window.location.reload();

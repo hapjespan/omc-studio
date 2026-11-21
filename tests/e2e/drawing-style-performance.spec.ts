@@ -3,7 +3,7 @@ import { openDrawing } from './support/drawing';
 import { expectWithinBudget, PERFORMANCE_TAG, sample } from './support/timing';
 import { seedBulkCanvas } from './support/view';
 
-test(`an Area fill change repaints 500 Elements within one second ${PERFORMANCE_TAG}`, { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {
+test(`an Area fill change on 500 Elements is followed by two animation frames within one second, the paint itself is not read back ${PERFORMANCE_TAG}`, { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {
     test.setTimeout(240_000);
     const layers = await openDrawing(page, seedBulkCanvas(25, 9));
     await layers.getByRole('button', { name: 'Primaire activiteiten', exact: true }).click();
