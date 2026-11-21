@@ -11,12 +11,7 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 trait ChecksFields
 {
-    private const MAX_ERRORS = 1000;
-
-    /** @var list<array{location: string, message: string}> */
-    private array $errors = [];
-
-    private int $count = 0;
+    use CollectsErrors;
 
     /** @var list<int> */
     private array $years = [];
@@ -163,20 +158,5 @@ trait ChecksFields
 
             return new PotentiallyTranslatedString($message, app('translator'));
         });
-    }
-
-    /** @param array<string, int|string> $replace */
-    private function fail(string $location, string $key, array $replace = []): void
-    {
-        $this->record($location, __($key, ['location' => $location, ...$replace]));
-    }
-
-    private function record(string $location, string $message): void
-    {
-        $this->count++;
-
-        if (count($this->errors) < self::MAX_ERRORS) {
-            $this->errors[] = ['location' => $location, 'message' => $message];
-        }
     }
 }

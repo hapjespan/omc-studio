@@ -9,14 +9,9 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 trait CollectsFileErrors
 {
-    private const MAX_ERRORS = 1000;
+    use CollectsErrors;
 
     private const MOMENT = [1000, 9999];
-
-    /** @var list<array{location: string, message: string}> */
-    private array $errors = [];
-
-    private int $count = 0;
 
     /** @param array<string, bool> $seen */
     private function once(string $key, array &$seen): bool
@@ -80,17 +75,5 @@ trait CollectsFileErrors
         $sound || $this->fail($location, $key);
 
         return $sound;
-    }
-
-    /** @param array<string, int|string> $replace */
-    private function fail(string $location, string $key, array $replace = []): void
-    {
-        $this->record($location, (string) __($key, ['location' => $location, ...$replace]));
-    }
-
-    private function record(string $location, string $message): void
-    {
-        $this->count++;
-        count($this->errors) < self::MAX_ERRORS && $this->errors[] = ['location' => $location, 'message' => $message];
     }
 }
