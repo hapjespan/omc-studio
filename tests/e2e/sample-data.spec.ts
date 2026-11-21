@@ -1,12 +1,10 @@
-import { execFileSync } from 'node:child_process';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 function reseed(): void {
     const code = "App\\Models\\Organisation::where('is_sample', true)->exists() || (Illuminate\\Support\\Facades\\DB::table('application_state')->where('key', 'sample_data_removed')->delete() && app(App\\Services\\Operations\\SampleData::class)->seed());";
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
 }
 
 test('the sample Organisation is removed after one confirmation and the page says it will not return', async ({ page }, info) => {

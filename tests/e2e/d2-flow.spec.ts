@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedOrganisation, tinker, expandTarget } from './support/finance';
+import { seedOrganisation, expandTarget } from './support/finance';
 import { seedPerformanceCanvas } from './support/overlay';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 test.beforeEach(() => test.setTimeout(120000));
 
@@ -20,7 +21,7 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     const organisationName = unique('Flow');
     const canvasName = unique('Model');
     const organisation = seedOrganisation(organisationName, [2026]);
-    tinker(`App\\Models\\Owner::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Afdeling ICT']);`);
+    seedPhp(`App\\Models\\Owner::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Afdeling ICT']);`);
     await signInAs(page, 'administrator');
 
     await page.goto('/overview');
@@ -131,7 +132,7 @@ test.describe('P-1: screens answer within one second on 500 Elements and 1000 Co
 
     test.beforeAll(() => {
         canvas = seedPerformanceCanvas();
-        organisation = Number(/ID=(\d+)/.exec(tinker(`echo 'ID=' . App\\Models\\Canvas::find(${canvas})->organisation_id;`))?.[1]);
+        organisation = Number(/ID=(\d+)/.exec(seedPhp(`echo 'ID=' . App\\Models\\Canvas::find(${canvas})->organisation_id;`))?.[1]);
     });
 
     for (const [label, path, ready] of screens) {

@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedCostRecord, seedOrganisation, tinker } from './support/finance';
+import { seedCostRecord, seedOrganisation } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
 function seedCanvas(organisation: number): number {
-    return Number(/ID=(\d+)/.exec(tinker(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); echo 'ID=' . $c->id;`))?.[1]);
+    return Number(/ID=(\d+)/.exec(seedPhp(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); echo 'ID=' . $c->id;`))?.[1]);
 }
 
 test('a run reports counts and tables with headings, a Finalised target year is refused', async ({ page }) => {
@@ -26,7 +27,7 @@ test('a run reports counts and tables with headings, a Finalised target year is 
     await expect(panel.getByRole('status')).toHaveText('Overgenomen: 1, overgeslagen: 0, handmatig toewijzen: 0');
     await expectNoAxeViolations(page);
 
-    tinker(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->where('year', 2027)->first(); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => ${canvas}, 'fiscal_year_id' => $f->id]);`);
+    seedPhp(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->where('year', 2027)->first(); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => ${canvas}, 'fiscal_year_id' => $f->id]);`);
     await panel.getByRole('button', { name: 'Overnemen' }).click();
     await expect(panel.getByRole('alert')).toContainText('2027 is definitief in canvas');
 });

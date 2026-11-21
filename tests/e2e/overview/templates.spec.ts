@@ -1,14 +1,15 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
-import { seedOrganisation, tinker, unique } from '../support/overview';
+import { seedOrganisation, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
+import { seedPhp } from '../support/seed';
 
 const seedTemplate = (name: string): void => {
-    tinker(`App\\Models\\Canvas::factory()->template()->create(['name' => '${name}']);`);
+    seedPhp(`App\\Models\\Canvas::factory()->template()->create(['name' => '${name}']);`);
 };
 
 test('Sjablonen shows every Template except Leeg canvas as a card that opens Invoeren', async ({ page }) => {
     const template = unique('Basis');
-    tinker("app(App\\Services\\Operations\\InstallSteps::class)->run();");
+    seedPhp("app(App\\Services\\Operations\\InstallSteps::class)->run();");
     seedTemplate(template);
     seedOrganisation(unique('Noord'));
     await signInAs(page, 'administrator');

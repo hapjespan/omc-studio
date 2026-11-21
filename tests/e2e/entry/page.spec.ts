@@ -1,12 +1,13 @@
 import { expect, expectNoAxeViolations, test } from '../support/guards';
-import { seedOrganisation, tinker, unique } from '../support/overview';
+import { seedOrganisation, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
+import { seedPhp } from '../support/seed';
 
-const canvasId = (name: string): number => Number(/ID=(\d+)/.exec(tinker(`echo 'ID=' . App\\Models\\Canvas::where('name', '${name}')->firstOrFail()->id;`))?.[1]);
+const canvasId = (name: string): number => Number(/ID=(\d+)/.exec(seedPhp(`echo 'ID=' . App\\Models\\Canvas::where('name', '${name}')->firstOrFail()->id;`))?.[1]);
 
 test('Invoeren lists the eight Areas with count lines and chooses the first activity Area', async ({ page }) => {
     const name = unique('Model');
-    tinker("app(App\\Services\\Operations\\InstallSteps::class)->run();");
+    seedPhp("app(App\\Services\\Operations\\InstallSteps::class)->run();");
     seedOrganisation(unique('Noord'), [name]);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvasId(name)}/entry`);

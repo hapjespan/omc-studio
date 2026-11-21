@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from './support/guards';
-import { seedCostRecord, seedOrganisation, tinker } from './support/finance';
+import { seedCostRecord, seedOrganisation } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
@@ -45,7 +46,7 @@ test('a bulk deletion reports deleted and skipped rows', async ({ page }) => {
     seedCostRecord(organisation, 'Een');
     seedCostRecord(organisation, 'Twee');
     seedCostRecord(organisation, 'Drie', { budgetCents: 100 });
-    tinker(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->first(); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Strategie']); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
+    seedPhp(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->first(); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Strategie']); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
     await signInAs(page, 'administrator');
     await page.goto(`/organisations/${organisation}/cost-records?year=2026`);
 

@@ -1,14 +1,12 @@
-import { execFileSync } from 'node:child_process';
 import { expect, test, type Page } from './support/guards';
 import { openDrawing, seedRow } from './support/drawing';
 import { seedViewCanvas } from './support/view';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 function seedDomains() {
     const canvas = seedViewCanvas();
     const code = `$a = App\\Models\\Area::where('key', 'primary_activities')->value('id'); foreach (['Tweede', 'Derde'] as $i => $n) { App\\Models\\Element::create(['canvas_id' => ${canvas.id}, 'area_id' => $a, 'kind' => 'domain', 'name' => $n, 'position' => 5 + $i]); }`;
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
     return canvas;
 }
 

@@ -1,13 +1,11 @@
-import { execFileSync } from 'node:child_process';
 import { expect, test } from './support/guards';
 import { signInAs } from './support/shell';
 import { seedViewCanvas } from './support/view';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 function longMission(canvas: number): void {
     const body = Array.from({ length: 60 }, (_, index) => `woord${index}`).join(' ');
-    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Statement::where('canvas_id', ${canvas})->where('kind', 'mission')->update(['body' => '${body}']);`], { env });
+    seedPhp(`App\\Models\\Statement::where('canvas_id', ${canvas})->where('kind', 'mission')->update(['body' => '${body}']);`);
 }
 
 test('a long mission is cut with an ellipsis, warned about and shown in full on focus, hover and in the panel', async ({ page }) => {

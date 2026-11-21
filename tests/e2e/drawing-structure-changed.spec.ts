@@ -1,13 +1,11 @@
-import { execFileSync } from 'node:child_process';
 import { expect, test } from './support/guards';
 import { openDrawing } from './support/drawing';
 import { seedViewCanvas } from './support/view';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 function changeStructure(canvas: number): void {
     const code = `$a = App\\Models\\Area::where('key', 'primary_activities')->value('id'); App\\Models\\Element::create(['canvas_id' => ${canvas}, 'area_id' => $a, 'kind' => 'domain', 'name' => 'Erbij', 'position' => 9]); App\\Models\\Canvas::whereKey(${canvas})->increment('structure_version');`;
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
 }
 
 test('a change is saved automatically and survives a reload', async ({ page }) => {

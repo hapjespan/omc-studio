@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { Locator } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { tinker } from './support/finance';
 import { createClosingNotice } from './support/notices';
 import { seedSnapshot } from './support/snapshot';
 import { signInAs } from './support/shell';
 import { seedViewCanvas } from './support/view';
+import { seedPhp } from './support/seed';
 
 const style = (locator: Locator, property: string): Promise<string> => locator.evaluate((element, name) => getComputedStyle(element).getPropertyValue(name), property);
 const height = async (locator: Locator): Promise<number> => Math.round((await locator.boundingBox())!.height);
@@ -34,7 +34,7 @@ async function expectTableHeader(header: Locator): Promise<void> {
 
 test('Versies: Space Grotesk title, white table panel, docked form, pill and 36 pixel buttons', async ({ page }) => {
     const seed = seedSnapshot(unique());
-    tinker(`Illuminate\\Support\\Facades\\DB::table('snapshots')->where('id', ${seed.snapshot})->update(['imported' => true]);`);
+    seedPhp(`Illuminate\\Support\\Facades\\DB::table('snapshots')->where('id', ${seed.snapshot})->update(['imported' => true]);`);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${seed.canvas}/versions`);
 
@@ -151,7 +151,7 @@ test('CSV import on Toewijzen: panel, status pills and 36 pixel buttons in the r
 });
 
 test('Voorbeelddata: title, white panel and a danger button with the contract outline', async ({ page }) => {
-    tinker("App\\Models\\Organisation::where('is_sample', true)->exists() || (Illuminate\\Support\\Facades\\DB::table('application_state')->where('key', 'sample_data_removed')->delete() && app(App\\Services\\Operations\\SampleData::class)->seed());");
+    seedPhp("App\\Models\\Organisation::where('is_sample', true)->exists() || (Illuminate\\Support\\Facades\\DB::table('application_state')->where('key', 'sample_data_removed')->delete() && app(App\\Services\\Operations\\SampleData::class)->seed());");
     await signInAs(page, 'administrator');
     await page.goto('/admin/sample-data');
 

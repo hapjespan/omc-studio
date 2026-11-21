@@ -1,14 +1,12 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 const HEADER = 'code;naam;soort;leverancier;eigenaar;kostenplaats;applicatie;jaar;budget;prognose;run_pct;change_pct;fte';
 
 function organisation(): number {
     const code = "$o = App\\Models\\Organisation::factory()->create(); App\\Models\\FiscalYear::factory()->create(['organisation_id' => $o->id, 'year' => 2026]); echo 'ID=' . $o->id;";
-    return Number(/ID=(\d+)/.exec(execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString())?.[1]);
+    return Number(/ID=(\d+)/.exec(seedPhp(code))?.[1]);
 }
 
 const csv = (...lines: string[]) => ({ name: 'import.csv', mimeType: 'text/csv', buffer: Buffer.from([HEADER, ...lines].join('\n') + '\n') });

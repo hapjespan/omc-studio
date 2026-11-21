@@ -1,14 +1,15 @@
 import { expect, test } from '../support/guards';
-import { seedOrganisation, tinker, unique } from '../support/overview';
+import { seedOrganisation, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
+import { seedPhp } from '../support/seed';
 
-const canvasId = (name: string): number => Number(/ID=(\d+)/.exec(tinker(`echo 'ID=' . App\\Models\\Canvas::where('name', '${name}')->firstOrFail()->id;`))?.[1]);
+const canvasId = (name: string): number => Number(/ID=(\d+)/.exec(seedPhp(`echo 'ID=' . App\\Models\\Canvas::where('name', '${name}')->firstOrFail()->id;`))?.[1]);
 
 test('save a Canvas as a Template from the card menu, start a Canvas from it, rename and delete it', async ({ page }) => {
     const canvas = unique('Model');
     const template = unique('Basis');
     const renamed = unique('Hernoemd');
-    tinker("app(App\\Services\\Operations\\InstallSteps::class)->run();");
+    seedPhp("app(App\\Services\\Operations\\InstallSteps::class)->run();");
     seedOrganisation(unique('Noord'), [canvas]);
     await signInAs(page, 'administrator');
     await page.goto('/overview');

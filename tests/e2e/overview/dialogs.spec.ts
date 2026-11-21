@@ -1,6 +1,7 @@
 import { expect, test } from '../support/guards';
-import { seedOrganisation, tinker, unique } from '../support/overview';
+import { seedOrganisation, unique } from '../support/overview';
 import { signInAs } from '../support/shell';
+import { seedPhp } from '../support/seed';
 
 const open = async (page: import('@playwright/test').Page, canvas: string, item: string): Promise<void> => {
     await page.getByRole('button', { name: `Acties voor ${canvas}` }).click();
@@ -10,7 +11,7 @@ const open = async (page: import('@playwright/test').Page, canvas: string, item:
 test('Nieuw canvas starts from Leeg canvas, refuses a name in use and opens Invoeren', async ({ page }) => {
     const organisation = unique('Noord');
     const existing = unique('Bestaand');
-    tinker("app(App\\Services\\Operations\\InstallSteps::class)->run();");
+    seedPhp("app(App\\Services\\Operations\\InstallSteps::class)->run();");
     seedOrganisation(organisation, [existing]);
     await signInAs(page, 'administrator');
     await page.goto('/overview');

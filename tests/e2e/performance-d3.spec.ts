@@ -1,14 +1,14 @@
 import { arch, cpus, platform, release, totalmem } from 'node:os';
 import { readFileSync } from 'node:fs';
 import { expect, test } from './support/guards';
-import { tinker } from './support/finance';
 import { seedPerformanceCanvas } from './support/overlay';
 import { signInAs } from './support/shell';
 import { expectWithinBudget, PERFORMANCE_TAG, sample } from './support/timing';
+import { seedPhp } from './support/seed';
 
 function seedSnapshotOnDataset(): { canvas: number; snapshot: number } {
     const canvas = seedPerformanceCanvas();
-    const output = tinker(`auth()->login(App\\Models\\User::factory()->create(['role' => 'administrator'])); $c = App\\Models\\Canvas::find(${canvas}); $f = App\\Models\\FiscalYear::where('organisation_id', $c->organisation_id)->where('year', 2026)->first(); $s = app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $f, 'Meting'); echo 'ID=' . $s->id;`);
+    const output = seedPhp(`auth()->login(App\\Models\\User::factory()->create(['role' => 'administrator'])); $c = App\\Models\\Canvas::find(${canvas}); $f = App\\Models\\FiscalYear::where('organisation_id', $c->organisation_id)->where('year', 2026)->first(); $s = app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $f, 'Meting'); echo 'ID=' . $s->id;`);
 
     return { canvas, snapshot: Number(/ID=(\d+)/.exec(output)?.[1]) };
 }

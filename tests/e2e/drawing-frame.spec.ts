@@ -1,7 +1,7 @@
-import { execFileSync } from 'node:child_process';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
 import { seedViewCanvas } from './support/view';
+import { seedPhp } from './support/seed';
 
 test('Tekenen shows Lagen, the Artboard, properties, toolbar and header', async ({ page }) => {
     const canvas = seedViewCanvas();
@@ -64,9 +64,8 @@ test('the mode switch loads Tekenen as a full page under its own policy and leav
 
 test('Tekenen opens a Canvas with a stored Layout', async ({ page }) => {
     const canvas = seedViewCanvas();
-    const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
     const code = `$a = App\\Models\\Area::where('key', 'primary_activities')->value('id'); App\\Models\\Layout::create(['canvas_id' => ${canvas.id}, 'area_id' => $a, 'element_id' => null, 'x' => 40, 'y' => 220, 'width' => 900, 'height' => 400, 'z' => 0, 'style' => [], 'format_version' => 1]); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version');`;
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas.id}/drawing`);
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
@@ -75,8 +74,7 @@ test('Tekenen opens a Canvas with a stored Layout', async ({ page }) => {
 
 test('rows of Elements added since the last save carry the text pill nieuw until they are selected', async ({ page }) => {
     const canvas = seedViewCanvas();
-    const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
-    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Canvas::whereKey(${canvas.id})->update(['layout_saved_at' => now()->subDay()]);`], { env });
+    seedPhp(`App\\Models\\Canvas::whereKey(${canvas.id})->update(['layout_saved_at' => now()->subDay()]);`);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas.id}/drawing`);
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });

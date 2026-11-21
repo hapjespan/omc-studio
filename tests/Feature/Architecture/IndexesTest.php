@@ -32,4 +32,11 @@ class IndexesTest extends TestCase
 
         $this->assertSame(['planted_without_index'], SchemaRules::tablesWithoutIndex());
     }
+
+    public function test_user_id_is_indexed_on_recovery_codes_and_undo_records(): void
+    {
+        foreach (['two_factor_recovery_codes', 'undo_records'] as $table) {
+            $this->assertContains(['user_id'], array_column(Schema::getIndexes($table), 'columns'), $table);
+        }
+    }
 }

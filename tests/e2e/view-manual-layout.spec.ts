@@ -1,9 +1,7 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, test } from './support/guards';
 import { signInAs } from './support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 interface Seeded {
     canvas: number;
@@ -23,7 +21,7 @@ function seedManualCanvas(): Seeded {
         `App\\Models\\Layout::create(['canvas_id' => $c->id, 'element_id' => $k->id, 'x' => 16, 'y' => 40, 'width' => 200, 'height' => 50, 'z' => 2, 'style' => []]);`,
         `echo 'SEED=' . $c->id . ',' . $d->id . ',' . $k->id;`,
     ].join(' ');
-    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
+    const output = seedPhp(code);
     const [canvas, domain, activity] = /SEED=(\d+),(\S+),(\S+)/.exec(output)!.slice(1);
 
     return { canvas: Number(canvas), domain, activity };
@@ -65,7 +63,7 @@ for (const role of ['administrator', 'reader'] as const) {
 for (const role of ['administrator', 'reader'] as const) {
     test(`the overflow hint for Tekenen shows to Administrators only (${role})`, async ({ page }) => {
         const seeded = seedManualCanvas();
-        execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Layout::where('canvas_id', ${seeded.canvas})->where('element_id', '${seeded.domain}')->update(['y' => 1100, 'height' => 400]);`], { env });
+        seedPhp(`App\\Models\\Layout::where('canvas_id', ${seeded.canvas})->where('element_id', '${seeded.domain}')->update(['y' => 1100, 'height' => 400]);`);
 
         await signInAs(page, role);
         await page.goto(`/canvases/${seeded.canvas}/view`);

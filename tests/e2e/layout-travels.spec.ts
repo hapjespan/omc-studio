@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { openDrawing, screenOf, seedMoveCanvas, tinker } from './support/drawing';
+import { openDrawing, screenOf, seedMoveCanvas } from './support/drawing';
 import { ARTBOARD_WIDTH } from './support/artboard';
+import { seedPhp } from './support/seed';
 
 interface Row {
     key: string;
@@ -25,7 +26,7 @@ const matched = (output: string, tag: string): string => {
 const storedRows = (canvas: number | string): Row[] =>
     JSON.parse(
         matched(
-            tinker(`$names = App\\Models\\Element::where('canvas_id', ${canvas})->pluck('name', 'id'); $areas = App\\Models\\Area::pluck('key', 'id'); $elements = App\\Models\\Element::where('canvas_id', ${canvas})->get()->keyBy('id'); echo 'ROWS=' . json_encode(App\\Models\\Layout::where('canvas_id', ${canvas})->get()->map(function ($row) use ($names, $areas, $elements) { $element = $row->element_id === null ? null : $elements[$row->element_id]; $parent = $element === null ? null : ($element->parent_id ?? $areas[$element->area_id]); return ['key' => $row->element_id ?? $areas[$row->area_id], 'name' => $element === null ? $areas[$row->area_id] : $element->name, 'parent' => $parent, 'parentName' => $parent === null ? null : ($names[$parent] ?? $parent), 'x' => $row->x, 'y' => $row->y, 'width' => $row->width, 'height' => $row->height]; })->values());`),
+            seedPhp(`$names = App\\Models\\Element::where('canvas_id', ${canvas})->pluck('name', 'id'); $areas = App\\Models\\Area::pluck('key', 'id'); $elements = App\\Models\\Element::where('canvas_id', ${canvas})->get()->keyBy('id'); echo 'ROWS=' . json_encode(App\\Models\\Layout::where('canvas_id', ${canvas})->get()->map(function ($row) use ($names, $areas, $elements) { $element = $row->element_id === null ? null : $elements[$row->element_id]; $parent = $element === null ? null : ($element->parent_id ?? $areas[$element->area_id]); return ['key' => $row->element_id ?? $areas[$row->area_id], 'name' => $element === null ? $areas[$row->area_id] : $element->name, 'parent' => $parent, 'parentName' => $parent === null ? null : ($names[$parent] ?? $parent), 'x' => $row->x, 'y' => $row->y, 'width' => $row->width, 'height' => $row->height]; })->values());`),
             'ROWS',
         ),
     ) as Row[];
@@ -121,8 +122,8 @@ test('Tekenen, Bekijken, a Snapshot, a copy and an import draw every block at it
     await page.goto(`/canvases/${canvas.id}/view`);
     await expectDrawn(page, rows);
 
-    const snapshot = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $y = App\\Models\\FiscalYear::firstOrCreate(['organisation_id' => $c->organisation_id, 'year' => 2026]); echo 'SNAP=' . app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $y, 'Opmaak ${randomUUID().slice(0, 8)}')->id;`), 'SNAP');
-    tinker(`$id = App\\Models\\Element::where('canvas_id', ${canvas.id})->where('name', 'Onderwijs')->value('id'); App\\Models\\Layout::where('element_id', $id)->increment('x', 30); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version');`);
+    const snapshot = matched(seedPhp(`$c = App\\Models\\Canvas::find(${canvas.id}); $y = App\\Models\\FiscalYear::firstOrCreate(['organisation_id' => $c->organisation_id, 'year' => 2026]); echo 'SNAP=' . app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $y, 'Opmaak ${randomUUID().slice(0, 8)}')->id;`), 'SNAP');
+    seedPhp(`$id = App\\Models\\Element::where('canvas_id', ${canvas.id})->where('name', 'Onderwijs')->value('id'); App\\Models\\Layout::where('element_id', $id)->increment('x', 30); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version');`);
     const moved = storedRows(canvas.id);
     expect(moved.find((row) => row.name === 'Onderwijs')!.x).toBe(onderwijs.x + 30);
 
@@ -132,19 +133,19 @@ test('Tekenen, Bekijken, a Snapshot, a copy and an import draw every block at it
     await page.goto(`/canvases/${canvas.id}/view`);
     await expectDrawn(page, moved);
 
-    const copied = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); echo 'COPY=' . app(App\\Services\\Canvas\\CanvasLifecycle::class)->copy($c, $c->organisation, 'Kopie ${randomUUID().slice(0, 8)}')->id;`), 'COPY');
+    const copied = matched(seedPhp(`$c = App\\Models\\Canvas::find(${canvas.id}); echo 'COPY=' . app(App\\Services\\Canvas\\CanvasLifecycle::class)->copy($c, $c->organisation, 'Kopie ${randomUUID().slice(0, 8)}')->id;`), 'COPY');
     const copiedRows = storedRows(copied);
     expect(copiedRows).toHaveLength(moved.length);
     await page.goto(`/canvases/${copied}/view`);
     await expectDrawn(page, moved, copiedRows);
 
-    const imported = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode(app(App\\Services\\Exchange\\CanvasExport::class)->build($c)), null, 'Import ${randomUUID().slice(0, 8)}', 'Doel ${randomUUID().slice(0, 8)}'); echo 'IMPORT=' . $r['canvas_id'];`), 'IMPORT');
+    const imported = matched(seedPhp(`$c = App\\Models\\Canvas::find(${canvas.id}); $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode(app(App\\Services\\Exchange\\CanvasExport::class)->build($c)), null, 'Import ${randomUUID().slice(0, 8)}', 'Doel ${randomUUID().slice(0, 8)}'); echo 'IMPORT=' . $r['canvas_id'];`), 'IMPORT');
     const importedRows = storedRows(imported);
     expect(importedRows).toHaveLength(moved.length);
     await page.goto(`/canvases/${imported}/view`);
     await expectDrawn(page, moved, importedRows);
 
-    const plain = matched(tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); $file = app(App\\Services\\Exchange\\CanvasExport::class)->build($c); $file['canvas']['layout'] = null; $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode($file), null, 'Zonder ${randomUUID().slice(0, 8)}', 'Zonder doel ${randomUUID().slice(0, 8)}'); echo 'PLAIN=' . $r['canvas_id'] . ',' . App\\Models\\Layout::where('canvas_id', $r['canvas_id'])->count();`), 'PLAIN');
+    const plain = matched(seedPhp(`$c = App\\Models\\Canvas::find(${canvas.id}); $file = app(App\\Services\\Exchange\\CanvasExport::class)->build($c); $file['canvas']['layout'] = null; $r = app(App\\Services\\Exchange\\CanvasImport::class)->commit((string) json_encode($file), null, 'Zonder ${randomUUID().slice(0, 8)}', 'Zonder doel ${randomUUID().slice(0, 8)}'); echo 'PLAIN=' . $r['canvas_id'] . ',' . App\\Models\\Layout::where('canvas_id', $r['canvas_id'])->count();`), 'PLAIN');
     const [plainCanvas, plainRows] = plain.split(',');
     expect(plainRows).toBe('0');
     await page.goto(`/canvases/${plainCanvas}/view`);
