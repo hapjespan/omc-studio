@@ -3,6 +3,7 @@ import { withOpacity } from '../colour';
 import { blockPadding, MODALITY_BADGE } from '../layout/padding';
 import type { DrawnBlock } from '../layout/types';
 import type { PeekSource } from './peek';
+import { MODALITY_MARK_CLASS } from '../components/ModalityMark.vue';
 import UnknownCard from './UnknownCard.vue';
 
 const props = defineProps<{ block: DrawnBlock; label: string | null; modalityName: string | null; selected: boolean; described: boolean; modalityColour: string | null; colour?: { background: string; text: string } | null; summary?: string | null; inert?: boolean }>();
@@ -60,8 +61,8 @@ const box = (): Record<string, string> => {
         <UnknownCard v-if="block.system" :colour="block.style.textColour" />
         <span
             v-if="block.modality && modalityColour"
-            class="absolute flex h-4 w-4 items-center justify-center rounded-badge text-[11px] font-bold leading-none text-white"
-            :class="block.kind === 'domain' ? 'right-3 top-3.5' : 'right-1.5 top-1.5'"
+            class="absolute flex"
+            :class="[MODALITY_MARK_CLASS, block.kind === 'domain' ? 'right-3 top-3.5' : 'right-1.5 top-1.5']"
             :style="{ background: modalityColour }"
             aria-hidden="true"
         >{{ block.modality }}</span>

@@ -8,7 +8,7 @@ import ModalityOverlay from './overlay/ModalityOverlay.vue';
 import OverlayLegend from './overlay/OverlayLegend.vue';
 import { useOverlay } from './overlay/useOverlay';
 import CanvasView from './CanvasView.vue';
-import type { ModalityMark } from './CanvasView.vue';
+import type { ModalityColour } from './CanvasView.vue';
 import ViewDetail, { detailOf } from './ViewDetail.vue';
 import { contentHeight } from './extent';
 import ZoomToolbar, { fitZoom, ZOOM_MIN } from './ZoomToolbar.vue';
@@ -23,7 +23,7 @@ const props = defineProps<{
     areas: LayoutArea[];
     elements: LayoutElement[];
     statements: LayoutStatement[];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
     overlay: string;
     year: number | null;
     figures: CanvasFigures | null;

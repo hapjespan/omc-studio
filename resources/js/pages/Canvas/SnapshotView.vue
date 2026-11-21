@@ -2,7 +2,7 @@
 import { computed, onMounted, shallowRef } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
-import type { ModalityMark } from '../../canvas/CanvasView.vue';
+import type { ModalityColour } from '../../canvas/CanvasView.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
 import type { CanvasFigures } from '../../canvas/overlay/figures';
@@ -24,7 +24,7 @@ const props = defineProps<{
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
     layouts?: CanvasLayoutInput['layouts'];
     overlay: string;
     year: number;

@@ -2,7 +2,8 @@
 import { t } from '../i18n';
 import { detail } from '../shell/detail';
 import type { LayoutArea, LayoutElement, LayoutStatement } from '../layout/types';
-import type { ModalityMark } from './CanvasView.vue';
+import ModalityMark from '../components/ModalityMark.vue';
+import type { ModalityColour } from './CanvasView.vue';
 
 export interface DetailField {
     label: string;
@@ -13,7 +14,7 @@ export interface DetailContent {
     title: string;
     kind: string;
     system: boolean;
-    modality: (ModalityMark & { name: string }) | null;
+    modality: (ModalityColour & { name: string }) | null;
     fields: DetailField[];
 }
 
@@ -21,7 +22,7 @@ export interface DetailSource {
     areas: LayoutArea[];
     elements: (LayoutElement & { description?: string | null; rationale?: string | null })[];
     statements: LayoutStatement[];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
 }
 
 export const statementText = (statement: LayoutStatement): string => (statement.title ? `${statement.title}${/[.!?:]$/.test(statement.title) ? '' : ':'} ${statement.body}` : statement.body);
@@ -75,7 +76,7 @@ defineProps<{ content: DetailContent }>();
                 <span v-if="content.system" class="font-semibold">{{ t('view.system') }}</span>
             </p>
             <p v-if="content.modality" class="mt-2 flex items-center gap-2 text-[13px]" data-modality>
-                <span class="flex h-4 w-4 items-center justify-center rounded-[3px] text-[11px] font-bold leading-none text-white" :style="{ background: content.modality.colour }" aria-hidden="true">{{ content.modality.letter }}</span>
+                <ModalityMark :letter="content.modality.letter" :colour="content.modality.colour" decorative />
                 <span>{{ content.modality.name }}</span>
             </p>
             <dl class="mt-3 flex flex-col gap-3 text-[13px]">

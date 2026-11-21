@@ -80,3 +80,17 @@ describe('colours and states that come from tokens', () => {
         expect(line).toContain('variant="danger"');
     });
 });
+
+describe('the modality badge', () => {
+    it.each(['resources/js/canvas/ViewDetail.vue', 'resources/js/canvas/overlay/OverlayLegend.vue', 'resources/js/pages/Canvas/FigureSidePanel.vue'])('is the ModalityMark component in %s', (path) => {
+        expect(read(path)).toContain('<ModalityMark');
+        expect(read(path)).not.toMatch(/h-4 w-4[^"]*text-white/);
+    });
+
+    it('is drawn from the shared class in the block and the interface no longer shares the component name', () => {
+        expect(read('resources/js/canvas/Block.vue')).toContain('MODALITY_MARK_CLASS');
+        expect(read('resources/js/canvas/Block.vue')).not.toMatch(/h-4 w-4[^"]*text-white/);
+        expect(read('resources/js/canvas/CanvasView.vue')).toContain('export interface ModalityColour');
+        expect(read('resources/js/canvas/CanvasView.vue')).not.toContain('interface ModalityMark');
+    });
+});
