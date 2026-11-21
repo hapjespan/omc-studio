@@ -260,7 +260,6 @@ The sum of 10000 is enforced by the allocation service, which replaces the whole
 | occurrences | integer | |
 | first_occurred_at, last_occurred_at | datetime | |
 | seen_at | datetime null | |
-| seen_by | fk users set null, null | |
 
 | Index | Serves |
 |---|---|

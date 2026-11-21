@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'kind', 'fingerprint', 'canvas_id', 'details', 'occurrences',
-    'first_occurred_at', 'last_occurred_at', 'seen_at', 'seen_by',
+    'first_occurred_at', 'last_occurred_at', 'seen_at',
 ])]
 class SystemNotice extends Model
 {

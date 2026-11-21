@@ -4,7 +4,6 @@ namespace Tests\Unit\Notices;
 
 use App\Models\Canvas;
 use App\Models\SystemNotice;
-use App\Models\User;
 use App\Services\Notices\SystemNotices;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\FrozenClock;
@@ -61,7 +60,7 @@ class SystemNoticesTest extends TestCase
     {
         $canvas = Canvas::factory()->create();
         $first = $this->record($canvas);
-        $first->update(['seen_at' => now(), 'seen_by' => User::factory()->create()->id]);
+        $first->update(['seen_at' => now()]);
 
         $second = $this->record($canvas);
 
