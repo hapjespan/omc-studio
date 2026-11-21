@@ -16,6 +16,7 @@ import { computeCanvasLayout } from '../../layout';
 import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
 import HeaderSlot from '../../shell/HeaderSlot.vue';
+import { t } from '../../i18n';
 import { useQuietStatus } from '../../shell/layout';
 
 useQuietStatus();
@@ -46,7 +47,7 @@ const plain = ref(false);
 </script>
 
 <template>
-    <Head :title="canvas.name" />
+    <Head :title="`${canvas.name} - ${t('shell.mode.view')}`" />
     <HeaderSlot to="title">
         <h1 class="mr-2 font-display text-[20px] font-semibold leading-[28px] tracking-[-0.01em]">{{ canvas.name }}</h1>
     </HeaderSlot>

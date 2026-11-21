@@ -1309,5 +1309,10 @@
     "cost_records.import_csv": "Importeren uit CSV",
     "cost_records.none_text": "geen",
     "cost_records.panel": "Kostenpost bewerken",
-    "cost_records.delta": "Prognose ten opzichte van budget:"
+    "cost_records.delta": "Prognose ten opzichte van budget:",
+    "drawing.zoom_100": "100%",
+    "drawing.pan_left": "Beeld naar links",
+    "drawing.pan_right": "Beeld naar rechts",
+    "drawing.pan_up": "Beeld omhoog",
+    "drawing.pan_down": "Beeld omlaag"
 }

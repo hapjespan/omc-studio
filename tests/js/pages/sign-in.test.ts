@@ -3,6 +3,7 @@ import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@inertiajs/vue3', () => ({
+    Head: () => null,
     useForm: () => ({ email: '', password: '', errors: {}, processing: false, post: () => {}, reset: () => {} }),
 }));
 
