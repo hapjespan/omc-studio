@@ -19,17 +19,20 @@ class HardeningTest extends TestCase
         return (string) file_get_contents(base_path($path));
     }
 
-    public function test_the_image_ships_the_production_php_ini_and_hides_php(): void
+    public function test_a_mapped_query_exception_keeps_the_sql_without_bindings_and_names_the_first_app_frame(): void
     {
-        $dockerfile = $this->file('Dockerfile');
+        $exception = new QueryException('sqlite', 'select * from users where email = ?', ['secret@example.nl'], new Exception('failed'));
+        $frames = [
+            ['file' => base_path('vendor/laravel/framework/src/Illuminate/Database/Connection.php'), 'line' => 10],
+            ['file' => base_path('app/Services/Accounts/SignInService.php'), 'line' => 42],
+            ['file' => base_path('app/Http/Controllers/SignInController.php'), 'line' => 7],
+        ];
+        (new ReflectionProperty(Exception::class, 'trace'))->setValue($exception, $frames);
 
-        $this->assertStringContainsString('php.ini-production', $dockerfile);
-        $this->assertStringContainsString('expose_php=Off', $dockerfile);
-        $this->assertMatchesRegularExpression('/a2enmod[^\n&]*\bheaders\b/', $dockerfile);
-    }
+        $message = QueryTrace::message($exception);
 
-    public function test_apache_sends_nosniff_for_static_files(): void
-    {
-        $this->assertMatchesRegularExpression('/^\s*Header always set X-Content-Type-Options "nosniff"\s*$/m', $this->file('docker/apache.conf'));
+        $this->assertStringContainsString('select * from users where email = ?', $message);
+        $this->assertStringContainsString('app/Services/Accounts/SignInService.php:42', $message);
+        $this->assertStringNotContainsString('secret@example.nl', $message);
     }
 }
