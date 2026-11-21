@@ -5,6 +5,7 @@ namespace App\Services\Audit;
 use App\Models\AuditEntry;
 use App\Models\Canvas;
 use App\Models\Organisation;
+use App\Models\YearlyFigure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -24,7 +25,7 @@ class AuditTrail
             'subject_type' => $this->kind($subject),
             'subject_id' => (string) $subject->getKey(),
             'subject_label' => Str::limit($this->label($subject), 150, ''),
-            'organisation_id' => $subject instanceof Organisation ? $subject->getKey() : ($subject->getAttribute('organisation_id') ?? $canvas?->organisation_id),
+            'organisation_id' => $subject instanceof Organisation ? $subject->getKey() : ($subject->getAttribute('organisation_id') ?? $this->costRecordOrganisation($subject) ?? $canvas?->organisation_id),
             'canvas_id' => $subject instanceof Canvas ? $subject->getKey() : ($subject->getAttribute('canvas_id') ?? $canvas?->getKey()),
             'changes' => $changes,
         ]);
@@ -52,6 +53,11 @@ class AuditTrail
             'canvas_id' => $canvasId,
             'changes' => json_encode($entry[2]),
         ], $entries));
+    }
+
+    private function costRecordOrganisation(Model $subject): ?int
+    {
+        return $subject instanceof YearlyFigure ? $subject->costRecord?->organisation_id : null;
     }
 
     private function label(Model $subject): string
