@@ -19,7 +19,11 @@ interface Seed {
     canvas: number;
     organisation: number;
     record: string;
+    baseline: string;
+    hidden: string;
 }
+
+const TABLES = ['audit_entries', 'users', 'owners', 'applications', 'organisations'];
 
 const number = (output: string, key: string): number => Number(new RegExp(`${key}=(\\d+)`).exec(output)?.[1]);
 
@@ -78,12 +82,19 @@ test.describe('SC-020: every remaining screen answers within one second at 500 E
     test.describe.configure({ mode: 'serial' });
     test.beforeEach(() => test.setTimeout(240_000));
 
-    const seed: Seed = { canvas: 0, organisation: 0, record: '' };
+    const seed: Seed = { canvas: 0, organisation: 0, record: '', baseline: '{}', hidden: '[]' };
 
     test.beforeAll(() => {
         seed.canvas = seedPerformanceCanvas();
         seed.organisation = count(`App\\Models\\Canvas::find(${seed.canvas})->organisation_id`);
+        seed.hidden = seedPhp(`$ids = Illuminate\\Support\\Facades\\DB::table('canvases')->where('id', '!=', ${seed.canvas})->whereNull('archived_at')->pluck('id')->all(); Illuminate\\Support\\Facades\\DB::table('canvases')->whereIn('id', $ids)->update(['archived_at' => now()]); echo 'H=' . json_encode($ids);`).replace(/^.*H=/s, '').trim();
         seed.record = seedPhp(`echo 'R=' . App\\Models\\CostRecord::where('organisation_id', ${seed.organisation})->orderBy('name')->value('id');`).replace(/^.*R=/s, '').trim();
+        seed.baseline = seedPhp(`echo 'B=' . json_encode([${TABLES.map((table) => `'${table}' => (int) Illuminate\\Support\\Facades\\DB::table('${table}')->max('id')`).join(', ')}]);`).replace(/^.*B=/s, '').trim();
+    });
+
+    test.afterAll(() => {
+        seedPhp(`Illuminate\\Support\\Facades\\DB::table('canvases')->whereIn('id', json_decode('${seed.hidden}', true))->update(['archived_at' => null]);`);
+        seedPhp(`$b = json_decode('${seed.baseline}', true); foreach (${JSON.stringify(TABLES)} as $table) { Illuminate\\Support\\Facades\\DB::table($table)->where('id', '>', $b[$table])->delete(); }`);
     });
 
     test('Overview shows every canvas card with its drawn miniature', async ({ page, browserName }) => {
