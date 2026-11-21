@@ -8,6 +8,7 @@ use App\Models\FinalisedYear;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
 use App\Models\YearlyFigure;
+use App\Support\NameNormaliser;
 use Closure;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -58,7 +59,7 @@ class CanvasImportConflicts
                 continue;
             }
 
-            $code = ($record['code'] ?? null) === null ? null : mb_strtolower(trim($record['code']));
+            $code = ($record['code'] ?? null) === null ? null : NameNormaliser::normalise($record['code']);
             $code !== null && $byCode->has($code) && $add($at.'.code', 'jsonx.code_taken', ['code' => $record['code']]);
 
             foreach ($record['yearly_figures'] as $number => $figure) {
@@ -140,7 +141,7 @@ class CanvasImportConflicts
         }
 
         foreach (['code', 'owner', 'application'] as $key) {
-            $values[$key] = $values[$key] === null ? null : mb_strtolower(trim($values[$key]));
+            $values[$key] = $values[$key] === null ? null : NameNormaliser::normalise($values[$key]);
         }
 
         foreach (['supplier', 'cost_centre', 'description'] as $key) {

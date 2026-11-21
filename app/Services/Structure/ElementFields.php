@@ -3,12 +3,13 @@
 namespace App\Services\Structure;
 
 use App\Models\Area;
+use App\Support\FieldLimits;
 use Illuminate\Support\Facades\File;
 use Illuminate\Validation\ValidationException;
 
 class ElementFields
 {
-    private const DESCRIPTION_MAX = 2000;
+    private const DESCRIPTION_MAX = FieldLimits::TEXT;
 
     /** @param array<string, mixed> $changes */
     public function assertValid(Area $area, array $changes): void

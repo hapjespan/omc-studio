@@ -23,7 +23,7 @@ export interface Flow {
 export const CARD_MIN_WIDTH = 260;
 export const CARD_GAP = 12;
 const CHILD_GAP = 6;
-const CLUSTER_INDENT = 8;
+export const CLUSTER_INDENT = 8;
 export const AMOUNT_ROOM = 39;
 const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 };
 

@@ -4,6 +4,7 @@ namespace App\Services\Exchange\Concerns;
 
 use App\Enums\ElementKind;
 use App\Rules\BasisPoints;
+use App\Support\NameNormaliser;
 
 trait ChecksStructure
 {
@@ -78,7 +79,7 @@ trait ChecksStructure
             }
 
             if ($name !== null && $area !== null && $archived === null && $unknown !== true) {
-                $this->unique([$area, $parent, mb_strtolower(trim($name))], $at.'.name', $names, 'jsonx.name_taken');
+                $this->unique([$area, $parent, NameNormaliser::normalise($name)], $at.'.name', $names, 'jsonx.name_taken');
             }
 
             if ($id === null || ! $this->unique($id, $at.'.id', $ids)) {

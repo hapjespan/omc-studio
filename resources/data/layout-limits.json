@@ -1,0 +1,12 @@
+{
+    "artboard": { "width": 1680, "height": 1188 },
+    "minWidth": 40,
+    "minHeight": 24,
+    "directionHeight": 180,
+    "style": {
+        "fill_opacity": [0, 100],
+        "border_width": [0, 8],
+        "corner_radius": [0, 64],
+        "font_size": [10, 48]
+    }
+}

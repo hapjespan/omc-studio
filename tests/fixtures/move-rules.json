@@ -1,0 +1,31 @@
+{
+    "areas": { "primary_activities": "activities", "supporting_activities": "activities", "actors": "list" },
+    "elements": [
+        { "id": "d1", "area": "primary_activities", "kind": "domain", "name": "Inkoop", "parent": null },
+        { "id": "c1", "area": "primary_activities", "kind": "cluster", "name": "Werving", "parent": "d1" },
+        { "id": "a1", "area": "primary_activities", "kind": "activity", "name": "Offreren", "parent": "c1" },
+        { "id": "a3", "area": "primary_activities", "kind": "activity", "name": "Bestellen ", "parent": "d1" },
+        { "id": "d2", "area": "primary_activities", "kind": "domain", "name": "Verkoop", "parent": null },
+        { "id": "c2", "area": "primary_activities", "kind": "cluster", "name": "Klanten", "parent": "d2" },
+        { "id": "a2", "area": "primary_activities", "kind": "activity", "name": "bestellen", "parent": "d2" },
+        { "id": "d3", "area": "supporting_activities", "kind": "domain", "name": "Beheer", "parent": null },
+        { "id": "u", "area": "supporting_activities", "kind": "domain", "name": "Onbekende allocatie", "parent": null, "unknownAllocation": true },
+        { "id": "g1", "area": "actors", "kind": "domain", "name": "Klanten", "parent": null },
+        { "id": "g2", "area": "actors", "kind": "domain", "name": "Partners", "parent": null },
+        { "id": "i1", "area": "actors", "kind": "activity", "name": "Jan", "parent": "g1" }
+    ],
+    "cases": [
+        { "dragged": "a1", "target": "d2", "ts": null, "server": null },
+        { "dragged": "a1", "target": "c2", "ts": null, "server": null },
+        { "dragged": "a1", "target": "d3", "ts": null, "server": null },
+        { "dragged": "a1", "target": "u", "ts": "unknown_allocation", "server": "unknown_allocation_managed" },
+        { "dragged": "a1", "target": "g2", "ts": "other_kind", "server": "move_other_kind" },
+        { "dragged": "c1", "target": "d2", "ts": null, "server": null },
+        { "dragged": "c1", "target": "d3", "ts": null, "server": null },
+        { "dragged": "c1", "target": "c2", "ts": "cluster_needs_domain", "server": "cluster_in_cluster" },
+        { "dragged": "c1", "target": "a2", "ts": "cluster_needs_domain", "server": "cluster_parent" },
+        { "dragged": "c1", "target": "g2", "ts": "no_clusters_in_list", "server": "move_other_kind" },
+        { "dragged": "a3", "target": "d2", "ts": "name_taken", "server": "element_name_taken" },
+        { "dragged": "i1", "target": "g2", "ts": null, "server": null }
+    ]
+}

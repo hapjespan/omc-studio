@@ -1,3 +1,4 @@
+import limits from '../../data/layout-limits.json';
 import { DIRECTION_HEIGHT } from './direction';
 import type { AreaKey } from './types';
 
@@ -8,8 +9,8 @@ export interface Frame {
     height: number;
 }
 
-export const ARTBOARD_WIDTH = 1680;
-export const ARTBOARD_HEIGHT = 1188;
+export const ARTBOARD_WIDTH = limits.artboard.width;
+export const ARTBOARD_HEIGHT = limits.artboard.height;
 export const AREA_GAP = 12;
 export const AREA_PADDING = 12;
 export const AREA_HEADER = 28;

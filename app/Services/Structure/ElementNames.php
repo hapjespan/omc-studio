@@ -3,11 +3,12 @@
 namespace App\Services\Structure;
 
 use App\Models\Element;
+use App\Support\FieldLimits;
 use Illuminate\Validation\ValidationException;
 
 class ElementNames
 {
-    private const MAX = 150;
+    private const MAX = FieldLimits::NAME;
 
     public function assertAvailable(int $canvasId, int $areaId, ?string $parentId, string $name, ?string $ignoring = null): void
     {

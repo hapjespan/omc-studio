@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\CanvasKind;
 use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
 use Illuminate\Validation\Rule;
 
 class CanvasRequest extends AppFormRequest
@@ -18,7 +19,7 @@ class CanvasRequest extends AppFormRequest
     /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {
-        $name = ['required', 'string', new TrimmedText(__('fields.name'), 150)];
+        $name = ['required', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)];
 
         return match ($this->method()) {
             'POST' => [

@@ -2,13 +2,14 @@
 
 namespace App\Rules;
 
+use App\Support\FieldLimits;
 use Closure;
 
 class ElementName extends TrimmedText
 {
     public function __construct(?string $label = null)
     {
-        parent::__construct($label ?? __('fields.name'), 150);
+        parent::__construct($label ?? __('fields.name'), FieldLimits::NAME);
     }
 
     public function validate(string $attribute, mixed $value, Closure $fail): void

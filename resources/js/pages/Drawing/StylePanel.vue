@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import limits from '../../../data/layout-limits.json';
 import AppButton from '../../components/ui/AppButton.vue';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
@@ -26,9 +27,9 @@ const props = defineProps<{ id: string; name: string; target: StyleTarget; copie
 const emit = defineEmits<{ style: [patch: StylePatch]; copy: []; paste: []; apply: [] }>();
 
 const RANGES = {
-    fill_opacity: { low: 0, high: 100, message: 'layout.style.fill_opacity' },
-    border_width: { low: 0, high: 8, message: 'layout.style.border_width' },
-    corner_radius: { low: 0, high: 64, message: 'layout.style.corner_radius' },
+    fill_opacity: { low: limits.style.fill_opacity[0], high: limits.style.fill_opacity[1], message: 'layout.style.fill_opacity' },
+    border_width: { low: limits.style.border_width[0], high: limits.style.border_width[1], message: 'layout.style.border_width' },
+    corner_radius: { low: limits.style.corner_radius[0], high: limits.style.corner_radius[1], message: 'layout.style.corner_radius' },
 } as const;
 type RangeKey = keyof typeof RANGES;
 

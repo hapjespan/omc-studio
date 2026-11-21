@@ -1,3 +1,4 @@
+import limits from '../../data/layout-limits.json';
 export interface Box {
     x: number;
     y: number;
@@ -13,11 +14,11 @@ export interface Constrained {
     growParentTo: number | null;
 }
 
-export const MIN_WIDTH = 40;
-export const MIN_HEIGHT = 24;
-export const ARTBOARD_WIDTH = 1680;
-export const ARTBOARD_HEIGHT = 1188;
-export const DIRECTION_HEIGHT = 180;
+export const MIN_WIDTH = limits.minWidth;
+export const MIN_HEIGHT = limits.minHeight;
+export const ARTBOARD_WIDTH = limits.artboard.width;
+export const ARTBOARD_HEIGHT = limits.artboard.height;
+export const DIRECTION_HEIGHT = limits.directionHeight;
 
 const BOX_KEYS: (keyof Box)[] = ['x', 'y', 'width', 'height'];
 

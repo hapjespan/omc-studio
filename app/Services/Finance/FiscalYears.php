@@ -8,6 +8,7 @@ use App\Models\Organisation;
 use App\Models\YearlyFigure;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use App\Support\FieldLimits;
 use Illuminate\Validation\ValidationException;
 
 class FiscalYears
@@ -23,7 +24,7 @@ class FiscalYears
 
             $number = is_int($year) || (is_string($year) && ctype_digit($year)) ? (int) $year : 0;
 
-            if ($number < 2000 || $number > 2100 || $organisation->fiscalYears()->where('year', $number)->exists()) {
+            if ($number < FieldLimits::YEAR_MIN || $number > FieldLimits::YEAR_MAX || $organisation->fiscalYears()->where('year', $number)->exists()) {
                 throw ValidationException::withMessages(['year' => __('fiscal_years.year_invalid')]);
             }
 

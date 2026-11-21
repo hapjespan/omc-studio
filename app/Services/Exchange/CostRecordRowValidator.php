@@ -5,10 +5,11 @@ namespace App\Services\Exchange;
 use App\Enums\CostKind;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
+use App\Support\FieldLimits;
 
 class CostRecordRowValidator
 {
-    private const LIMITS = ['code' => 50, 'name' => 150, 'owner' => 150, 'application' => 150, 'supplier' => 150, 'cost_centre' => 50];
+    private const LIMITS = ['code' => FieldLimits::CODE, 'name' => FieldLimits::NAME, 'owner' => FieldLimits::NAME, 'application' => FieldLimits::NAME, 'supplier' => FieldLimits::NAME, 'cost_centre' => FieldLimits::CODE];
 
     /**
      * @return array<string, CostKind>

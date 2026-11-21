@@ -6,6 +6,7 @@ use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Services\Exchange\Concerns\CollectsFileErrors;
 use App\Services\Snapshot\SnapshotContent;
+use App\Support\FieldLimits;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use JsonException;
@@ -16,13 +17,13 @@ class FullImportValidator
 
     public const DEPTH = 64;
 
-    private const NAME = 150;
+    private const NAME = FieldLimits::NAME;
 
-    private const TEXT = 2000;
+    private const TEXT = FieldLimits::TEXT;
 
     private const CHECKSUM = 64;
 
-    private const YEARS = [2000, 2100];
+    private const YEARS = [FieldLimits::YEAR_MIN, FieldLimits::YEAR_MAX];
 
     private const STUB = ['statements' => [], 'elements' => [], 'layout' => null, 'allocation_sets' => [], 'finalised_years' => []];
 

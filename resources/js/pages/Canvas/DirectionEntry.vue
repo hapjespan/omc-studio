@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import limits from '../../../data/field-limits.json';
 import { nextTick, reactive, ref, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
@@ -18,8 +19,8 @@ interface Goal {
     body: string;
 }
 
-const LIMIT = 2000;
-const TITLE_LIMIT = 150;
+const LIMIT = limits.text;
+const TITLE_LIMIT = limits.name;
 const kinds = ['mission', 'vision'] as const;
 
 const props = defineProps<{ canvasId: number; statements: { mission: string | null; vision: string | null; goals: Goal[] } }>();

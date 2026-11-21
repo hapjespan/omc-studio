@@ -32,7 +32,9 @@ export interface CanvasStructure {
     elements: LayoutElement[];
 }
 
-export type RefusalReason = 'other_kind' | 'unknown_allocation' | 'name_taken' | 'cluster_needs_domain' | 'no_clusters_in_list';
+import type { RefusalReason } from './moveRules';
+
+export type { RefusalReason };
 
 export type MoveVerdict =
     | { valid: true; targetId: string; targetName: string; narrowed: boolean }
