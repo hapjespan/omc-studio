@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Tests\Support;
 
 use App\Models\AllocationLine;
 use App\Models\AllocationSet;

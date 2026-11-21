@@ -6,8 +6,8 @@ use App\Models\AllocationSet;
 use App\Models\CostRecord;
 use App\Models\Element;
 use App\Models\YearlyFigure;
-use Database\Seeders\DesignComparisonSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\DesignComparisonSeeder;
 use Tests\TestCase;
 
 class DesignComparisonSeederTest extends TestCase

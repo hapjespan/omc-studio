@@ -2,7 +2,7 @@
 
 ## Result after D2.10
 
-Screenshots of the three screens of deliveries 2 and 3 were retaken on 2026-11-21 after the D2.10 work was merged: the release tip `55b95c8` plus the branch commit `1bb4630`, taken at `d4b7511`. Chromium, viewport 1440 wide, full page, signed in as the Administrator of the committed seed `database/seeders/DesignComparisonSeeder.php` (organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", fiscal year 2026, ten Cost records KP-001 to KP-010 with the amounts of the boards, eight of them allocated, so the canvas total is 744.000, assigned 663.000 and unknown 81.000 as on the boards). The shots are made by `scripts/design-compare-shots.mjs`; every file below is the retake of the same name written by that script:
+Screenshots of the three screens of deliveries 2 and 3 were retaken on 2026-11-21 after the D2.10 work was merged: the release tip `55b95c8` plus the branch commit `1bb4630`, taken at `d4b7511`. Chromium, viewport 1440 wide, full page, signed in as the Administrator of the committed seed `tests/Support/DesignComparisonSeeder.php` (organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", fiscal year 2026, ten Cost records KP-001 to KP-010 with the amounts of the boards, eight of them allocated, so the canvas total is 744.000, assigned 663.000 and unknown 81.000 as on the boards). The shots are made by `scripts/design-compare-shots.mjs`; every file below is the retake of the same name written by that script:
 
 | Screen | Per-screen status | Built (retaken) | Board |
 |---|---|---|---|
@@ -94,7 +94,7 @@ Date: 2026-11-19. Built from release `1f6cc5b` (Invoeren, Bekijken and Modality 
 
 ## How the screenshots were made
 
-- Sample data shaped like the boards: organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", the primary activities, richten, beheersen, supporting activities and the three list Areas with the same domain, activity and group names as the boards, mission, vision and three goals, four users. The seed script of the first round is `.scratch/compare-seed.php` (not committed); the screens of D2.10 use the committed `database/seeders/DesignComparisonSeeder.php`.
+- Sample data shaped like the boards: organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", the primary activities, richten, beheersen, supporting activities and the three list Areas with the same domain, activity and group names as the boards, mission, vision and three goals, four users. The seed script of the first round is `.scratch/compare-seed.php` (not committed); the screens of D2.10 use the committed `tests/Support/DesignComparisonSeeder.php`.
 - Chromium, viewport 1440 wide, full page, one screenshot per screen: `<screen>-built.png`.
 - Where a board exists, a copy sits next to it: `invoeren-board.png` (board 1) and `bekijken-board.png` (board 2, which shows the financial overlay: only its canvas arrangement counts for D1).
 - Measurements below are computed styles read from the running page, not estimates from the images.
