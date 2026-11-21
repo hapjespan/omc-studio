@@ -42,6 +42,7 @@ class LayoutSchemaTest extends TestCase
 
         $pg->statement('drop schema if exists '.self::PG_SCHEMA.' cascade');
         $pg->statement('create schema '.self::PG_SCHEMA);
+        $previous = config('database.default');
 
         try {
             $this->assertSame(0, Artisan::call('migrate:fresh', ['--database' => 'portability', '--force' => true]));
@@ -50,7 +51,7 @@ class LayoutSchemaTest extends TestCase
 
             $this->assertTheLayoutSchemaHolds();
         } finally {
-            config(['database.default' => 'sqlite']);
+            config(['database.default' => $previous]);
             $pg->statement('drop schema if exists '.self::PG_SCHEMA.' cascade');
         }
     }
@@ -143,7 +144,7 @@ class LayoutSchemaTest extends TestCase
     private function assertRefused(string $exception, array $attributes): void
     {
         try {
-            Layout::create($attributes);
+            DB::transaction(fn () => Layout::create($attributes));
         } catch (\Throwable $thrown) {
             $this->assertInstanceOf($exception, $thrown);
 
