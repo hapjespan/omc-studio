@@ -25,6 +25,7 @@ const props = defineProps<{
     statements: LayoutStatement[];
     modalities: ModalityMark[];
     selectedId?: string | null;
+    layersAbove?: boolean;
     zoom?: number;
     cardColours?: Record<string, { background: string; text: string }>;
     figureLines?: (id: string) => string[];
@@ -77,7 +78,7 @@ const colours = computed(() => new Map(props.modalities.map((modality) => [modal
 const modalityNames = computed(() => new Map(props.modalities.map((modality) => [modality.letter, t(`view.modality.${modality.key}`)])));
 const band = computed(() => props.drawn.blocks.find((block) => block.id === 'direction'));
 const blocks = computed(() => props.drawn.blocks);
-const layerOrder = computed(() => blocks.value.reduce((top, block) => Math.max(top, block.z + 2), 40));
+const layerOrder = computed(() => (!props.layersAbove ? 40 : blocks.value.reduce((top, block) => Math.max(top, block.z + 2), 40)));
 const segments = computed(() => new Map(props.drawn.direction.map((column) => [column.key, column.lines.map((line, index) => splitDirectionLine(line, column.marks[index]))])));
 </script>
 

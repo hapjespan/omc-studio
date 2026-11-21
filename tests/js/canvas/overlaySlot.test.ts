@@ -24,7 +24,7 @@ describe('CanvasView card slot', () => {
 
     it('stacks the layers above every drawn block', async () => {
         const withChild = [element('d', 'primary_activities', 'domain', 'Onderwijs'), element('a', 'primary_activities', 'activity', 'Les geven', 'd')];
-        const html = await renderToString(createSSRApp({ render: () => h(CanvasView, { drawn: computeCanvasLayout({ ...emptyInput(), elements: withChild }, fakeMeasurer), areas: eightAreas, elements: withChild, statements: [], modalities: [] }, { card: () => h('i', 'inhoud') }) }));
+        const html = await renderToString(createSSRApp({ render: () => h(CanvasView, { drawn: computeCanvasLayout({ ...emptyInput(), elements: withChild }, fakeMeasurer), areas: eightAreas, elements: withChild, statements: [], modalities: [], layersAbove: true }, { card: () => h('i', 'inhoud') }) }));
         const layers = [...html.matchAll(/z-index:\s*(\d+)[^"]*"[^>]*data-overlay-card|data-overlay-card[^>]*style="[^"]*z-index:\s*(\d+)/g)].map((match) => Number(match[1] ?? match[2]));
         const blocks = [...html.matchAll(/data-block="[^"]*"[^>]*style="[^"]*z-index:\s*(\d+)|style="[^"]*z-index:\s*(\d+)[^"]*"[^>]*data-block=/g)].map((match) => Number(match[1] ?? match[2]));
         expect(layers.length).toBeGreaterThan(0);
