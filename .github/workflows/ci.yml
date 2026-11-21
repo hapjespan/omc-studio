@@ -22,6 +22,7 @@ jobs:
   php-sqlite:
     name: PHP suite on SQLite
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
@@ -43,6 +44,7 @@ jobs:
   php-postgres:
     name: PHP suite on PostgreSQL
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
@@ -85,6 +87,7 @@ jobs:
   js:
     name: Vitest, types, lint and static checks
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -101,6 +104,7 @@ jobs:
   scope:
     name: Scope of the change
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       documentation_only: ${{ steps.scope.outputs.documentation_only }}
     steps:
@@ -123,6 +127,7 @@ jobs:
     needs: scope
     if: needs.scope.outputs.documentation_only != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
@@ -162,6 +167,7 @@ jobs:
     needs: scope
     if: needs.scope.outputs.documentation_only != 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
@@ -189,6 +195,7 @@ jobs:
   audit:
     name: Dependency audits
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
@@ -204,6 +211,7 @@ jobs:
   image:
     name: Delivered image build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - run: docker build --tag omc-studio:ci .

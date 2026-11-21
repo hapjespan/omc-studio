@@ -163,6 +163,20 @@ class CiWorkflowTest extends TestCase
         $this->assertStringNotContainsString('continue-on-error', $workflow);
     }
 
+    public function test_every_job_has_a_timeout_and_the_browser_jobs_get_the_longest(): void
+    {
+        $jobs = (array) $this->parse('.github/workflows/ci.yml')['jobs'];
+
+        $this->assertNotEmpty($jobs);
+
+        foreach ($jobs as $name => $job) {
+            $limit = ((array) $job)['timeout-minutes'] ?? null;
+            $expected = in_array($name, ['e2e', 'e2e-performance'], true) ? 90 : 30;
+
+            $this->assertSame($expected, $limit, "job {$name} needs timeout-minutes {$expected}");
+        }
+    }
+
     public function test_dependabot_only_reports(): void
     {
         $updates = (array) $this->parse('.github/dependabot.yml')['updates'];
