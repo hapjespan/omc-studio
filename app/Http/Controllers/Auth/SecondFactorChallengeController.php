@@ -40,7 +40,7 @@ class SecondFactorChallengeController extends Controller
         $throttle = new Throttle(self::NAMESPACE, true);
         $identifier = (string) $user->getKey();
 
-        if ($throttle->tooManyAttempts($identifier)) {
+        if (! $throttle->claim($identifier)) {
             SecurityLog::record('second_factor_throttled', ['user_id' => $user->getKey()]);
 
             throw ValidationException::withMessages([
@@ -73,7 +73,7 @@ class SecondFactorChallengeController extends Controller
 
     private function refuse(Throttle $throttle, string $identifier, User $user, ValidationException $refusal): never
     {
-        $throttle->hit($identifier);
+        $throttle->fail($identifier);
         SecurityLog::record('second_factor_failed', ['user_id' => $user->getKey()]);
 
         throw $refusal;

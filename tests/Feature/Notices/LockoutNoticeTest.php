@@ -33,7 +33,8 @@ class LockoutNoticeTest extends TestCase
         $throttle = new Throttle($namespace, in_array($namespace, ['sign-in', 'second-factor'], true));
 
         for ($i = 0; $i < Throttle::LIMIT; $i++) {
-            $throttle->hit($identifier);
+            $throttle->claim($identifier);
+            $throttle->fail($identifier);
         }
     }
 

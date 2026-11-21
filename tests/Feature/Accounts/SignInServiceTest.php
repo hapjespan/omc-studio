@@ -152,4 +152,38 @@ class SignInServiceTest extends TestCase
         $this->assertCount(1, $this->events('sign_in_failed'));
         $this->assertGuest();
     }
+
+    public function test_a_refusal_for_a_known_address_carries_the_user_identifier(): void
+    {
+        $user = User::factory()->create();
+
+        $this->refusal($user->email, 'wrong-password');
+
+        $context = $this->events('sign_in_failed')[0]->context;
+        $this->assertSame($user->getKey(), $context['user_id']);
+        $this->assertSame('wrong_password', $context['reason']);
+        $this->assertStringNotContainsString($user->email, (string) json_encode($context));
+    }
+
+    public function test_a_refusal_for_an_unknown_address_carries_no_identifier(): void
+    {
+        $this->refusal('nobody@example.test', 'wrong-password');
+
+        $context = $this->events('sign_in_failed')[0]->context;
+        $this->assertNull($context['user_id']);
+        $this->assertStringNotContainsString('nobody@example.test', (string) json_encode($context));
+    }
+
+    public function test_a_throttled_refusal_carries_the_identifier_when_the_address_resolves(): void
+    {
+        $user = User::factory()->create();
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->refusal($user->email, 'wrong-password');
+        }
+
+        $this->refusal($user->email, 'password');
+        $throttled = $this->events('sign_in_throttled');
+        $this->assertSame($user->getKey(), $throttled[0]->context['user_id']);
+    }
 }

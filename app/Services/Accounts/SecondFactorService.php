@@ -133,7 +133,7 @@ class SecondFactorService
         $throttle = new Throttle(self::NAMESPACE);
         $identifier = (string) $user->getKey();
 
-        if ($throttle->tooManyAttempts($identifier)) {
+        if (! $throttle->claim($identifier)) {
             SecurityLog::record('second_factor_password_throttled');
 
             throw ValidationException::withMessages([
@@ -142,7 +142,7 @@ class SecondFactorService
         }
 
         if (! Hash::check($password, (string) $user->password)) {
-            $throttle->hit($identifier);
+            $throttle->fail($identifier);
             SecurityLog::record('second_factor_password_failed');
 
             throw ValidationException::withMessages(['current_password' => __('account.current_password_wrong')]);

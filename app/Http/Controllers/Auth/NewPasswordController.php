@@ -5,11 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\Password;
-use App\Services\Audit\SecurityLog;
+use App\Services\Accounts\PasswordService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,7 +20,7 @@ class NewPasswordController extends Controller
         return Inertia::render('Auth/NewPassword');
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request, PasswordService $passwords): RedirectResponse
     {
         $user = $this->pending($request);
 
@@ -31,18 +29,7 @@ class NewPasswordController extends Controller
             ['password.required' => __('auth.password_required'), 'password.confirmed' => __('validation.password_confirmed')],
         );
 
-        if (Hash::check($validated['password'], $user->password)) {
-            throw ValidationException::withMessages(['password' => __('auth.password_reused')]);
-        }
-
-        $user->fill([
-            'password' => $validated['password'],
-            'must_change_password' => false,
-            'one_time_password_expires_at' => null,
-        ])->save();
-
-        $request->session()->regenerate(true);
-        SecurityLog::record('password_changed');
+        $passwords->setInitial($user, $validated['password'], $request->session());
         Inertia::clearHistory();
 
         return redirect()->intended('/')->with('status', __('auth.password_changed'));
