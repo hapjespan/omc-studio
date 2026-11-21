@@ -15,6 +15,7 @@ use App\Models\UndoRecord;
 use App\Models\User;
 use App\Models\YearlyFigure;
 use App\Services\Finance\CostRecords;
+use App\Services\Finance\FigureService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
@@ -90,6 +91,20 @@ class CostRecordDeleteTest extends TestCase
         $this->assertSame(0, AllocationLine::query()->count());
         $this->assertSame('Kostenpost verwijderd', session('undo')['message']);
         $this->assertNotNull(UndoRecord::find($this->token()));
+    }
+
+    public function test_the_closing_check_of_every_canvas_passes_after_the_deletion(): void
+    {
+        $this->destroy()->assertSessionHasNoErrors();
+
+        foreach ([2025, 2026] as $year) {
+            foreach (Canvas::query()->get() as $canvas) {
+                $figures = app(FigureService::class)->figures($canvas, $year);
+
+                $this->assertNotNull($figures, $canvas->name.' '.$year);
+                $this->assertTrue($figures->closingCheck['passed'], $canvas->name.' '.$year);
+            }
+        }
     }
 
     public function test_an_undo_puts_the_cost_record_its_figures_its_sets_and_its_lines_back_with_their_own_identifiers(): void
