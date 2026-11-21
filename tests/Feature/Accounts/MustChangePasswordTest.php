@@ -6,6 +6,8 @@ use App\Models\AuditEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia;
@@ -126,6 +128,37 @@ class MustChangePasswordTest extends TestCase
         $this->assertNull($user->one_time_password_expires_at);
         $this->assertAuthenticatedAs($user);
         $this->get('/')->assertOk();
+    }
+
+    public function test_a_second_session_of_the_user_ends_when_the_new_password_is_saved(): void
+    {
+        config(['session.driver' => 'database']);
+        $user = $this->pending();
+        $this->storedSession('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', $user);
+        $this->storedSession('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', $user);
+        $this->withCookie((string) config('session.cookie'), 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+        $this->put('/password/new', [
+            'password' => 'een-lang-genoeg-geheim',
+            'password_confirmation' => 'een-lang-genoeg-geheim',
+        ])->assertRedirect('/');
+
+        $this->assertDatabaseMissing('sessions', ['id' => 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb']);
+        $this->assertSame(1, DB::table('sessions')->where('user_id', $user->id)->count());
+        $this->assertAuthenticatedAs($user);
+    }
+
+    private function storedSession(string $id, User $user): void
+    {
+        DB::table('sessions')->insert([
+            'id' => $id,
+            'user_id' => $user->id,
+            'payload' => base64_encode((string) json_encode([
+                Auth::guard('web')->getName() => $user->id,
+                'signed_in_at' => now()->getTimestamp(),
+            ])),
+            'last_activity' => now()->getTimestamp(),
+        ]);
     }
 
     public function test_the_change_is_audited_without_password_material(): void
