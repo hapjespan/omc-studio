@@ -1,5 +1,5 @@
 import { AREA_PADDING, areaWidth, isListArea } from './arrangeAreas';
-import { CARD_GAP, columnCount } from './flowDomains';
+import { CARD_GAP, CLUSTER_INDENT, columnCount } from './flowDomains';
 import { elementPadding as padding } from './padding';
 import { ITEM_INDENT } from './listAreas';
 import type { AreaKey, LayoutElement } from './types';
@@ -10,8 +10,6 @@ export interface WidthOverrides {
     areas?: Partial<Record<AreaKey, number>>;
     elements?: Record<string, number>;
 }
-
-const CLUSTER_INDENT = 8;
 
 export function automaticWidths(elements: WidthElement[], overrides: WidthOverrides = {}): Record<string, number> {
     const byId = new Map(elements.map((element) => [element.id, element]));
