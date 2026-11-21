@@ -128,7 +128,7 @@ function undoDeletion(): void {
         <form v-for="kind in kinds" :key="kind" novalidate class="flex flex-col gap-2" @submit.prevent="saveText(kind)">
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
             <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ texts[kind].length }} / {{ LIMIT }}</p>
-            <p v-if="!statements[kind]" class="text-[12.5px] text-secondary">{{ t(`direction_entry.empty_${kind}`) }}</p>
+            <p v-if="!statements[kind]" class="text-[12.5px] text-muted">{{ t(`direction_entry.empty_${kind}`) }}</p>
             <AppButton type="submit" variant="primary" class="self-start">{{ t('direction_entry.save') }}</AppButton>
         </form>
         <section :aria-label="t('direction_entry.goals')" class="flex flex-col gap-2">

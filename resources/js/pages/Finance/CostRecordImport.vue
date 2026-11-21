@@ -71,7 +71,7 @@ function pick(picked: File | null): void {
 <template>
     <Head :title="t('import.title')" />
     <div class="flex max-w-3xl flex-col gap-4">
-        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('import.title') }}</h1>
+        <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('import.title') }}</h1>
         <form novalidate class="flex flex-col gap-4 rounded-panel border border-hairline bg-white p-6" @submit.prevent="check">
             <FileField id="import-file" :label="t('import.file')" accept=".csv,text/csv,text/plain" :hint="t('import.file_hint', { columns: columns.join(';') })" :error="refusal" @pick="pick" />
             <div class="flex gap-2">

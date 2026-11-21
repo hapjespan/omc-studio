@@ -115,7 +115,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
             </ul>
         </li>
     </ol>
-    <p v-if="!entries.length" class="mt-2 text-[13px]">{{ t('audit_log.empty') }}</p>
+    <p v-if="!entries.length" class="mt-2 text-[13px] text-muted">{{ t('audit_log.empty') }}</p>
     <nav v-if="lastPage > 1" :aria-label="t('audit_log.pagination')" class="mt-4 flex items-center gap-4 text-[13px]">
         <Link v-if="page > 1" :href="pageHref(page - 1)" class="underline">{{ t('audit_log.previous') }}</Link>
         <span>{{ t('audit_log.page', { page, last: lastPage }) }}</span>

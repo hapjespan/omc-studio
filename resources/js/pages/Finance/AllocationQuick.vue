@@ -25,7 +25,7 @@ function apply(): void {
         <span class="text-[13px] text-muted">{{ t('allocation_page.quick') }}</span>
         <AppButton :disabled="disabled || count < 1" @click="emit('even')">{{ plural('allocation_page.even', count) }}</AppButton>
         <AppButton :disabled="disabled" :aria-expanded="open" aria-controls="allocation-quick" @click="open = !open">{{ t('allocation_page.over_domain') }}</AppButton>
-        <div v-if="open" id="allocation-quick" role="group" :aria-label="t('allocation_page.quick')" class="absolute left-0 top-full z-10 mt-1 w-72 rounded-card border border-hairline bg-white p-3 text-[13px] shadow-[0_1px_3px_rgba(0,0,0,.12)]">
+        <div v-if="open" id="allocation-quick" role="group" :aria-label="t('allocation_page.quick')" class="absolute left-0 top-full z-10 mt-1 w-72 rounded-card border border-hairline bg-white p-3 text-[13px] shadow-float">
             <SelectField id="allocation-quick-domain" v-model="picked" :label="t('allocation_page.pick_domain')" :options="options" />
             <p v-if="empty" role="status" class="mt-1 text-warning">{{ t('allocation_page.domain_empty') }}</p>
             <AppButton class="mt-2" variant="primary" :disabled="picked === '' || empty" @click="apply">{{ t('allocation_page.over_domain_apply') }}</AppButton>

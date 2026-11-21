@@ -18,5 +18,5 @@ const place = computed(() => ({ left: `${(props.event?.x ?? 0) + 16}px`, top: `$
 </script>
 
 <template>
-    <div v-if="event" :style="place" class="pointer-events-none fixed z-50 rounded-control border border-edge bg-white px-2 py-1 text-[13px] font-medium text-ink shadow" data-drag-label :data-valid="event.verdict.valid">{{ text }}</div>
+    <div v-if="event" :style="place" class="pointer-events-none fixed z-50 rounded-control border border-edge bg-white px-2 py-1 text-[13px] font-medium text-ink shadow-float" data-drag-label :data-valid="event.verdict.valid">{{ text }}</div>
 </template>

@@ -15,7 +15,7 @@ const model = defineModel<string>();
                 <Icon name="chevron-down" class="text-muted" />
             </SelectTrigger>
             <SelectPortal>
-                <SelectContent position="popper" :side-offset="4" class="z-50 min-w-[var(--reka-select-trigger-width)] rounded-control border border-hairline bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,.12)]">
+                <SelectContent position="popper" :side-offset="4" class="z-50 min-w-[var(--reka-select-trigger-width)] rounded-control border border-hairline bg-white p-1 shadow-float">
                     <div class="max-h-60 overflow-y-auto">
                         <SelectItem v-for="option in options" :key="option.value" :value="option.value" class="cursor-pointer rounded px-2 py-1.5 text-[13px] text-ink data-[highlighted]:bg-accent-soft">
                             <SelectItemText>{{ option.label }}</SelectItemText>

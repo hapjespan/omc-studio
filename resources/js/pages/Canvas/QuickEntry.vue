@@ -122,7 +122,7 @@ function save(): void {
     <AppButton v-if="!open" ref="opener" @click="show">{{ t('quick_entry.open') }}</AppButton>
     <Teleport v-else to="#quick-entry-slot" defer>
         <section :aria-label="t('quick_entry.title', { area: areaLabel })" class="mt-3 rounded-panel border border-hairline bg-white p-4" @keydown="keydown">
-            <h3 class="mb-2 font-display text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
+            <h3 class="mb-2 font-display text-card-title font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
             <TextArea id="quick-entry-text" v-model="text" :label="t('quick_entry.label')" :hint="t('quick_entry.hint')" :rows="10" :error="errors.length ? t('quick_entry.error_count', { count: errors.length }) : undefined" />
             <h4 class="mt-3 text-[13px] font-semibold">{{ t('quick_entry.preview') }}</h4>
             <ul :aria-label="t('quick_entry.preview')" class="mt-1 flex flex-col gap-1">

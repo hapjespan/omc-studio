@@ -15,7 +15,7 @@ const item = 'cursor-pointer rounded px-3 py-1.5 data-[highlighted]:bg-accent-so
     <DropdownMenuRoot :modal="false">
         <DropdownMenuTrigger as-child :aria-label="t('canvas_card.actions', { name })"><AppButton class="self-start">{{ t('canvas_card.actions_label') }}</AppButton></DropdownMenuTrigger>
         <DropdownMenuPortal>
-            <DropdownMenuContent align="start" class="z-40 min-w-44 rounded-md border border-edge bg-white p-1 text-[13px] shadow-lg">
+            <DropdownMenuContent align="start" class="z-40 min-w-44 rounded-md border border-edge bg-white p-1 text-[13px] shadow-float">
                 <DropdownMenuItem v-if="!template" :class="item" @select="emit('select', 'copy')">{{ t('canvas_card.copy') }}</DropdownMenuItem>
                 <DropdownMenuItem v-if="!archived" :class="item" @select="emit('select', 'rename')">{{ t('canvas_card.rename') }}</DropdownMenuItem>
                 <DropdownMenuItem v-if="!template" :class="item" @select="emit('select', 'save_template')">{{ t('entry.save_template') }}</DropdownMenuItem>

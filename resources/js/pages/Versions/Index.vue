@@ -53,7 +53,7 @@ function load(query: ListState): void {
     <div class="grid items-start gap-x-4 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div class="flex min-w-0 flex-col gap-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('snap.title') }}</h1>
+                <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('snap.title') }}</h1>
                 <AppButton v-if="canWrite" variant="primary" icon="plus" @click="list?.create($event.currentTarget as HTMLElement)">{{ t('snap.create') }}</AppButton>
             </div>
             <ListView ref="list" :title="t('snap.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :dock="dock" archivable :can-delete="canWrite" :can-create="canWrite" :create-title="t('snap.create')" :undoable="false" :consequence="consequence" @change="load" @delete="remove" @restore="restore">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import LogoMark from '../components/ui/LogoMark.vue';
+import Wordmark from '../components/ui/Wordmark.vue';
 import Pill from '../components/ui/Pill.vue';
 import { t } from '../i18n';
 import { routes } from '../routes';
@@ -27,7 +27,7 @@ const page = usePage<{ pendingNotices: number | null }>();
 
 <template>
     <div class="flex w-full flex-wrap items-center gap-x-4 gap-y-2">
-        <Link :href="routes.home()" class="flex items-center gap-2 font-display text-[15px] font-semibold text-ink"><LogoMark /><span>{{ appName }}</span></Link>
+        <Link :href="routes.home()"><Wordmark :name="appName" /></Link>
         <nav v-if="canvas" :aria-label="t('shell.breadcrumb')" class="min-w-0 max-w-full text-[13px] [overflow-wrap:anywhere]">
             <ol class="flex flex-wrap items-center gap-1.5">
                 <li v-if="canvas.organisation" class="text-muted"><Link :href="routes.home()" class="underline">{{ canvas.organisation.name }}</Link><span aria-hidden="true"> /</span></li>

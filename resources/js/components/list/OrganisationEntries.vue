@@ -104,7 +104,7 @@ function submit(row: Row | null, close: () => void): void {
 
 <template>
     <Head :title="title" />
-    <h1 class="text-[20px] font-semibold">{{ title }}</h1>
+    <h1 class="text-page-title font-semibold">{{ title }}</h1>
     <nav :aria-label="t('lists.choose_organisation')" class="mt-2">
         <ChipSelect id="organisation-switch" :label="t('lists.choose_organisation')" :model-value="String(organisation.id)" :options="organisations.map((option) => ({ value: String(option.id), label: option.archived_at ? `${option.name} (${t('list.archived')})` : option.name }))" @update:model-value="router.get(routes.organisationEntries(Number($event), kind))" />
     </nav>

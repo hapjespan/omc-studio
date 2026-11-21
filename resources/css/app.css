@@ -34,6 +34,18 @@
     --color-specialized: #b4540a;
     --color-distinct: #6b3fb5;
 
+    --text-body: 13px;
+    --text-small: 12.5px;
+    --text-hint: 11.5px;
+    --text-type: 10.5px;
+    --text-label: 11px;
+    --text-card-title: 14px;
+    --text-page-title: 22px;
+    --text-amount: 22px;
+    --text-figure: 30px;
+
+    --shadow-float: 0 1px 3px rgba(0, 0, 0, 0.12);
+
     --radius-control: 6px;
     --radius-card: 8px;
     --radius-panel: 10px;

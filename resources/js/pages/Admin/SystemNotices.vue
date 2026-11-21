@@ -71,7 +71,7 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
 <template>
     <Head :title="t('notices.title')" />
     <div class="flex flex-col gap-4">
-        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('notices.title') }}</h1>
+        <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('notices.title') }}</h1>
         <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
         <form class="grid grid-cols-1 gap-4 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
             <NativeSelect v-for="select in selects" :id="select.id" :key="select.id" v-model="form[select.id]" :label="t(select.label)" :error="filterErrors[select.id]" :empty-label="t('audit_log.filter.all')" :options="select.options()" />

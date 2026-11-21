@@ -43,7 +43,7 @@ test('the Canvas variant has four cards in one row with the board typography and
 
     const heading = page.getByRole('heading', { level: 1 });
     await expect(heading).toHaveText(/^Kostenposten 2026$/);
-    expect(await style(heading, 'font-family', 'font-size', 'font-weight', 'letter-spacing')).toMatchObject({ 'font-size': '20px', 'font-weight': '600', 'letter-spacing': '-0.2px' });
+    expect(await style(heading, 'font-family', 'font-size', 'font-weight', 'letter-spacing')).toMatchObject({ 'font-size': '22px', 'font-weight': '600', 'letter-spacing': '-0.2px' });
     expect((await style(heading, 'font-family'))['font-family']).toContain('Space Grotesk');
 
     const first = cards.first();

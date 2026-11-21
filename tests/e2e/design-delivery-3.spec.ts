@@ -15,7 +15,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 async function expectTitle(title: Locator): Promise<void> {
     expect(await style(title, 'font-family')).toContain('Space Grotesk');
-    expect(await style(title, 'font-size')).toBe('20px');
+    expect(await style(title, 'font-size')).toBe('22px');
     expect(await style(title, 'font-weight')).toBe('600');
 }
 

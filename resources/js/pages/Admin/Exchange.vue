@@ -71,7 +71,7 @@ function pick(picked: File | null): void {
 <template>
     <Head :title="t('fullx.title')" />
     <div class="flex max-w-3xl flex-col gap-4">
-        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('fullx.title') }}</h1>
+        <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('fullx.title') }}</h1>
         <Panel :padding="24" role="region" aria-labelledby="full-export">
             <h2 id="full-export" class="font-display text-[16px] font-semibold">{{ t('fullx.export_heading') }}</h2>
             <p class="mt-1 text-[13px] text-secondary">{{ t('fullx.export_hint') }}</p>

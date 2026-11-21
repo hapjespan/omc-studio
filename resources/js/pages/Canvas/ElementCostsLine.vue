@@ -17,5 +17,5 @@ const text = computed(() => {
 </script>
 
 <template>
-    <p data-testid="element-costs" class="text-[12.5px] text-[#454C57]">{{ text }}</p>
+    <p data-testid="element-costs" class="text-[12.5px] text-secondary">{{ text }}</p>
 </template>
