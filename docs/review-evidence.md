@@ -146,6 +146,7 @@ DT.6 is merged; nothing waits for it any more. The style, font and colour requir
 |---|---|
 | SC-021 keyboard-only scenario of the D3 screens | partly met: Tab-only walks exist for the earlier screens and the export menu; none for Versies, the Snapshot view and the JSON import |
 | SC-025 figures unchanged after a Layout save | not asserted by a test; structure is (`tests/Feature/Layout/SaveLayoutTest.php`), figures are not touched by the save code but have no before and after check |
+| Tekenen shortcut restrictions on WebKit | gap: the first test of `tests/e2e/drawing-restrictions.spec.ts` runs on WebKit for the Lagen count and the pressed state, but its screenshot comparison is skipped there, because the WebKit screenshot injects a style element that the narrow Content Security Policy refuses |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
 | SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
