@@ -98,7 +98,7 @@ Each finding below was fixed on its own branch cut from 6ec1d33, with a test tha
 | M3 | opgelost | review/m3-signin-subject (stacked on B5) | 8af831a | tests/Feature/Accounts/SignInServiceTest |
 | M4 | opgelost | review/m4-yearly-audit | 78bb4fa | tests/Feature/Audit/YearlyFigureAuditTest |
 | M5 | opgelost | review/m5-seen-by | 30e343f | tests/Feature/SystemNoticePageTest |
-| M6 | opgelost | review/m6-common-passwords | 2e81e2e | tests/Unit/Rules/PasswordRuleTest (at least 3,000 entries at the policy length, a listed password refused whatever its case); the list is 10,000 entries of 12 or more characters filtered from the SecLists xato-net top 1,000,000, with the MIT licence and the source in resources/data/common-passwords.LICENSE and common-passwords.SOURCE |
+| M6 | opgelost | review/m6-common-passwords | a2c5fd3 | tests/Unit/Rules/PasswordRuleTest (at least 3,000 entries at the policy length, a listed password refused whatever its case); independent review passed; docs/constraints.md V6 names the source; the list is 10,000 entries of 12 or more characters filtered from the SecLists xato-net top 1,000,000, with the MIT licence and the source in resources/data/common-passwords.LICENSE and common-passwords.SOURCE |
 | M7 | opgelost | review/m7-undo-archived | d1384f2 | tests/Feature/Finance/CostRecordDeleteTest |
 | M8 | open, decision of the product owner | none | none | none |
 | M9 | opgelost | review/m9-audit-labels | 6a4c097 | AuditLabelsTest, AllocationCsvImportTest |
