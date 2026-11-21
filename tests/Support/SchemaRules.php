@@ -19,6 +19,25 @@ class SchemaRules
             ->all();
     }
 
+    /** @param array<string, list<string>> $declared
+     * @return list<string> */
+    public static function missingIndexes(array $declared): array
+    {
+        $missing = [];
+
+        foreach ($declared as $table => $columns) {
+            $found = collect(Schema::getIndexes($table))
+                ->reject(fn (array $index) => $index['primary'])
+                ->contains(fn (array $index) => $index['columns'] === $columns);
+
+            if (! $found) {
+                $missing[] = $table.'('.implode(',', $columns).')';
+            }
+        }
+
+        return $missing;
+    }
+
     public static function lacksFillable(Model $model): bool
     {
         return $model->getFillable() === [] || $model->getGuarded() === [];

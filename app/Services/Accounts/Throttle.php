@@ -27,6 +27,13 @@ class Throttle
         return max(0, $until - Carbon::now()->getTimestamp());
     }
 
+    public function message(string $identifier): string
+    {
+        $seconds = $this->secondsLeft($identifier);
+
+        return trans_choice('auth.throttled', $seconds, ['seconds' => $seconds]);
+    }
+
     public function tooManyAttempts(string $identifier): bool
     {
         return $this->secondsLeft($identifier) > 0;

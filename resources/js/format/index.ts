@@ -35,11 +35,10 @@ export function formatWholeEuros(cents: number): string {
 }
 
 export function formatShare(part: number, total: number): string {
-    const basisPoints = basisPointsOf(part, total);
-    if (basisPoints === null) return '-';
-    const abs = Math.abs(basisPoints);
+    if (total === 0) return '-';
+    const abs = basisPointsOf(Math.abs(part), Math.abs(total)) as number;
     const text = `${Math.floor(abs / 100)},${pad(abs % 100)}`;
-    return signed(basisPoints, `${text.replace(/0+$/, '').replace(/,$/, '')}%`);
+    return signed(abs > 0 ? Math.sign(part) * Math.sign(total) : 0, `${text.replace(/0+$/, '').replace(/,$/, '')}%`);
 }
 
 export function formatFte(hundredths: number): string {
