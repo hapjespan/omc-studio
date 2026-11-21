@@ -43,8 +43,8 @@ describe('shared components in use', () => {
         const totals = { new: 0, updated: 0, unchanged: 0, errors: 0 };
         const imported = await render(ImportReport, { report: { lines: [{ line: 1, status: 'new', messages: [] }], totals } });
         const counted = await render(CountsReport, { prefix: 'fullx', id: 'c', keys: ['organisations'], report: { errors: [{ location: 'a', message: 'b' }], count: 1, totals: { organisations: 1 } } });
-        expect(imported.match(/role="region" tabindex="0"/g)).toHaveLength(2);
-        expect(counted.match(/role="region" tabindex="0"/g)).toHaveLength(2);
+        expect(imported.match(/role="group" tabindex="0"/g)).toHaveLength(2);
+        expect(counted.match(/role="group" tabindex="0"/g)).toHaveLength(2);
     });
 });
 
