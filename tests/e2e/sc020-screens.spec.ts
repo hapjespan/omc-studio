@@ -119,7 +119,7 @@ test.describe('SC-020: every remaining screen answers within one second at 500 E
 
     test('Toewijzen with a Cost record selected over 500 targets', async ({ page, browserName }) => {
         await signInAs(page, 'administrator');
-        await measure(page, 'Toewijzen with a selected record', browserName, `/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.record}`, [['[data-testid="remaining"]', 1], ['[role="treeitem"]', 10]]);
+        await measure(page, 'Toewijzen with a selected record', browserName, `/canvases/${seed.canvas}/allocation?year=2026&cost_record=${seed.record}`, [['[data-testid="remaining"]', 1], ['section[aria-labelledby="allocation-targets"] li', 10]]);
     });
 
     test('Logboek with 1000 audit entries shows its first page', async ({ page, browserName }) => {
