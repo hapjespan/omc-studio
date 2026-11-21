@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Accounts;
 
+use App\Models\UndoRecord;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
@@ -52,5 +53,19 @@ class SignOutTest extends TestCase
     public function test_a_guest_cannot_sign_out(): void
     {
         $this->post('/sign-out')->assertRedirect('/sign-in');
+    }
+
+    public function test_signing_out_deletes_the_undo_records_of_that_user_only(): void
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        foreach ([['mine', $user], ['theirs', $other]] as [$token, $owner]) {
+            UndoRecord::create(['token' => $token, 'user_id' => $owner->id, 'kind' => 'element_deletion', 'payload' => [], 'expires_at' => now()->addMinutes(5)]);
+        }
+
+        $this->actingAs($user)->post('/sign-out');
+
+        $this->assertSame(['theirs'], UndoRecord::pluck('token')->all());
     }
 }
