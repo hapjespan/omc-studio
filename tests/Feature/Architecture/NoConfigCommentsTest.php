@@ -18,6 +18,13 @@ class NoConfigCommentsTest extends TestCase
         $this->assertSame([], $this->commented($roots));
     }
 
+    public function test_the_console_entry_point_carries_no_comments(): void
+    {
+        $tokens = token_get_all((string) file_get_contents(base_path('artisan')));
+
+        $this->assertSame([], array_filter($tokens, fn ($token) => is_array($token) && $token[0] === T_COMMENT));
+    }
+
     private function commented(array $roots): array
     {
         $commented = [];
