@@ -22,8 +22,7 @@ COMPOSE_PROJECT_NAME=omc-studio
 
 `COMPOSE_PROJECT_NAME` keeps the running container under the project it already
 has, so its name stays `omc-studio-dev` and `docker exec -it omc-studio-dev`
-keeps working. The same two lines also appear, commented out, at the top of
-`docker-compose.yml` in this directory, where the setup is described.
+keeps working.
 
 ## `DEV_*` variables
 
@@ -50,3 +49,23 @@ run at the same time.
 The build context is the repository root (`..`), so `.dockerignore` stays at the
 root and trims the context from there. Every other relative path in
 `docker-compose.yml` resolves from this directory.
+
+## Image notes
+
+- PHP extensions for Laravel on PostgreSQL, Node for the Vue front end (Vite) and
+  `python3` for the workflow scripts in `.workflow/` are installed explicitly.
+- `uv` and the Spec Kit CLI are baked in. Spec Kit is pinned through
+  `SPECIFY_VERSION`, because an unpinned install makes every rebuild a silent
+  upgrade; upgrading is a deliberate bump plus a rebuild. Claude Code is not
+  pinned, it updates itself.
+- Playwright browsers install at `PLAYWRIGHT_VERSION`, which follows the version
+  `package-lock.json` pins; a bump there is a bump here plus a rebuild.
+- The Claude config directory is mounted writable because Claude Code writes
+  sessions and history there; it carries `.credentials.json`.
+- The host `gh` config is mounted read-only; the entrypoint copies the token into
+  a container-local config directory because `gh` rewrites its config on first run.
+- `DEV_PONYTAIL_DIR` keeps the task board on the host so it survives a recreated
+  container.
+- `PORT`, `SERVER_PORT` and `VITE_PORT` make the servers bind the published ports.
+- Ports are published on the loopback interface only; reach them over
+  `ssh -L 3000:127.0.0.1:3000 root@<host>`.
