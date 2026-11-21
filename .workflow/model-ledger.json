@@ -208,7 +208,8 @@
     "reviewed_by": "claude-opus-5-5"
   },
   "T053": {
-    "built_by": "claude-sonnet-5-5"
+    "built_by": "claude-sonnet-5-5",
+    "reviewed_by": "claude-opus-5-5"
   },
   "T054": {
     "built_by": "claude-opus-5",

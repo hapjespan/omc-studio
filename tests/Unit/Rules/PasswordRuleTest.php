@@ -43,10 +43,6 @@ class PasswordRuleTest extends TestCase
         $entries = file(resource_path('data/common-passwords.txt'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $eligible = count(array_filter($entries, fn (string $entry) => mb_strlen($entry) >= 12 && mb_strlen($entry) <= 128));
 
-        if ($eligible < 10000) {
-            $this->markTestIncomplete("Only {$eligible} entries are 12 to 128 characters: ASSUMPTION T053-1 awaits a real corpus from the product owner.");
-        }
-
         $this->assertGreaterThanOrEqual(10000, $eligible);
     }
 
