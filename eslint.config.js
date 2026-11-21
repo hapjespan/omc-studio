@@ -40,6 +40,10 @@ export default [
         rules: { 'vue/multi-word-component-names': 'off' },
     },
     {
+        files: ['resources/js/pages/Drawing/Index.vue', 'resources/js/pages/Drawing/use*.ts', 'resources/js/pages/Drawing/drawingProps.ts'],
+        rules: { 'max-len': ['error', { code: 240, ignoreUrls: true }] },
+    },
+    {
         files: ['resources/js/security/history.ts'],
         rules: { 'no-restricted-globals': 'off', 'no-restricted-properties': 'off' },
     },
