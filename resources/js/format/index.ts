@@ -52,11 +52,6 @@ export function formatDate(instant: string): string {
     return `${day}-${month}-${year}`;
 }
 
-export function formatTime(instant: string): string {
-    const { hour, minute } = local(instant);
-    return `${hour}:${minute}`;
-}
-
 export function formatTenths(tenths: number): string {
     return signed(tenths, `${Math.floor(Math.abs(tenths) / 10)},${Math.abs(tenths) % 10}%`);
 }

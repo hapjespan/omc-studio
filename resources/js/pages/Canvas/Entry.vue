@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import UndoMessage from '../../components/list/UndoMessage.vue';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { TextMeasurer } from '../../layout';
+import { useMeasurer } from '../../canvas/useMeasurer';
 import type { TargetRow } from '../../allocation/types';
 import { routes } from '../../routes';
 import { t } from '../../i18n';
@@ -47,8 +46,7 @@ const auth = computed(() => page.props.auth);
 const shellCanvas = computed(() => page.props.canvas as unknown as ShellCanvas);
 modeSwitchPlacement.inPage = true;
 onBeforeUnmount(() => (modeSwitchPlacement.inPage = false));
-const measurer = shallowRef<TextMeasurer | null>(null);
-onMounted(async () => (measurer.value = await createBrowserMeasurer().catch(() => null)));
+const measurer = useMeasurer();
 const undo = ref<{ token: string; name: string; refusal: string | null } | null>(null);
 const areaInfo = computed(() => props.areas as unknown as EntryAreaInfo[]);
 const labelOf = (key: string): string => props.areas.find((item) => item.key === key)?.label ?? key;

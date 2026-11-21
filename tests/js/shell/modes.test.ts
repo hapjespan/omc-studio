@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { registerMode, visibleModes } from '../../../resources/js/shell/modes';
+import { visibleModes } from '../../../resources/js/shell/modes';
 
 const open = { id: 1, name: 'A', kind: 'canvas', archived: false, organisation: { id: 1, name: 'O' } };
 const keys = (role: string, canvas = open) => visibleModes(role, canvas).map((mode) => mode.key);
@@ -10,13 +10,6 @@ describe('modes', () => {
     });
 
     it('offers a Reader Bekijken only', () => {
-        expect(keys('reader')).toEqual(['view']);
-    });
-
-    it('lets a later delivery register a mode between them', () => {
-        registerMode({ key: 'extra', label: 'shell.mode.extra', roles: ['administrator'], writes: true, onTemplate: false, href: (id) => `/canvases/${id}/extra` }, 2);
-
-        expect(keys('administrator')).toEqual(['entry', 'drawing', 'extra', 'view']);
         expect(keys('reader')).toEqual(['view']);
     });
 

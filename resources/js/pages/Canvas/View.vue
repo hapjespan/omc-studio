@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
 import type { ModalityMark } from '../../canvas/CanvasView.vue';
@@ -13,8 +13,8 @@ import { visitOverlay } from '../../canvas/overlay/query';
 import VersionSelect from '../../canvas/VersionSelect.vue';
 import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
-import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import type { CanvasLayoutInput } from '../../layout';
+import { useMeasurer } from '../../canvas/useMeasurer';
 import HeaderSlot from '../../shell/HeaderSlot.vue';
 import { useQuietStatus } from '../../shell/layout';
 
@@ -38,8 +38,7 @@ const props = defineProps<{
 }>();
 
 const role = computed(() => (usePage().props.auth as { role: string | null }).role);
-const measurer = shallowRef<TextMeasurer | null>(null);
-onMounted(async () => (measurer.value = await createBrowserMeasurer()));
+const measurer = useMeasurer();
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const plain = ref(false);
