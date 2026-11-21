@@ -146,6 +146,7 @@ DT.6 is merged; nothing waits for it any more. The style, font and colour requir
 |---|---|
 | SC-021 keyboard-only scenario of the D3 screens | partly met: Tab-only walks exist for the earlier screens and the export menu; none for Versies, the Snapshot view and the JSON import |
 | SC-025 figures unchanged after a Layout save | not asserted by a test; structure is (`tests/Feature/Layout/SaveLayoutTest.php`), figures are not touched by the save code but have no before and after check |
+| WCAG 3.2.2 year selector (D8) | kept as is on purpose and recorded for the product owner: choosing a fiscal year reloads the same screen with the same layout and other figures, like a filter, so the reviewer's own proposal allows recording why a same-page data reload is not a change of context. The residual risk is native select behaviour: in Chromium on Windows and Linux an arrow key on the closed select fires `change`, so stepping through years loads each year. The Organisation switch of Eigenaren and Applicaties, which opens another screen, now needs an explicit Tonen button. The Tonen pattern for the year selector is a product choice |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
 | SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
