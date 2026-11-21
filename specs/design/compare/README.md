@@ -1,5 +1,53 @@
 # Design comparison: built screens against the product owner's boards and the design contract
 
+## Result after D2.10
+
+Screenshots of the three screens of deliveries 2 and 3 were retaken on 2026-11-21 after the D2.10 work was merged: the release tip `55b95c8` plus the branch commit `1bb4630`, taken at `d4b7511`. Chromium, viewport 1440 wide, full page, signed in as the Administrator of the committed seed `database/seeders/DesignComparisonSeeder.php` (organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", fiscal year 2026, ten Cost records KP-001 to KP-010 with the amounts of the boards, eight of them allocated, so the canvas total is 744.000, assigned 663.000 and unknown 81.000 as on the boards). The shots are made by `scripts/design-compare-shots.mjs`; every file below is the retake of the same name written by that script:
+
+| Screen | Per-screen status | Built (retaken) | Board |
+|---|---|---|---|
+| Kostenposten | [README-kostenposten.md](README-kostenposten.md) | [kostenposten-built-v2.png](kostenposten-built-v2.png), Team ICT open in the panel | [kostenposten-board.png](kostenposten-board.png) |
+| Toewijzen | [README-toewijzen.md](README-toewijzen.md) | [toewijzen-built-v2.png](toewijzen-built-v2.png), KP-010 with the draft 25, 40 and 15 percent | [toewijzen-board.png](toewijzen-board.png) |
+| Bekijken, financial overlay | [README-bekijken.md](README-bekijken.md) | [bekijken-financieel-built-v2.png](bekijken-financieel-built-v2.png), nothing selected | [bekijken-financieel-board.png](bekijken-financieel-board.png) |
+
+The definitions of K-01 to K-34, T-01 to T-35, B-01 to B-40 and S-01 to S-07 are in [findings-d2.md](findings-d2.md).
+
+A defect found by this retake and fixed in `1bb4630`: on the release tip the figures of the financial overlay (amount, share, bar, forecast line) were not visible on any Domain card in Bekijken. The overlay layers had a fixed stacking order of 40 and the blocks since DT.1 have 1000 or more, so the card fills covered the figures. The tests asserted the text in the page, not that it was visible. The status lines of B-12 and the other overlay findings in `README-bekijken.md` were true when written (before DT.1) and are true again with the fix; the new screenshot shows the figures.
+
+### Shared findings S-01 to S-07, measured on the three retaken screens
+
+| Finding | Status | Measured on the retaken screens | Commit |
+|---|---|---|---|
+| S-01 font | closed | body and controls compute to Inter; page titles Space Grotesk | 8ff5310d |
+| S-02 line height | closed | 13 px text has 18.2 px (1.4), as on the board | 8ff5310d |
+| S-03 page background | closed | body `rgb(242, 243, 241)`, shell panels white | 8ff5310d |
+| S-04 top bar | deviating | 56 px, one row, white, 1 px `#DCDFE2` below, logo mark, tabs with a 2 px ink underline, boxed fiscal year selector; the user is a menu button with a chevron where the board shows plain text | 8ff5310d, adf4222 |
+| S-05 buttons | closed | 36 px high, radius 6, weight 500, primary ink fill, secondary white with border `#848B95` (the contract value, decision 45, not the board `#DCDFE2`) | 8ff5310d |
+| S-06 mode switch | closed | one segmented control, active segment ink with white text | 278dcc9 |
+| S-07 focus accent and links | closed | "Nu toewijzen" is ink, weight 600; the focus accent colour itself was not re-measured here | 8ff5310d |
+
+### Top five per screen
+
+| Screen | Finding | Status | Commit |
+|---|---|---|---|
+| Kostenposten | K-01 page structure and card row | deviating (six header actions wrap with the panel open, no menu component) | 7a8b6cf, 39721e8 |
+| Kostenposten | K-05 table columns and panel | closed | 2caa564, 7a8b6cf |
+| Kostenposten | K-04 one-column form | closed | 7a8b6cf |
+| Kostenposten | K-03 modal over the table | closed | 2caa564 |
+| Kostenposten | K-08 filter bar | closed | 2caa564 |
+| Toewijzen | T-02 page height | closed (the page is 1479 px tall on this seed against 1390 px on the board) | ef8cc99, a59c138 |
+| Toewijzen | T-04 summary card, amber block and bar | closed | ef8cc99, a59c138 |
+| Toewijzen | T-09 flat target tree | deviating (amounts with cents, decision 40) | ef8cc99, a59c138 |
+| Toewijzen | T-01 white panels and grey page | closed | ef8cc99, a59c138 |
+| Toewijzen | T-05 line cards | closed | ef8cc99, a59c138 |
+| Bekijken | B-02 artboard overflow | closed (fitted to 62 percent at 1440, the open question of `README-bekijken.md`) | 9fc33eb, 66ecd92, 8633db3 |
+| Bekijken | B-06 list Areas over their titles | closed | 22c7240 |
+| Bekijken | B-01 five header rows | closed (the canvas starts at y 164) | 9fc33eb, 66ecd92, 8633db3 |
+| Bekijken | B-04 two side panels | closed | 9fc33eb |
+| Bekijken | B-12 card amount | closed again with `1bb4630` (visible at last), deviating in size: 13.6 px on screen at the 62 percent fit | 1c2ea75, 1bb4630 |
+
+Differences the retake shows that are not new findings: the Kostenposten rows are ordered by name where the board orders by code; the long name "Leerlingadministratie" still breaks inside the word beside the open panel (known rough edge of `README-kostenposten.md`); the card and list status says "Onbekende allocatie" where the board says "Niet toegewezen" (the glossary term).
+
 ## Result after D1.20
 
 Screenshots after D1.20 come from the merged release (`f506384`), except the three Bekijken ones (`bekijken-after.png`, `bekijken-passend-after.png`, `bekijken-detail-after.png`), which were retaken from the branch that carries the breadcrumb and detail panel fixes (commit 1938656, merged with this file). They use the same sample data as the first round, Chromium, viewport 1440 wide, full page; `bekijken-after.png` is viewport sized because the canvas scrolls inside its own container. The boards are in `specs/design/`; the copies next to this file are the ones used for the first round.
@@ -46,7 +94,7 @@ Date: 2026-11-19. Built from release `1f6cc5b` (Invoeren, Bekijken and Modality 
 
 ## How the screenshots were made
 
-- Sample data shaped like the boards: organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", the primary activities, richten, beheersen, supporting activities and the three list Areas with the same domain, activity and group names as the boards, mission, vision and three goals, four users. The seed script is `.scratch/compare-seed.php` (not committed; ask for it if the comparison must be repeated).
+- Sample data shaped like the boards: organisation "Voorbeeld BV", canvas "Voorbeeldcanvas", the primary activities, richten, beheersen, supporting activities and the three list Areas with the same domain, activity and group names as the boards, mission, vision and three goals, four users. The seed script of the first round is `.scratch/compare-seed.php` (not committed); the screens of D2.10 use the committed `database/seeders/DesignComparisonSeeder.php`.
 - Chromium, viewport 1440 wide, full page, one screenshot per screen: `<screen>-built.png`.
 - Where a board exists, a copy sits next to it: `invoeren-board.png` (board 1) and `bekijken-board.png` (board 2, which shows the financial overlay: only its canvas arrangement counts for D1).
 - Measurements below are computed styles read from the running page, not estimates from the images.

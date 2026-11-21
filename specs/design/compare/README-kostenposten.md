@@ -1,6 +1,6 @@
 # Kostenposten (board 4): status of findings K-01 to K-34 after T379
 
-Branch feat/d210-kosten. Statuses: closed (with the commit), open (with the reason) or deviating (with the reason). The findings themselves are in README.md of this folder (D1 comparison). Evidence: `kostenposten-built-v2.png` (1440 pixels, full page, Canvas variant, panel open) next to `kostenposten-board.png`; measured values are asserted in `tests/e2e/design-kostenposten.spec.ts`.
+Branch feat/d210-kosten. Statuses: closed (with the commit), open (with the reason) or deviating (with the reason). The findings themselves are in `findings-d2.md` of this folder. Evidence: `kostenposten-built-v2.png` (1440 pixels, full page, Canvas variant, panel open) next to `kostenposten-board.png`; measured values are asserted in `tests/e2e/design-kostenposten.spec.ts`.
 
 Known rough edge: with the panel open one long name ("Leerlingadministratie") can break inside the word at 1440 pixels.
 
