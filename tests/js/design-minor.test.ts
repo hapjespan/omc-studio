@@ -140,3 +140,18 @@ describe('the discard confirmation', () => {
         expect(read(path)).not.toContain('role="alertdialog"');
     });
 });
+
+describe('the panel surface', () => {
+    it.each([
+        'resources/js/pages/Finance/SummaryCards.vue',
+        'resources/js/pages/Finance/FinaliseCard.vue',
+        'resources/js/pages/Admin/Users.vue',
+        'resources/js/pages/Account/Show.vue',
+        'resources/js/pages/Admin/SystemNotices.vue',
+        'resources/js/pages/Admin/AuditLog.vue',
+    ])('uses Panel instead of the copied panel classes in %s', (path) => {
+        expect(read(path)).toContain('<Panel');
+        expect(read(path)).toContain("import Panel from");
+        expect(read(path)).not.toContain('rounded-panel border border-hairline bg-white');
+    });
+});

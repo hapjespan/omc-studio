@@ -10,6 +10,7 @@ import TextField from '../../components/fields/TextField.vue';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
 import { useQuietStatus } from '../../shell/layout';
+import Panel from '../../components/ui/Panel.vue';
 
 useQuietStatus();
 
@@ -73,7 +74,7 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
     <div class="flex flex-col gap-4">
         <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('notices.title') }}</h1>
         <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
-        <form class="grid grid-cols-1 gap-4 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
+        <Panel as="form" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
             <NativeSelect v-for="select in selects" :id="select.id" :key="select.id" v-model="form[select.id]" :label="t(select.label)" :error="filterErrors[select.id]" :empty-label="t('audit_log.filter.all')" :options="select.options()" />
             <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
             <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
@@ -81,10 +82,10 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
                 <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
                 <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
             </div>
-        </form>
+        </Panel>
         <p role="status" class="text-[12.5px] text-secondary" data-testid="notice-count">{{ plural('notices.count', total) }}</p>
         <ol class="flex flex-col gap-3">
-            <li v-for="notice in notices" :key="notice.id" class="rounded-panel border border-hairline bg-white p-4 text-[13px]">
+            <Panel as="li" v-for="notice in notices" :key="notice.id" class="text-[13px]">
                 <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
                     <dt class="font-semibold text-secondary">{{ t('notices.column.time') }}</dt>
                     <dd><time>{{ notice.date }} {{ notice.last_time }}</time></dd>
@@ -117,8 +118,8 @@ const showCount = (notice: Notice): boolean => notice.count > 1 || notice.kind =
                 </dl>
                 <p v-if="notice.seen" :id="`notice-seen-${notice.id}`" tabindex="-1" class="mt-3"><Pill tone="success" icon="check">{{ t('notices.seen') }}</Pill></p>
                 <AppButton v-else class="mt-3" size="small" :aria-label="t('notices.mark_seen_for', { kind: t(`notices.kind.${notice.kind}`), date: notice.date, time: notice.last_time })" @click="markSeen(notice)">{{ t('notices.mark_seen') }}</AppButton>
-            </li>
+            </Panel>
         </ol>
-        <p v-if="!notices.length" class="rounded-panel border border-hairline bg-white p-6 text-[13px] text-muted">{{ t('notices.empty') }}</p>
+        <Panel v-if="!notices.length" as="p" :padding="24" class="text-[13px] text-muted">{{ t('notices.empty') }}</Panel>
     </div>
 </template>

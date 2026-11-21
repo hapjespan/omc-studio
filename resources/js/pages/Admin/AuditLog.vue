@@ -7,6 +7,7 @@ import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
 import { hasMessage, t } from '../../i18n';
+import Panel from '../../components/ui/Panel.vue';
 
 interface Change { field: string; old: string | null; new: string | null }
 interface Entry {
@@ -78,7 +79,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
     <Head :title="t('audit_log.title')" />
     <h1 class="font-display text-[22px] font-semibold">{{ t('audit_log.title') }}</h1>
     <ErrorSummary v-if="Object.keys(filterErrors).length" :errors="filterErrors" />
-    <form class="mt-4 grid grid-cols-1 gap-3 rounded-panel border border-hairline bg-white p-4 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
+    <Panel as="form" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" novalidate @submit.prevent="apply">
         <NativeSelect v-for="select in selects" :id="select.id" :key="select.id" v-model="form[select.id]" :label="t(select.label)" :error="filterErrors[select.id]" :empty-label="t('audit_log.filter.all')" :options="select.options()" />
         <TextField id="from" v-model="form.from" :label="t('audit_log.filter.from')" type="date" :error="filterErrors.from" />
         <TextField id="to" v-model="form.to" :label="t('audit_log.filter.to')" type="date" :error="filterErrors.to" />
@@ -86,10 +87,10 @@ const value = (text: string | null): string => (text === null || text === '' ? t
             <AppButton variant="primary" type="submit">{{ t('audit_log.filter.apply') }}</AppButton>
             <AppButton @click="reset">{{ t('audit_log.filter.reset') }}</AppButton>
         </div>
-    </form>
+    </Panel>
     <p role="status" class="mt-4 text-[12.5px] text-secondary" data-testid="audit-count">{{ t('audit_log.count', { count: total }) }}</p>
     <ol class="mt-2 flex flex-col gap-3">
-        <li v-for="entry in entries" :key="entry.id" class="rounded-panel border border-hairline bg-white p-4 text-[13px]">
+        <Panel as="li" v-for="entry in entries" :key="entry.id" class="text-[13px]">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
                 <dt class="font-semibold">{{ t('audit_log.column.time') }}</dt>
                 <dd><time>{{ entry.occurred_at }}</time></dd>
@@ -108,7 +109,7 @@ const value = (text: string | null): string => (text === null || text === '' ? t
                     {{ t('audit_log.old') }} <q class="break-words">{{ value(change.old) }}</q>, {{ t('audit_log.new') }} <q class="break-words">{{ value(change.new) }}</q>
                 </li>
             </ul>
-        </li>
+        </Panel>
     </ol>
     <p v-if="!entries.length" class="mt-2 text-[13px] text-muted">{{ t('audit_log.empty') }}</p>
     <nav v-if="lastPage > 1" :aria-label="t('audit_log.pagination')" class="mt-4 flex items-center gap-4 text-[13px]">
