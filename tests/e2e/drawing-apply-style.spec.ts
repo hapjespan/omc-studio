@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './support/guards';
+import { expect, expectNoAxeViolations, test, type Page } from './support/guards';
 import { openDrawing, seedRow } from './support/drawing';
 import { seedViewCanvas } from './support/view';
 import { seedPhp } from './support/seed';
@@ -38,6 +38,7 @@ test('the style of a Domain goes to every Domain of its Area after confirmation,
     await page.getByRole('button', { name: 'Stijl naar alle domeinen hier' }).click();
     const dialog = page.getByRole('dialog', { name: 'Stijl van Onderwijs toepassen?' });
     await expect(dialog).toBeVisible();
+    await expectNoAxeViolations(page);
     await dialog.getByRole('button', { name: 'Annuleren' }).click();
     await expect(dialog).toBeHidden();
 

@@ -14,6 +14,7 @@ function seed(archived: boolean): { name: string; id: number } {
 
 test('Eigenaren and Applicaties appear in Beheer for Administrators and open a list with an Organisation chooser', async ({ page }) => {
     const organisation = seed(false);
+    const other = seed(false);
     await signInAs(page, 'administrator');
     await page.goto('/admin');
     await expect(page.getByRole('link', { name: 'Eigenaren' })).toBeVisible();
@@ -22,7 +23,12 @@ test('Eigenaren and Applicaties appear in Beheer for Administrators and open a l
     await page.goto(`/admin/organisations/${organisation.id}/owners`);
     const chooser = page.getByRole('navigation', { name: 'Organisatie' });
     await expect(chooser.getByLabel('Organisatie')).toHaveValue(String(organisation.id));
-    await chooser.getByLabel('Organisatie').selectOption({ label: organisation.name });
+    await expect(chooser.getByRole('button', { name: 'Tonen' })).toHaveCount(0);
+    await chooser.getByLabel('Organisatie').selectOption({ label: other.name });
+    expect(page.url()).toContain(`/admin/organisations/${organisation.id}/owners`);
+    await chooser.getByRole('button', { name: 'Tonen' }).click();
+    await expect(page).toHaveURL(new RegExp(`/admin/organisations/${other.id}/owners`));
+    await expect(chooser.getByLabel('Organisatie')).toHaveValue(String(other.id));
     await expect(page.getByRole('heading', { level: 1, name: 'Eigenaren' })).toBeVisible();
     await expectNoAxeViolations(page);
 });
