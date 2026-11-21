@@ -48,8 +48,8 @@ class DrawingMoveNarrowTest extends StructureTestCase
 
         $row = $this->stored($this->block);
 
-        $this->assertSame([10, 20, 200, 100, 2], [$row->x, $row->y, $row->width, $row->height, $row->z]);
-        $this->assertSame(['fill' => '#F6E6CC'], $row->style);
+        $this->assertSame([10, 20, 200, 100, 0], [$row->x, $row->y, $row->width, $row->height, $row->z]);
+        $this->assertSame([], $row->style);
     }
 
     public function test_a_block_released_left_of_the_target_is_pushed_to_x_zero(): void
@@ -94,8 +94,8 @@ class DrawingMoveNarrowTest extends StructureTestCase
 
         $row = $this->stored($this->block);
 
-        $this->assertSame([0, 20, self::TARGET_WIDTH, 100, 3], [$row->x, $row->y, $row->width, $row->height, $row->z]);
-        $this->assertSame(['fill' => '#F6E6CC'], $row->style);
+        $this->assertSame([0, 20, self::TARGET_WIDTH, 100, 0], [$row->x, $row->y, $row->width, $row->height, $row->z]);
+        $this->assertSame([], $row->style);
     }
 
     public function test_a_target_without_a_stored_layout_narrows_the_block_to_its_automatic_width(): void
@@ -180,8 +180,8 @@ class DrawingMoveNarrowTest extends StructureTestCase
             ->assertJsonPath('layout.y', 20)
             ->assertJsonPath('layout.width', self::TARGET_WIDTH)
             ->assertJsonPath('layout.height', 100)
-            ->assertJsonPath('layout.z', 3)
-            ->assertJsonPath('layout.style.fill', '#F6E6CC');
+            ->assertJsonPath('layout.z', 0)
+            ->assertJsonPath('layout.style', []);
     }
 
     public function test_a_refused_block_rolls_back_the_move_and_the_rewritten_children(): void
@@ -189,7 +189,7 @@ class DrawingMoveNarrowTest extends StructureTestCase
         $this->row($this->child, 20, 10, 400, 48);
         $parent = (string) $this->block->parent_id;
 
-        $this->move(['x' => 0, 'y' => 0, 'width' => 500, 'height' => 10])->assertUnprocessable()->assertJsonValidationErrors('rule');
+        $this->move(['x' => 0, 'y' => 0, 'width' => 30, 'height' => 100])->assertUnprocessable()->assertJsonValidationErrors('rule');
 
         $this->assertSame($parent, (string) $this->block->fresh()?->parent_id);
 

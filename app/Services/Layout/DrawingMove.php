@@ -39,7 +39,7 @@ class DrawingMove
 
             $element = $this->element($canvas, (string) $request['element_id']);
             $target = $this->element($canvas, (string) $request['target_id']);
-            $layout = $this->layout($request);
+            $layout = $this->layout($canvas, $element, $request);
             $this->assertTarget($element, $target);
 
             $before = $this->audit->current($canvas);
@@ -60,11 +60,20 @@ class DrawingMove
      * @param  array<string, mixed>  $request
      * @return ?array<string, mixed>
      */
-    private function layout(array $request): ?array
+    private function layout(Canvas $canvas, Element $element, array $request): ?array
     {
-        $layout = $request['layout'] ?? null;
+        $given = $request['layout'] ?? null;
 
-        return is_array($layout) ? $layout : null;
+        if (! is_array($given)) {
+            return null;
+        }
+
+        $row = Layout::query()->where('canvas_id', $canvas->getKey())->where('element_id', $element->getKey())->first();
+        $kept = $row === null
+            ? ['height' => $given['height'] ?? null, 'z' => 0, 'style' => []]
+            : ['height' => $row->height, 'z' => $row->z, 'style' => $row->style];
+
+        return [...$kept, 'x' => $given['x'] ?? null, 'y' => $given['y'] ?? null, 'width' => $given['width'] ?? null];
     }
 
     private function element(Canvas $canvas, string $id): Element
