@@ -1,24 +1,12 @@
-# Install as: .dockerignore
-#
-# Today's Dockerfiles COPY nothing, so this only trims the build context. It is
-# shipped anyway for the day somebody adds `COPY . .` to build a production
-# image: at that moment the difference between this file existing and not is
-# whether .env and the git history end up in a layer.
 .git
 .gitignore
 .github
-
-# Secrets and local state
 .env
 .env.*
 !env.example
-
-# Dependencies, rebuilt inside the image
 node_modules
 vendor
 .pnpm-store
-
-# Build output and caches
 .next
 dist
 build
@@ -28,17 +16,16 @@ coverage
 storage/framework
 bootstrap/cache
 *.log
-
-# Throwaway proof code, never delivered (WP-E0)
 proof
-
-# Agent and workflow state, which belongs to the working copy, not to an image
 .claude
 .workflow
 .devcontainer
 .specify
-
-# Generated at first start on the volume, never part of an image
+.forbidden-names
+.scratch
+.worktrees
+.playwright-browsers
+.remember
 storage/app.key
 storage/*.sqlite
 storage/logs
