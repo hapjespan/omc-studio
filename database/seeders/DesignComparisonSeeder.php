@@ -142,7 +142,7 @@ class DesignComparisonSeeder extends Seeder
                 'name' => $name,
                 'cost_kind' => $kind,
                 'owner_id' => $owners[$ownerName],
-                'application_id' => $applicationName === null ? null : $applications[$applicationName],
+                'application_id' => $applications[(string) $applicationName] ?? null,
             ]);
 
             YearlyFigure::factory()->create([
