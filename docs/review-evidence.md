@@ -33,7 +33,7 @@ Measurement machine for every figure in this file: linux 7.0.14-linuxkit arm64 (
 | SC-023 property test of FR-095 | `tests/Unit/Calculation/FigurePropertyTest.php`, `tests/Unit/Calculation/ClosingCheckTest.php` | met |
 | SC-024 acceptance session of the product owner | none possible by a machine | unmet by design: the product owner runs it, recorded for him in section 8 |
 | SC-025 Domain dragged, resized, coloured, equal after reload | place and size: `tests/e2e/dt-journey.spec.ts`, `tests/e2e/h11-picture.spec.ts`, `tests/e2e/drawing-equal.spec.ts`; structure unchanged: `tests/Feature/Layout/SaveLayoutTest.php`; details in `specs/001-omc-studio-v1/dt-results.md` | place, size, fill and structure met: `tests/e2e/drawing-colour-acceptance.spec.ts` (move, resize and fill, reload, same place and size within 1 pixel in Bekijken, same fill, structure names unchanged), `tests/e2e/drawing-style.spec.ts`; partly met: figures unchanged after the save have no test (section 8) |
-| SC-026 added Element appears without handwork | `tests/Feature/Layout/NewPillTest.php`, `tests/js/layout/placement.test.ts`, `tests/e2e/drawing-frame.spec.ts` | partly met; no single browser journey from Invoeren to Tekenen |
+| SC-026 added Element appears without handwork | `tests/e2e/dt-new-element-journey.spec.ts` (an Activity added in Invoeren, placed by Tekenen under the lowest Manual child without overlap, same place in Bekijken within 1 pixel; green on three engines per `specs/001-omc-studio-v1/d2-d3-dt-acceptance.md`), `tests/Feature/Layout/NewPillTest.php`, `tests/js/layout/placement.test.ts`, `tests/e2e/drawing-frame.spec.ts` | met |
 | SC-027 no outside request in a Tekenen session | `tests/e2e/drawing-load.spec.ts`, `tests/e2e/csp-guard.spec.ts`, the guards fixture on every drawing spec | met |
 | SC-028 Alles automatisch opmaken equals a new Canvas | `tests/e2e/drawing-reset.spec.ts` (every Area and Element X, Y, B, H) | met for place, size and style: `tests/e2e/drawing-colour-acceptance.spec.ts` compares the computed style of a changed Domain after Alles automatisch opmaken with that Domain on a new Canvas of the same content |
 | SC-029 Tekenen usable within 3 seconds | `tests/e2e/drawing-performance.spec.ts`; section 7 | met on this machine |
@@ -147,7 +147,6 @@ DT.6 is merged; nothing waits for it any more. The style, font and colour requir
 | SC-021 keyboard-only scenario of the D3 screens | partly met: Tab-only walks exist for the earlier screens and the export menu; none for Versies, the Snapshot view and the JSON import |
 | SC-025 figures unchanged after a Layout save | not asserted by a test; structure is (`tests/Feature/Layout/SaveLayoutTest.php`), figures are not touched by the save code but have no before and after check |
 | SC-024 acceptance session | unmet by design, the product owner runs it |
-| SC-026 browser journey from Invoeren to Tekenen | not built, the parts are proven separately |
 | SC-001 and SC-020 on an ordinary laptop | the product owner's acceptance run (K-6) |
 
 ## 9. Acceptance list of kickoff chapter 17 against delivery 3 (T370)
