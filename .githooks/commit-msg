@@ -1,0 +1,12 @@
+#!/bin/sh
+message=$(grep -v '^#' "$1")
+
+if printf '%s\n' "$message" | grep -qiE '^co-authored-by:'; then
+    echo "commit refused: remove the attribution trailer from the message" >&2
+    exit 1
+fi
+
+if printf '%s\n' "$message" | grep -qE 'https?://[^[:space:]]*/code/session_[A-Za-z0-9]+'; then
+    echo "commit refused: remove the session link from the message" >&2
+    exit 1
+fi
