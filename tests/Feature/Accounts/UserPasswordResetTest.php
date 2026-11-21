@@ -6,15 +6,16 @@ use App\Models\AuditEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Tests\Support\StoresSessions;
 use Tests\TestCase;
 
 class UserPasswordResetTest extends TestCase
 {
     use RefreshDatabase;
+    use StoresSessions;
 
     private const PASSWORD = 'a-long-enough-secret';
 
@@ -83,15 +84,5 @@ class UserPasswordResetTest extends TestCase
         $this->storedSession(self::SECOND_DEVICE, $user);
 
         return $user;
-    }
-
-    private function storedSession(string $id, User $user): void
-    {
-        DB::table('sessions')->insert([
-            'id' => $id,
-            'user_id' => $user->getKey(),
-            'payload' => base64_encode((string) json_encode([Auth::guard('web')->getName() => $user->getKey()])),
-            'last_activity' => Carbon::now()->getTimestamp(),
-        ]);
     }
 }

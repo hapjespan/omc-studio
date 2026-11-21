@@ -4,16 +4,17 @@ namespace Tests\Feature\Accounts;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia;
+use Tests\Support\StoresSessions;
 use Tests\TestCase;
 
 class PasswordChangeTest extends TestCase
 {
     use RefreshDatabase;
+    use StoresSessions;
 
     private const CURRENT = 'a-long-enough-secret';
 
@@ -164,18 +165,5 @@ class PasswordChangeTest extends TestCase
         $this->withCookie((string) config('session.cookie'), self::THIS_DEVICE);
 
         return $user;
-    }
-
-    private function storedSession(string $id, User $user): void
-    {
-        DB::table('sessions')->insert([
-            'id' => $id,
-            'user_id' => $user->id,
-            'payload' => base64_encode((string) json_encode([
-                Auth::guard('web')->getName() => $user->id,
-                'signed_in_at' => now()->getTimestamp(),
-            ])),
-            'last_activity' => now()->getTimestamp(),
-        ]);
     }
 }
