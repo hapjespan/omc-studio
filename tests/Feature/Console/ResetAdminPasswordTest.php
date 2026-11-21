@@ -86,5 +86,7 @@ class ResetAdminPasswordTest extends TestCase
         $this->assertStringContainsString('admin_password_reset', $written);
         $this->assertStringNotContainsString('boss@example.test', $written);
         $this->assertStringNotContainsString($found[1], $written);
+        $this->assertStringContainsString('subject_id', $written);
+        $this->assertStringNotContainsString('target_user_id', $written);
     }
 }

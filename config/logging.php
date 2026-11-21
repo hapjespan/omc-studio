@@ -79,6 +79,7 @@ return [
             'formatter' => JsonFormatter::class,
             'level' => 'info',
             'days' => 90,
+            'permission' => 0640,
             'replace_placeholders' => true,
         ],
 
