@@ -139,8 +139,8 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     await page.getByRole('menuitem', { name: 'Exporteren als PNG' }).click();
     const styledBytes = readFileSync(((await (await styledDownload).path()) as string));
     const artboard = (await page.locator('[data-artboard]').boundingBox())!;
-    const inkoop = (await page.locator('[data-kind="domain"]').filter({ hasText: 'Inkoop' }).first().boundingBox())!;
+    const procurement = (await page.locator('[data-kind="domain"]').filter({ hasText: 'Inkoop' }).first().boundingBox())!;
     const scale = artboard.width / ARTBOARD_WIDTH;
-    const pixel = await pixelAt(page, styledBytes, Math.round(((inkoop.x + inkoop.width - artboard.x) / scale - 10) * PNG_SCALE), Math.round(((inkoop.y + inkoop.height - artboard.y) / scale - 10) * PNG_SCALE));
+    const pixel = await pixelAt(page, styledBytes, Math.round(((procurement.x + procurement.width - artboard.x) / scale - 10) * PNG_SCALE), Math.round(((procurement.y + procurement.height - artboard.y) / scale - 10) * PNG_SCALE));
     for (const [index, channel] of [0xcc, 0xe5, 0xff].entries()) expect(Math.abs(pixel[index] - channel)).toBeLessThanOrEqual(2);
 });
