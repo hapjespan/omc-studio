@@ -6,7 +6,7 @@ Known rough edge: with the panel open one long name ("Leerlingadministratie") ca
 
 | Finding | Status | Commit and note |
 |---|---|---|
-| K-01 | deviating | 7a8b6cf, 39721e8: title, card row, toolbar, one table panel and the docked form follow the board. Deviations: (a) the header carries six actions where the board has three, so with the panel open they wrap to a second row; the foundation has no menu component to fold the secondary actions into; (b) the organisation page has no summary data, so no cards. |
+| K-01 | deviating | 7a8b6cf, 39721e8: title, card row, toolbar, one table panel and the docked form follow the board. Deviations: (a) the header carries six actions where the board has three; at 1440 pixels with the panel open they fit one row (measured on the retake only at that width); the foundation has no menu component to fold the secondary actions into; (b) the organisation page has no summary data, so no cards. |
 | K-02 | closed | 7a8b6cf: three summary cards then the finalise card, one row of four equal columns; height 129 against 124. |
 | K-03 | closed | 2caa564: the form is a docked panel beside the table (`ListDock`), the table stays usable, Escape inside the panel closes it with the unsaved-changes guard. |
 | K-04 | closed | 7a8b6cf: Naam full width, Code and Soort, Eigenaar, Applicatie, Leverancier and Kostenplaats (decision 42), Omschrijving; Jaarwaarden in two columns, Peildatum present. Label "Soort kosten" kept (specs address it by name). |

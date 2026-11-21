@@ -24,7 +24,7 @@ import ListAreaEntry from './ListAreaEntry.vue';
 import QuickEntry from './QuickEntry.vue';
 import EntrySearch from './EntrySearch.vue';
 import Warnings from './Warnings.vue';
-import { buildRows, createdElement, elementPath, entryWarnings, filterByName, kindLabelKey, type ElementCost, type EntryAreaInfo, type EntryElement } from './entry';
+import { buildRows, createdElement, elementPath, canvasWarnings, filterByName, kindLabelKey, warningsOfArea, type ElementCost, type EntryAreaInfo, type EntryElement } from './entry';
 import SaveTemplateButton from './SaveTemplateButton.vue';
 import ImportStructure from './ImportStructure.vue';
 
@@ -53,7 +53,8 @@ const undo = ref<{ token: string; name: string; refusal: string | null } | null>
 const areaInfo = computed(() => props.areas as unknown as EntryAreaInfo[]);
 const labelOf = (key: string): string => props.areas.find((item) => item.key === key)?.label ?? key;
 const selectedElement = computed(() => props.elements.find(({ id }) => id === selectedId.value));
-const warnings = computed(() => (measurer.value ? entryWarnings(props.elements, areaInfo.value, area.value.key as AreaKey, measurer.value, props.layouts) : []));
+const layoutWarnings = computed(() => (measurer.value ? canvasWarnings(props.elements, areaInfo.value, measurer.value, props.layouts) : []));
+const warnings = computed(() => warningsOfArea(layoutWarnings.value, props.elements, areaInfo.value, area.value.key as AreaKey));
 const letters = computed(() => Object.fromEntries(props.modalities.map(({ key, letter }) => [key, letter])));
 const search = ref('');
 const showArchived = ref(false);
