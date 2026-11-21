@@ -51,7 +51,7 @@ Kies in een canvas "Tekenen". Links "Lagen", rechts "Eigenschappen".
 
 - **Slepen en kleur (SC-025).** `tests/e2e/drawing-colour-drag.spec.ts`: een domein met de muis verslepen en kleuren; na herladen staan plek en vulling vast, en Bekijken wijkt hooguit 1 pixel af. Groen op Chromium, Firefox en WebKit.
 - **Nieuw element in één reis (SC-026).** `tests/e2e/dt-new-element-journey.spec.ts`: een activiteit toevoegen onder een handmatig geplaatst domein in Invoeren, naar Tekenen (rij met "nieuw", geplaatst onder het laagste handmatige kind, zonder overlap), naar Bekijken (zelfde plek binnen 1 pixel). Groen op drie engines.
-- **Eerste gebruik van Tekenen met 500 elementen (SC-029).** `tests/e2e/drawing-performance.spec.ts`, grens 3 seconden voor de traagste 5% van 20 metingen. Rustige run: Chromium 1690 ms, Firefox 1806 ms, WebKit 1130 ms. Tijdens een andere zware testrun gaf dezelfde spec 4448 ms (Chromium) en 3052 ms (Firefox) door uitschieters; de grens is niet aangepast.
+- **Eerste gebruik van Tekenen met 500 elementen (SC-029).** `tests/e2e/drawing-performance.spec.ts`, twee metingen. Warm: grens 3 seconden voor de traagste 5% van 20 navigaties naar dezelfde pagina in één context (alleen de eerste is koud). Koud eerste gebruik in een nieuwe browsercontext (5 metingen, de traagste telt, grens 3 seconden): Chromium 1967 ms, Firefox 1401 ms, WebKit 1046 ms. Warme rustige run: Chromium 1690 ms, Firefox 1806 ms, WebKit 1130 ms. Tijdens een andere zware testrun gaf dezelfde spec 4448 ms (Chromium) en 3052 ms (Firefox) door uitschieters; de grens is niet aangepast.
 
 ## Wat nog openstaat
 
