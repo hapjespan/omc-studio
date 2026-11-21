@@ -5,6 +5,7 @@ namespace Tests\Feature\Exchange;
 use App\Enums\ElementKind;
 use App\Models\AllocationLine;
 use App\Models\AllocationSet;
+use App\Models\AuditEntry;
 use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\Element;
@@ -13,6 +14,7 @@ use App\Models\FiscalYear;
 use App\Models\User;
 use App\Services\Allocation\AllocationSets;
 use App\Services\Allocation\FinalisedYears;
+use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditTrail;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Undo\UndoStore;
@@ -83,6 +85,20 @@ class AllocationCsvImportTest extends ExchangeTestCase
     private function second(): Element
     {
         return $this->element('primary_activities', ElementKind::Activity, 'Bestellen', $this->domain);
+    }
+
+    public function test_an_import_records_its_set_changes_under_the_action_imported(): void
+    {
+        $updated = $this->costRecord('K2');
+        $this->set($updated, [[$this->activity, 10_000]]);
+        $this->costRecord('K3');
+        AuditEntry::query()->delete();
+
+        $this->commit(['K2;2026;'.self::OFFREREN.';100,00', 'K3;2026;'.self::OFFREREN.';100,00'])->assertOk();
+
+        $actions = AuditEntry::where('subject_type', 'allocation_set')->pluck('action')->unique()->all();
+
+        $this->assertSame(['imported'], $actions);
     }
 
     public function test_lines_are_grouped_per_code_and_year_into_sets_with_a_status_and_totals(): void
@@ -216,7 +232,7 @@ class AllocationCsvImportTest extends ExchangeTestCase
     {
         $this->costRecord('K1');
         $this->costRecord('K2');
-        $this->app->instance(AllocationSets::class, new class(app(SerialisedWrite::class), app(FinalisedYears::class), app(AuditTrail::class), app(UndoStore::class)) extends AllocationSets
+        $this->app->instance(AllocationSets::class, new class(app(SerialisedWrite::class), app(FinalisedYears::class), app(AuditTrail::class), app(UndoStore::class), app(AuditContext::class)) extends AllocationSets
         {
             private int $calls = 0;
 

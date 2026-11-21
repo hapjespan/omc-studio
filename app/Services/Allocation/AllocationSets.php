@@ -11,6 +11,7 @@ use App\Models\FiscalYear;
 use App\Models\User;
 use App\Models\YearlyFigure;
 use App\Rules\BasisPoints;
+use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditTrail;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
@@ -26,6 +27,7 @@ class AllocationSets
         private readonly FinalisedYears $finalisedYears,
         private readonly AuditTrail $trail,
         private readonly UndoStore $undo,
+        private readonly AuditContext $context,
     ) {}
 
     /** @param list<array<string, mixed>> $lines */
@@ -53,7 +55,7 @@ class AllocationSets
                 'position' => $position,
             ], $values, array_keys($values)));
 
-            $this->trail->record($set, 'allocation_changed', ['lines' => [$before, $this->describe($set)]]);
+            $this->trail->record($set, $this->context->action('allocation_changed'), ['lines' => [$before, $this->describe($set)]]);
 
             return $set;
         });

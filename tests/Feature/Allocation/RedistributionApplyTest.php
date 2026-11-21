@@ -205,14 +205,14 @@ class RedistributionApplyTest extends AllocationTestCase
             '2026' => ['mode' => 'unknown'],
         ])->assertRedirect();
 
-        $this->assertDatabaseHas('audit_entries', ['subject_type' => 'allocation_set', 'subject_id' => (string) $moved->id, 'action' => 'changed']);
-        $this->assertDatabaseHas('audit_entries', ['subject_type' => 'allocation_set', 'subject_id' => (string) $removed->id, 'action' => 'deleted']);
+        $this->assertDatabaseHas('audit_entries', ['subject_type' => 'allocation_set', 'subject_id' => (string) $moved->id, 'action' => 'redistributed']);
+        $this->assertDatabaseHas('audit_entries', ['subject_type' => 'allocation_set', 'subject_id' => (string) $removed->id, 'action' => 'redistributed']);
 
         foreach ([$domain, $first] as $element) {
             $this->assertDatabaseHas('audit_entries', ['subject_type' => 'element', 'subject_id' => (string) $element->id, 'action' => 'changed']);
         }
 
-        $changes = AuditEntry::where('subject_id', (string) $moved->id)->where('action', 'changed')->value('changes');
+        $changes = AuditEntry::where('subject_id', (string) $moved->id)->where('action', 'redistributed')->value('changes');
         $this->assertSame([['target' => 'A1', 'basis_points' => 4000], ['target' => 'Doel', 'basis_points' => 6000]], $changes['lines'][0]);
         $this->assertSame([['target' => 'Doel', 'basis_points' => 10000]], $changes['lines'][1]);
     }
