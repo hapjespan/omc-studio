@@ -101,7 +101,7 @@ function commit(key: (typeof keys)[number]): void {
             <SelectField id="move-target" v-model="chosen" :label="t('drawing.move_to')" :options="targets.map((target) => ({ value: target.id, label: target.path }))" :placeholder="t('drawing.move_choose')" />
             <AppButton ref="opener" :disabled="chosen === ''" @click="emit('move', chosen, (opener?.$el as HTMLElement) ?? null)">{{ t('drawing.move_confirm') }}</AppButton>
         </div>
-        <p v-if="id" class="mt-3 border-t border-hairline pt-3 text-[12.5px] text-secondary" data-invoeren-note>{{ t('drawing.invoeren_note_before') }} <a :href="routes.entry(canvasId)" class="font-semibold underline">{{ t('shell.mode.entry') }}</a>{{ t('drawing.invoeren_note_after') }}</p>
+        <p v-if="id" class="mt-3 border-t border-hairline pt-3 text-[12.5px] text-secondary" data-entry-note>{{ t('drawing.entry_note_before') }} <a :href="routes.entry(canvasId)" class="font-semibold underline">{{ t('shell.mode.entry') }}</a>{{ t('drawing.entry_note_after') }}</p>
         <p v-else-if="!$slots.peek" class="text-[13px] text-secondary">{{ t('drawing.nothing_selected') }}</p>
     </Panel>
 </template>

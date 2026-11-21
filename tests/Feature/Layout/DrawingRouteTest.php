@@ -15,7 +15,7 @@ class DrawingRouteTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_administrator_opens_tekenen_with_the_view_data(): void
+    public function test_an_administrator_opens_drawing_with_the_view_data(): void
     {
         $canvas = Canvas::factory()->create(['name' => 'Model']);
 
@@ -43,21 +43,21 @@ class DrawingRouteTest extends TestCase
             ->where('layouts.primary_activities.mode', 'manual'));
     }
 
-    public function test_a_reader_is_sent_to_bekijken(): void
+    public function test_a_reader_is_sent_to_view(): void
     {
         $canvas = Canvas::factory()->create();
 
         $this->actingAs(User::factory()->create())->get("/canvases/{$canvas->id}/drawing")->assertRedirect("/canvases/{$canvas->id}/view");
     }
 
-    public function test_an_archived_canvas_is_sent_to_bekijken(): void
+    public function test_an_archived_canvas_is_sent_to_view(): void
     {
         $canvas = Canvas::factory()->create(['archived_at' => now()]);
 
         $this->actingAs(User::factory()->administrator()->create())->get("/canvases/{$canvas->id}/drawing")->assertRedirect("/canvases/{$canvas->id}/view");
     }
 
-    public function test_a_template_is_sent_to_invoeren(): void
+    public function test_a_template_is_sent_to_entry(): void
     {
         $template = Canvas::factory()->template()->create();
 

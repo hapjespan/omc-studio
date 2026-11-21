@@ -19,7 +19,7 @@ class StructureCsv
 {
     use WritableGuard;
 
-    public const COLUMNS = ['area', 'domein', 'cluster', 'activiteit', 'omschrijving', 'modaliteit'];
+    public const COLUMNS = ['area', 'domain', 'cluster', 'activity', 'description', 'modality'];
 
     private const NAME_MAX = 150;
 
@@ -128,7 +128,7 @@ class StructureCsv
             return $this->refusal((string) __('csvx.area_no_elements', ['line' => $number]));
         }
 
-        $modality = $this->modalities[mb_strtolower($row['modaliteit'])] ?? null;
+        $modality = $this->modalities[mb_strtolower($row['modality'])] ?? null;
         $steps = $this->steps($row);
         $messages = $this->complaints($number, $row, $area, $steps, $modality);
 
@@ -148,7 +148,7 @@ class StructureCsv
     {
         $messages = [];
 
-        if ($row['domein'] === '') {
+        if ($row['domain'] === '') {
             $messages[] = (string) __('csvx.domain_missing', ['line' => $number]);
         }
 
@@ -156,23 +156,23 @@ class StructureCsv
             $messages[] = (string) __('csvx.cluster_not_allowed', ['line' => $number]);
         }
 
-        if ($row['modaliteit'] !== '' && $area->kind === 'list') {
+        if ($row['modality'] !== '' && $area->kind === 'list') {
             $messages[] = (string) __('csvx.modality_not_allowed', ['line' => $number]);
-        } elseif ($row['modaliteit'] !== '' && ! $modality instanceof Modality) {
-            $messages[] = (string) __('csvx.modality_unknown', ['line' => $number, 'value' => $row['modaliteit']]);
+        } elseif ($row['modality'] !== '' && ! $modality instanceof Modality) {
+            $messages[] = (string) __('csvx.modality_unknown', ['line' => $number, 'value' => $row['modality']]);
         }
 
-        if (mb_strlen($row['omschrijving']) > self::DESCRIPTION_MAX) {
-            $messages[] = (string) __('import.text_max', ['line' => $number, 'column' => 'omschrijving', 'max' => self::DESCRIPTION_MAX]);
+        if (mb_strlen($row['description']) > self::DESCRIPTION_MAX) {
+            $messages[] = (string) __('import.text_max', ['line' => $number, 'column' => Headers::label('structure', 'description'), 'max' => self::DESCRIPTION_MAX]);
         }
 
         foreach ($steps as [$column, $name]) {
             if (mb_strlen($name) > self::NAME_MAX) {
-                $messages[] = (string) __('import.text_max', ['line' => $number, 'column' => $column, 'max' => self::NAME_MAX]);
+                $messages[] = (string) __('import.text_max', ['line' => $number, 'column' => Headers::label('structure', $column), 'max' => self::NAME_MAX]);
             }
 
             if (str_contains($name, '>')) {
-                $messages[] = (string) __('csvx.name_sign', ['line' => $number, 'column' => $column]);
+                $messages[] = (string) __('csvx.name_sign', ['line' => $number, 'column' => Headers::label('structure', $column)]);
             }
         }
 
@@ -252,8 +252,8 @@ class StructureCsv
     {
         $fields = ['name' => $name];
 
-        if ($deepest && $row['omschrijving'] !== '') {
-            $fields['description'] = $row['omschrijving'];
+        if ($deepest && $row['description'] !== '') {
+            $fields['description'] = $row['description'];
         }
 
         if ($deepest && $modality instanceof Modality) {
@@ -271,8 +271,8 @@ class StructureCsv
     {
         $changes = [];
 
-        if ($row['omschrijving'] !== '' && $row['omschrijving'] !== (string) $element->description) {
-            $changes['description'] = $row['omschrijving'];
+        if ($row['description'] !== '' && $row['description'] !== (string) $element->description) {
+            $changes['description'] = $row['description'];
         }
 
         if ($modality instanceof Modality && (int) $modality->id !== (int) $element->modality_id) {
@@ -284,7 +284,7 @@ class StructureCsv
 
     private function conflict(int $number, string $column, string $name, Element $element, ElementKind $kind): ?string
     {
-        $replace = ['line' => $number, 'column' => $column, 'value' => $name];
+        $replace = ['line' => $number, 'column' => Headers::label('structure', $column), 'value' => $name];
 
         return match (true) {
             $element->archived_at !== null => (string) __('csvx.name_archived', $replace),
@@ -300,14 +300,14 @@ class StructureCsv
      */
     private function steps(array $row): array
     {
-        $steps = [['domein', $row['domein'], ElementKind::Domain]];
+        $steps = [['domain', $row['domain'], ElementKind::Domain]];
 
         if ($row['cluster'] !== '') {
             $steps[] = ['cluster', $row['cluster'], ElementKind::Cluster];
         }
 
-        if ($row['activiteit'] !== '') {
-            $steps[] = ['activiteit', $row['activiteit'], ElementKind::Activity];
+        if ($row['activity'] !== '') {
+            $steps[] = ['activity', $row['activity'], ElementKind::Activity];
         }
 
         return $steps;

@@ -34,7 +34,7 @@ class ViewPropsTest extends TestCase
         Layout::create(['canvas_id' => $this->canvas->id, 'area_id' => Area::where('key', 'primary_activities')->value('id'), 'x' => 560, 'y' => 400, 'width' => 1100, 'height' => 380, 'z' => 0, 'style' => []]);
     }
 
-    public function test_bekijken_carries_the_stored_layouts_by_element_id_and_area_key(): void
+    public function test_view_carries_the_stored_layouts_by_element_id_and_area_key(): void
     {
         $this->actingAs(User::factory()->create())->get("/canvases/{$this->canvas->id}/view")->assertInertia(fn (Assert $page) => $page
             ->has('layouts', 2)
@@ -42,7 +42,7 @@ class ViewPropsTest extends TestCase
             ->where('layouts.primary_activities.width', 1100));
     }
 
-    public function test_invoeren_carries_the_stored_layouts(): void
+    public function test_entry_carries_the_stored_layouts(): void
     {
         $this->actingAs(User::factory()->administrator()->create())->get("/canvases/{$this->canvas->id}/entry")->assertInertia(fn (Assert $page) => $page
             ->component('Canvas/Entry')

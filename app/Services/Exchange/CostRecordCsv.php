@@ -13,10 +13,10 @@ class CostRecordCsv
     public function write(Organisation $organisation, mixed $handle): void
     {
         $writer = new CsvWriter($handle);
-        $writer->write(CostRecordImport::COLUMNS);
+        $writer->write(Headers::row('cost_record', CostRecordImport::COLUMNS));
 
         $years = FiscalYear::query()->where('organisation_id', $organisation->getKey())->pluck('year', 'id');
-        $kinds = array_map('ucfirst', array_flip(array_map(fn ($kind) => $kind->value, CostRecordRowValidator::KINDS)));
+        $kinds = array_map('ucfirst', array_flip(array_map(fn ($kind) => $kind->value, CostRecordRowValidator::kinds())));
 
         $records = CostRecord::query()->where('organisation_id', $organisation->getKey())->whereNotNull('code')
             ->with(['owner', 'application', 'yearlyFigures'])->orderBy('code_normalised')->lazy(500);

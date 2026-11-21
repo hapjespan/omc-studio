@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Canvas;
 use App\Rules\CsvUploadRule;
 use App\Services\Audit\SecurityLog;
+use App\Services\Exchange\Headers;
 use App\Services\Exchange\StructureCsv;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class StructureImportController extends Controller
 
     private function path(Request $request): string
     {
-        $request->validate(['file' => ['required', new CsvUploadRule(StructureCsv::COLUMNS)]]);
+        $request->validate(['file' => ['required', new CsvUploadRule(Headers::row('structure', StructureCsv::COLUMNS))]]);
 
         /** @var UploadedFile $file */
         $file = $request->file('file');

@@ -209,4 +209,22 @@ class CostRecordImportPreviewTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('errors.file.0', 'Bestand: kies een CSV-bestand van maximaal 5 MB met de kolommen '.self::HEADER);
     }
+
+    public function test_an_archived_organisation_refuses_the_preview(): void
+    {
+        $this->organisation->update(['archived_at' => now()]);
+
+        $this->preview(['K1;Licenties;Project;;Ada;;;2026;10,00;;;;'])->assertStatus(422)->assertJsonPath('errors.rule.0', __('rule.organisation_archived'));
+    }
+
+    public function test_an_updating_line_on_an_archived_record_is_an_error_and_adds_nothing_to_the_creates(): void
+    {
+        CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'K1', 'name' => 'Licenties', 'archived_at' => now()]);
+
+        $response = $this->preview(['K1;Hernoemd;Project;;Zed;;Nieuw;2026;10,00;;;;'])->assertOk();
+
+        $response->assertJsonPath('lines.0.status', 'error')->assertJsonPath('totals.errors', 1);
+        $this->assertSame([__('import.record_archived', ['line' => 2, 'code' => 'K1'])], $this->messages($response));
+        $response->assertJsonPath('creates', ['owners' => [], 'applications' => []]);
+    }
 }

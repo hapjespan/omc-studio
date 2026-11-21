@@ -7,6 +7,7 @@ use App\Rules\CsvUploadRule;
 use App\Services\Audit\SecurityLog;
 use App\Services\Exchange\AllocationCsv;
 use App\Services\Exchange\AllocationCsvImport;
+use App\Services\Exchange\Headers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -31,7 +32,7 @@ class AllocationImportController extends Controller
 
     private function path(Request $request): string
     {
-        $request->validate(['file' => ['required', new CsvUploadRule(AllocationCsv::COLUMNS)]]);
+        $request->validate(['file' => ['required', new CsvUploadRule(Headers::row('allocation', AllocationCsv::COLUMNS))]]);
 
         /** @var UploadedFile $file */
         $file = $request->file('file');

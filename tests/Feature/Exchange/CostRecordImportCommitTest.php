@@ -214,6 +214,16 @@ class CostRecordImportCommitTest extends TestCase
         $this->assertSame(0, YearlyFigure::count());
     }
 
+    public function test_a_record_archived_between_the_check_and_the_write_is_not_overwritten(): void
+    {
+        $record = CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'K1', 'name' => 'Licenties']);
+        $this->hook(fn () => $record->update(['archived_at' => now()]));
+
+        $this->commit(['K1;Hernoemd;Project;;Ada;;;2026;10,00;;;;'])->assertStatus(422);
+
+        $this->assertSame('Licenties', $record->fresh()->name);
+    }
+
     public function test_a_non_administrator_is_forbidden(): void
     {
         $this->actingAs(User::factory()->create());
@@ -221,5 +231,32 @@ class CostRecordImportCommitTest extends TestCase
         $this->commit(['K1;Licenties;Project;;Ada;;;2026;10,00;;;;'])->assertForbidden();
 
         $this->assertSame(0, CostRecord::count());
+    }
+
+    public function test_an_archived_organisation_refuses_the_import(): void
+    {
+        $this->organisation->update(['archived_at' => now()]);
+
+        $this->commit(['K1;Licenties;Project;;Ada;;;2026;10,00;;;;'])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.rule.0', __('rule.organisation_archived'));
+
+        $this->assertSame(0, CostRecord::count());
+        $this->assertSame(0, Owner::count());
+    }
+
+    public function test_a_line_that_changes_an_archived_cost_record_or_its_figures_is_an_error_and_nothing_is_written(): void
+    {
+        $record = CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'K1', 'name' => 'Licenties', 'cost_kind' => 'project', 'supplier' => null, 'cost_centre' => null, 'application_id' => null, 'archived_at' => now()]);
+        $record->update(['owner_id' => Owner::factory()->create(['organisation_id' => $this->organisation->id, 'name' => 'Ada'])->id]);
+        YearlyFigure::factory()->create(['cost_record_id' => $record->id, 'fiscal_year_id' => $this->year->id, 'budget_cents' => 1000, 'forecast_cents' => null, 'run_bp' => null, 'change_bp' => null, 'fte_hundredths' => null]);
+
+        $this->commit(['K1;Licenties;Project;;Ada;;;2026;10,00;;;;'])->assertOk()->assertJsonPath('totals.unchanged', 1);
+
+        $this->commit(['K1;Hernoemd;Project;;Ada;;;2026;10,00;;;;'])->assertStatus(422);
+        $this->commit(['K1;Licenties;Project;;Ada;;;2026;99,00;;;;'])->assertStatus(422);
+
+        $this->assertSame('Licenties', $record->fresh()->name);
+        $this->assertSame(1000, $record->yearlyFigures()->sole()->budget_cents);
     }
 }
