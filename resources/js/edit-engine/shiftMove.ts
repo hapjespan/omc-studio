@@ -1,5 +1,6 @@
 import type { AreaKey, AreaKind, DrawnCanvas, ElementKind } from '../layout';
-import type { CanvasStructure, LayoutRect, MoveVerdict, RefusalReason } from './DrawingEngine';
+import type { CanvasStructure, LayoutRect, MoveVerdict } from './DrawingEngine';
+import { moveRefusal } from './moveRules';
 
 export interface Point {
     x: number;
@@ -90,12 +91,8 @@ export function judge(model: MoveModel, draggedId: string, point: Point): MoveVe
     const target = dragged.kind === 'cluster' && found.kind === 'cluster' ? (found.parentId ? byId.get(found.parentId) : undefined) : found;
     if (!target || target.id === dragged.parentId) return null;
 
-    const refuse = (reason: RefusalReason): MoveVerdict => ({ valid: false, targetId: target.id, targetName: target.name, reason });
-    if (dragged.kind === 'cluster' && target.kind !== 'domain') return refuse('cluster_needs_domain');
-    if (dragged.kind === 'cluster' && target.areaKind === 'list') return refuse('no_clusters_in_list');
-    if (target.areaKind !== dragged.areaKind) return refuse('other_kind');
-    if (target.unknownAllocation) return refuse('unknown_allocation');
-    if (model.some((block) => block.parentId === target.id && block.id !== dragged.id && block.name.toLowerCase() === dragged.name.toLowerCase())) return refuse('name_taken');
+    const reason = moveRefusal(model, dragged, target);
+    if (reason !== null) return { valid: false, targetId: target.id, targetName: target.name, reason };
 
     return { valid: true, targetId: target.id, targetName: target.name, narrowed: dragged.width > target.width };
 }
