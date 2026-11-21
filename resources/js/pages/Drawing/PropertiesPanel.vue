@@ -3,6 +3,7 @@ import { nextTick, ref, watch } from 'vue';
 import Panel from '../../components/ui/Panel.vue';
 import SelectField from '../../components/fields/SelectField.vue';
 import AppButton from '../../components/ui/AppButton.vue';
+import { announce } from '../../components/feedback/status';
 import { t } from '../../i18n';
 import type { MoveTarget } from './moveTargets';
 import type { DrawingCommand } from '../../edit-engine';
@@ -26,7 +27,8 @@ const grid = defineModel<boolean>('grid', { default: false });
 const emit = defineEmits<{ box: [id: string, box: Partial<BoxValues>]; move: [targetId: string, opener: HTMLElement | null]; reset: [scope: 'element' | 'domain']; command: [command: DrawingCommand]; style: [patch: StylePatch]; copyStyle: []; pasteStyle: []; applyStyle: [] }>();
 const chosen = ref('');
 const opener = ref<{ focus: () => void; $el?: HTMLElement } | null>(null);
-watch(() => props.id, () => (chosen.value = ''));
+const missing = ref<'x' | 'y' | 'width' | 'height' | null>(null);
+watch(() => props.id, () => ((chosen.value = ''), (missing.value = null)));
 watch(
     () => props.invalid,
     async (invalid) => {
@@ -35,7 +37,7 @@ watch(
         document.getElementById(`box-${invalid.key}`)?.focus();
     },
 );
-const errorOf = (key: string): string | undefined => (props.invalid && props.invalid.id === props.id && props.invalid.key === key ? props.invalid.message : undefined);
+const errorOf = (key: string): string | undefined => (props.invalid && props.invalid.id === props.id && props.invalid.key === key ? props.invalid.message : missing.value === key ? t('drawing.value_required', { field: t(labels[key as (typeof keys)[number]], { name: props.name }) }) : undefined);
 
 const keys = ['x', 'y', 'width', 'height'] as const;
 const shortLabels = { x: 'X', y: 'Y', width: 'B', height: 'H' } as const;
@@ -56,8 +58,12 @@ function commit(key: (typeof keys)[number]): void {
     const number = Number(typed);
     if (!props.id || typed === '' || !Number.isFinite(number)) {
         values.value[key] = props.box ? String(props.box[key]) : '';
+        missing.value = props.id ? key : null;
+        if (props.id) void announce(t('drawing.value_required', { field: t(labels[key], { name: props.name }) }));
+        void nextTick().then(() => document.getElementById(`box-${key}`)?.focus());
         return;
     }
+    missing.value = null;
     if (props.box?.[key] === Math.round(number)) return;
     emit('box', props.id, { [key]: Math.round(number) });
 }

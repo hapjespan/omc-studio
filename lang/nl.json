@@ -583,6 +583,7 @@
     "drawing.field_y": "Y van :name",
     "drawing.field_width": "B (breedte) van :name",
     "drawing.field_height": "H (hoogte) van :name",
+    "drawing.value_required": ":field: vul een getal in",
     "drawing.pushed_back": "Teruggezet binnen de omgeving: :names",
     "drawing.align_horizontal_start": "Links",
     "drawing.align_horizontal_centre": "Horizontaal midden",
