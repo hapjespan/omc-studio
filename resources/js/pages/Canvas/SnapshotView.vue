@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowRef } from 'vue';
+import { computed } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
-import type { ModalityMark } from '../../canvas/CanvasView.vue';
+import type { ModalityColour } from '../../canvas/CanvasView.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
 import type { CanvasFigures } from '../../canvas/overlay/figures';
@@ -11,8 +11,8 @@ import SnapshotBanner from '../../canvas/SnapshotBanner.vue';
 import VersionSelect from '../../canvas/VersionSelect.vue';
 import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
-import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import type { CanvasLayoutInput } from '../../layout';
+import { useMeasurer } from '../../canvas/useMeasurer';
 import HeaderSlot from '../../shell/HeaderSlot.vue';
 import { useQuietStatus } from '../../shell/layout';
 
@@ -24,7 +24,7 @@ const props = defineProps<{
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
     layouts?: CanvasLayoutInput['layouts'];
     overlay: string;
     year: number;
@@ -35,8 +35,7 @@ const props = defineProps<{
 }>();
 
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
-const measurer = shallowRef<TextMeasurer | null>(null);
-onMounted(async () => (measurer.value = await createBrowserMeasurer()));
+const measurer = useMeasurer();
 const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 </script>
 
@@ -52,6 +51,6 @@ const drawn = computed(() => (measurer.value && !props.damaged ? computeCanvasLa
         <VersionSelect :canvas-id="canvas.id" :versions="versions" :current="snapshot.id" />
     </SnapshotBanner>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" />
-    <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
+    <Callout v-if="figuresMessage" tone="danger" role="alert" class="mb-3" data-figures-message>{{ figuresMessage }}</Callout>
     <CanvasStage v-if="!damaged" :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="costKinds" :canvas-id="canvas.id" :can-assign="false" />
 </template>

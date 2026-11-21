@@ -1,20 +1,14 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { signInAs } from '../support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from '../support/seed';
 const PIXEL = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-
-function tinker(code: string): void {
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
-}
 
 function seed(name: string, options: { canvas?: boolean; logo?: boolean } = {}): void {
     const logo = options.logo ? `$p = 'logos/' . Illuminate\\Support\\Str::random(40) . '.png'; Illuminate\\Support\\Facades\\Storage::disk('local')->put($p, base64_decode('${PIXEL}')); ` : '';
     const attributes = options.logo ? `['name' => '${name}', 'logo_path' => $p]` : `['name' => '${name}']`;
     const canvas = options.canvas ? "App\\Models\\Canvas::factory()->create(['organisation_id' => $o->id]);" : '';
-    tinker(`${logo}$o = App\\Models\\Organisation::factory()->create(${attributes}); ${canvas}`);
+    seedPhp(`${logo}$o = App\\Models\\Organisation::factory()->create(${attributes}); ${canvas}`);
 }
 
 const unique = (): string => `Stichting ${randomUUID().slice(0, 8)}`;

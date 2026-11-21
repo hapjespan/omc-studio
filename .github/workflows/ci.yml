@@ -160,7 +160,7 @@ jobs:
           done
           exit $status
       - run: SESSION_SECURE_COOKIE=true sh scripts/serve-e2e.sh
-      - run: xvfb-run -a npx playwright test --project=chromium --grep 'Secure session cookie'
+      - run: xvfb-run -a npx playwright test --project=chromium --grep 'Secure session cookie' --retries=0
 
   e2e-performance:
     name: Playwright performance on three engines

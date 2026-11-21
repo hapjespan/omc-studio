@@ -23,6 +23,37 @@ test('Exporteren als PNG downloads a picture at twice the Artboard size', async 
     await expect(page.getByTestId('export-note')).toHaveText('PNG is gemaakt');
 });
 
+const A3_LANDSCAPE_WIDTH_POINTS = 1190.55;
+const PNG_SCALE = 2;
+const MINIMUM_POINTS = 6;
+
+test('the PNG is twice the Artboard width and every text is at least 6 pt when the Artboard is printed as an A3 page', async ({ page }) => {
+    const seed = seedOverlay(`Png ${randomUUID().slice(0, 8)}`);
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${seed.canvas}/view?overlay=financial&year=2026`);
+    await expect(page.locator('[data-overlay-card]').first()).toBeAttached();
+
+    const artboard = await page.evaluate(() => {
+        const node = document.querySelector<HTMLElement>('[data-artboard]') as HTMLElement;
+        const sizes = [...node.querySelectorAll('*')]
+            .filter((element) => [...element.childNodes].some((child) => child.nodeType === 3 && child.textContent?.trim()))
+            .map((element) => parseFloat(getComputedStyle(element).fontSize));
+
+        return { width: node.offsetWidth, count: sizes.length, smallest: Math.min(...sizes) };
+    });
+
+    await page.getByRole('button', { name: 'Exporteren' }).click();
+    const download = page.waitForEvent('download');
+    await page.getByRole('menuitem', { name: 'Exporteren als PNG' }).click();
+    const png = readFileSync(((await (await download).path()) as string));
+
+    expect(png.readUInt32BE(16)).toBe(PNG_SCALE * artboard.width);
+    expect(artboard.count).toBeGreaterThan(0);
+    const smallestPoints = (artboard.smallest * PNG_SCALE * A3_LANDSCAPE_WIDTH_POINTS) / png.readUInt32BE(16);
+    console.log(`SC-019 PNG: width ${png.readUInt32BE(16)} px, Artboard ${artboard.width} px, ${artboard.count} text elements, smallest ${artboard.smallest} px = ${smallestPoints.toFixed(2)} pt on A3`);
+    expect(smallestPoints).toBeGreaterThanOrEqual(MINIMUM_POINTS);
+});
+
 const setup = async (page: Page): Promise<void> => {
     const seed = seedOverlay(`Png ${randomUUID().slice(0, 8)}`);
     await signInAs(page, 'reader');

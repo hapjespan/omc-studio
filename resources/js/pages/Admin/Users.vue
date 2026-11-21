@@ -12,6 +12,7 @@ import ListView, { type ListRow, type ListState } from '../../components/list/Li
 import Dialog from '../../components/overlays/Dialog.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
+import Panel from '../../components/ui/Panel.vue';
 
 const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; oneTimePassword: string | null }>();
 
@@ -111,12 +112,12 @@ async function copyPassword(): Promise<void> {
     <Head :title="t('users.title')" />
     <h1 class="font-display text-[22px] font-semibold">{{ t('users.title') }}</h1>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
-    <section v-if="oneTimePassword" role="region" aria-labelledby="one-time-password-title" class="mt-3 flex flex-col gap-2 rounded-panel border border-hairline bg-white p-4">
+    <Panel v-if="oneTimePassword" role="region" aria-labelledby="one-time-password-title" class="mt-3 flex flex-col gap-2">
         <h2 id="one-time-password-title" class="text-[14px] font-semibold">{{ t('users.one_time_password_title') }}</h2>
         <p class="text-[12.5px] text-secondary">{{ t('users.one_time_password_hint') }}</p>
         <code data-testid="one-time-password" class="select-all font-mono text-[13px]">{{ oneTimePassword }}</code>
         <div><AppButton type="button" @click="copyPassword">{{ t('users.copy') }}</AppButton></div>
-    </section>
+    </Panel>
     <div class="mt-3">
         <ListView ref="list" :title="t('users.title')" :columns="columns" :rows="rows" :count="count" :query="query" :undoable="false" :can-delete="false" :kind="t('users.kind')" :create-title="t('users.new')" @change="load">
             <template #form="{ row, close, setDirty, requestClose }">

@@ -6,6 +6,7 @@ use App\Models\Organisation;
 use App\Rules\CsvUploadRule;
 use App\Services\Audit\SecurityLog;
 use App\Services\Exchange\CostRecordImport;
+use App\Services\Exchange\Headers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -20,7 +21,7 @@ class CostRecordImportController extends Controller
     {
         return Inertia::render('Finance/CostRecordImport', [
             'organisation' => $organisation->only(['id', 'name']),
-            'columns' => CostRecordImport::COLUMNS,
+            'columns' => Headers::row('cost_record', CostRecordImport::COLUMNS),
         ]);
     }
 
@@ -42,7 +43,7 @@ class CostRecordImportController extends Controller
     {
         ini_set('memory_limit', '1G');
 
-        $request->validate(['file' => ['required', new CsvUploadRule(CostRecordImport::COLUMNS)]]);
+        $request->validate(['file' => ['required', new CsvUploadRule(Headers::row('cost_record', CostRecordImport::COLUMNS))]]);
 
         /** @var UploadedFile $file */
         $file = $request->file('file');

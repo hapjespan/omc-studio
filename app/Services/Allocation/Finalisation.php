@@ -12,6 +12,7 @@ use App\Models\Organisation;
 use App\Models\YearlyFigure;
 use App\Services\Audit\AuditContext;
 use App\Services\Finance\CalculationInputBuilder;
+use App\Services\Notices\SystemNotices;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Support\Facades\Auth;
@@ -26,11 +27,12 @@ class Finalisation
         private readonly CalculationInputBuilder $builder,
         private readonly FigureCalculator $calculator,
         private readonly AuditContext $context,
+        private readonly SystemNotices $notices,
     ) {}
 
     public function finalise(Canvas $canvas, FiscalYear $year): FinalisedYear
     {
-        return $this->writes->run([$this->organisation($canvas), $canvas], function () use ($canvas, $year): FinalisedYear {
+        $result = $this->writes->run([$this->organisation($canvas), $canvas], function () use ($canvas, $year): FinalisedYear|array {
             $this->assertWritable($canvas);
 
             if ($this->row($canvas, $year) !== null) {
@@ -46,16 +48,23 @@ class Finalisation
             $figures = $this->calculator->calculate($this->builder->build($canvas, $year->year));
 
             if (($figures->closingCheck['passed'] ?? false) !== true) {
-                $this->refuseWith((string) __('rule.closing_check_failed'));
+                return $figures->closingCheck['failures'][0];
             }
 
-            return FinalisedYear::create([
+            return $this->context->during('finalised', fn () => FinalisedYear::create([
                 'canvas_id' => $canvas->getKey(),
                 'fiscal_year_id' => $year->getKey(),
                 'finalised_at' => now(),
                 'finalised_by' => Auth::id(),
-            ]);
+            ]));
         });
+
+        if ($result instanceof FinalisedYear) {
+            return $result;
+        }
+
+        $this->notices->recordClosingCheckFailed($canvas->getKey(), $year->year, [], $result);
+        $this->refuseWith((string) __('rule.closing_check_failed'));
     }
 
     public function reopen(Canvas $canvas, FiscalYear $year): void

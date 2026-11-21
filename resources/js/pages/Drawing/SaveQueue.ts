@@ -1,5 +1,6 @@
 import type { LayoutPayload } from '../../edit-engine/DrawingEngine';
 import { routes } from '../../routes';
+import { xsrfToken } from '../../xsrf';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'failed' | 'structureChanged' | 'layoutChanged';
 
@@ -41,9 +42,6 @@ interface LayoutAnswer {
     errors?: { rule?: string[]; codes?: string[]; elements?: string[] };
 }
 
-function xsrfToken(): string {
-    return decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
-}
 
 export const sendLayout: LayoutSender = async (canvas, payload) => {
     const response = await fetch(routes.layout(canvas), {

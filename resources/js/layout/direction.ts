@@ -1,7 +1,8 @@
+import limits from '../../data/layout-limits.json';
 import { wrapText } from './wrapText';
 import type { DirectionColumn, DirectionColumnKey, FontSpec, LayoutStatement, LineMark, TextMeasurer } from './types';
 
-export const DIRECTION_HEIGHT = 180;
+export const DIRECTION_HEIGHT = limits.directionHeight;
 export const DIRECTION_PADDING = 16;
 export const DIRECTION_BODY_FONT: FontSpec = { family: 'Inter', size: 13, weight: 400, italic: false };
 export const DIRECTION_LABEL_FONT: FontSpec = { family: 'Inter', size: 11, weight: 600, italic: false };

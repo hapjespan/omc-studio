@@ -1,14 +1,12 @@
-import { execFileSync } from 'node:child_process';
 import type { Page } from '@playwright/test';
 import { signInAs } from './shell';
 import { seedViewCanvas, type ViewCanvas } from './view';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './seed';
 
 export function seedRow(): ViewCanvas {
     const canvas = seedViewCanvas();
     const code = `$c = App\\Models\\Canvas::find(${canvas.id}); $a = App\\Models\\Area::where('key', 'primary_activities')->value('id'); $d = App\\Models\\Element::where('canvas_id', ${canvas.id})->where('name', 'Onderwijs')->first(); foreach (['Alfa', 'Beta', 'Gamma'] as $i => $n) { App\\Models\\Element::create(['canvas_id' => ${canvas.id}, 'area_id' => $a, 'kind' => 'activity', 'name' => $n, 'parent_id' => $d->id, 'position' => 10 + $i]); }`;
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
     return canvas;
 }
 
@@ -28,7 +26,7 @@ export interface Spot {
 export function seedMoveCanvas(): ViewCanvas {
     const canvas = seedViewCanvas();
     const code = `$a = fn ($k) => App\\Models\\Area::where('key', $k)->value('id'); $e = fn ($n) => App\\Models\\Element::where('canvas_id', ${canvas.id})->where('name', $n)->value('id'); $l = fn ($area, $element, $x, $y, $w, $h) => App\\Models\\Layout::create(['canvas_id' => ${canvas.id}, 'area_id' => $area, 'element_id' => $element, 'x' => $x, 'y' => $y, 'width' => $w, 'height' => $h, 'z' => 0, 'style' => [], 'format_version' => 1]); $p = App\\Models\\Element::create(['canvas_id' => ${canvas.id}, 'area_id' => $a('primary_activities'), 'kind' => 'domain', 'name' => 'Verkoop', 'position' => 2]); $q = App\\Models\\Element::create(['canvas_id' => ${canvas.id}, 'area_id' => $a('primary_activities'), 'kind' => 'domain', 'name' => 'Smal', 'position' => 3]); App\\Models\\Element::create(['canvas_id' => ${canvas.id}, 'area_id' => $a('primary_activities'), 'kind' => 'activity', 'name' => 'Les geven', 'parent_id' => $q->id, 'position' => 1]); $l($a('primary_activities'), null, 780, 400, 880, 400); $l(null, $q->id, 400, 260, 120, 100); $l(null, $e('Onderwijs'), 20, 40, 300, 200); $l(null, $e('Lessen'), 8, 40, 260, 120); $l(null, $e('Les geven'), 8, 40, 200, 30); $l(null, $p->id, 400, 40, 300, 200); $l($a('supporting_activities'), null, 780, 820, 880, 340); $l(null, $e('Beheer'), 20, 40, 300, 200); App\\Models\\Canvas::whereKey(${canvas.id})->increment('layout_version', 1, ['layout_saved_at' => now()->subDay()]);`;
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
+    seedPhp(code);
 
     return canvas;
 }
@@ -62,21 +60,17 @@ export async function dragTo(page: Page, from: Spot, to: Spot): Promise<void> {
 }
 
 export function structureChanges(canvas: number, code: string): void {
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
-    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Canvas::whereKey(${canvas})->increment('structure_version');`], { env });
+    seedPhp(code);
+    seedPhp(`App\\Models\\Canvas::whereKey(${canvas})->increment('structure_version');`);
 }
 
 export function layoutChanges(canvas: number): void {
-    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\Canvas::whereKey(${canvas})->increment('layout_version');`], { env });
-}
-
-export function tinker(code: string): string {
-    return execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env, maxBuffer: 64 * 1024 * 1024 }).toString();
+    seedPhp(`App\\Models\\Canvas::whereKey(${canvas})->increment('layout_version');`);
 }
 
 export function seedMoveContent(): ViewCanvas {
     const canvas = seedMoveCanvas();
-    tinker(`App\\Models\\Layout::where('canvas_id', ${canvas.id})->delete();`);
+    seedPhp(`App\\Models\\Layout::where('canvas_id', ${canvas.id})->delete();`);
 
     return canvas;
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
+import limits from '../../../data/layout-limits.json';
 import NativeSelect from '../../components/fields/NativeSelect.vue';
 import TextField from '../../components/fields/TextField.vue';
 import CheckBox from '../../components/ui/CheckBox.vue';
@@ -54,7 +55,7 @@ function commitSize(): void {
     const typed = String(size.value).trim();
     const number = Number(typed);
     if (typed === String(props.target.resolved.font.size)) return void (sizeError.value = '');
-    if (typed === '' || !Number.isInteger(number) || number < 10 || number > 48) {
+    if (typed === '' || !Number.isInteger(number) || number < limits.style.font_size[0] || number > limits.style.font_size[1]) {
         sizeError.value = t('layout.style.font_size', { name: props.name });
         return;
     }

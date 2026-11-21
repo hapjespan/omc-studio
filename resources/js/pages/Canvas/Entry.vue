@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
 import UndoMessage from '../../components/list/UndoMessage.vue';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
-import type { TextMeasurer } from '../../layout';
+import { useMeasurer } from '../../canvas/useMeasurer';
 import type { TargetRow } from '../../allocation/types';
 import { routes } from '../../routes';
 import { t } from '../../i18n';
@@ -35,7 +34,7 @@ interface EntryArea {
     summary: string;
 }
 
-const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; layouts?: Record<string, ElementLayout>; icons: string[]; year: number | null; costs: Record<string, ElementCost>; targets: TargetRow[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
+const props = defineProps<{ areas: EntryArea[]; selected: string; elements: EntryElement[]; modalities: { key: string; letter: string }[]; layouts?: Record<string, ElementLayout>; icons: string[]; year: number | null; costs?: Record<string, ElementCost>; targets?: TargetRow[]; statements: { mission: string | null; vision: string | null; goals: { id: number; title: string; body: string }[] } }>();
 const canvas = computed(() => usePage().props.canvas as { id: number; name: string });
 const current = ref(props.selected);
 const area = computed(() => props.areas.find(({ key }) => key === current.value) ?? props.areas[0]);
@@ -47,8 +46,7 @@ const auth = computed(() => page.props.auth);
 const shellCanvas = computed(() => page.props.canvas as unknown as ShellCanvas);
 modeSwitchPlacement.inPage = true;
 onBeforeUnmount(() => (modeSwitchPlacement.inPage = false));
-const measurer = shallowRef<TextMeasurer | null>(null);
-onMounted(async () => (measurer.value = await createBrowserMeasurer().catch(() => null)));
+const measurer = useMeasurer();
 const undo = ref<{ token: string; name: string; refusal: string | null } | null>(null);
 const areaInfo = computed(() => props.areas as unknown as EntryAreaInfo[]);
 const labelOf = (key: string): string => props.areas.find((item) => item.key === key)?.label ?? key;
@@ -182,7 +180,7 @@ async function added(kind: ElementKind, name: string, parent: string | null): Pr
                 <EntryTree v-else :rows="rows" :letters="letters" :selected-id="selectedId" :label="t('entry.tree', { area: area.label })" :canvas-id="canvas.id" :item-label="t(`areas.${area.key}.level_2`)" :clusters="area.kind === 'activities'" @select="select" @restore="restore" />
                 <p class="mt-4 text-[12.5px] text-secondary">{{ t('entry_design.order_help') }}</p>
             </template>
-                <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :list="listOf(selectedElement.area)" :icons="icons" :warnings="warnings" :year="year" :cost="costs[selectedElement.id]" :targets="targets" :gone="gone" @select="select" @saved="saved = true" @changed="saved = false" />
+                <ElementPanel v-if="selectedElement" :key="selectedElement.id" :canvas-id="canvas.id" :element="selectedElement" :elements="elements" :areas="areaInfo" :list="listOf(selectedElement.area)" :icons="icons" :warnings="warnings" :year="year" :cost="costs?.[selectedElement.id]" :targets="targets ?? []" :loaded="costs !== undefined && targets !== undefined" :gone="gone" @select="select" @saved="saved = true" @changed="saved = false" />
         </section>
     </div>
 </template>

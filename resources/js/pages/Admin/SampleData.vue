@@ -22,7 +22,7 @@ function remove(): void {
 <template>
     <Head :title="t('sample.page_title')" />
     <div class="flex max-w-3xl flex-col gap-4">
-        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('sample.page_title') }}</h1>
+        <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('sample.page_title') }}</h1>
         <div v-if="page.props.errors.rule" role="alert"><ErrorSummary :errors="{ rule: page.props.errors.rule }" /></div>
         <Callout v-if="page.props.flash.status" tone="success"><span role="status">{{ page.props.flash.status }}</span></Callout>
         <Panel :padding="24">

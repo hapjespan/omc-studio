@@ -3,7 +3,7 @@ import AppButton from '../../components/ui/AppButton.vue';
 import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import ErrorSummary from '../../components/fields/ErrorSummary.vue';
-import Field from '../../components/fields/Field.vue';
+import FileField from '../../components/fields/FileField.vue';
 import { focusFirstInvalid } from '../../components/fields/focusFirstInvalid';
 import { announce } from '../../components/feedback/status';
 import TextField from '../../components/fields/TextField.vue';
@@ -65,10 +65,8 @@ function archive(row: ListRow, close: () => void): void {
                 <form :key="row?.id ?? 'new'" novalidate class="flex flex-col gap-3" enctype="multipart/form-data" @vue:mounted="open(row, setDirty)" @submit.prevent="submit(row, close)">
                     <div role="alert"><ErrorSummary :errors="errors" /></div>
                     <TextField id="name" v-model="draft.name" :label="t('fields.name')" :error="errors.name" @update:model-value="setDirty(draft.name !== initial)" />
-                    <Field id="logo" :label="`${t('organisations.logo')} (${t('form.optional')})`" :hint="t('organisations.logo_hint')" :error="errors.logo" v-slot="{ describedby, invalid }">
-                        <img v-if="row?.has_logo" :src="routes.organisationLogo(row.id)" :alt="row.name" class="h-16 w-16 object-contain" />
-                        <input id="logo" type="file" accept="image/png,image/jpeg" :aria-describedby="describedby" :aria-invalid="invalid || undefined" @change="draft.logo = ($event.target as HTMLInputElement).files?.[0] ?? null; setDirty(true)" />
-                    </Field>
+                    <img v-if="row?.has_logo" :src="routes.organisationLogo(row.id)" :alt="row.name" class="h-16 w-16 object-contain" />
+                    <FileField id="logo" v-model="draft.logo" :label="`${t('organisations.logo')} (${t('form.optional')})`" :hint="t('organisations.logo_hint')" :error="errors.logo" accept="image/png,image/jpeg" @pick="setDirty(true)" />
                     <div class="flex gap-2">
                         <AppButton variant="primary" type="submit" :disabled="busy">{{ t('organisations.save') }}</AppButton>
                         <AppButton type="button" @click="requestClose">{{ t('list.cancel') }}</AppButton>

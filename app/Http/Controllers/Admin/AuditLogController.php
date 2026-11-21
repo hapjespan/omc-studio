@@ -9,6 +9,7 @@ use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Audit\AuditLogQuery;
+use App\Support\DateRangeFilter;
 use App\Support\Format;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +22,7 @@ class AuditLogController extends Controller
 
     private const FILTERS = ['organisation_id', 'canvas_id', 'subject_type', 'actor_id', 'from', 'to'];
 
-    private const KINDS = ['user', 'organisation', 'canvas', 'element', 'statement'];
+    private const KINDS = ['user', 'organisation', 'canvas', 'element', 'statement', 'area', 'application', 'owner', 'cost_record', 'allocation_set', 'finalised_year', 'fiscal_year', 'yearly_figure', 'snapshot'];
 
     public function __invoke(Request $request, AuditLogQuery $query): Response
     {
@@ -30,20 +31,17 @@ class AuditLogController extends Controller
             'canvas_id' => ['nullable', 'integer'],
             'subject_type' => ['nullable', 'in:'.implode(',', self::KINDS)],
             'actor_id' => ['nullable', 'integer'],
-            'from' => ['nullable', 'date_format:Y-m-d'],
-            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
+            ...DateRangeFilter::rules(),
         ], [
             'integer' => __('audit_log.error.choose'),
             'in' => __('audit_log.error.choose'),
-            'date_format' => __('audit_log.error.date'),
-            'to.after_or_equal' => __('audit_log.error.range'),
+            ...DateRangeFilter::messages(),
         ], [
             'organisation_id' => __('audit_log.filter.organisation'),
             'canvas_id' => __('audit_log.filter.canvas'),
             'subject_type' => __('audit_log.filter.kind'),
             'actor_id' => __('audit_log.filter.user'),
-            'from' => __('audit_log.filter.from'),
-            'to' => __('audit_log.filter.to'),
+            ...DateRangeFilter::attributes(),
         ]);
         $filters = $request->only(self::FILTERS);
         $page = $query->paginate($validator->valid());

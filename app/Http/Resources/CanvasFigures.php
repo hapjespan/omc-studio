@@ -14,6 +14,7 @@ class CanvasFigures
                 'direct' => $element['direct'],
                 'total' => $element['total'],
                 'shareBp' => $element['shareBp'],
+                'shareTenths' => $element['shareTenths'] ?? ($element['shareBp'] === null ? null : intdiv($element['shareBp'] + 5, 10)),
                 'fteHundredths' => intdiv($element['fteNumerator'] + 5000, 10000),
             ], $figures->elements),
             'areas' => $figures->areas,

@@ -9,12 +9,12 @@ use App\Services\Exchange\Csv\CsvWriter;
 
 class AllocationCsv
 {
-    public const COLUMNS = ['kostenpost_code', 'jaar', 'doel_pad', 'percentage'];
+    public const COLUMNS = ['cost_record_code', 'year', 'target_path', 'percentage'];
 
     public function write(Canvas $canvas, mixed $handle): void
     {
         $writer = new CsvWriter($handle);
-        $writer->write(self::COLUMNS);
+        $writer->write(Headers::row('allocation', self::COLUMNS));
 
         $paths = new TargetPaths($canvas);
         $sets = AllocationSet::query()

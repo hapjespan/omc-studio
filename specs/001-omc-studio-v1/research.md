@@ -84,7 +84,7 @@ Knowledge base consulted (`bin/find.py` on laravel, inertia, vue, sqlite, playwr
 
 ## R-13 Front-end primitives
 
-- **Decision**: Reka UI (headless, Vue) for dialog, popover, tooltip, select, radio group, menu and toast; own components on top following `design-contract.md`. Element icons for list Areas from `@lucide/vue`, bundled, a fixed subset each with a Dutch name in the messages file.
+- **Decision**: Reka UI (headless, Vue) for dialog, popover, tooltip, select, radio group, menu and toast; own components on top following `design-contract.md`. Icons are own inline paths in `resources/js/components/ui/icons.ts`, a fixed subset each with a Dutch name in the messages file (`@lucide/vue` was never imported and is not a dependency).
 - **Rationale**: WB8 (focus into dialogs and back), WB12 (hover content on focus, Escape) and correct ARIA are hard to get right by hand; Reka UI is the drawing library's own UI dependency, so DT adds no second primitive set.
 - **Alternatives**: hand-built primitives (rejected: accessibility risk on every dialog); a full component library such as PrimeVue (rejected: its own visual language fights the design contract).
 

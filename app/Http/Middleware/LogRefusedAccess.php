@@ -13,9 +13,13 @@ class LogRefusedAccess
     {
         $response = $next($request);
 
-        if ($response->getStatusCode() === 403 && $request->isMethodSafe()) {
-            SecurityLog::record('refused_screen', ['route' => $request->route()?->uri()]);
+        if ($response->getStatusCode() !== 403) {
+            return $response;
         }
+
+        $request->isMethodSafe()
+            ? SecurityLog::record('refused_screen', ['route' => $request->route()?->uri()])
+            : SecurityLog::record('forbidden', ['ability' => $request->attributes->get('denied_ability'), 'route' => $request->route()?->uri()]);
 
         return $response;
     }

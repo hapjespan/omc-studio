@@ -12,6 +12,7 @@ use App\Services\Operations\Steps\SampleDataStep;
 use App\Support\Session\DatabaseSessionHandler;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 
@@ -19,6 +20,12 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        config([
+            'logging.channels' => Arr::except((array) config('logging.channels'), ['slack', 'papertrail']),
+            'mail.mailers' => Arr::only((array) config('mail.mailers'), ['log', 'array']),
+            'services' => Arr::except((array) config('services'), ['postmark', 'resend', 'ses', 'slack']),
+        ]);
+
         $this->app->singleton(AuditContext::class);
         $this->app->singleton(InstallSteps::class, function (Container $app) {
             $steps = new InstallSteps;

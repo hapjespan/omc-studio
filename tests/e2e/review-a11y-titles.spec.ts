@@ -1,5 +1,5 @@
 import { expect, test } from './support/guards';
-import { tinker } from './support/overview';
+import { seedPhp } from './support/seed';
 import { createAccount, signInAs } from './support/shell';
 import { seedViewCanvas } from './support/view';
 
@@ -20,7 +20,7 @@ test('every mode has its own page title and the sign-in page has one', async ({ 
 
     await page.context().clearCookies();
     const account = createAccount('reader');
-    tinker(`App\\Models\\User::where('email', '${account.email}')->update(['must_change_password' => true]);`);
+    seedPhp(`App\\Models\\User::where('email', '${account.email}')->update(['must_change_password' => true]);`);
     await page.goto('/sign-in');
     await page.getByLabel('E-mailadres').fill(account.email);
     await page.getByLabel('Wachtwoord').fill(account.password);

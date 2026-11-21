@@ -90,26 +90,26 @@ class AllocationCsvImport
             }
 
             $row = array_combine(AllocationCsv::COLUMNS, array_pad(array_map('trim', $cells), count(AllocationCsv::COLUMNS), ''));
-            $record = $records->get(mb_strtolower($row['kostenpost_code']));
-            $year = ctype_digit($row['jaar']) ? $years->get((int) $row['jaar']) : null;
-            $element = $targets[mb_strtolower($row['doel_pad'])] ?? null;
+            $record = $records->get(mb_strtolower($row['cost_record_code']));
+            $year = ctype_digit($row['year']) ? $years->get((int) $row['year']) : null;
+            $element = $targets[mb_strtolower($row['target_path'])] ?? null;
             $points = BasisPoints::parse($row['percentage']);
             $messages = [];
 
-            $record instanceof CostRecord || $messages[] = (string) __('csvx.code_unknown', ['line' => $number, 'value' => $row['kostenpost_code']]);
-            $year instanceof FiscalYear || $messages[] = (string) __('import.year_invalid', ['line' => $number, 'value' => $row['jaar']]);
+            $record instanceof CostRecord || $messages[] = (string) __('csvx.code_unknown', ['line' => $number, 'value' => $row['cost_record_code']]);
+            $year instanceof FiscalYear || $messages[] = (string) __('import.year_invalid', ['line' => $number, 'value' => $row['year']]);
 
             if (! $element instanceof Element) {
-                $messages[] = (string) __('csvx.path_unknown', ['line' => $number, 'value' => $row['doel_pad']]);
+                $messages[] = (string) __('csvx.path_unknown', ['line' => $number, 'value' => $row['target_path']]);
             } elseif (! $element->carriesCosts($canvas)) {
-                $messages[] = (string) __('csvx.path_not_target', ['line' => $number, 'value' => $row['doel_pad']]);
+                $messages[] = (string) __('csvx.path_not_target', ['line' => $number, 'value' => $row['target_path']]);
             }
 
             if ($points === null || $points < 1) {
                 $messages[] = (string) __('csvx.percentage_invalid', ['line' => $number, 'value' => $row['percentage']]);
             }
 
-            $key = ($record?->getKey() ?? 'code:'.mb_strtolower($row['kostenpost_code'])).'|'.($year?->getKey() ?? 'year:'.$row['jaar']);
+            $key = ($record?->getKey() ?? 'code:'.mb_strtolower($row['cost_record_code'])).'|'.($year?->getKey() ?? 'year:'.$row['year']);
             $groups[$key] ??= ['first' => $number, 'record' => $record, 'year' => $year, 'lines' => [], 'elements' => [], 'failed' => false, 'messages' => [], 'status' => 'error'];
             $rows[$number] = ['key' => $key, 'messages' => $messages];
 

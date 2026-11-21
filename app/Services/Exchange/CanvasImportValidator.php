@@ -14,6 +14,8 @@ use App\Services\Exchange\Concerns\ChecksFields;
 use App\Services\Exchange\Concerns\ChecksStructure;
 use App\Services\Layout\LayoutValidator;
 use App\Services\Structure\ElementFields;
+use App\Support\FieldLimits;
+use App\Support\NameNormaliser;
 use JsonException;
 
 class CanvasImportValidator
@@ -24,17 +26,17 @@ class CanvasImportValidator
 
     private const DEPTH = 16;
 
-    private const NAME = 150;
+    private const NAME = FieldLimits::NAME;
 
-    private const TEXT = 2000;
+    private const TEXT = FieldLimits::TEXT;
 
-    private const CODE = 50;
+    private const CODE = FieldLimits::CODE;
 
     private const POSITION = 1_000_000;
 
     private const FTE = 999_999;
 
-    private const YEARS = [2000, 2100];
+    private const YEARS = [FieldLimits::YEAR_MIN, FieldLimits::YEAR_MAX];
 
     public function __construct(private readonly ElementFields $fields, private readonly CanvasImportConflicts $conflicts) {}
 
@@ -225,7 +227,7 @@ class CanvasImportValidator
             }
 
             if ($code !== null) {
-                $this->unique(mb_strtolower(trim($code)), $at.'.code', $codes);
+                $this->unique(NameNormaliser::normalise($code), $at.'.code', $codes);
             }
 
             $name = $this->text($record, 'name', $at.'.name', self::NAME, true);

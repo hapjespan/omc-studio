@@ -8,18 +8,15 @@ use App\Models\Organisation;
 use App\Models\User;
 use App\Models\YearlyFigure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class FiscalYearTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     private const REFUSAL = 'Boekjaar: kies een jaar van 2000 tot en met 2100 dat nog niet bestaat';
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
-    }
 
     public function test_a_year_is_added_and_audited(): void
     {

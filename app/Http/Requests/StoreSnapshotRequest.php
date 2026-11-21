@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Canvas;
 use App\Models\FiscalYear;
 use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\Rule;
 
@@ -19,9 +20,9 @@ class StoreSnapshotRequest extends AppFormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', new TrimmedText(__('fields.name'), 150)],
+            'name' => ['required', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)],
             'fiscal_year' => ['required', 'integer', Rule::exists('fiscal_years', 'year')->where('organisation_id', $this->canvas()->organisation_id)],
-            'remark' => ['nullable', 'string', new TrimmedText(__('fields.remark'), 2000)],
+            'remark' => ['nullable', 'string', new TrimmedText(__('fields.remark'), FieldLimits::TEXT)],
         ];
     }
 

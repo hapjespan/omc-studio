@@ -78,7 +78,7 @@ class AllocationSchemaTest extends TestCase
         );
         $this->assertEqualsCanonicalizing([
             'id', 'kind', 'fingerprint', 'canvas_id', 'details', 'occurrences',
-            'first_occurred_at', 'last_occurred_at', 'seen_at', 'seen_by',
+            'first_occurred_at', 'last_occurred_at', 'seen_at',
         ], Schema::getColumnListing('system_notices'));
     }
 
@@ -100,7 +100,7 @@ class AllocationSchemaTest extends TestCase
             $actions('finalised_years'),
         );
         $this->assertSame(
-            ['canvas_id' => 'cascade', 'seen_by' => 'set null'],
+            ['canvas_id' => 'cascade'],
             $actions('system_notices'),
         );
     }

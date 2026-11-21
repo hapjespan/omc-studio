@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/guards';
 import { HARNESS_URL } from './support/ports';
 import { compareInk, type BlockSpot } from './support/inkCompare';
 
@@ -16,7 +16,11 @@ interface Placed {
 }
 
 for (const variant of ['', 'align']) {
-test(`the text of Tekenen sits within 1 pixel (plus 0.05 of measurement quantisation) of Bekijken for Inter and Space Grotesk at every weight${variant ? ', aligned left, centre and right, with and without a Modality' : ''}`, async ({ page }) => {
+test(`the text of Tekenen sits within 1 pixel (plus 0.05 of measurement quantisation) of Bekijken for Inter and Space Grotesk at every weight${variant ? ', aligned left, centre and right, with and without a Modality' : ''}`, async ({ page, browserName, guards }) => {
+    if (browserName === 'webkit') {
+        guards.skipCspViolations();
+        test.info().annotations.push({ type: 'csp', description: 'WebKit page.screenshot injects an inline style that the harness CSP refuses; the CSP is covered on every engine by csp-guard.spec.ts and drawing-load.spec.ts, the outside-request guard stays on' });
+    }
     const query = variant ? `&variant=${variant}` : '';
     await page.goto(`/?demo=Equal&view=html${query}`);
     await page.waitForFunction(() => document.querySelector('main')?.getAttribute('data-ready') === 'true');

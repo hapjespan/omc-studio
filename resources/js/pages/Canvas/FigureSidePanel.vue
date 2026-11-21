@@ -1,5 +1,5 @@
 <script lang="ts">
-import { basisPointsOf, formatAmount, formatBasisPoints, formatWholeEuros } from '../../format';
+import { basisPointsOf, formatAmount, formatBasisPoints, formatTenths, formatWholeEuros, tenthsOf } from '../../format';
 import { plural, t } from '../../i18n';
 import type { CanvasFigures } from '../../canvas/overlay/figures';
 
@@ -34,7 +34,7 @@ export function panelGroups(figures: CanvasFigures, costKinds: string[]): PanelG
     const modalityLabel = (key: string): string => (key === 'none' ? t('overlay.panel.no_modality') : key === 'unknown_allocation' ? t('overlay.panel.unknown') : t(`view.modality.${key}`));
     const measured = (label: string, cents: number, key?: string): PanelLine => {
         const share = basisPointsOf(cents, canvasTotal.budget);
-        return { label, key, value: formatWholeEuros(cents), share: share === null ? '-' : formatBasisPoints(share), bar: share === null ? 0 : Math.min(100, Math.max(0, share / 100)) };
+        return { label, key, value: formatWholeEuros(cents), share: share === null ? '-' : formatTenths(tenthsOf(cents, canvasTotal.budget) ?? 0), bar: share === null ? 0 : Math.min(100, Math.max(0, share / 100)) };
     };
     return [
         {
@@ -68,13 +68,14 @@ export function allocatedBar(figures: CanvasFigures): { allocated: number; unkno
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import type { ModalityMark } from '../../canvas/CanvasView.vue';
+import type { ModalityColour } from '../../canvas/CanvasView.vue';
+import ModalityMark from '../../components/ModalityMark.vue';
 import Callout from '../../components/ui/Callout.vue';
 import { routes } from '../../routes';
 
-const props = defineProps<{ figures: CanvasFigures; costKinds: string[]; canvasId: number; year: number | null; canAssign: boolean; modalities: ModalityMark[] }>();
+const props = defineProps<{ figures: CanvasFigures; costKinds: string[]; canvasId: number; year: number | null; canAssign: boolean; modalities: ModalityColour[] }>();
 const bar = computed(() => allocatedBar(props.figures));
-const colourOf = (modalities: ModalityMark[], key: string | undefined): ModalityMark | undefined => modalities.find((mark) => mark.key === key);
+const colourOf = (modalities: ModalityColour[], key: string | undefined): ModalityColour | undefined => modalities.find((mark) => mark.key === key);
 </script>
 
 <template>
@@ -105,7 +106,7 @@ const colourOf = (modalities: ModalityMark[], key: string | undefined): Modality
                 <div v-for="line in group.lines" :key="line.label" class="flex flex-col gap-[3px]">
                     <div class="flex items-center gap-2">
                         <span class="inline-flex min-w-0 flex-1 items-center gap-1.5">
-                            <span v-if="colourOf(modalities, line.key)" class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-badge text-[11px] font-bold leading-none text-white" :style="{ background: colourOf(modalities, line.key)!.colour }" aria-hidden="true">{{ colourOf(modalities, line.key)!.letter }}</span>{{ line.label }}
+                            <ModalityMark v-if="colourOf(modalities, line.key)" :letter="colourOf(modalities, line.key)!.letter" :colour="colourOf(modalities, line.key)!.colour" decorative />{{ line.label }}
                         </span>
                         <span class="text-secondary">{{ line.share }}</span>
                         <span class="min-w-[74px] text-right font-semibold">{{ line.value }}</span>

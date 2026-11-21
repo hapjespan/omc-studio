@@ -5,16 +5,11 @@ namespace App\Services\Layout;
 use App\Models\Area;
 use App\Rules\LayoutStyle;
 use App\Support\Colour;
+use App\Support\LayoutLimits;
 use Illuminate\Validation\ValidationException;
 
 class LayoutValidator
 {
-    private const MIN_WIDTH = 40;
-
-    private const MIN_HEIGHT = 24;
-
-    private const DIRECTION_HEIGHT = 180;
-
     private const MINIMUM_CONTRAST = 4.5;
 
     private const COLUMN_MIN = -2147483648;
@@ -179,7 +174,7 @@ class LayoutValidator
                 $refused[] = $this->refusal('direction_layout', null, []);
             } elseif (! in_array($key, Area::KEYS, true)) {
                 $refused[] = $this->refusal('unknown_area', null, ['key' => $key]);
-            } elseif ($area['x'] < 0 || $area['y'] < self::DIRECTION_HEIGHT || $area['x'] + $area['width'] > Artboard::WIDTH || $area['y'] + $area['height'] > Artboard::HEIGHT) {
+            } elseif ($area['x'] < 0 || $area['y'] < LayoutLimits::directionHeight() || LayoutLimits::artboardWidth() < $area['x'] + $area['width'] || LayoutLimits::artboardHeight() < $area['y'] + $area['height']) {
                 $refused[] = $this->refusal('area_outside', null, ['name' => $this->areaName($key)]);
             }
         }
@@ -361,7 +356,7 @@ class LayoutValidator
     /** @param array<string, mixed> $box */
     private function tooSmall(array $box): bool
     {
-        return $box['width'] < self::MIN_WIDTH || $box['height'] < self::MIN_HEIGHT;
+        return $box['width'] < LayoutLimits::minWidth() || $box['height'] < LayoutLimits::minHeight();
     }
 
     private function name(string $id): string

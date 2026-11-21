@@ -31,7 +31,7 @@ const full = (statements: LayoutStatement[], key: 'mission' | 'vision' | 'goals'
                 >
                     <p class="text-[11px] font-semibold uppercase text-secondary">{{ column.label }}</p>
                     <p v-for="(line, index) in column.lines" :key="index" class="whitespace-pre">{{ line }}</p>
-                    <p v-if="column.truncated" class="absolute left-0 top-full z-10 mt-1 hidden max-w-[420px] whitespace-pre-line rounded-md border border-edge bg-white px-3 py-2 shadow group-focus-within:block group-hover:block" :class="{ '!hidden': closed === column.key }" role="note" data-direction-full>{{ full(statements, column.key as 'mission') }}</p>
+                    <p v-if="column.truncated" class="absolute left-0 top-full z-10 mt-1 hidden max-w-[420px] whitespace-pre-line rounded-md border border-edge bg-white px-3 py-2 shadow-float group-focus-within:block group-hover:block" :class="{ '!hidden': closed === column.key }" role="note" data-direction-full>{{ full(statements, column.key as 'mission') }}</p>
                 </div>
             </template>
         </div>

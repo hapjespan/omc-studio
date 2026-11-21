@@ -17,10 +17,6 @@ const registry: AdminEntry[] = [
     { key: 'full_exchange', label: 'fullx.title', href: () => routes.fullExchange() },
 ];
 
-export function registerAdminEntry(entry: AdminEntry, position = registry.length): void {
-    registry.splice(position, 0, entry);
-}
-
 export function adminEntries(): AdminEntry[] {
     return [...registry];
 }

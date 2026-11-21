@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { announce } from '../components/feedback/status';
 import ActionMenu from '../components/ui/ActionMenu.vue';
 import AppButton from '../components/ui/AppButton.vue';
+import CheckBox from '../components/ui/CheckBox.vue';
 import { t } from '../i18n';
 import { routes } from '../routes';
 import { exportCsv } from './csvDownload';
@@ -102,7 +103,7 @@ function run(key: string): void {
 
 <template>
     <div class="contents print:hidden">
-        <label v-if="overlay !== 'none'" class="inline-flex min-h-mark items-center gap-2 text-[12.5px] text-secondary"><input v-model="withOverlay" type="checkbox" role="switch" class="size-4 accent-ink" data-with-overlay>{{ t('print.with_overlay') }}</label>
+        <span v-if="overlay !== 'none'" class="inline-flex min-h-mark items-center text-[12.5px] text-secondary"><CheckBox v-model="withOverlay" role="switch" data-with-overlay>{{ t('print.with_overlay') }}</CheckBox></span>
         <ActionMenu variant="primary" :chevron="false" :label="t('jsonx.export_menu')" :items="items" @select="run" />
         <p v-if="note" class="basis-full text-right text-[12.5px]" data-testid="export-note">{{ note }}</p>
         <AppButton v-if="pending" ref="proceed" @click="printAnyway">{{ t('print.print_anyway') }}</AppButton>

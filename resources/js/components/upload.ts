@@ -1,5 +1,6 @@
+import { xsrfToken } from '../xsrf';
 export async function postFile(url: string, fields: Record<string, string | Blob>): Promise<Response> {
-    const token = decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
+    const token = xsrfToken();
     const body = new FormData();
     Object.entries(fields).forEach(([name, value]) => body.append(name, value));
 

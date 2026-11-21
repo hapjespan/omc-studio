@@ -2,11 +2,15 @@
 
 namespace Tests\Feature\Notices;
 
+use App\Models\Application;
 use App\Models\Canvas;
+use App\Models\Element;
 use App\Models\Owner;
 use App\Models\SystemNotice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -72,7 +76,8 @@ class SystemNoticePageTest extends TestCase
         $this->post("/admin/system-notices/{$notice->id}/seen", ['kind' => 'x', 'details' => ['year' => 1]])->assertRedirect();
         $notice->refresh();
         $this->assertNotNull($notice->seen_at);
-        $this->assertSame($admin->id, $notice->seen_by);
+        $this->assertFalse(Schema::hasColumn('system_notices', 'seen_by'));
+        $this->assertArrayNotHasKey('seen_by', $notice->getAttributes());
         $this->assertSame('closing_check_failed', $notice->kind);
         $this->assertSame(['year' => 2026], $notice->details);
 
@@ -124,5 +129,49 @@ class SystemNoticePageTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('notices.0.details.check', 'Budget: uitsplitsing naar soort kosten sluit niet')
                 ->where('notices.0.details.filter', 'Soort kosten: Personeel, Eigenaar: Inkoop'));
+    }
+
+    public function test_the_page_asks_the_database_the_same_number_of_questions_for_two_notices_as_for_twelve(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create());
+        $owner = Owner::factory()->create();
+        $application = Application::factory()->create();
+
+        $queries = function (int $notices) use ($owner, $application): int {
+            SystemNotice::query()->delete();
+
+            foreach (range(1, $notices) as $number) {
+                $element = Element::factory()->create();
+                SystemNotice::factory()->create(['fingerprint' => 'fact-'.$number, 'details' => [
+                    'year' => 2026,
+                    'filter' => ['ownerId' => (string) $owner->id, 'applicationId' => (string) $application->id],
+                    'check' => 'total.budget.'.$element->id,
+                    'differenceCents' => 1,
+                ]]);
+            }
+
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            $this->get('/admin/system-notices')->assertOk();
+
+            return count(DB::getQueryLog());
+        };
+
+        $this->assertSame($queries(2), $queries(12));
+    }
+
+    public function test_only_a_total_check_looks_an_element_up_and_only_by_a_uuid(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create());
+        SystemNotice::factory()->create(['details' => ['year' => 2026, 'filter' => [], 'check' => 'breakdown.costKind.budget', 'differenceCents' => 1]]);
+        SystemNotice::factory()->create(['fingerprint' => 'other', 'details' => ['year' => 2026, 'filter' => [], 'check' => 'total.budget.not-an-identifier', 'differenceCents' => 1]]);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->get('/admin/system-notices')->assertOk();
+
+        $elementQueries = array_filter(DB::getQueryLog(), fn (array $query) => str_contains($query['query'], 'from "elements"'));
+
+        $this->assertSame([], array_values($elementQueries));
     }
 }

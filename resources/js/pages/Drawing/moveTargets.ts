@@ -1,3 +1,4 @@
+import { moveRefusal, type RuleNode } from '../../edit-engine/moveRules';
 import type { LayoutArea, LayoutElement } from '../../layout';
 
 export interface MoveTarget {
@@ -27,17 +28,21 @@ const subtree = (id: string, elements: LayoutElement[]): Set<string> => {
 export function moveTargets(id: string, areas: LayoutArea[], elements: LayoutElement[]): MoveTarget[] {
     const block = elements.find((element) => element.id === id);
     if (!block || block.kind === 'domain') return [];
-    const kindOf = (key: string) => areas.find((area) => area.key === key)?.kind;
     const own = subtree(id, elements);
+    const nodes: RuleNode[] = elements.flatMap((element) => {
+        const areaKind = areas.find((area) => area.key === element.area)?.kind;
+
+        return areaKind === undefined ? [] : [{ id: element.id, parentId: element.parent, kind: element.kind, areaKind, name: element.name, unknownAllocation: element.unknownAllocation === true }];
+    });
+    const dragged = nodes.find((node) => node.id === id);
+    if (!dragged) return [];
 
     return elements
         .filter((candidate) => {
-            if (own.has(candidate.id) || candidate.id === block.parent || candidate.unknownAllocation) return false;
-            if (candidate.kind === 'activity' || kindOf(candidate.area) !== kindOf(block.area)) return false;
-            if (block.kind === 'cluster' && candidate.kind !== 'domain') return false;
-            if (candidate.kind === 'cluster' && kindOf(candidate.area) === 'list') return false;
+            if (own.has(candidate.id) || candidate.id === block.parent || candidate.kind === 'activity') return false;
+            const node = nodes.find((entry) => entry.id === candidate.id);
 
-            return !elements.some((sibling) => sibling.parent === candidate.id && sibling.id !== id && sibling.name.toLowerCase() === block.name.toLowerCase());
+            return node !== undefined && moveRefusal(nodes, dragged, node) === null;
         })
         .map((candidate) => ({ id: candidate.id, path: pathOf(candidate.id, areas, elements) }));
 }

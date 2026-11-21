@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import limits from '../../../data/field-limits.json';
 import { nextTick, reactive, ref, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import { announce } from '../../components/feedback/status';
@@ -18,8 +19,8 @@ interface Goal {
     body: string;
 }
 
-const LIMIT = 2000;
-const TITLE_LIMIT = 150;
+const LIMIT = limits.text;
+const TITLE_LIMIT = limits.name;
 const kinds = ['mission', 'vision'] as const;
 
 const props = defineProps<{ canvasId: number; statements: { mission: string | null; vision: string | null; goals: Goal[] } }>();
@@ -128,7 +129,7 @@ function undoDeletion(): void {
         <form v-for="kind in kinds" :key="kind" novalidate class="flex flex-col gap-2" @submit.prevent="saveText(kind)">
             <TextArea :id="`direction-${kind}`" v-model="texts[kind]" :label="t(`direction_entry.${kind}`)" :error="errors[kind] || undefined" :rows="4" />
             <p class="text-[12.5px] text-secondary" aria-hidden="true">{{ texts[kind].length }} / {{ LIMIT }}</p>
-            <p v-if="!statements[kind]" class="text-[12.5px] text-secondary">{{ t(`direction_entry.empty_${kind}`) }}</p>
+            <p v-if="!statements[kind]" class="text-[12.5px] text-muted">{{ t(`direction_entry.empty_${kind}`) }}</p>
             <AppButton type="submit" variant="primary" class="self-start">{{ t('direction_entry.save') }}</AppButton>
         </form>
         <section :aria-label="t('direction_entry.goals')" class="flex flex-col gap-2">

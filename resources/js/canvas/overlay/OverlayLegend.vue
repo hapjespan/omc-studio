@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { t } from '../../i18n';
-import type { ModalityMark } from '../CanvasView.vue';
+import ModalityMark from '../../components/ModalityMark.vue';
+import type { ModalityColour } from '../CanvasView.vue';
 import { shareColour } from './ShareColour';
 
-defineProps<{ overlay: string; modalities: ModalityMark[] }>();
+defineProps<{ overlay: string; modalities: ModalityColour[] }>();
 const steps = [0, 2500, 5000].map((share) => shareColour(share, '#FFFFFF').background);
 </script>
 
@@ -21,7 +22,7 @@ const steps = [0, 2500, 5000].map((share) => shareColour(share, '#FFFFFF').backg
         <p>{{ t('overlay.legend.modality') }}</p>
         <ul class="flex flex-wrap gap-x-4 gap-y-1">
             <li v-for="modality in modalities" :key="modality.key" class="flex items-center gap-2">
-                <span class="flex h-4 w-4 items-center justify-center rounded-badge text-[11px] font-bold leading-none text-white" :style="{ background: modality.colour }" aria-hidden="true">{{ modality.letter }}</span>
+                <ModalityMark :letter="modality.letter" :colour="modality.colour" decorative />
                 <span>{{ modality.letter }}: {{ t(`view.modality.${modality.key}`) }}</span>
             </li>
         </ul>

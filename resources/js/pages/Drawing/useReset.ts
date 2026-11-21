@@ -45,7 +45,7 @@ export function useReset({ props, engine, host, single, names, queue, say, reloa
                 const layout = engine.value?.getLayout() as LayoutPayload;
                 const response = area
                     ? await sendLayout(props.canvas.id, { ...layout, areas: Object.fromEntries(Object.entries(layout.areas).filter(([entry]) => entry !== key)), structure_version: current.structure, layout_version: current.layout })
-                    : await sendReset(props.canvas.id, chosen, key);
+                    : await sendReset(props.canvas.id, chosen, key, current);
                 if (response.outcome === 'conflict') throw new MoveConflict(response.conflict);
                 if (response.outcome === 'refused') {
                     say(response.messages.join(' ') || t('drawing.save_failed'));

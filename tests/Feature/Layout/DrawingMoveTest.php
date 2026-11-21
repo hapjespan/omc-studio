@@ -52,8 +52,8 @@ class DrawingMoveTest extends StructureTestCase
 
         $row = Layout::query()->where('element_id', $this->cluster->id)->firstOrFail();
 
-        $this->assertSame([16, 24, 200, 120, 1], [$row->x, $row->y, $row->width, $row->height, $row->z]);
-        $this->assertSame(['fill' => '#F6E6CC'], $row->style);
+        $this->assertSame([16, 24, 200, 100, 0], [$row->x, $row->y, $row->width, $row->height, $row->z]);
+        $this->assertSame([], $row->style);
         $this->assertSame(1, $row->format_version);
 
         $this->canvas->refresh();
@@ -112,6 +112,20 @@ class DrawingMoveTest extends StructureTestCase
 
         $this->assertSame($this->source->id, $this->cluster->fresh()?->parent_id);
         $this->assertSame($this->loaded['structure_version'], (int) $this->canvas->fresh()?->structure_version);
+    }
+
+    public function test_a_move_keeps_height_z_and_style_from_the_stored_row_whatever_the_request_sends(): void
+    {
+        Layout::query()->where('element_id', $this->cluster->id)->update(['z' => 2, 'style' => json_encode(['fill' => '#EFEFEF'])]);
+        $this->canvas->refresh();
+        $payload = $this->payload(['layout' => ['x' => 16, 'y' => 24, 'width' => 200, 'height' => 999, 'z' => 7, 'style' => ['fill' => '#F6E6CC']]]);
+
+        $this->move($payload)->assertOk();
+
+        $row = Layout::query()->where('element_id', $this->cluster->id)->firstOrFail();
+
+        $this->assertSame([16, 24, 200, 100, 2], [$row->x, $row->y, $row->width, $row->height, $row->z]);
+        $this->assertSame(['fill' => '#EFEFEF'], $row->style);
     }
 
     public function test_a_refused_layout_rolls_back_the_move_the_versions_and_the_rows(): void

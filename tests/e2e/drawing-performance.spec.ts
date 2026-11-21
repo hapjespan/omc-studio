@@ -4,6 +4,7 @@ import { expectWithinBudget, PERFORMANCE_TAG, sample } from './support/timing';
 import { seedBulkCanvas } from './support/view';
 
 const FIRST_USE_MS = 3000;
+const COLD_SAMPLES = 5;
 
 test('Tekenen first use of a 500 Element Canvas within 3 seconds', { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {
     test.setTimeout(480_000);
@@ -19,6 +20,29 @@ test('Tekenen first use of a 500 Element Canvas within 3 seconds', { tag: PERFOR
     });
 
     expectWithinBudget(samples, 'first use of Tekenen, 500 Elements', browserName, FIRST_USE_MS);
+});
+
+test('Tekenen cold first use of a 500 Element Canvas in a fresh browser context within 3 seconds, slowest sample asserted', { tag: PERFORMANCE_TAG }, async ({ browser, baseURL, browserName }) => {
+    test.setTimeout(480_000);
+    const canvas = seedBulkCanvas(25, 9);
+
+    const samples = await sample(async () => {
+        const context = await browser.newContext({ baseURL });
+
+        try {
+            const page = await context.newPage();
+            await signInAs(page, 'administrator');
+            await page.goto(`/canvases/${canvas.id}/drawing`, { waitUntil: 'commit' });
+            await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });
+
+            return await page.evaluate(() => performance.now());
+        } finally {
+            await context.close();
+        }
+    }, COLD_SAMPLES);
+
+    expect(samples).toHaveLength(COLD_SAMPLES);
+    expectWithinBudget(samples, 'cold first use of Tekenen in a fresh context, 500 Elements, slowest of the samples', browserName, FIRST_USE_MS);
 });
 
 test('one automatic save of a 500 Element Canvas within one second', { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {

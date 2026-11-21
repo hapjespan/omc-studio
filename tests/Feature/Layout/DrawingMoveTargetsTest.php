@@ -66,7 +66,7 @@ class DrawingMoveTargetsTest extends StructureTestCase
         $this->move($activity, $domain)->assertUnprocessable()->assertJsonPath('errors.rule.0', 'Dit blok hangt hier al onder');
     }
 
-    public function test_another_kind_of_area_is_refused_with_the_invoeren_message(): void
+    public function test_another_kind_of_area_is_refused_with_the_entry_message(): void
     {
         $activity = $this->activity($this->domain('primary_activities', 'Inkoop'));
         $group = $this->domain('actors', 'Klanten');
@@ -74,7 +74,7 @@ class DrawingMoveTargetsTest extends StructureTestCase
         $this->move($activity, $group)->assertUnprocessable()->assertJsonPath('errors.rule.0', 'Verplaatsen kan alleen naar een area van dezelfde soort');
     }
 
-    public function test_the_unknown_allocation_domain_is_refused_with_the_invoeren_message(): void
+    public function test_the_unknown_allocation_domain_is_refused_with_the_entry_message(): void
     {
         $activity = $this->activity($this->domain('primary_activities', 'Inkoop'));
         $unknown = UnknownAllocationDomain::ensure($this->canvas);
@@ -82,7 +82,7 @@ class DrawingMoveTargetsTest extends StructureTestCase
         $this->move($activity, $unknown)->assertUnprocessable()->assertJsonPath('errors.rule.0', 'Onbekende allocatie wordt door het systeem beheerd');
     }
 
-    public function test_a_name_already_used_under_the_target_is_refused_with_the_invoeren_message(): void
+    public function test_a_name_already_used_under_the_target_is_refused_with_the_entry_message(): void
     {
         $source = $this->domain('primary_activities', 'Inkoop');
         $target = $this->domain('primary_activities', 'Verkoop');

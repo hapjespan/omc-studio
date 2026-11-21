@@ -1,14 +1,12 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
 import { signInAs } from './support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './support/seed';
 
 function seed(applications: string[], used?: string): number {
     const records = used ? `$u = App\\Models\\Application::where('organisation_id', $o->id)->where('name', '${used}')->first(); App\\Models\\CostRecord::factory()->count(2)->create(['organisation_id' => $o->id, 'application_id' => $u->id]);` : '';
     const code = `$o = App\\Models\\Organisation::factory()->create(['name' => 'Org ${randomUUID().slice(0, 8)}']); foreach (${JSON.stringify(applications).replace(/"/g, "'")} as $n) { App\\Models\\Application::factory()->create(['organisation_id' => $o->id, 'name' => $n]); } ${records} echo 'ID=' . $o->id;`;
-    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
+    const output = seedPhp(code);
 
     return Number(/ID=(\d+)/.exec(output)?.[1]);
 }

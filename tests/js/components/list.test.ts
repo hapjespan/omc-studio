@@ -1,6 +1,6 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { matchesName } from '../../../resources/js/components/list/ConfirmDelete.vue';
 import UndoMessage from '../../../resources/js/components/list/UndoMessage.vue';
 import { message } from '../../../resources/js/components/feedback/status';
@@ -260,5 +260,26 @@ describe('SearchEcho', () => {
 
     it('adopts an external change when nothing is pending', () => {
         expect(new SearchEcho().adopts('nieuw')).toBe(true);
+    });
+});
+
+describe('ListView staged rendering', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.useRealTimers();
+    });
+
+    it('starts rendering the rows after the first chunk on the next animation frame, not after a fixed wait', async () => {
+        vi.useFakeTimers();
+        const frames: (() => void)[] = [];
+        vi.stubGlobal('requestAnimationFrame', (callback: () => void) => frames.push(callback));
+        vi.stubGlobal('cancelAnimationFrame', () => undefined);
+        const timeouts = vi.spyOn(globalThis, 'setTimeout');
+        const many = Array.from({ length: 1000 }, (_, index) => ({ id: index, name: `Rij ${index}`, email: 'x@example.test' }));
+
+        await render({ title: 'Eigenaren', columns, rows: many, count: 1000, query: idle });
+
+        expect(frames).toHaveLength(1);
+        expect(timeouts.mock.calls.map((call) => call[1])).not.toContain(400);
     });
 });

@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedOrganisation, tinker, expandTarget } from './support/finance';
+import { seedOrganisation, expandTarget } from './support/finance';
 import { seedPerformanceCanvas } from './support/overlay';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
+import { expectWithinBudget, sample } from './support/timing';
 
 test.beforeEach(() => test.setTimeout(120000));
 
@@ -20,7 +22,7 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     const organisationName = unique('Flow');
     const canvasName = unique('Model');
     const organisation = seedOrganisation(organisationName, [2026]);
-    tinker(`App\\Models\\Owner::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Afdeling ICT']);`);
+    seedPhp(`App\\Models\\Owner::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Afdeling ICT']);`);
     await signInAs(page, 'administrator');
 
     await page.goto('/overview');
@@ -113,10 +115,17 @@ const firstRow = (selector: string) => async (page: Page): Promise<void> => {
     await page.locator(selector).first().waitFor({ state: 'visible', timeout: 10000 });
 };
 
+const PRIMARY_AREA_ROWS = 499;
+
+const entryRows = async (page: Page): Promise<void> => {
+    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+    await expect(page.getByTestId('entry-row')).toHaveCount(PRIMARY_AREA_ROWS, { timeout: 10000 });
+};
+
 const screens: [string, (canvas: number, organisation: number) => string, (page: Page) => Promise<void>][] = [
     ['Bekijken with the financial overlay', (canvas) => `/canvases/${canvas}/view?overlay=financial&year=2026`, rendered],
     ['Bekijken with the modality overlay', (canvas) => `/canvases/${canvas}/view?overlay=modality&year=2026`, rendered],
-    ['Invoeren', (canvas) => `/canvases/${canvas}/entry`, firstRow('nav[aria-label="Areas"] button')],
+    ['Invoeren', (canvas) => `/canvases/${canvas}/entry`, entryRows],
     ['Kostenposten of the Canvas', (canvas) => `/canvases/${canvas}/cost-records?year=2026`, firstRow('tbody tr')],
     ['Kostenposten of the Organisation', (_canvas, organisation) => `/organisations/${organisation}/cost-records?year=2026`, firstRow('tbody tr')],
     ['Toewijzen', (canvas) => `/canvases/${canvas}/allocation?year=2026`, firstRow('main section li button')],
@@ -131,23 +140,20 @@ test.describe('P-1: screens answer within one second on 500 Elements and 1000 Co
 
     test.beforeAll(() => {
         canvas = seedPerformanceCanvas();
-        organisation = Number(/ID=(\d+)/.exec(tinker(`echo 'ID=' . App\\Models\\Canvas::find(${canvas})->organisation_id;`))?.[1]);
+        organisation = Number(/ID=(\d+)/.exec(seedPhp(`echo 'ID=' . App\\Models\\Canvas::find(${canvas})->organisation_id;`))?.[1]);
     });
 
     for (const [label, path, ready] of screens) {
-        test(label, async ({ page }) => {
+        test(label, async ({ page, browserName }) => {
             await signInAs(page, 'administrator');
-            const timings: number[] = [];
-            for (let attempt = 0; attempt < 20; attempt += 1) {
+            const samples = await sample(async () => {
                 const started = Date.now();
                 await page.goto(path(canvas, organisation), { waitUntil: 'commit' });
                 await ready(page);
-                timings.push(Date.now() - started);
-            }
-            timings.sort((a, b) => a - b);
-            console.log(`${label}: ${timings.join(', ')} ms`);
-            const p95 = timings[Math.ceil(timings.length * 0.95) - 1];
-            expect(p95, `${label}: p95 of ${timings.length}`).toBeLessThan(1000);
+
+                return Date.now() - started;
+            });
+            expectWithinBudget(samples, label, browserName);
         });
     }
 });

@@ -7,8 +7,10 @@ import { announce } from '../../components/feedback/status';
 import FileField from '../../components/fields/FileField.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { plural, t } from '../../i18n';
+import { exportFull } from '../../canvas/csvDownload';
 import { routes } from '../../routes';
 import { useQuietStatus } from '../../shell/layout';
+import { xsrfToken } from '../../xsrf';
 
 useQuietStatus();
 
@@ -17,11 +19,12 @@ const file = ref<File | null>(null);
 const report = ref<CountsReportData | null>(null);
 const refusal = ref('');
 const busy = ref(false);
+const exported = ref('');
 const canCommit = computed(() => report.value !== null && report.value.count === 0 && !busy.value);
 
 async function send(url: string): Promise<Response | null> {
     if (!file.value) return null;
-    const token = decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
+    const token = xsrfToken();
     const body = new FormData();
     body.append('file', file.value);
     busy.value = true;
@@ -42,6 +45,11 @@ async function refused(response: Response): Promise<void> {
     announce(refusal.value);
     await nextTick();
     document.getElementById('full-file')?.focus();
+}
+
+async function exportAll(): Promise<void> {
+    exported.value = await exportFull(routes.fullExport(), 'full-export.json');
+    announce(exported.value);
 }
 
 async function check(): Promise<void> {
@@ -71,11 +79,12 @@ function pick(picked: File | null): void {
 <template>
     <Head :title="t('fullx.title')" />
     <div class="flex max-w-3xl flex-col gap-4">
-        <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ t('fullx.title') }}</h1>
+        <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('fullx.title') }}</h1>
         <Panel :padding="24" role="region" aria-labelledby="full-export">
             <h2 id="full-export" class="font-display text-[16px] font-semibold">{{ t('fullx.export_heading') }}</h2>
             <p class="mt-1 text-[13px] text-secondary">{{ t('fullx.export_hint') }}</p>
-            <a :href="routes.fullExport()" download class="mt-4 inline-flex min-h-control items-center justify-center rounded-control border border-edge bg-white px-3 py-1 text-[13px] font-medium text-ink">{{ t('fullx.export') }}</a>
+            <AppButton class="mt-4" @click="exportAll">{{ t('fullx.export') }}</AppButton>
+            <p v-if="exported" class="mt-2 text-[13px]" data-testid="full-export-result">{{ exported }}</p>
         </Panel>
         <Panel :padding="24" role="region" aria-labelledby="full-import">
             <h2 id="full-import" class="font-display text-[16px] font-semibold">{{ t('fullx.import_heading') }}</h2>

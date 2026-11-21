@@ -1,30 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import type { Locator } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { tinker } from './support/finance';
 import { createClosingNotice } from './support/notices';
 import { seedSnapshot } from './support/snapshot';
 import { signInAs } from './support/shell';
+import { expectPanel, expectTitle, height, style } from './support/measure';
 import { seedViewCanvas } from './support/view';
+import { seedPhp } from './support/seed';
 
-const style = (locator: Locator, property: string): Promise<string> => locator.evaluate((element, name) => getComputedStyle(element).getPropertyValue(name), property);
-const height = async (locator: Locator): Promise<number> => Math.round((await locator.boundingBox())!.height);
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
-async function expectTitle(title: Locator): Promise<void> {
-    expect(await style(title, 'font-family')).toContain('Space Grotesk');
-    expect(await style(title, 'font-size')).toBe('20px');
-    expect(await style(title, 'font-weight')).toBe('600');
-}
 
-async function expectPanel(panel: Locator, radius = '10px', filled = true): Promise<void> {
-    if (filled) expect(await style(panel, 'background-color')).toBe('rgb(255, 255, 255)');
-    expect(await style(panel, 'border-top-color')).toBe('rgb(220, 223, 226)');
-    expect(await style(panel, 'border-top-width')).toBe('1px');
-    expect(await style(panel, 'border-top-left-radius')).toBe(radius);
-}
 
 async function expectTableHeader(header: Locator): Promise<void> {
     expect(await style(header, 'font-size')).toBe('11.5px');
@@ -34,7 +22,7 @@ async function expectTableHeader(header: Locator): Promise<void> {
 
 test('Versies: Space Grotesk title, white table panel, docked form, pill and 36 pixel buttons', async ({ page }) => {
     const seed = seedSnapshot(unique());
-    tinker(`Illuminate\\Support\\Facades\\DB::table('snapshots')->where('id', ${seed.snapshot})->update(['imported' => true]);`);
+    seedPhp(`Illuminate\\Support\\Facades\\DB::table('snapshots')->where('id', ${seed.snapshot})->update(['imported' => true]);`);
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${seed.canvas}/versions`);
 
@@ -83,10 +71,11 @@ test('Volledige export en import: title, two white panels, 36 pixel controls and
         expect(await style(panel, 'padding-top')).toBe('24px');
         expect(await style(panel.getByRole('heading', { level: 2 }), 'font-family')).toContain('Space Grotesk');
     }
-    const link = page.getByRole('link', { name: 'Alles exporteren' });
-    expect(await height(link)).toBe(36);
-    expect(await style(link, 'border-top-left-radius')).toBe('6px');
-    expect(await style(link, 'font-weight')).toBe('500');
+    const exportAll = page.getByRole('button', { name: 'Alles exporteren' });
+    expect(await height(exportAll)).toBe(36);
+    expect(await style(exportAll, 'border-top-left-radius')).toBe('6px');
+    expect(await style(exportAll, 'font-weight')).toBe('500');
+    expect(await style(exportAll, 'background-color')).toBe('rgb(255, 255, 255)');
     const file = page.getByLabel('Bestand met volledige export');
     expect(await height(file)).toBeGreaterThanOrEqual(36);
     expect(await style(file.locator('xpath=following-sibling::div'), 'border-top-color')).toBe('rgb(132, 139, 149)');
@@ -150,20 +139,6 @@ test('CSV import on Toewijzen: panel, status pills and 36 pixel buttons in the r
     expect(await height(panel.getByRole('button', { name: 'Importeren', exact: true }))).toBe(36);
 });
 
-test('Voorbeelddata: title, white panel and a danger button with the contract outline', async ({ page }) => {
-    tinker("App\\Models\\Organisation::where('is_sample', true)->exists() || (Illuminate\\Support\\Facades\\DB::table('application_state')->where('key', 'sample_data_removed')->delete() && app(App\\Services\\Operations\\SampleData::class)->seed());");
-    await signInAs(page, 'administrator');
-    await page.goto('/admin/sample-data');
-
-    await expectTitle(page.getByRole('heading', { level: 1, name: 'Voorbeelddata' }));
-    const button = page.getByRole('button', { name: 'Voorbeelddata verwijderen' });
-    await expectPanel(button.locator('..'));
-    expect(await style(button.locator('..'), 'padding-top')).toBe('24px');
-    expect(await height(button)).toBe(36);
-    expect(await style(button, 'color')).toBe('rgb(161, 42, 30)');
-    expect(await style(button, 'border-top-color')).toBe('rgb(192, 100, 90)');
-});
-
 test('Systeemmeldingen: title, filter panel, notice panels and a 28 pixel Gezien target', async ({ page }) => {
     createClosingNotice(unique(), 125);
     await signInAs(page, 'administrator');
@@ -205,7 +180,11 @@ test('Exporteren menu: hairline popover with the contract shadow, 32 pixel items
 
     const toggle = page.getByLabel('Met overlay');
     await expect(toggle).toBeVisible();
-    expect(await height(toggle.locator('..'))).toBe(28);
+    expect(await height(toggle.locator('..'))).toBe(24);
+    await page.getByText('Met overlay', { exact: true }).click();
+    await expect(toggle).not.toBeChecked();
+    await page.getByText('Met overlay', { exact: true }).click();
+    await expect(toggle).toBeChecked();
     await page.getByRole('button', { name: 'Exporteren' }).click();
     const menu = page.getByRole('menu', { name: 'Exporteren' });
     await expect(menu).toBeVisible();

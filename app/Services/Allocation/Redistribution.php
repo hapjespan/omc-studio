@@ -65,9 +65,11 @@ class Redistribution
 
                 $target = $this->chosenTarget($canvas, $subtree, $choices[$year->year] ?? [], $year->year);
 
-                foreach ($this->affectedSets($canvas, (int) $year->id, $subtree) as $set) {
-                    $target === null ? $this->drop($set) : $this->move($set, $subtree, $target, $names);
-                }
+                $this->context->during('redistributed', function () use ($canvas, $year, $subtree, $target, $names) {
+                    foreach ($this->affectedSets($canvas, (int) $year->id, $subtree) as $set) {
+                        $target === null ? $this->drop($set) : $this->move($set, $subtree, $target, $names);
+                    }
+                });
             }
 
             $this->archive->archive($element);

@@ -27,8 +27,15 @@ class PasswordRuleTest extends TestCase
 
     public function test_a_listed_password_is_refused_whatever_its_case(): void
     {
-        $this->assertSame(['Wachtwoord: dit wachtwoord is te bekend, kies een ander'], $this->errors('unbelievable'));
-        $this->assertSame(['Wachtwoord: dit wachtwoord is te bekend, kies een ander'], $this->errors('UnBelievable'));
+        $this->assertSame(['Wachtwoord: dit wachtwoord is te bekend, kies een ander'], $this->errors('123qweasdzxc'));
+        $this->assertSame(['Wachtwoord: dit wachtwoord is te bekend, kies een ander'], $this->errors('123QWEasdZXC'));
+    }
+
+    public function test_the_list_holds_at_least_three_thousand_entries_at_the_policy_length(): void
+    {
+        $entries = file(resource_path('data/common-passwords.txt'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        $this->assertGreaterThanOrEqual(3000, count(array_filter($entries, fn (string $entry): bool => mb_strlen($entry) >= 12)));
     }
 
     public function test_the_list_holds_at_least_ten_thousand_entries_the_policy_can_match(): void

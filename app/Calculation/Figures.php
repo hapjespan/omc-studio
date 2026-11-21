@@ -5,7 +5,7 @@ namespace App\Calculation;
 /**
  * @phpstan-type Money array<string, int>
  * @phpstan-type LineRow array{elementId: string|int, basisPoints: int, amounts: Money}
- * @phpstan-type ElementFigures array{direct: Money, total: Money, shareBp: int|null, fteNumerator: int, contributions: array<string|int, array{amountCents: int, basisPoints: int}>}
+ * @phpstan-type ElementFigures array{direct: Money, total: Money, shareBp: int|null, shareTenths: int|null, fteNumerator: int, contributions: array<string|int, array{amountCents: int, basisPoints: int}>}
  */
 final readonly class Figures
 {

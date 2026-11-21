@@ -1,20 +1,18 @@
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from './seed';
 
 export function createUser(): { email: string; password: string } {
     const email = `${randomUUID()}@example.test`;
     const password = `pw-${randomUUID()}`;
-    execFileSync('php', ['artisan', 'tinker', `--execute=App\\Models\\User::factory()->create(['email' => '${email}', 'password' => '${password}']);`], { env });
+    seedPhp(`App\\Models\\User::factory()->create(['email' => '${email}', 'password' => '${password}']);`);
 
     return { email, password };
 }
 
 export function createPendingAdministrator(): { email: string; password: string } {
     const email = `${randomUUID()}@example.test`;
-    const code = `$u = App\\Models\\User::factory()->administrator()->create(['email' => '${email}']); echo 'OTP=' . app(App\\Services\\Accounts\\OneTimePassword::class)->issueTo($u);`;
-    const output = execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env }).toString();
+    const output = seedPhp(`$u = App\\Models\\User::factory()->administrator()->create(['email' => '${email}']); echo 'OTP=' . app(App\\Services\\Accounts\\OneTimePassword::class)->issueTo($u);`);
 
     return { email, password: /OTP=(\S+)/.exec(output)?.[1] ?? '' };
 }

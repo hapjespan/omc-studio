@@ -7,6 +7,7 @@ use App\Http\Middleware\ResolveFiscalYear;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SessionLifetime;
 use App\Http\Middleware\SharePendingNotices;
+use App\Support\QueryTrace;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -28,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->context(fn () => app()->bound('request') ? ['route' => request()->route()?->getName()] : []);
-        $exceptions->map(fn (QueryException $e) => new RuntimeException($e->getSql(), (int) $e->getCode()));
+        $exceptions->map(fn (QueryException $e) => new RuntimeException(QueryTrace::message($e), (int) $e->getCode()));
         $exceptions->render(fn (PostTooLargeException $e, Request $request) => $request->is('imports/canvas', 'imports/canvas/preview')
             ? response()->json(['message' => __('jsonx.refused_file'), 'errors' => ['file' => [__('jsonx.refused_file')]]], 413)
             : null);

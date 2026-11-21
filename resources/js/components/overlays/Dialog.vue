@@ -2,14 +2,14 @@
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 import { nextTick, ref, useId, watch } from 'vue';
 import { t } from '../../i18n';
-import AppButton from '../ui/AppButton.vue';
+import DiscardConfirm from '../ui/DiscardConfirm.vue';
 import IconButton from '../ui/IconButton.vue';
 
 const props = defineProps<{ title: string; description?: string; kind?: string; dirty?: boolean; variant?: 'dialog' | 'panel' }>();
 const open = defineModel<boolean>('open', { default: false });
 const confirming = ref(false);
 const discardTitleId = useId();
-const keepEditing = ref<InstanceType<typeof AppButton>>();
+const keepEditing = ref<InstanceType<typeof DiscardConfirm>>();
 
 watch(open, () => (confirming.value = false));
 watch(confirming, async (asking) => {
@@ -48,13 +48,7 @@ function discard(): void {
                 <DialogTitle class="pr-9 font-display text-[18px] font-semibold">{{ title }}</DialogTitle>
                 <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-secondary">{{ description }}</DialogDescription>
                 <div class="mt-3"><slot :request-close="requestClose" /></div>
-                <div v-if="confirming" role="alertdialog" :aria-labelledby="discardTitleId" class="mt-3 rounded-md border border-edge p-3">
-                    <p :id="discardTitleId" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
-                    <div class="mt-2 flex gap-2">
-                        <AppButton ref="keepEditing" @click="confirming = false">{{ t('dialog.keep_editing') }}</AppButton>
-                        <AppButton variant="danger" @click="discard">{{ t('dialog.discard') }}</AppButton>
-                    </div>
-                </div>
+                <DiscardConfirm v-if="confirming" ref="keepEditing" :title-id="discardTitleId" @keep="confirming = false" @discard="discard" />
                 <IconButton :label="t('dialog.close')" icon="close" class="absolute right-3 top-3" @click="requestClose" />
             </DialogContent>
         </DialogPortal>

@@ -6,11 +6,13 @@ const wcagTags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 export interface Guards {
     assertNoOutsideRequest(): void;
     assertNoCspViolation(): Promise<void>;
+    skipCspViolations(): void;
 }
 
 export async function installGuards(page: Page, origin: string): Promise<Guards> {
     const outside: string[] = [];
     const violations: string[] = [];
+    let checkCsp = true;
     page.on('request', (request) => {
         const url = request.url();
         if (!url.startsWith('data:') && !url.startsWith('blob:') && new URL(url).origin !== origin) outside.push(url);
@@ -24,7 +26,11 @@ export async function installGuards(page: Page, origin: string): Promise<Guards>
         assertNoOutsideRequest() {
             expect(outside, 'requests outside the own origin').toEqual([]);
         },
+        skipCspViolations() {
+            checkCsp = false;
+        },
         async assertNoCspViolation() {
+            if (!checkCsp) return;
             await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 100))).catch(() => undefined);
             expect(violations, 'securitypolicyviolation events').toEqual([]);
         },

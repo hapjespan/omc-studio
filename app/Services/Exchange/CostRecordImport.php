@@ -13,12 +13,15 @@ use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditTrail;
 use App\Services\Exchange\Csv\CsvReader;
 use App\Services\Support\SerialisedWrite;
+use App\Services\Support\WritableGuard;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
 class CostRecordImport
 {
-    public const COLUMNS = ['code', 'naam', 'soort', 'leverancier', 'eigenaar', 'kostenplaats', 'applicatie', 'jaar', 'budget', 'prognose', 'run_pct', 'change_pct', 'fte'];
+    use WritableGuard;
+
+    public const COLUMNS = ['code', 'name', 'kind', 'supplier', 'owner', 'cost_centre', 'application', 'year', 'budget', 'forecast', 'run_percentage', 'change_percentage', 'fte'];
 
     public function __construct(
         private readonly FinalisedYears $finalised,
@@ -46,14 +49,16 @@ class CostRecordImport
         $scan = $this->scan($organisation, $path);
 
         if ($scan['totals']['errors'] > 0) {
-            $this->refuse('import.refused_errors');
+            $this->refuseFile('import.refused_errors');
         }
 
         return $this->write->run([$organisation], fn () => $this->context->during('imported', function () use ($organisation, $scan) {
+            $this->assertWritable($organisation->refresh());
+
             $data = $this->load($organisation);
 
             if ($this->fingerprint($data, $this->refinalised($data, $scan['finalised'])) !== $scan['fingerprint']) {
-                $this->refuse('import.refused_changed');
+                $this->refuseFile('import.refused_changed');
             }
 
             $batch = new CostRecordBatch($this->context, $this->trail, (int) $organisation->getKey());
@@ -73,6 +78,8 @@ class CostRecordImport
      */
     private function scan(Organisation $organisation, string $path): array
     {
+        $this->assertWritable($organisation);
+
         $data = $this->load($organisation);
         $yearModels = $data['yearModels'];
         $years = $data['years'];
@@ -111,11 +118,11 @@ class CostRecordImport
                     $messages[] = __('import.duplicate_fields', ['line' => $number, 'code' => $row['code'], 'other' => $other]);
                 }
 
-                if ($row['jaar'] !== '') {
-                    $key = $code.'|'.$row['jaar'];
+                if ($row['year'] !== '') {
+                    $key = $code.'|'.$row['year'];
 
                     if (isset($seenYears[$key])) {
-                        $messages[] = __('import.duplicate_year', ['line' => $number, 'code' => $row['code'], 'year' => $row['jaar'], 'other' => $seenYears[$key]]);
+                        $messages[] = __('import.duplicate_year', ['line' => $number, 'code' => $row['code'], 'year' => $row['year'], 'other' => $seenYears[$key]]);
                     }
 
                     $seenYears[$key] ??= $number;
@@ -123,22 +130,28 @@ class CostRecordImport
             }
 
             $record = $records->get($code);
-            $year = $yearModels->get((int) $row['jaar']);
+            $year = $yearModels->get((int) $row['year']);
 
             if ($messages === [] && $figures !== null && $year !== null && $this->figuresChange($record, $figures, $year->getKey())) {
                 $canvas = $finalised[$year->year] ??= $this->finalised->finalisedInOrganisation($year) ?? false;
                 $canvas !== false && $messages[] = __('import.year_finalised', ['line' => $number, 'year' => $year->year, 'canvas' => $canvas]);
             }
 
-            if ($messages === []) {
-                $this->collect($creates['owners'], $row['eigenaar'], $owners);
-                $this->collect($creates['applications'], $row['applicatie'], $applications);
+            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['year']] ?? null, $owners, $applications);
+
+            if ($status === 'updated' && $record?->archived_at !== null) {
+                $status = 'error';
+                $messages[] = __('import.record_archived', ['line' => $number, 'code' => $row['code']]);
             }
 
-            $status = $messages !== [] ? 'error' : $this->status($record, $fields, $figures, $years[(int) $row['jaar']] ?? null, $owners, $applications);
+            if ($status !== 'error') {
+                $this->collect($creates['owners'], $row['owner'], $owners);
+                $this->collect($creates['applications'], $row['application'], $applications);
+            }
+
             $totals[$status === 'error' ? 'errors' : $status]++;
             $lines[] = ['line' => $number, 'status' => $status, 'messages' => $messages];
-            $messages === [] && $rows[] = ['cells' => $row, 'fields' => $fields, 'figures' => $figures, 'year' => $years[(int) $row['jaar']] ?? null];
+            $messages === [] && $rows[] = ['cells' => $row, 'fields' => $fields, 'figures' => $figures, 'year' => $years[(int) $row['year']] ?? null];
         }
 
         return [
@@ -178,7 +191,7 @@ class CostRecordImport
     {
         $records = $data['records']
             ->map(fn (CostRecord $record) => [
-                $record->only(['code_normalised', 'name', 'cost_kind', 'supplier', 'owner_id', 'cost_centre', 'application_id']),
+                $record->only(['code_normalised', 'name', 'cost_kind', 'supplier', 'owner_id', 'cost_centre', 'application_id', 'archived_at']),
                 $record->yearlyFigures->map->only(['fiscal_year_id', 'budget_cents', 'forecast_cents', 'run_bp', 'change_bp', 'fte_hundredths'])->sortBy('fiscal_year_id')->values()->all(),
             ])
             ->sortKeys()
@@ -215,8 +228,8 @@ class CostRecordImport
             'cost_kind' => $row['fields']['kind'],
             'supplier' => $row['fields']['supplier'],
             'cost_centre' => $row['fields']['cost_centre'],
-            'owner_id' => $this->entry(Owner::class, $organisation, $data['owners'], $row['cells']['eigenaar']),
-            'application_id' => $this->entry(Application::class, $organisation, $data['applications'], $row['cells']['applicatie']),
+            'owner_id' => $this->entry(Owner::class, $organisation, $data['owners'], $row['cells']['owner']),
+            'application_id' => $this->entry(Application::class, $organisation, $data['applications'], $row['cells']['application']),
         ];
 
         $key = mb_strtolower($row['cells']['code']);
@@ -270,7 +283,7 @@ class CostRecordImport
         return (int) $id;
     }
 
-    private function refuse(string $key): never
+    private function refuseFile(string $key): never
     {
         throw ValidationException::withMessages(['file' => (string) __($key)]);
     }

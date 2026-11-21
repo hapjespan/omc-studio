@@ -5,17 +5,25 @@ namespace App\Services\Exchange;
 use App\Enums\CostKind;
 use App\Rules\AmountCents;
 use App\Rules\BasisPoints;
+use App\Support\FieldLimits;
 
 class CostRecordRowValidator
 {
-    private const LIMITS = ['code' => 50, 'naam' => 150, 'eigenaar' => 150, 'applicatie' => 150, 'leverancier' => 150, 'kostenplaats' => 50];
+    private const LIMITS = ['code' => FieldLimits::CODE, 'name' => FieldLimits::NAME, 'owner' => FieldLimits::NAME, 'application' => FieldLimits::NAME, 'supplier' => FieldLimits::NAME, 'cost_centre' => FieldLimits::CODE];
 
-    public const KINDS = [
-        'leverancierscontract' => CostKind::SupplierContract,
-        'personeel' => CostKind::Personnel,
-        'project' => CostKind::Project,
-        'overig' => CostKind::Other,
-    ];
+    /**
+     * @return array<string, CostKind>
+     */
+    public static function kinds(): array
+    {
+        $kinds = [];
+
+        foreach (CostKind::cases() as $kind) {
+            $kinds[mb_strtolower(Headers::label('cost_kind', $kind->value))] = $kind;
+        }
+
+        return $kinds;
+    }
 
     private const MAX_FTE_HUNDREDTHS = 999_999;
 
@@ -31,43 +39,43 @@ class CostRecordRowValidator
             $messages[] = __($key, ['line' => $line, ...$replace]);
         };
 
-        $kind = self::KINDS[mb_strtolower($row['soort'])] ?? null;
+        $kind = self::kinds()[mb_strtolower($row['kind'])] ?? null;
 
         $row['code'] === '' && $fail('import.code_missing');
-        $row['naam'] === '' && $fail('import.name_missing');
-        $row['eigenaar'] === '' && $fail('import.owner_missing');
-        $kind === null && $fail('import.kind_invalid', ['value' => $row['soort']]);
+        $row['name'] === '' && $fail('import.name_missing');
+        $row['owner'] === '' && $fail('import.owner_missing');
+        $kind === null && $fail('import.kind_invalid', ['value' => $row['kind']]);
 
         foreach (self::LIMITS as $column => $max) {
-            mb_strlen($row[$column]) > $max && $fail('import.text_max', ['column' => $column, 'max' => $max]);
+            mb_strlen($row[$column]) > $max && $fail('import.text_max', ['column' => Headers::label('cost_record', $column), 'max' => $max]);
         }
 
         $fields = [
-            'name' => $row['naam'],
+            'name' => $row['name'],
             'kind' => $kind?->value,
-            'supplier' => $row['leverancier'] ?: null,
-            'owner' => mb_strtolower($row['eigenaar']),
-            'cost_centre' => $row['kostenplaats'] ?: null,
-            'application' => $row['applicatie'] === '' ? null : mb_strtolower($row['applicatie']),
+            'supplier' => $row['supplier'] ?: null,
+            'owner' => mb_strtolower($row['owner']),
+            'cost_centre' => $row['cost_centre'] ?: null,
+            'application' => $row['application'] === '' ? null : mb_strtolower($row['application']),
         ];
 
-        $figureCells = array_filter(array_intersect_key($row, array_flip(['budget', 'prognose', 'run_pct', 'change_pct', 'fte'])), fn ($cell) => $cell !== '');
+        $figureCells = array_filter(array_intersect_key($row, array_flip(['budget', 'forecast', 'run_percentage', 'change_percentage', 'fte'])), fn ($cell) => $cell !== '');
 
-        if ($row['jaar'] === '' && $figureCells === []) {
+        if ($row['year'] === '' && $figureCells === []) {
             return [$messages, null, $fields];
         }
 
-        if ($row['jaar'] === '') {
+        if ($row['year'] === '') {
             $fail('import.year_missing');
-        } elseif (! isset($years[(int) $row['jaar']]) || ! ctype_digit($row['jaar'])) {
-            $fail('import.year_invalid', ['value' => $row['jaar']]);
+        } elseif (! isset($years[(int) $row['year']]) || ! ctype_digit($row['year'])) {
+            $fail('import.year_invalid', ['value' => $row['year']]);
         }
 
         $budget = $this->parse($row['budget'], 'budget', fn ($text) => AmountCents::parse($text), 'import.amount_invalid', $fail);
-        $row['budget'] === '' && $row['jaar'] !== '' && $fail('import.budget_missing');
-        $forecast = $this->parse($row['prognose'], 'prognose', fn ($text) => AmountCents::parse($text), 'import.amount_invalid', $fail);
-        $run = $this->parse($row['run_pct'], 'run_pct', fn ($text) => BasisPoints::parse($text), 'import.percentage_invalid', $fail);
-        $change = $this->parse($row['change_pct'], 'change_pct', fn ($text) => BasisPoints::parse($text), 'import.percentage_invalid', $fail);
+        $row['budget'] === '' && $row['year'] !== '' && $fail('import.budget_missing');
+        $forecast = $this->parse($row['forecast'], 'forecast', fn ($text) => AmountCents::parse($text), 'import.amount_invalid', $fail);
+        $run = $this->parse($row['run_percentage'], 'run_percentage', fn ($text) => BasisPoints::parse($text), 'import.percentage_invalid', $fail);
+        $change = $this->parse($row['change_percentage'], 'change_percentage', fn ($text) => BasisPoints::parse($text), 'import.percentage_invalid', $fail);
         $fte = $this->parse($row['fte'], 'fte', fn ($text) => $this->fte($text), 'import.fte_invalid', $fail);
 
         if ($run !== null && $change !== null && $run + $change > BasisPoints::MAX) {
@@ -84,7 +92,7 @@ class CostRecordRowValidator
         }
 
         $value = $parser($text);
-        $value === null && $fail($key, ['column' => $column, 'value' => $text]);
+        $value === null && $fail($key, ['column' => Headers::label('cost_record', $column), 'value' => $text]);
 
         return $value;
     }

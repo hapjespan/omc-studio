@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { seedCostRecord, seedOrganisation, tinker } from './support/finance';
+import { seedCostRecord, seedOrganisation } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
@@ -74,7 +75,7 @@ test('a Finalised year refuses with the Canvas name and deletion is counted', as
     await page.getByRole('dialog', { name: '2026 verwijderen?' }).getByRole('button', { name: 'Verwijderen' }).click();
     await expect(page.locator('tr', { hasText: 'Licentie' })).toContainText('geen jaarwaarden');
 
-    tinker(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->first(); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Strategie']); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
+    seedPhp(`$f = App\\Models\\FiscalYear::where('organisation_id', ${organisation})->first(); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Strategie']); App\\Models\\FinalisedYear::factory()->create(['canvas_id' => $c->id, 'fiscal_year_id' => $f->id]);`);
     await page.reload();
     await page.getByRole('button', { name: 'Licentie', exact: true }).click();
     await panel.getByLabel(/^Budget/).fill('1');

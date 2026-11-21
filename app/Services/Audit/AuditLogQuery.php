@@ -4,9 +4,8 @@ namespace App\Services\Audit;
 
 use App\Models\AuditEntry;
 use App\Models\Canvas;
-use App\Support\Format;
+use App\Support\DateRangeFilter;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Carbon;
 
 class AuditLogQuery
 {
@@ -28,8 +27,8 @@ class AuditLogQuery
             ->when(isset($filters['canvas_id']), fn ($query) => $query->where('canvas_id', $filters['canvas_id']))
             ->when(isset($filters['subject_type']), fn ($query) => $query->where('subject_type', $filters['subject_type']))
             ->when(isset($filters['actor_id']), fn ($query) => $query->where('actor_id', $filters['actor_id']))
-            ->when(isset($filters['from']), fn ($query) => $query->where('occurred_at', '>=', Carbon::parse($filters['from'], Format::TIMEZONE)->startOfDay()->utc()))
-            ->when(isset($filters['to']), fn ($query) => $query->where('occurred_at', '<', Carbon::parse($filters['to'], Format::TIMEZONE)->addDay()->startOfDay()->utc()))
+            ->when(isset($filters['from']), fn ($query) => $query->where('occurred_at', '>=', DateRangeFilter::start($filters['from'])))
+            ->when(isset($filters['to']), fn ($query) => $query->where('occurred_at', '<', DateRangeFilter::end($filters['to'])))
             ->orderByDesc('occurred_at')
             ->orderByDesc('id')
             ->paginate(self::PER_PAGE)

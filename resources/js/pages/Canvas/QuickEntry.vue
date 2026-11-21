@@ -6,6 +6,7 @@ import { announce } from '../../components/feedback/status';
 import TextArea from '../../components/fields/TextArea.vue';
 import { t } from '../../i18n';
 import { routes } from '../../routes';
+import { xsrfToken } from '../../xsrf';
 
 interface PreviewLine {
     line: number;
@@ -43,16 +44,13 @@ async function close(): Promise<void> {
     opener.value?.focus();
 }
 
-function token(): string {
-    return decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '');
-}
 
 async function preview(): Promise<void> {
     const current = ++sequence;
     const response = await fetch(routes.quickEntryPreview(props.canvasId), {
         method: 'POST',
         credentials: 'same-origin',
-        headers: { 'X-XSRF-TOKEN': token(), Accept: 'application/json', 'Content-Type': 'application/json' },
+        headers: { 'X-XSRF-TOKEN': xsrfToken(), Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ area: props.area, text: text.value }),
     }).catch(() => null);
     if (current !== sequence) return;
@@ -122,7 +120,7 @@ function save(): void {
     <AppButton v-if="!open" ref="opener" @click="show">{{ t('quick_entry.open') }}</AppButton>
     <Teleport v-else to="#quick-entry-slot" defer>
         <section :aria-label="t('quick_entry.title', { area: areaLabel })" class="mt-3 rounded-panel border border-hairline bg-white p-4" @keydown="keydown">
-            <h3 class="mb-2 font-display text-[15px] font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
+            <h3 class="mb-2 font-display text-card-title font-semibold">{{ t('quick_entry.title', { area: areaLabel }) }}</h3>
             <TextArea id="quick-entry-text" v-model="text" :label="t('quick_entry.label')" :hint="t('quick_entry.hint')" :rows="10" :error="errors.length ? t('quick_entry.error_count', { count: errors.length }) : undefined" />
             <h4 class="mt-3 text-[13px] font-semibold">{{ t('quick_entry.preview') }}</h4>
             <ul :aria-label="t('quick_entry.preview')" class="mt-1 flex flex-col gap-1">

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
 
 class ListEntryRequest extends AppFormRequest
 {
@@ -15,8 +16,8 @@ class ListEntryRequest extends AppFormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', new TrimmedText(__('fields.name'), 150)],
-            'supplier' => ['nullable', 'string', new TrimmedText(__('fields.supplier'), 150)],
+            'name' => ['required', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)],
+            'supplier' => ['nullable', 'string', new TrimmedText(__('fields.supplier'), FieldLimits::NAME)],
         ];
     }
 

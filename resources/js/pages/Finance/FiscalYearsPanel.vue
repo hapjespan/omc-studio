@@ -45,7 +45,7 @@ const remove = (): void => {
         <ul class="mt-4 flex flex-col gap-2">
             <li v-for="item in years" :key="item.id" class="flex items-center gap-3 text-[13px]">
                 <span>{{ item.year }}</span>
-                <AppButton v-if="writable" size="small" :aria-label="`${t('list.delete')} ${item.year}`" @click="removing = item">{{ t('list.delete') }}</AppButton>
+                <AppButton v-if="writable" size="small" variant="danger" :aria-label="`${t('list.delete')} ${item.year}`" @click="removing = item">{{ t('list.delete') }}</AppButton>
                 <ul v-if="canvases?.length" :aria-label="`${t('fiscal_years.canvases')} ${item.year}`" class="flex flex-col gap-1">
                     <li v-for="canvas in canvases" :key="canvas.id" class="flex items-center gap-2">
                         <span>{{ canvas.name }}:</span>

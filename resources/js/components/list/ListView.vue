@@ -20,7 +20,7 @@ export type ListColumn = { key: string; label: string; sortable?: boolean; align
 export type UndoState = { id: number | string; message: string; refusal?: string | null };
 export type ListState = { search: string; sort: string | null; direction: 'asc' | 'desc'; filters: Record<string, string>; archived: boolean };
 
-const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; kind?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean; undoable?: boolean; createLabel?: string; searchPlaceholder?: string; dock?: HTMLElement | null; eyebrow?: (row: ListRow | null) => string | null }>(), { canCreate: true, undoable: true });
+const props = withDefaults(defineProps<{ title: string; columns: ListColumn[]; rows: ListRow[]; count: number; query: ListState; filters?: FilterDef[]; canCreate?: boolean; createTitle?: string; kind?: string; canDelete?: boolean; consequence?: (row: ListRow) => string | null; requireName?: boolean; undo?: UndoState | null; bulkActions?: BulkAction[]; bulkResult?: BulkSummary | null; archivable?: boolean; undoable?: boolean; complete?: boolean; createLabel?: string; searchPlaceholder?: string; dock?: HTMLElement | null; eyebrow?: (row: ListRow | null) => string | null }>(), { canCreate: true, undoable: true, complete: true });
 const emit = defineEmits<{ change: [query: ListState]; delete: [row: ListRow]; undo: []; dismissUndo: []; bulk: [key: string, rows: ListRow[]]; restore: [row: ListRow] }>();
 
 const editing = ref<ListRow | 'new' | null>(null);
@@ -36,13 +36,22 @@ const NEXT_CHUNK = 200;
 const shown = ref(FIRST_CHUNK);
 const visibleRows = computed(() => props.rows.slice(0, shown.value));
 let growing: ReturnType<typeof setTimeout> | undefined;
-function grow(): void {
+let framing: number | undefined;
+function stopGrowing(): void {
     clearTimeout(growing);
+    if (framing !== undefined) cancelAnimationFrame(framing);
+    framing = undefined;
+}
+function grow(): void {
+    stopGrowing();
     if (shown.value >= props.rows.length) return;
-    growing = setTimeout(() => {
+    const step = (): void => {
+        framing = undefined;
         shown.value += NEXT_CHUNK;
         grow();
-    }, shown.value === FIRST_CHUNK ? 400 : 40);
+    };
+    if (shown.value === FIRST_CHUNK) framing = requestAnimationFrame(step);
+    else growing = setTimeout(step, 40);
 }
 const allSelected = computed(() => props.rows.length > 0 && selected.value.length === props.rows.length);
 const allChecked = computed({ get: () => allSelected.value, set: (checked: boolean) => toggleAll(checked) });
@@ -70,7 +79,7 @@ watch(() => props.query.search, (value) => {
 });
 onBeforeUnmount(() => {
     clearTimeout(timer);
-    clearTimeout(growing);
+    stopGrowing();
 });
 watch(() => props.undo, async (now, before) => {
     if (before && !now) {
@@ -186,7 +195,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                 <caption class="sr-only">{{ title }}</caption>
                 <thead>
                     <tr class="border-b border-hairline">
-                        <th v-if="bulkActions?.length" scope="col" class="pl-3 pr-2 py-2.5"><CheckBox v-model="allChecked" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" /></th>
+                        <th v-if="bulkActions?.length" scope="col" class="pl-3 pr-2 py-2.5"><CheckBox v-model="allChecked" :disabled="!complete" :indeterminate="selected.length > 0 && !allSelected" :aria-label="t('list.select_all')" /></th>
                         <template v-for="column in columns" :key="column.key">
                             <SortHeader v-if="column.sortable" :label="column.label" :direction="directionOf(column.key)" :align="column.align" @sort="sortBy(column.key)" />
                             <th v-else scope="col" :class="['pl-3 pr-2 py-2.5 text-[11.5px] font-semibold text-secondary', column.align === 'right' ? 'text-right' : 'text-left']">{{ column.label }}</th>
@@ -209,10 +218,10 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
                             <AppButton v-if="row.archived_at" size="small" :aria-label="`${t('list.restore')} ${row.name}`" @click="emit('restore', row)">{{ t('list.restore') }}</AppButton>
                         </td>
                         <td v-if="canDelete && !dock" class="pl-3 pr-2 py-2.5">
-                            <AppButton size="small" :aria-label="`${t('list.delete')} ${row.name}`" @click="deleting = row">{{ t('list.delete') }}</AppButton>
+                            <AppButton size="small" variant="danger" :aria-label="`${t('list.delete')} ${row.name}`" @click="deleting = row">{{ t('list.delete') }}</AppButton>
                         </td>
                     </tr>
-                    <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-3 py-3 text-secondary">{{ t('list.empty') }}</td></tr>
+                    <tr v-if="rows.length === 0"><td :colspan="columns.length + 3" class="px-3 py-3 text-muted">{{ t('list.empty') }}</td></tr>
                 </tbody>
             </table>
         </div>

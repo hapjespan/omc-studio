@@ -23,7 +23,7 @@ useQuietStatus();
 
 export type Option = { id: number; name: string };
 
-const props = defineProps<{ rows: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; canvas?: { id: number; name: string }; cards?: Cards | null; canvases?: { id: number; name: string }[]; finalised?: { canvas_id: number; year: number; at: string; by: string | null }[]; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
+const props = defineProps<{ rows: ListRow[]; moreRows?: ListRow[]; count: number; query: ListState; organisation: { id: number; name: string; archived: boolean }; canvas?: { id: number; name: string }; cards?: Cards | null; canvases?: { id: number; name: string }[]; finalised?: { canvas_id: number; year: number; at: string; by: string | null }[]; year: number | null; years: { id: number; year: number }[]; owners: Option[]; applications: Option[]; costKinds: string[] }>();
 
 const page = usePage();
 watch(() => page.props.flash, (flash) => (flash as { status?: string | null } | undefined)?.status && announce((flash as { status: string }).status));
@@ -50,7 +50,7 @@ const dock = ref<HTMLElement | null>(null);
 let skipGuard = false;
 const removeGuard = router.on('before', (event) => {
     const visit = event.detail.visit;
-    if (skipGuard || visit.method !== 'get' || visit.url.pathname !== window.location.pathname || visit.url.searchParams.get('year') === String(props.year)) return;
+    if (skipGuard || visit.only.length > 0 || visit.method !== 'get' || visit.url.pathname !== window.location.pathname || visit.url.searchParams.get('year') === String(props.year)) return;
     const target = `${visit.url.pathname}${visit.url.search}`;
     list.value?.guard(
         () => {
@@ -82,7 +82,9 @@ const delta = (row: ListRow): string => {
     const cents = Number(row.forecast_cents) - Number(row.budget_cents);
     return row.forecast_cents === null || row.budget_cents === null || cents === 0 ? '' : `${cents > 0 ? '+' : '-'}${formatAmount(Math.abs(cents)).replace('€ ', '')}`;
 };
-const shownRows = computed(() => props.rows.map((row) => ({ ...row, kindText: row.cost_kind ? t(`cost_kind.${row.cost_kind}`) : '', ownerText: nameOf(props.owners, row.owner_id), applicationText: nameOf(props.applications, row.application_id), budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: props.canvas ? (row.allocation === 'allocated' ? '100%' : t('cost_records.allocation_unknown')) : t(`cost_records.allocation_${row.allocation}`) })));
+const allRows = computed(() => [...props.rows, ...(props.moreRows ?? [])]);
+const complete = computed(() => props.moreRows !== undefined);
+const shownRows = computed(() => allRows.value.map((row) => ({ ...row, kindText: row.cost_kind ? t(`cost_kind.${row.cost_kind}`) : '', ownerText: nameOf(props.owners, row.owner_id), applicationText: nameOf(props.applications, row.application_id), budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: props.canvas ? (row.allocation === 'allocated' ? '100%' : t('cost_records.allocation_unknown')) : t(`cost_records.allocation_${row.allocation}`) })));
 const fresh = (row: ListRow): ListRow => shownRows.value.find((candidate) => candidate.id === row.id) ?? row;
 const options = (items: Option[]) => items.map((item) => ({ value: String(item.id), label: item.name }));
 const filters = computed(() => [
@@ -124,7 +126,7 @@ function load(query: ListState, year: number | null = props.year): void {
     <div class="grid items-start gap-x-4 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div class="flex min-w-0 flex-col gap-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h1 class="font-display text-[20px] font-semibold tracking-[-0.2px]">{{ year ? `${t('cost_records.title')} ${year}` : t('cost_records.title') }}</h1>
+                <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ year ? `${t('cost_records.title')} ${year}` : t('cost_records.title') }}</h1>
                 <div class="ml-auto flex flex-wrap justify-end gap-2">
                     <AppButton @click="yearsOpen = true">{{ t('fiscal_years.title') }}</AppButton>
                     <AppButton @click="exportFile(routes.costRecordsCsvExport(organisation.id), 'cost-records.csv')">{{ t('csvx.export_cost_records') }}</AppButton>
@@ -142,7 +144,7 @@ function load(query: ListState, year: number | null = props.year): void {
                 <FinaliseCard v-if="year !== null" :canvas-id="canvas.id" :year="year" :remaining="cards.unknown.count" :finalised="yearFinalised" :writable="!organisation.archived" />
             </div>
             <div v-if="listError.rule" role="alert"><ErrorSummary :errors="listError" /></div>
-            <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :count="count" :query="query" :filters="filters" :dock="dock" :eyebrow="eyebrow" :search-placeholder="t('cost_records.search_placeholder')" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
+            <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :complete="complete" :count="count" :query="query" :filters="filters" :dock="dock" :eyebrow="eyebrow" :search-placeholder="t('cost_records.search_placeholder')" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
                 <template #cell="{ row, column }">
                     <span v-if="column.key === 'allocationText'" :class="['inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] font-semibold', row.allocation === 'allocated' ? 'text-success' : 'text-warning']"><span aria-hidden="true" :class="['inline-block h-[7px] w-[7px] rounded-full', row.allocation === 'allocated' ? 'bg-success' : 'border-[1.5px] border-warning']" />{{ row[column.key] }}</span>
                     <span v-else-if="column.key === 'budgetText'" class="whitespace-nowrap font-semibold">{{ row[column.key] }}</span>

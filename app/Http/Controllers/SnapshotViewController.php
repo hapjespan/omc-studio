@@ -7,9 +7,8 @@ use App\Enums\CanvasKind;
 use App\Enums\CostKind;
 use App\Http\Resources\CanvasFigures;
 use App\Http\Resources\SnapshotVersions;
-use App\Models\Area;
-use App\Models\Modality;
 use App\Models\Snapshot;
+use App\Services\Canvas\ViewData;
 use App\Services\Snapshot\Snapshots;
 use App\Support\Format;
 use Illuminate\Http\Request;
@@ -21,7 +20,7 @@ class SnapshotViewController extends Controller
 {
     private const OVERLAYS = ['none', 'modality', 'financial'];
 
-    public function __construct(private readonly Snapshots $snapshots) {}
+    public function __construct(private readonly Snapshots $snapshots, private readonly ViewData $data) {}
 
     public function __invoke(Request $request, Snapshot $snapshot): Response
     {
@@ -34,8 +33,6 @@ class SnapshotViewController extends Controller
         $content = $damaged ? ['elements' => [], 'statements' => [], 'cost_records' => [], 'layout' => []] : $content;
         $overlay = in_array($request->query('overlay'), self::OVERLAYS, true) ? $request->query('overlay') : 'none';
         $element = $request->query('element');
-        $modalities = Modality::orderBy('position')->get();
-        $letters = $modalities->pluck('letter', 'key');
 
         return Inertia::render('Canvas/SnapshotView', [
             'snapshot' => [
@@ -53,29 +50,10 @@ class SnapshotViewController extends Controller
             'figures' => $overlay === 'financial' && ! $damaged ? CanvasFigures::from($figures) : null,
             'figuresMessage' => $damaged ? __('snap.damaged') : null,
             'contributions' => Inertia::optional(fn () => $damaged || ! is_string($element) ? [] : $this->contributions($figures, $content, $element)),
-            'layout' => fn () => [
-                'areas' => Area::orderBy('position')->get()->map(fn (Area $area) => [
-                    'key' => $area->key,
-                    'kind' => $area->kind,
-                    'position' => $area->position,
-                    'label' => __('areas.'.$area->key.'.name'),
-                ])->values(),
-                'directionLabels' => ['mission' => __('overview.mission'), 'vision' => __('overview.vision'), 'goals' => __('direction_entry.goals')],
-            ],
-            'elements' => array_map(fn (array $stored) => [
-                'id' => $stored['id'],
-                'area' => $stored['area'],
-                'parent' => $stored['parent_id'],
-                'kind' => $stored['kind'],
-                'name' => $stored['name'],
-                'position' => $stored['position'],
-                'modality' => $letters[$stored['modality']] ?? null,
-                'unknownAllocation' => $stored['is_unknown_allocation'],
-                'description' => $stored['description'],
-                'rationale' => $stored['rationale'],
-            ], $content['elements']),
-            'statements' => $content['statements'],
-            'modalities' => $modalities->map(fn (Modality $modality) => ['key' => $modality->key, 'letter' => $modality->letter, 'colour' => $modality->colour])->values(),
+            'layout' => fn () => $this->data->layout(),
+            'elements' => $this->data->elements($content['elements']),
+            'statements' => $this->data->statements($content['statements']),
+            'modalities' => $this->data->modalities(),
         ]);
     }
 

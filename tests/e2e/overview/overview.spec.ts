@@ -37,8 +37,8 @@ test('an archived Organisation is hidden and the root shows the same page', asyn
     const shown = unique('Zichtbaar');
     seedOrganisation(hidden);
     seedOrganisation(shown);
-    const { tinker } = await import('../support/overview');
-    tinker(`App\\Models\\Organisation::where('name', '${hidden}')->update(['archived_at' => now()]);`);
+    const { seedPhp } = await import('../support/seed');
+    seedPhp(`App\\Models\\Organisation::where('name', '${hidden}')->update(['archived_at' => now()]);`);
     await signInAs(page, 'reader');
     await page.goto('/');
 

@@ -9,10 +9,12 @@ use App\Models\User;
 use App\Services\Operations\Steps\BlankTemplateStep;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class TemplateProtectionTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -21,11 +23,6 @@ class TemplateProtectionTest extends TestCase
 
         (new ReferenceDataStep)();
         (new BlankTemplateStep)();
-    }
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
     }
 
     public function test_a_template_is_renamed_with_names_unique_ignoring_case(): void

@@ -15,6 +15,8 @@ class ResetLayoutRequest extends AppFormRequest
         return [
             'scope' => ['required', 'in:element,domain,canvas'],
             'element_id' => ['required_unless:scope,canvas', 'nullable', 'uuid'],
+            'structure_version' => ['required', 'integer', 'min:0'],
+            'layout_version' => ['required', 'integer', 'min:0'],
         ];
     }
 }

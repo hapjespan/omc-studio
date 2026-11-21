@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class CostRecordList
 {
+    private const UNREAD_COLUMNS = ['run_bp', 'change_bp', 'fte_hundredths', 'reference_date', 'remark'];
+
     /**
      * @param  array<string, mixed>  $input
      * @return array{rows: list<array<string, mixed>>, count: int, query: array<string, mixed>}
@@ -54,7 +56,7 @@ class CostRecordList
         $input = fn (?int $cents) => $cents === null ? '' : str_replace('€ ', '', Format::formatAmount($cents));
         $share = fn (?int $points) => $points === null ? '' : rtrim(rtrim(sprintf('%d,%02d', intdiv($points, 100), $points % 100), '0'), ',');
 
-        return $row + [
+        return array_diff_key($row, array_flip(self::UNREAD_COLUMNS)) + [
             'budget' => $amount($row['budget_cents']),
             'forecast' => $amount($row['forecast_cents']),
             'has_figures' => $row['budget_cents'] !== null,

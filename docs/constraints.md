@@ -82,11 +82,11 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 |---|---|---|
 | V1 Encoding and sanitization | All output escaped by the template layer; user data never rendered as raw HTML. All queries through parameter binding, no input concatenated into SQL. CSV export neutralises formula prefixes. | FR-084 |
 | V2 Validation and business logic | Every field rule and every business rule (structure, 100%, Finalised year, last Administrator) checked on the server, also on direct requests and on import commit; concurrent requests on the last Administrator are serialised in a transaction. | FR-010, FR-014, FR-015, FR-085, FR-094 |
-| V3 Web frontend security | Content security policy own origin only, plus `data:` and `blob:` image sources for the PNG export (ADR 0039), `wasm-unsafe-eval` for the Tekenen page only; nosniff, same-origin referrer policy (ADR 0046), framing refused; cookies HttpOnly and SameSite=Lax; no intermediate state or personal data in browser storage. | FR-005, FR-090, ADR 0021 |
+| V3 Web frontend security | Content security policy own origin only, plus `data:` and `blob:` image sources for the PNG export (ADR 0039), `wasm-unsafe-eval` for the Tekenen page only; nosniff, same-origin referrer policy (ADR 0046), framing refused; cookies HttpOnly and SameSite=Lax; **Exemption** 3.3.1 and 3.3.4 (`__Host-` cookie prefix, Secure): transport is loopback plus an SSH tunnel without TLS (ADR 0024), so the cookie cannot carry the Secure attribute that the prefix requires; the Secure attribute stays on by default and the README names the setting where a browser refuses it; no intermediate state or personal data in browser storage. | FR-005, FR-090, ADR 0021 |
 | V4 API and web service | No public API; only the application's own Inertia routes. Every state-changing request needs a POST, PUT, PATCH or DELETE with an anti-forgery token. | FR-005 |
 | V5 File handling | Size and type limits verified on content; logos re-encoded, stored under random names outside the public files, served with a fixed content type; generated file names from neutral words, slugs and dates only; no user-supplied path is used. | FR-024, FR-086, FR-088 |
-| V6 Authentication | Local accounts only; passwords 12 to 128 characters, checked against a bundled list of 10,000 common passwords, slow salted hash; one-time passwords of 16 random characters, 24 hours; 5 failures per minute locks 60 s, same message for wrong e-mail and wrong password; optional TOTP with replay protection and 8 hashed recovery codes. **Exemption**: multi-factor authentication is optional per account, not required (ADR 0010). | FR-001 to FR-008 |
-| V7 Session management | New session identifier at sign-in; 120 minutes idle timeout with a warning; 12 hours absolute lifetime (7.3.2); any number of sessions per account, documented (7.1.2); sessions end at sign-out, password change (other sessions), second factor on or off and new recovery codes (other sessions, 7.4.3), reset and deletion; an Administrator can end all sessions of another user (7.4.5); changing one's own e-mail address needs the current password (7.5.1). **Exemption** 7.5.2: users cannot list and end their own sessions; few users, short idle timeout and the Administrator action cover it (ADR 0025, ADR 0037). | FR-005, FR-011, orch (phase 4, Q-1 to Q-5) |
+| V6 Authentication | Local accounts only; passwords 12 to 128 characters, checked against a bundled list of 10,000 common passwords of 12 or more characters (filtered from the SecLists xato-net top 1,000,000, MIT licence and source in `resources/data/common-passwords.LICENSE` and `common-passwords.SOURCE`), slow salted hash; one-time passwords of 16 random characters, 24 hours; 5 failures per minute locks 60 s, same message for wrong e-mail and wrong password; optional TOTP with replay protection and 8 hashed recovery codes. **Exemption**: multi-factor authentication is optional per account, not required (ADR 0010). | FR-001 to FR-008 |
+| V7 Session management | New session identifier at sign-in; 120 minutes idle timeout with a warning; 12 hours absolute lifetime (7.3.2); any number of sessions per account, documented (7.1.2); sessions end at sign-out, password change (other sessions), second factor on or off and new recovery codes (other sessions, 7.4.3), reset and deletion; an Administrator can end all sessions of another user (7.4.5); changing one's own e-mail address needs the current password (7.5.1). **Exemption** 7.1.3 (`__Host-` prefix, see V3): the session cookie carries no prefix for the same reason. **Exemption** 7.5.2: users cannot list and end their own sessions; few users, short idle timeout and the Administrator action cover it (ADR 0025, ADR 0037). | FR-005, FR-011, orch (phase 4, Q-1 to Q-5) |
 | V8 Authorization | Two roles valid for every Organisation; every write route checks the Administrator role on the server; a test per write route proves the Reader is refused. Per-Canvas or per-Organisation permissions are out of version 1. | FR-009, FR-094 |
 | V9 Self-contained tokens | Out of scope: no tokens are issued; sessions are server-side. | |
 | V10 OAuth and OIDC | Out of scope: no outside identity provider (H1). | FR-001 |
@@ -98,7 +98,7 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 | V16 Security logging and error handling | Section 8. | FR-019 to FR-023 |
 | V17 WebRTC | Out of scope: collaboration over WebRTC is off (K10). | |
 
-**Dependency policy.** Lockfiles committed; the drawing library pinned to an exact version. CI fails on `composer audit` or `npm audit --audit-level=high` findings of high or critical. Dependabot alerts are on and only report. Every update is a deliberate step with a full test run (A8).
+**Dependency policy.** Lockfiles committed; the drawing library pinned to an exact version. CI fails on `composer audit` or `npm audit --audit-level=high` findings of high or critical. Dependabot alerts are on and only report. Every update is a deliberate step with a full test run (A8). **Accepted gap**: container image tags and GitHub Action versions are not pinned by digest, because digests cannot be resolved offline; Dependabot proposals for the Dockerfile and the workflow files are the way to move to digests once a connected maintainer can review them.
 
 **Secrets.** `.env` holds the application key; it stays out of git. The first Administrator's one-time password appears once in the container log and expires after 24 hours or at first sign-in (FR-003, FR-089).
 
@@ -112,12 +112,17 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 | Password hash | Until changed or the account is deleted | Overwritten on change; row deleted with the account |
 | Second-factor key, recovery code hashes | Until turned off, reset, used (codes), regenerated, or account deleted | Removed by the user, by an Administrator's reset, by the console command (FR-008), or with the account |
 | Actor reference in Audit log, "Definitief door", "Gemaakt door" | As long as the record | Pseudonymised at user deletion; removed with its Canvas or Organisation |
-| Session record | 120 minutes idle or sign-out | R-6 |
-| Throttle key | 60 seconds | R-7 |
+| Session record and session payload (encrypted at rest; holds the user reference, sign-in time and flashed one-time passwords or recovery codes) | 120 minutes idle or sign-out | R-6 |
+| Throttle key | Expires after 60 seconds; the file is removed on the next read or on a cache clear | R-7 |
+| Undo record (user identifier and deleted rows) | 10 minutes, removed at restore and at sign-out | ADR 0033 |
+| User identifier in the application error log | 14 days | R-5 |
+| First Administrator e-mail address in the container log | As long as the operator keeps the container log | R-25 |
+| Account state columns (one-time password expiry, must-change flag, second-factor times) | Until the account is deleted | Row deleted with the account |
+| User identifiers inside Audit values | As long as the Audit entry | Pseudonymised at user deletion |
 | User identifier in the security log | 90 days | R-4 |
 | Personal data in backups | The product owner's | R-9 |
 
-**Processors: none.** The application runs on one machine and connects to nothing (ADR 0027). The drawing library runs in the browser and sends nothing out. GitHub and its CI hold code and synthetic test data only, never client data or user accounts (FR-099). Full detail: `specs/001-omc-studio-v1/pii-inventory.md`.
+**Processors: none.** The application runs on one machine and connects to nothing (ADR 0027). The framework's own default log channels and mailers (Slack, Papertrail, SMTP, SES, Postmark, Resend, sendmail) are removed from the configuration at boot, because the framework merges its defaults back into a config file that lacks them; an architecture test fails if any of them returns. The drawing library runs in the browser and sends nothing out. GitHub and its CI hold code and synthetic test data only, never client data or user accounts (FR-099). Full detail: `specs/001-omc-studio-v1/pii-inventory.md`.
 
 ## 8. Logging, monitoring and incident readiness (NIS2)
 
@@ -139,7 +144,7 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 
 **Notification**: the warned Administrator informs the product owner; the product owner starts the ISO notification policy of their organisation, which sets the windows, the parties to notify and the channels (GATE-U2). The application names no window or contact of its own.
 
-**Reconstruction**: the Audit log answers who changed what; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026).
+**Reconstruction**: the Audit log answers who changed what; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026). "From where" a session came is not recorded by the application (SD-20); the host's sshd log of the SSH tunnel (ADR 0024) shows which connection was open at that time.
 
 ## 9. ADRs that close off design options
 

@@ -12,7 +12,7 @@ import { createPeek } from './peek';
 import { detailOf } from './ViewDetail.vue';
 import { isNavigationKey, navigate } from './treeNavigation';
 
-export interface ModalityMark {
+export interface ModalityColour {
     key: string;
     letter: string;
     colour: string;
@@ -23,7 +23,7 @@ const props = defineProps<{
     areas: LayoutArea[];
     elements: LayoutElement[];
     statements: LayoutStatement[];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
     selectedId?: string | null;
     layersAbove?: boolean;
     zoom?: number;

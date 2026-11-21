@@ -11,10 +11,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class CostRecordTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     private Organisation $organisation;
@@ -27,11 +29,6 @@ class CostRecordTest extends TestCase
 
         $this->organisation = Organisation::factory()->create();
         $this->owner = Owner::factory()->create(['organisation_id' => $this->organisation->id]);
-    }
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
     }
 
     /** @param array<string, mixed> $overrides

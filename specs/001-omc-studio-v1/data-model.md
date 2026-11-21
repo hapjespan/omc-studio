@@ -39,7 +39,7 @@ Each table is created in the delivery that first needs it; no table or column ex
 
 | Index | Serves |
 |---|---|
-| index(user_id) | check a code, count remaining ("Nog 7 herstelcodes") |
+| two_factor_recovery_codes_user_id_index (user_id) | check a code, count remaining ("Nog 7 herstelcodes"); added by migration 2026_11_21_000001 |
 
 ### sessions, cache, cache_locks (Laravel)
 
@@ -47,7 +47,7 @@ Laravel's `sessions` table without the `ip_address` and `user_agent` columns (R-
 
 ### undo_records
 
-`token` (string pk, random), `user_id` (fk users cascade), `kind`, `payload` (json: the deleted rows with identifiers and dependents), `expires_at`. Index: (user_id), (expires_at) for clean-up during requests (ADR 0033).
+`token` (string pk, random), `user_id` (fk users cascade), `kind`, `payload` (json: the deleted rows with identifiers and dependents), `expires_at`. Indexes: undo_records_user_id_index (user_id, added by migration 2026_11_21_000001), (expires_at) for clean-up during requests (ADR 0033).
 
 ### areas (reference data)
 
@@ -260,7 +260,6 @@ The sum of 10000 is enforced by the allocation service, which replaces the whole
 | occurrences | integer | |
 | first_occurred_at, last_occurred_at | datetime | |
 | seen_at | datetime null | |
-| seen_by | fk users set null, null | |
 
 | Index | Serves |
 |---|---|

@@ -2,6 +2,8 @@
 
 namespace App\Services\Layout;
 
+use App\Support\LayoutLimits;
+
 class AutomaticWidths
 {
     private const AREA_GAP = 12;
@@ -66,10 +68,10 @@ class AutomaticWidths
     public static function areaWidth(string $key): int
     {
         return match (true) {
-            $key === 'direction' => Artboard::WIDTH,
-            $key === 'steering' || $key === 'governing' => intdiv(Artboard::WIDTH - 3 * self::AREA_GAP, 2),
+            $key === 'direction' => LayoutLimits::artboardWidth(),
+            $key === 'steering' || $key === 'governing' => intdiv(LayoutLimits::artboardWidth() - 3 * self::AREA_GAP, 2),
             in_array($key, self::LIST_AREAS, true) => self::LIST_COLUMN,
-            default => Artboard::WIDTH - self::AREA_GAP - (self::AREA_GAP + 3 * self::LIST_COLUMN + 3 * self::AREA_GAP),
+            default => LayoutLimits::artboardWidth() - self::AREA_GAP - (self::AREA_GAP + 3 * self::LIST_COLUMN + 3 * self::AREA_GAP),
         };
     }
 }

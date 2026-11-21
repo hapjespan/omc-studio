@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\CostKind;
 use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
 use Illuminate\Validation\Rule;
 
 class CostRecordRequest extends AppFormRequest
@@ -17,14 +18,14 @@ class CostRecordRequest extends AppFormRequest
     public function rules(): array
     {
         return [
-            'code' => ['nullable', 'string', new TrimmedText(__('fields.code'), 50)],
-            'name' => ['required', 'string', new TrimmedText(__('fields.name'), 150)],
+            'code' => ['nullable', 'string', new TrimmedText(__('fields.code'), FieldLimits::CODE)],
+            'name' => ['required', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)],
             'cost_kind' => ['required', Rule::enum(CostKind::class)],
-            'supplier' => ['nullable', 'string', new TrimmedText(__('fields.supplier'), 150)],
+            'supplier' => ['nullable', 'string', new TrimmedText(__('fields.supplier'), FieldLimits::NAME)],
             'owner_id' => ['required', 'integer'],
-            'cost_centre' => ['nullable', 'string', new TrimmedText(__('fields.cost_centre'), 50)],
+            'cost_centre' => ['nullable', 'string', new TrimmedText(__('fields.cost_centre'), FieldLimits::CODE)],
             'application_id' => ['nullable', 'integer'],
-            'description' => ['nullable', 'string', new TrimmedText(__('fields.description'), 2000)],
+            'description' => ['nullable', 'string', new TrimmedText(__('fields.description'), FieldLimits::TEXT)],
         ];
     }
 

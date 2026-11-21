@@ -2,11 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from './support/guards';
-import { expandTarget, seedOrganisation, tinker } from './support/finance';
+import { expandTarget, seedOrganisation } from './support/finance';
 import { activate, tabTo, type } from './support/keyboard';
 import { signInAs } from './support/shell';
 import { ARTBOARD_WIDTH, PNG_SCALE } from './support/artboard';
 import { pixelAt } from './support/png';
+import { seedPhp } from './support/seed';
 
 test.beforeEach(() => test.setTimeout(180000));
 
@@ -23,7 +24,7 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     const organisationName = unique('Reis');
     const canvasName = unique('Model');
     const organisation = seedOrganisation(organisationName, [2026]);
-    tinker(`App\\Models\\Owner::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Afdeling ICT']);`);
+    seedPhp(`App\\Models\\Owner::factory()->create(['organisation_id' => ${organisation}, 'name' => 'Afdeling ICT']);`);
     await signInAs(page, 'administrator');
 
     await page.goto('/overview');

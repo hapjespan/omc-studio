@@ -73,6 +73,22 @@ class UndoStoreTest extends TestCase
         $this->assertNotNull(UndoRecord::find($token));
     }
 
+    public function test_a_restore_removes_the_records_that_expired(): void
+    {
+        $token = $this->deleteSubtree();
+        UndoRecord::create([
+            'token' => 'stale',
+            'user_id' => User::factory()->create()->id,
+            'kind' => 'element_deletion',
+            'payload' => [],
+            'expires_at' => now()->subMinute(),
+        ]);
+
+        $this->store()->restore($token, $this->administrator);
+
+        $this->assertNull(UndoRecord::find('stale'));
+    }
+
     public function test_a_restore_puts_the_whole_subtree_back_with_its_own_identifiers_and_writes_one_undone_entry_per_record(): void
     {
         $token = $this->deleteSubtree();

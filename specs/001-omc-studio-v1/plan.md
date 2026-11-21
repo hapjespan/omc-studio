@@ -12,7 +12,7 @@ A locally running Laravel 13 application with an Inertia and Vue 3 front end, on
 
 **Language/Version**: PHP 8.4; TypeScript 5 on Node 24 (build only).
 
-**Primary Dependencies**: Laravel 13, Inertia 3, Vue 3.5 (at least 3.5.41), Tailwind 4, Vite 8, Reka UI, @lucide/vue, pragmarx/google2fa, bacon/bacon-qr-code; DT: `@open-pencil/*` pinned exactly after WP-E0; D3: html-to-image (pending Q-7). Research R-1, R-7, R-13, R-20.
+**Primary Dependencies**: Laravel 13, Inertia 3, Vue 3.5 (at least 3.5.41), Tailwind 4, Vite 8, Reka UI, pragmarx/google2fa, bacon/bacon-qr-code; DT: `@open-pencil/*` pinned exactly after WP-E0; D3: html-to-image (pending Q-7). Research R-1, R-7, R-13, R-20.
 
 **Storage**: SQLite file on a Docker volume, WAL, IMMEDIATE transactions (ADR 0032); PostgreSQL in CI only (ADR 0022). Data model: [data-model.md](data-model.md).
 

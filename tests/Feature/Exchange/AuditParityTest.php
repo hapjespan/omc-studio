@@ -26,14 +26,14 @@ class AuditParityTest extends TestCase
         $figure = YearlyFigure::create($attributes);
         $observed = AuditEntry::where('subject_type', 'yearly_figure')->firstOrFail();
 
-        app(AuditTrail::class)->recordMany('yearly_figure', 'created', null, [
+        app(AuditTrail::class)->recordMany('yearly_figure', 'created', $organisation->id, [
             ['bulk', 'bulk', array_map(fn ($value) => [null, $value], $attributes)],
         ]);
         $bulk = AuditEntry::where('subject_id', 'bulk')->firstOrFail();
 
         $keys = ['actor_type', 'actor_id', 'action', 'subject_type', 'organisation_id', 'canvas_id'];
         $this->assertSame($observed->only($keys), $bulk->only($keys));
-        $this->assertNull($bulk->organisation_id);
+        $this->assertSame($organisation->id, $bulk->organisation_id);
         $this->assertSame(array_keys($observed->changes), array_keys($bulk->changes));
         $this->assertSame((string) $figure->id, $observed->subject_id);
     }

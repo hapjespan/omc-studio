@@ -24,7 +24,7 @@ class CostRecordController extends Controller
 
     public function index(Request $request, Organisation $organisation): Response
     {
-        return Inertia::render('Finance/CostRecords', $this->props($request, $organisation));
+        return Inertia::render('Finance/CostRecords', $this->chunked($this->props($request, $organisation)));
     }
 
     public function canvasIndex(Request $request, Canvas $canvas, FigureService $figures): Response
@@ -33,7 +33,7 @@ class CostRecordController extends Controller
         $props = $this->props($request, $canvas->organisation, $canvas);
         $result = $props['year'] === null ? null : $figures->figures($canvas, $props['year']);
 
-        return Inertia::render('Finance/CostRecords', $props + [
+        return Inertia::render('Finance/CostRecords', $this->chunked($props) + [
             'cards' => $result === null ? null : [
                 'budgetCents' => $result->canvasTotal['budget'],
                 'forecastCents' => $result->canvasTotal['forecast'],
@@ -41,6 +41,19 @@ class CostRecordController extends Controller
                 'unknown' => $result->sidePanel['unknown'],
             ],
         ]);
+    }
+
+    private const FIRST_CHUNK = 60;
+
+    /**
+     * @param  array<string, mixed>  $props
+     * @return array<string, mixed>
+     */
+    private function chunked(array $props): array
+    {
+        $rows = $props['rows'];
+
+        return [...$props, 'rows' => array_slice($rows, 0, self::FIRST_CHUNK), 'moreRows' => Inertia::defer(fn () => array_slice($rows, self::FIRST_CHUNK), 'rest')];
     }
 
     /** @return array<string, mixed> */

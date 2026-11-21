@@ -11,6 +11,7 @@ use App\Models\Element;
 use App\Models\Modality;
 use App\Models\Statement;
 use App\Services\Allocation\ElementCosts;
+use App\Services\Canvas\ViewData;
 use App\Services\Finance\FigureService;
 use App\Services\Layout\LayoutSnapshot;
 use App\Services\Structure\ElementFields;
@@ -22,7 +23,7 @@ use Inertia\Response;
 
 class CanvasEntryController extends Controller
 {
-    public function __invoke(Request $request, Canvas $canvas, LayoutSnapshot $layouts): Response|RedirectResponse
+    public function __invoke(Request $request, Canvas $canvas, LayoutSnapshot $layouts, ViewData $data): Response|RedirectResponse
     {
         if (! $canvas->acceptsEntryBy($request->user())) {
             return redirect("/canvases/{$canvas->id}/view");
@@ -31,11 +32,12 @@ class CanvasEntryController extends Controller
         $year = $request->attributes->get('fiscal_year');
         $counts = Element::where('canvas_id', $canvas->id)->whereNull('archived_at')->selectRaw('area_id, kind, count(*) as total')->groupBy('area_id', 'kind')->get()
             ->groupBy('area_id');
-        $areas = Area::orderBy('position')->get()->map(fn (Area $area) => [
-            'key' => $area->key,
-            'kind' => $area->kind,
-            'label' => __('areas.'.$area->key.'.name'),
-            'summary' => $this->summary($area, $canvas, $counts[$area->id] ?? collect()),
+        $areaModels = Area::orderBy('position')->get()->keyBy('key');
+        $areas = collect($data->areas())->map(fn (array $area) => [
+            'key' => $area['key'],
+            'kind' => $area['kind'],
+            'label' => $area['label'],
+            'summary' => $this->summary($areaModels[$area['key']], $canvas, $counts[$areaModels[$area['key']]->id] ?? collect()),
         ]);
 
         return Inertia::render('Canvas/Entry', [
@@ -43,8 +45,8 @@ class CanvasEntryController extends Controller
             'elements' => $this->elements($canvas),
             'layouts' => $layouts->for($canvas),
             'year' => $year,
-            'targets' => app(AllocationPage::class)->targets($canvas, null),
-            'costs' => (object) $this->costs($canvas, $year),
+            'targets' => Inertia::defer(fn () => app(AllocationPage::class)->targets($canvas, null), 'detail'),
+            'costs' => Inertia::defer(fn () => (object) $this->costs($canvas, $year), 'detail'),
             'icons' => app(ElementFields::class)->icons(),
             'modalities' => Modality::orderBy('position')->get(['key', 'letter']),
             'statements' => $this->statements($canvas),

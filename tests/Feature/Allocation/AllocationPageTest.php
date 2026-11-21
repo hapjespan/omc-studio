@@ -20,10 +20,12 @@ use App\Services\Finance\FigureService;
 use App\Services\Operations\Steps\ReferenceDataStep;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class AllocationPageTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     private Canvas $canvas;
@@ -60,11 +62,6 @@ class AllocationPageTest extends TestCase
         UnknownAllocationDomain::ensure($this->canvas);
         $set = AllocationSet::factory()->create(['canvas_id' => $this->canvas->id, 'cost_record_id' => $this->allocated->id, 'fiscal_year_id' => $this->year->id]);
         AllocationLine::factory()->create(['allocation_set_id' => $set->id, 'element_id' => $this->activity->id, 'basis_points' => 10_000, 'position' => 0]);
-    }
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
     }
 
     public function test_it_is_for_administrators_only(): void

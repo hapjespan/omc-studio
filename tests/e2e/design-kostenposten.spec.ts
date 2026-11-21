@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from './support/guards';
-import { seedAllocation, tinker } from './support/finance';
+import { seedAllocation } from './support/finance';
 import { signInAs } from './support/shell';
+import { seedPhp } from './support/seed';
 
 const unique = (): string => `Org ${randomUUID().slice(0, 8)}`;
 
@@ -23,8 +24,8 @@ async function style(locator: Locator, ...properties: string[]): Promise<Record<
 
 async function seed(page: Page): Promise<{ canvas: number; organisation: number }> {
     const data = seedAllocation(unique(), { Licentie: 23000, Beheer: 10000 });
-    tinker(`App\\Models\\FiscalYear::factory()->create(['organisation_id' => ${data.organisation}, 'year' => 2027]);`);
-    tinker(`App\\Models\\YearlyFigure::whereHas('costRecord', fn ($q) => $q->where('name', 'Licentie')->where('organisation_id', ${data.organisation}))->update(['forecast_cents' => 25000]); App\\Models\\CostRecord::where('name', 'Licentie')->where('organisation_id', ${data.organisation})->update(['code' => 'KP-001']);`);
+    seedPhp(`App\\Models\\FiscalYear::factory()->create(['organisation_id' => ${data.organisation}, 'year' => 2027]);`);
+    seedPhp(`App\\Models\\YearlyFigure::whereHas('costRecord', fn ($q) => $q->where('name', 'Licentie')->where('organisation_id', ${data.organisation}))->update(['forecast_cents' => 25000]); App\\Models\\CostRecord::where('name', 'Licentie')->where('organisation_id', ${data.organisation})->update(['code' => 'KP-001']);`);
     await page.setViewportSize({ width: 1440, height: 900 });
     await signInAs(page, 'administrator');
 
@@ -43,7 +44,7 @@ test('the Canvas variant has four cards in one row with the board typography and
 
     const heading = page.getByRole('heading', { level: 1 });
     await expect(heading).toHaveText(/^Kostenposten 2026$/);
-    expect(await style(heading, 'font-family', 'font-size', 'font-weight', 'letter-spacing')).toMatchObject({ 'font-size': '20px', 'font-weight': '600', 'letter-spacing': '-0.2px' });
+    expect(await style(heading, 'font-family', 'font-size', 'font-weight', 'letter-spacing')).toMatchObject({ 'font-size': '22px', 'font-weight': '600', 'letter-spacing': '-0.2px' });
     expect((await style(heading, 'font-family'))['font-family']).toContain('Space Grotesk');
 
     const first = cards.first();

@@ -7,16 +7,13 @@ use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class OrganisationControllerTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
-
-    private function admin(): static
-    {
-        return $this->actingAs(User::factory()->administrator()->create());
-    }
 
     public function test_an_administrator_creates_and_renames(): void
     {

@@ -1,7 +1,7 @@
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
-import FinancialCard, { AMOUNT_HEIGHT, cardLines, countsText, fitParts } from '../../../resources/js/canvas/overlay/FinancialCard.vue';
+import FinancialCard, { AMOUNT_HEIGHT, areaLine, cardLines, countsText, fitParts } from '../../../resources/js/canvas/overlay/FinancialCard.vue';
 import type { ElementFigures, Money } from '../../../resources/js/canvas/overlay/figures';
 import { descendantCounts } from '../../../resources/js/canvas/overlay/counts';
 import { computeCanvasLayout } from '../../../resources/js/layout';
@@ -9,7 +9,7 @@ import { fakeMeasurer } from '../layout/fakeMeasurer';
 import { element, emptyInput } from '../layout/support';
 
 const money = (budget: number, forecast: number): Money => ({ budget, forecast, run: 0, change: 0, undetermined: 0 });
-const figures = (budget: number, forecast: number, shareBp: number | null): ElementFigures => ({ direct: money(budget, forecast), total: money(budget, forecast), shareBp, fteHundredths: 0 });
+const figures = (budget: number, forecast: number, shareBp: number | null, shareTenths: number | null = shareBp === null ? null : Math.round(shareBp / 10)): ElementFigures => ({ direct: money(budget, forecast), total: money(budget, forecast), shareBp, shareTenths, fteHundredths: 0 });
 
 describe('cardLines', () => {
     it('shows whole euros, a one decimal Share and the forecast against the budget', () => {
@@ -30,6 +30,19 @@ describe('cardLines', () => {
 
     it('says that no costs are allocated for the year', () => {
         expect(cardLines(figures(0, 0, null), { activities: 0, clusters: 0 }, 2026).empty).toBe('Geen kosten toegewezen in 2026');
+    });
+});
+
+describe('Share with one decimal', () => {
+    it('shows 12,345% as 12,3% because the server rounds the exact ratio once', () => {
+        const lines = cardLines(figures(123456, 110000, 1235, 123), { activities: 3, clusters: 1 }, 2026);
+
+        expect(lines.share).toBe('12,3% van totaal');
+        expect(lines.header).toBe('€ 1.235 · 12,3% van totaal');
+    });
+
+    it('rounds the area Share once from the exact ratio', () => {
+        expect(areaLine(money(12345, 0), money(100000, 0))).toContain('12,3%');
     });
 });
 

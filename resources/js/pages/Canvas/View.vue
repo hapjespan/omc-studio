@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue';
+import { computed, ref } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import CanvasStage from '../../canvas/CanvasStage.vue';
-import type { ModalityMark } from '../../canvas/CanvasView.vue';
+import type { ModalityColour } from '../../canvas/CanvasView.vue';
 import ExportMenu from '../../canvas/ExportMenu.vue';
 import OverflowNotice from '../../canvas/OverflowNotice.vue';
 import OverlaySwitch from '../../canvas/OverlaySwitch.vue';
@@ -13,8 +13,8 @@ import { visitOverlay } from '../../canvas/overlay/query';
 import VersionSelect from '../../canvas/VersionSelect.vue';
 import type { VersionOption } from '../../canvas/VersionSelect.vue';
 import { computeCanvasLayout } from '../../layout';
-import type { CanvasLayoutInput, TextMeasurer } from '../../layout';
-import { createBrowserMeasurer } from '../../layout/browserMeasurer';
+import type { CanvasLayoutInput } from '../../layout';
+import { useMeasurer } from '../../canvas/useMeasurer';
 import HeaderSlot from '../../shell/HeaderSlot.vue';
 import { t } from '../../i18n';
 import { useQuietStatus } from '../../shell/layout';
@@ -28,7 +28,7 @@ const props = defineProps<{
     layout: Pick<CanvasLayoutInput, 'areas' | 'directionLabels'>;
     elements: CanvasLayoutInput['elements'];
     statements: CanvasLayoutInput['statements'];
-    modalities: ModalityMark[];
+    modalities: ModalityColour[];
     layouts?: CanvasLayoutInput['layouts'];
     overlay: string;
     year: number | null;
@@ -39,8 +39,7 @@ const props = defineProps<{
 }>();
 
 const role = computed(() => (usePage().props.auth as { role: string | null }).role);
-const measurer = shallowRef<TextMeasurer | null>(null);
-onMounted(async () => (measurer.value = await createBrowserMeasurer()));
+const measurer = useMeasurer();
 const drawn = computed(() => (measurer.value ? computeCanvasLayout({ ...props.layout, elements: props.elements, statements: props.statements, layouts: props.layouts }, measurer.value) : null));
 const organisationId = computed(() => (usePage().props.canvas as { organisation: { id: number } | null } | null)?.organisation?.id ?? null);
 const plain = ref(false);
@@ -60,6 +59,6 @@ const plain = ref(false);
         </div>
     </HeaderSlot>
     <OverflowNotice v-if="drawn" :count="drawn.beyondArtboardCount" :administrator="role === 'administrator'" />
-    <p v-if="figuresMessage" role="alert" class="mb-3 rounded-control border border-danger-edge px-3 py-2 text-[13px] text-danger" data-figures-message>{{ figuresMessage }}</p>
+    <Callout v-if="figuresMessage" tone="danger" role="alert" class="mb-3" data-figures-message>{{ figuresMessage }}</Callout>
     <CanvasStage :drawn="drawn" :areas="layout.areas" :elements="elements" :statements="statements" :modalities="modalities" :overlay="overlay" :year="year" :figures="figures" :cost-kinds="filterOptions.costKinds" :canvas-id="canvas.id" :can-assign="role === 'administrator'" :plain="plain" />
 </template>

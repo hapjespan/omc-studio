@@ -22,10 +22,6 @@ const registry: Tab[] = [
     { key: 'admin', label: 'shell.tab.admin', context: 'any', roles: ['administrator'], href: () => routes.admin(), matches: ['/admin'] },
 ];
 
-export function registerTab(tab: Tab, position = registry.length): void {
-    registry.splice(position, 0, tab);
-}
-
 export function visibleTabs(role: string, hasCanvas: boolean, kind?: string): Tab[] {
     return registry.filter((tab) => tab.roles.includes(role) && !(tab.key === 'versions' && kind === 'template') && (tab.context === 'any' || (tab.context === 'canvas') === hasCanvas));
 }

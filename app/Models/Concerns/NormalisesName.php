@@ -2,11 +2,13 @@
 
 namespace App\Models\Concerns;
 
+use App\Support\NameNormaliser;
+
 trait NormalisesName
 {
     public static function normalise(string $value): string
     {
-        return mb_strtolower(trim($value));
+        return NameNormaliser::normalise($value);
     }
 
     protected static function bootNormalisesName(): void

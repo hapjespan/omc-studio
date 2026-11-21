@@ -42,7 +42,7 @@ abstract class AllocationTestCase extends StructureTestCase
         return $record;
     }
 
-    /** @param array<string, int> $lines element id => basis points */
+    /** @param array<string, int> $lines */
     protected function allocate(CostRecord $record, int $year, array $lines, ?int $canvasId = null): AllocationSet
     {
         $set = AllocationSet::create([

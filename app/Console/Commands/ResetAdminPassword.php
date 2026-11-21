@@ -41,7 +41,7 @@ class ResetAdminPassword extends Command
             return [$passwords->issueTo($administrator), $sessions->endAll($administrator)];
         });
 
-        SecurityLog::record('admin_password_reset', ['target_user_id' => $administrator->id, 'sessions_ended' => $ended, 'second_factor_removed' => $removeFactor]);
+        SecurityLog::record('admin_password_reset', ['subject_id' => $administrator->id, 'sessions_ended' => $ended, 'second_factor_removed' => $removeFactor]);
 
         $this->line('Administrator: '.$administrator->email);
         $this->line('One-time password: '.$password);

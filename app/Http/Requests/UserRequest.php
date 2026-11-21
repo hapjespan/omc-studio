@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\Role;
 use App\Models\User;
+use App\Support\FieldLimits;
 use Illuminate\Validation\Rule;
 
 class UserRequest extends AppFormRequest
@@ -23,7 +24,7 @@ class UserRequest extends AppFormRequest
         $editing = $this->route('user');
 
         return [
-            'name' => ['required', 'string', 'max:150'],
+            'name' => ['required', 'string', 'max:'.FieldLimits::NAME],
             'email' => [
                 'required', 'string', 'email', 'max:254',
                 Rule::unique('users', 'email')->ignore($editing instanceof User ? $editing->getKey() : null),
@@ -50,7 +51,7 @@ class UserRequest extends AppFormRequest
     {
         return [
             'name.required' => __('users.name_required'),
-            'name.max' => __('validation.text_max', ['label' => __('fields.name'), 'max' => 150]),
+            'name.max' => __('validation.text_max', ['label' => __('fields.name'), 'max' => FieldLimits::NAME]),
             'email.required' => __('auth.email_required'),
             'email.email' => __('users.email_invalid'),
             'email.max' => __('validation.text_max', ['label' => __('fields.email'), 'max' => 254]),

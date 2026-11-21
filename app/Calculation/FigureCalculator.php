@@ -13,7 +13,7 @@ final class FigureCalculator
         $unknownId = null;
         $elements = [];
         foreach ($input->elements as $element) {
-            $elements[$element['id']] = ['direct' => Measures::zero(), 'total' => Measures::zero(), 'shareBp' => null, 'fteNumerator' => 0, 'contributions' => []];
+            $elements[$element['id']] = ['direct' => Measures::zero(), 'total' => Measures::zero(), 'shareBp' => null, 'shareTenths' => null, 'fteNumerator' => 0, 'contributions' => []];
             if ($element['isUnknownAllocation']) {
                 $unknownId = $element['id'];
             }
@@ -53,6 +53,7 @@ final class FigureCalculator
         }
         foreach ($elements as &$figures) {
             $figures['shareBp'] = $canvasTotal['budget'] === 0 ? null : $this->shareBp($figures['total']['budget'], $canvasTotal['budget']);
+            $figures['shareTenths'] = $canvasTotal['budget'] === 0 ? null : $this->shareTenths($figures['total']['budget'], $canvasTotal['budget']);
         }
         unset($figures);
 
@@ -122,7 +123,7 @@ final class FigureCalculator
 
     /**
      * @param  array<string|int, list<string|int>>  $children
-     * @param  array<string|int, array{direct: array<string, int>, total: array<string, int>, shareBp: int|null}>  $elements
+     * @param  array<string|int, array{direct: array<string, int>, total: array<string, int>, shareBp: int|null, shareTenths: int|null}>  $elements
      * @param  array<string|int, array<string, int>>  $totals
      * @return array<string, int>
      */
@@ -134,6 +135,13 @@ final class FigureCalculator
         }
 
         return $totals[$id] = $total;
+    }
+
+    private function shareTenths(int $part, int $whole): int
+    {
+        $scaled = $part * 1000;
+
+        return intdiv($scaled, $whole) + (2 * ($scaled % $whole) >= $whole ? 1 : 0);
     }
 
     private function shareBp(int $part, int $whole): int

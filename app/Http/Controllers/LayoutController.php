@@ -19,6 +19,6 @@ class LayoutController extends Controller
 
     public function reset(ResetLayoutRequest $request, Canvas $canvas): JsonResponse
     {
-        return response()->json(['layout_version' => $this->store->reset($canvas, $request->string('scope')->toString(), $request->input('element_id'))]);
+        return response()->json(['layout_version' => $this->store->reset($canvas, $request->string('scope')->toString(), $request->input('element_id'), $request->safe()->only(['structure_version', 'layout_version']))]);
     }
 }

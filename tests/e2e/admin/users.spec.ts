@@ -1,10 +1,8 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { signInAs } from '../support/shell';
-
-const env = { ...process.env, DB_CONNECTION: 'sqlite', DB_DATABASE: process.env.E2E_DATABASE ?? `${process.cwd()}/.scratch/e2e.sqlite`, DB_URL: '' };
+import { seedPhp } from '../support/seed';
 const reauthenticate = 'Huidig wachtwoord: vul je huidige wachtwoord in om je e-mailadres te wijzigen';
 
 interface Account {
@@ -13,15 +11,11 @@ interface Account {
     password: string;
 }
 
-function tinker(code: string): void {
-    execFileSync('php', ['artisan', 'tinker', `--execute=${code}`], { env });
-}
-
 function seedUser(options: { role?: 'administrator' | 'reader'; secondFactor?: boolean } = {}): Account {
     const account = { name: `Gebruiker ${randomUUID().slice(0, 8)}`, email: `${randomUUID()}@example.test`, password: `pw-${randomUUID()}` };
     const state = options.role === 'administrator' ? '->administrator()' : '';
     const factor = options.secondFactor ? ", 'two_factor_confirmed_at' => now()" : '';
-    tinker(`App\\Models\\User::factory()${state}->create(['name' => '${account.name}', 'email' => '${account.email}', 'password' => '${account.password}'${factor}]);`);
+    seedPhp(`App\\Models\\User::factory()${state}->create(['name' => '${account.name}', 'email' => '${account.email}', 'password' => '${account.password}'${factor}]);`);
 
     return account;
 }
@@ -83,7 +77,7 @@ test('the user list sorts on the E-mailadres column', async ({ page }) => {
     const token = randomUUID().slice(0, 8);
     const first = `aaa-${token}@example.test`;
     const last = `zzz-${token}@example.test`;
-    tinker(`App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} A', 'email' => '${last}']); App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} Z', 'email' => '${first}']);`);
+    seedPhp(`App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} A', 'email' => '${last}']); App\\Models\\User::factory()->create(['name' => 'Sorteer ${token} Z', 'email' => '${first}']);`);
     await signIn(page, admin);
     await page.goto('/admin/users');
     await page.getByRole('searchbox', { name: 'Zoeken' }).fill(token);

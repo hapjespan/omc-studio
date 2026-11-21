@@ -17,6 +17,7 @@ use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditTrail;
 use App\Services\Canvas\OrganisationService;
 use App\Services\Canvas\UnknownAllocationDomain;
+use App\Support\NameNormaliser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -221,7 +222,7 @@ class CanvasWriter
             return null;
         }
 
-        $key = mb_strtolower(trim($name));
+        $key = NameNormaliser::normalise($name);
         $names[$key] ??= (int) $class::create(['organisation_id' => $organisationId, 'name' => $name, ...$extra])->getKey();
 
         return (int) $names[$key];
@@ -267,7 +268,7 @@ class CanvasWriter
                 'parent_id' => $row['parent_id'] === null ? null : $map[$row['parent_id']],
                 'kind' => $row['kind'],
                 'name' => $row['name'],
-                'name_normalised' => mb_strtolower(trim($row['name'])),
+                'name_normalised' => NameNormaliser::normalise($row['name']),
                 'description' => $row['description'] ?? null,
                 'modality_id' => ($row['modality'] ?? null) === null ? null : $modalities[$row['modality']],
                 'rationale' => $row['rationale'] ?? null,

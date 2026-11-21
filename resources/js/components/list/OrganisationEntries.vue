@@ -24,6 +24,8 @@ type Kind = 'owners' | 'applications';
 type Row = EntryRow;
 
 const props = defineProps<EntriesProps & { kind: Kind }>();
+const chosenOrganisation = ref(String(props.organisation.id));
+const organisationChanged = computed(() => chosenOrganisation.value !== String(props.organisation.id));
 
 const page = usePage();
 const owners = computed(() => props.kind === 'owners');
@@ -104,9 +106,10 @@ function submit(row: Row | null, close: () => void): void {
 
 <template>
     <Head :title="title" />
-    <h1 class="text-[20px] font-semibold">{{ title }}</h1>
-    <nav :aria-label="t('lists.choose_organisation')" class="mt-2">
-        <ChipSelect id="organisation-switch" :label="t('lists.choose_organisation')" :model-value="String(organisation.id)" :options="organisations.map((option) => ({ value: String(option.id), label: option.archived_at ? `${option.name} (${t('list.archived')})` : option.name }))" @update:model-value="router.get(routes.organisationEntries(Number($event), kind))" />
+    <h1 class="text-page-title font-semibold">{{ title }}</h1>
+    <nav :aria-label="t('lists.choose_organisation')" class="mt-2 flex items-center gap-2">
+        <ChipSelect id="organisation-switch" v-model="chosenOrganisation" :label="t('lists.choose_organisation')" :options="organisations.map((option) => ({ value: String(option.id), label: option.archived_at ? `${option.name} (${t('list.archived')})` : option.name }))" />
+        <AppButton v-if="organisationChanged" @click="router.get(routes.organisationEntries(Number(chosenOrganisation), kind))">{{ t('lists.show_organisation') }}</AppButton>
     </nav>
     <div v-if="listError.rule" role="alert" class="mt-3"><ErrorSummary :errors="listError" /></div>
     <div class="mt-3">

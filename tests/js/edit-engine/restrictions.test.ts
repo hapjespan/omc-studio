@@ -1,7 +1,7 @@
 import { createEditor } from '@open-pencil/core/editor';
 import { describe, expect, it } from 'vitest';
 import { computeCanvasLayout } from '../../../resources/js/layout';
-import { clampToParent, inertShortcuts, restrict } from '../../../resources/js/edit-engine/restrictions';
+import { restrict } from '../../../resources/js/edit-engine/restrictions';
 import { buildScene } from '../../../resources/js/edit-engine/scene';
 import { keepSelectable } from '../../../resources/js/edit-engine/selection';
 import { fakeMeasurer } from '../layout/fakeMeasurer';
@@ -78,10 +78,6 @@ describe('restrictions of the drawing', () => {
         expect([graph.getNode('act-3')!.x, graph.getNode('act-3')!.y]).toEqual([10, 40]);
     });
 
-    it('clamps without touching what the change does not name', () => {
-        expect(clampToParent({ x: 5, y: 5, width: 20, height: 20 }, { width: 100, height: 100 }, { x: 95 })).toEqual({ x: 80 });
-    });
-
     it('accepts only the select and hand tools', () => {
         const { editor, restrictions } = load();
         editor.setTool('RECTANGLE');
@@ -91,12 +87,6 @@ describe('restrictions of the drawing', () => {
         editor.setTool('HAND');
         expect(editor.state.activeTool).toBe('HAND');
         expect(restrictions.refusals.filter((refusal) => refusal.action === 'tool').length).toBe(3);
-    });
-
-    it('records the library shortcuts that must stay inert', () => {
-        expect(inertShortcuts).toEqual(expect.arrayContaining(['KeyF', 'KeyR', 'KeyO', 'KeyL', 'KeyT', 'KeyP', 'Shift+KeyP', 'KeyC', 'KeyA', 'Shift+KeyS', 'Delete', 'Backspace']));
-        expect(inertShortcuts).not.toContain('KeyV');
-        expect(inertShortcuts).not.toContain('KeyH');
     });
 
     it('refuses text editing and reports the attempt', () => {

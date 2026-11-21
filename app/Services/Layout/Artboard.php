@@ -2,15 +2,13 @@
 
 namespace App\Services\Layout;
 
+use App\Support\LayoutLimits;
+
 class Artboard
 {
-    public const WIDTH = 1680;
-
-    public const HEIGHT = 1188;
-
     /** @return array{width: int, height: int} */
     public static function size(): array
     {
-        return ['width' => self::WIDTH, 'height' => self::HEIGHT];
+        return ['width' => LayoutLimits::artboardWidth(), 'height' => LayoutLimits::artboardHeight()];
     }
 }

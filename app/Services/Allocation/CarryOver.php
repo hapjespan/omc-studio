@@ -11,6 +11,7 @@ use App\Models\Element;
 use App\Models\FiscalYear;
 use App\Models\Organisation;
 use App\Models\YearlyFigure;
+use App\Services\Audit\AuditContext;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Support\Collection;
@@ -20,14 +21,14 @@ class CarryOver
 {
     use WritableGuard;
 
-    public function __construct(private readonly SerialisedWrite $writes, private readonly FinalisedYears $finalisedYears) {}
+    public function __construct(private readonly SerialisedWrite $writes, private readonly FinalisedYears $finalisedYears, private readonly AuditContext $context) {}
 
     /** @return array{copied: list<array{name: string, set: bool, figures: int}>, skipped: list<array{name: string, reason: string}>, manual: list<array{name: string}>} */
     public function run(Canvas $canvas, FiscalYear $source, FiscalYear $target, bool $withFigures): array
     {
         $organisation = Organisation::findOrFail($canvas->organisation_id);
 
-        return $this->writes->run([$organisation, $canvas], function () use ($canvas, $source, $target, $withFigures): array {
+        return $this->writes->run([$organisation, $canvas], fn () => $this->context->during('carried_over', function () use ($canvas, $source, $target, $withFigures): array {
             $this->assertWritable($canvas);
             $this->assertTargetOpen($canvas, $target, $withFigures);
 
@@ -81,7 +82,7 @@ class CarryOver
             }
 
             return ['copied' => $copied, 'skipped' => $skipped, 'manual' => $manual];
-        });
+        }));
     }
 
     /** @return array<string, AllocationSet> */

@@ -1,11 +1,11 @@
 import { expect, test } from './support/guards';
 import { signInAs } from './support/shell';
-import { tinker } from './support/overview';
 import { seedViewCanvas } from './support/view';
+import { seedPhp } from './support/seed';
 
 test('a Reader sees the three entries and each CSV export states the omitted count', async ({ page }) => {
     const canvas = seedViewCanvas();
-    tinker(`$c = App\\Models\\Canvas::find(${canvas.id}); App\\Models\\CostRecord::factory()->create(['organisation_id' => $c->organisation_id, 'code' => null]);`);
+    seedPhp(`$c = App\\Models\\Canvas::find(${canvas.id}); App\\Models\\CostRecord::factory()->create(['organisation_id' => $c->organisation_id, 'code' => null]);`);
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${canvas.id}/view`);
 
