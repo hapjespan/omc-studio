@@ -1,11 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { expectNoAxeViolations, expect, test } from '../support/guards';
-import { createPendingAdministrator, oneTimePassword } from '../support/accounts';
+import { createPendingAdministrator, installedAdministratorEmail, oneTimePassword } from '../support/accounts';
 
 test.describe.configure({ retries: 0 });
-
-const INSTALLED_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@localhost';
 
 async function firstStart(page: Page, administrator: { email: string; password: string }): Promise<void> {
     const chosen = `new-${randomUUID()}`;
@@ -49,7 +47,7 @@ test('clean start: sign in with the password printed by the installer, choose a 
     test.skip(testInfo.project.name !== 'chromium', 'the installed account changes its password once per database');
     test.slow();
     await firstStart(page, {
-        email: INSTALLED_EMAIL,
+        email: installedAdministratorEmail(),
         password: oneTimePassword(),
     });
 });

@@ -94,7 +94,7 @@ class DeliveredStackFilesTest extends TestCase
     {
         $entries = array_map('trim', explode("\n", $this->read('.dockerignore')));
 
-        foreach (['.forbidden-names', '.scratch', '.worktrees', '.playwright-browsers', '.remember', '.env'] as $entry) {
+        foreach (['.forbidden-names', '.scratch', '.worktrees', '.playwright-browsers', '.remember', '.env', 'public/hot', 'test-results', 'playwright-report'] as $entry) {
             $this->assertContains($entry, $entries);
         }
     }

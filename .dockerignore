@@ -29,3 +29,6 @@ proof
 storage/app.key
 storage/*.sqlite
 storage/logs
+public/hot
+test-results
+playwright-report
