@@ -42,7 +42,7 @@ class ReauthenticateController extends Controller
             SecurityLog::record('reauthentication_throttled');
 
             throw ValidationException::withMessages([
-                'password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+                'password' => $throttle->message($identifier),
             ]);
         }
 

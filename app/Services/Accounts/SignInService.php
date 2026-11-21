@@ -32,7 +32,7 @@ class SignInService
             SecurityLog::record('sign_in_throttled');
 
             throw ValidationException::withMessages([
-                'email' => __('auth.throttled', ['seconds' => $this->throttle->secondsLeft($email)]),
+                'email' => $this->throttle->message($email),
             ]);
         }
 
