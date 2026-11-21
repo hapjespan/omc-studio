@@ -56,7 +56,7 @@ class AccountController extends Controller
             SecurityLog::record('password_change_throttled');
 
             throw ValidationException::withMessages([
-                'current_password' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+                'current_password' => $throttle->message($identifier),
             ]);
         }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, ref, useId, watch } from 'vue';
 import { t } from '../../i18n';
 import AppButton from '../ui/AppButton.vue';
 import IconButton from '../ui/IconButton.vue';
@@ -8,6 +8,7 @@ import IconButton from '../ui/IconButton.vue';
 const props = defineProps<{ title: string; description?: string; kind?: string; dirty?: boolean; variant?: 'dialog' | 'panel' }>();
 const open = defineModel<boolean>('open', { default: false });
 const confirming = ref(false);
+const discardTitleId = useId();
 const keepEditing = ref<InstanceType<typeof AppButton>>();
 
 watch(open, () => (confirming.value = false));
@@ -47,8 +48,8 @@ function discard(): void {
                 <DialogTitle class="pr-9 font-display text-[18px] font-semibold">{{ title }}</DialogTitle>
                 <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-secondary">{{ description }}</DialogDescription>
                 <div class="mt-3"><slot :request-close="requestClose" /></div>
-                <div v-if="confirming" role="alertdialog" aria-labelledby="discard-title" class="mt-3 rounded-md border border-edge p-3">
-                    <p id="discard-title" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
+                <div v-if="confirming" role="alertdialog" :aria-labelledby="discardTitleId" class="mt-3 rounded-md border border-edge p-3">
+                    <p :id="discardTitleId" class="text-[13px] font-semibold">{{ t('dialog.discard_title') }}</p>
                     <div class="mt-2 flex gap-2">
                         <AppButton ref="keepEditing" @click="confirming = false">{{ t('dialog.keep_editing') }}</AppButton>
                         <AppButton variant="danger" @click="discard">{{ t('dialog.discard') }}</AppButton>

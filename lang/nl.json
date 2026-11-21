@@ -24,7 +24,7 @@
     "areas.supporting_activities.level_1": "Domein",
     "areas.supporting_activities.level_2": "Activiteit",
     "auth.failed": "E-mailadres of wachtwoord is onjuist",
-    "auth.throttled": "Te veel pogingen. Probeer het over :seconds seconden opnieuw",
+    "auth.throttled": "Te veel pogingen. Probeer het over :seconds seconde opnieuw|Te veel pogingen. Probeer het over :seconds seconden opnieuw",
     "audit.action.password_changed": "Wachtwoord gewijzigd",
     "audit.action.second_factor_changed": "Tweede factor gewijzigd",
     "rule.canvas_archived": "Dit canvas is gearchiveerd",

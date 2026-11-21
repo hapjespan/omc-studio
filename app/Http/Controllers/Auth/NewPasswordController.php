@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\Password;
+use App\Services\Accounts\SessionTerminator;
 use App\Services\Audit\SecurityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class NewPasswordController extends Controller
         return Inertia::render('Auth/NewPassword');
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request, SessionTerminator $terminator): RedirectResponse
     {
         $user = $this->pending($request);
 
@@ -42,7 +43,8 @@ class NewPasswordController extends Controller
         ])->save();
 
         $request->session()->regenerate(true);
-        SecurityLog::record('password_changed');
+        $ended = $terminator->endOthers($user, $request->session()->getId());
+        SecurityLog::record('password_changed', ['sessions_ended' => $ended]);
         Inertia::clearHistory();
 
         return redirect()->intended('/')->with('status', __('auth.password_changed'));

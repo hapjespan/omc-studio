@@ -44,7 +44,7 @@ class SecondFactorChallengeController extends Controller
             SecurityLog::record('second_factor_throttled', ['user_id' => $user->getKey()]);
 
             throw ValidationException::withMessages([
-                'code' => __('auth.throttled', ['seconds' => $throttle->secondsLeft($identifier)]),
+                'code' => $throttle->message($identifier),
             ]);
         }
 
