@@ -10,6 +10,7 @@ use App\Models\Owner;
 use App\Models\SystemNotice;
 use App\Support\Format;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class NoticePresenter
 {
@@ -41,13 +42,20 @@ class NoticePresenter
     private function load(Collection $notices): void
     {
         $details = $notices->map(fn (SystemNotice $notice) => (array) ($notice->details ?? []));
-        $subjects = $details->map(fn (array $detail) => isset($detail['check']) ? (explode('.', (string) $detail['check'])[2] ?? null) : null)->filter()->unique()->all();
+        $subjects = $details->map(fn (array $detail) => $this->elementOf((string) ($detail['check'] ?? '')))->filter()->unique()->all();
         $filters = $details->map(fn (array $detail) => (array) ($detail['filter'] ?? []));
 
         $this->canvases = Canvas::query()->whereIn('id', $notices->pluck('canvas_id')->filter())->pluck('name', 'id');
         $this->elements = $subjects === [] ? collect() : Element::query()->whereIn('id', $subjects)->pluck('name', 'id');
         $this->owners = Owner::query()->whereIn('id', $filters->pluck('ownerId')->filter()->unique())->pluck('name', 'id');
         $this->applications = Application::query()->whereIn('id', $filters->pluck('applicationId')->filter()->unique())->pluck('name', 'id');
+    }
+
+    private function elementOf(string $check): ?string
+    {
+        $parts = explode('.', $check);
+
+        return $parts[0] === 'total' && Str::isUuid($parts[2] ?? '') ? $parts[2] : null;
     }
 
     /** @return array<string, mixed> */

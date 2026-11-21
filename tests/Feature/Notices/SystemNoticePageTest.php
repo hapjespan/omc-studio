@@ -159,4 +159,19 @@ class SystemNoticePageTest extends TestCase
 
         $this->assertSame($queries(2), $queries(12));
     }
+
+    public function test_only_a_total_check_looks_an_element_up_and_only_by_a_uuid(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create());
+        SystemNotice::factory()->create(['details' => ['year' => 2026, 'filter' => [], 'check' => 'breakdown.costKind.budget', 'differenceCents' => 1]]);
+        SystemNotice::factory()->create(['fingerprint' => 'other', 'details' => ['year' => 2026, 'filter' => [], 'check' => 'total.budget.not-an-identifier', 'differenceCents' => 1]]);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->get('/admin/system-notices')->assertOk();
+
+        $elementQueries = array_filter(DB::getQueryLog(), fn (array $query) => str_contains($query['query'], 'from "elements"'));
+
+        $this->assertSame([], array_values($elementQueries));
+    }
 }
