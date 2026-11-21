@@ -148,6 +148,7 @@ test.describe('SC-019 PDF through the print layout (Chromium only: page.pdf exis
         const canvas = seedBulkCanvas(12, 12);
         await signInAs(page, 'reader');
         await page.goto(`/canvases/${canvas.id}/view`);
+        await expect(page.locator('[data-artboard] [data-block]').first()).toBeVisible();
         await page.emulateMedia({ media: 'print' });
 
         const { pages, boxes } = readPdf(await page.pdf({ preferCSSPageSize: true, printBackground: true }));
@@ -166,6 +167,7 @@ test.describe('SC-019 PDF through the print layout (Chromium only: page.pdf exis
         const canvas = seedViewCanvas();
         await signInAs(page, 'reader');
         await page.goto(`/canvases/${canvas.id}/view`);
+        await expect(page.locator('[data-artboard] [data-block]').first()).toBeVisible();
         await page.emulateMedia({ media: 'print' });
 
         const { pages, boxes } = readPdf(await page.pdf({ preferCSSPageSize: true, printBackground: true }));
@@ -179,6 +181,7 @@ test.describe('SC-019 PDF through the print layout (Chromium only: page.pdf exis
         const canvas = seedBulkCanvas(12, 12);
         await signInAs(page, 'reader');
         await page.goto(`/canvases/${canvas.id}/view`);
+        await expect(page.locator('[data-artboard] [data-block]').first()).toBeVisible();
         await page.emulateMedia({ media: 'print' });
 
         const { count, smallest } = await printedFontSizes(page);
