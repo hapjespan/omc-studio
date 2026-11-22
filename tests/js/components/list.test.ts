@@ -13,6 +13,32 @@ const idle: ListState = { search: '', sort: null, direction: 'asc', filters: {},
 const columns = [{ key: 'name', label: 'Naam', sortable: true }, { key: 'email', label: 'E-mail' }];
 const rows = [{ id: 1, name: 'Anna', email: 'a@example.test' }, { id: 2, name: 'Bram', email: 'b@example.test' }];
 
+describe('ListView deferred rows', () => {
+    const bulk = [{ key: 'delete', label: 'Verwijderen' }];
+
+    it('states that rows are loading and points the disabled select-all at that status', async () => {
+        const html = await render({ title: 'Kostenposten', columns, rows, count: 2, query: idle, bulkActions: bulk, complete: false });
+        const id = /<p id="([^"]+)" role="status" class="text-\[12.5px\] text-secondary">Overige rijen worden geladen<\/p>/.exec(html)?.[1];
+
+        expect(id).toBeDefined();
+        expect(html).toMatch(new RegExp(`<input[^>]*aria-describedby="${id}"[^>]*disabled|<input[^>]*disabled[^>]*aria-describedby="${id}"`));
+    });
+
+    it('offers a retry when the rows failed to load', async () => {
+        const html = await render({ title: 'Kostenposten', columns, rows, count: 2, query: idle, bulkActions: bulk, complete: false, failed: true });
+
+        expect(html).toContain('Overige rijen konden niet worden geladen');
+        expect(html).toContain('Opnieuw proberen');
+    });
+
+    it('shows no message and no description once the rows are complete', async () => {
+        const html = await render({ title: 'Kostenposten', columns, rows, count: 2, query: idle, bulkActions: bulk });
+
+        expect(html).not.toContain('Overige rijen');
+        expect(html).not.toContain('aria-describedby');
+    });
+});
+
 describe('ListView rows, search and sort', () => {
     it('labels the search field and announces the count', async () => {
         const html = await render({ title: 'Gebruikers', columns, rows, count: 12, query: idle });

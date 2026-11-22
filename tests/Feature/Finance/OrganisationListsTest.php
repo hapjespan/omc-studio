@@ -125,7 +125,7 @@ class OrganisationListsTest extends TestCase
     }
 
     #[DataProvider('lists')]
-    public function test_the_beheer_entry_lands_on_the_first_organisation_and_a_reader_gets_403(string $path, string $model): void
+    public function test_the_admin_entry_lands_on_the_first_organisation_and_a_reader_gets_403(string $path, string $model): void
     {
         $this->admin()->get("/admin/{$path}")->assertRedirect('/admin/organisations');
         $first = Organisation::factory()->create(['name' => 'Aaa']);

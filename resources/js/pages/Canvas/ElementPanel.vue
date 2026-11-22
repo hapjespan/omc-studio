@@ -20,8 +20,8 @@ import ElementCostsLine from './ElementCostsLine.vue';
 import ParentSelect from './ParentSelect.vue';
 import Warnings from './Warnings.vue';
 
-const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; list: boolean; icons: string[]; warnings: EntryWarning[]; year: number | null; cost?: ElementCost; loaded: boolean; targets: TargetRow[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
-const emit = defineEmits<{ select: [id: string, opener: HTMLElement | null]; saved: []; changed: [] }>();
+const props = defineProps<{ canvasId: number; element: EntryElement; elements: EntryElement[]; areas: EntryAreaInfo[]; list: boolean; icons: string[]; warnings: EntryWarning[]; year: number | null; cost?: ElementCost; loaded: boolean; failed?: boolean; targets: TargetRow[]; gone: (kind: 'archived' | 'deleted', name: string) => void }>();
+const emit = defineEmits<{ select: [id: string, opener: HTMLElement | null]; saved: []; changed: []; retry: [] }>();
 const form = useForm({ name: props.element.name, description: props.element.description ?? '', icon: props.element.icon ?? '', parent: parentValue(props.element), modality: props.element.modality ?? NO_MODALITY, rationale: props.element.rationale ?? '', confirm_rationale_clear: false });
 const confirming = ref(false);
 const options = computed(() => parentOptions(props.element, props.elements, props.areas));
@@ -86,7 +86,7 @@ function save(): void {
                 <TextArea v-if="form.modality !== NO_MODALITY" id="element-rationale" v-model="form.rationale" :label="t('entry_design.rationale')" :error="errors.rationale" :rows="3" />
             </template>
             <ParentSelect v-model="form.parent" :options="options" :error="parentError" />
-            <ElementCostsLine :year="year" :cost="cost" :loaded="loaded" />
+            <ElementCostsLine :year="year" :cost="cost" :loaded="loaded" :failed="failed" @retry="emit('retry')" />
         </form>
         <Dialog v-model:open="confirming" :title="t('modality_entry.confirm_title')" :description="t('modality_entry.confirm_message')">
             <div class="flex gap-2">

@@ -12,7 +12,7 @@ test('saving on an existing Canvas opened from its Overzicht card keeps the Admi
     await page.getByRole('link', { name, exact: true }).click();
     await page.waitForURL(`**/canvases/${canvas}/entry`);
 
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
     await page.getByRole('button', { name: 'Domein', exact: true }).click();
     await page.getByLabel('+ Domein').fill(`Inkoop ${token}`);
     await page.getByLabel('+ Domein').press('Enter');
@@ -20,7 +20,7 @@ test('saving on an existing Canvas opened from its Overzicht card keeps the Admi
     await expect(page.getByTestId('entry-row').filter({ hasText: `Inkoop ${token}` })).toBeVisible();
     expect(new URL(page.url()).pathname).toBe(`/canvases/${canvas}/entry`);
 
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Koers/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Koers/ }).click();
     const direction = page.getByRole('region', { name: 'Koers' });
     await direction.getByLabel('Missie', { exact: true }).fill(`Missie ${token}`);
     const saved = page.waitForResponse((response) => response.request().method() === 'PUT' && response.url().includes('/statements/'));

@@ -7,6 +7,7 @@ import ModeSwitch from '../../shell/ModeSwitch.vue';
 import type { ShellCanvas } from '../../shell/TopBar.vue';
 import { storedPayload } from '../../edit-engine/automaticPayload';
 import type { LayoutPayload } from '../../edit-engine';
+import { announce } from '../../components/feedback/status';
 import { t } from '../../i18n';
 import { commandForKey } from '../../edit-engine/keyboard';
 import type { DrawingCommand } from '../../edit-engine';
@@ -82,6 +83,11 @@ const lifecycle = useEngineLifecycle({
     onRestart: () => (styling.box.value = null),
 });
 const { state, engine, drawn, selected, seen, zoom, view, canUndo, canRedo, verdict, hint, setTool, pick, restart, refresh } = lifecycle;
+const zoomed = (action: NavigateAction): void => {
+    if (!engine.value) return;
+    navigate(engine.value, action);
+    if (action === 'in' || action === 'out' || action === 'actual') void announce(t('drawing.zoom_set', { percent: Math.round(engine.value.getZoom() * 100) }));
+};
 const single = computed(() => (selected.value.length === 1 ? selected.value[0] : null));
 const styling = useStyleEditing({ engine, drawn, single, names, say });
 const { box, target, copied, applying, invalid, refused, scope, refreshBox, copyStyle, setStyle, setBox } = styling;
@@ -209,7 +215,7 @@ onBeforeUnmount(() => {
             ></div>
             <p class="min-h-[1.5rem] text-[13px] text-secondary" role="status" data-hint>{{ hint }}</p>
             <Announcer :message="notice" />
-            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" @navigate="(action: NavigateAction) => engine && navigate(engine, action)" />
+            <Toolbar :tool="tool" :zoom="zoom" :count="selected.length" @tool="setTool" @command="command" @navigate="zoomed" />
         </div>
         <PropertiesPanel
             v-model:grid="grid"

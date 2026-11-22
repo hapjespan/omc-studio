@@ -16,7 +16,7 @@ export function seedEntryCanvas(area: string, seed: Seed[] = [], extra = ''): nu
 export async function openEntry(page: Page, canvas: number, area = 'Primaire activiteiten'): Promise<void> {
     await signInAs(page, 'administrator');
     await page.goto(`/canvases/${canvas}/entry`);
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: new RegExp(area) }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: new RegExp(area) }).click();
 }
 
 export interface AllocatedSeed {

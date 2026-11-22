@@ -133,7 +133,7 @@ const clearHint = computed(() => (canClear.value ? null : !writable.value ? t('a
                     <AllocationEditor :lines="draft" :info="info" :budget-cents="record.budgetCents" :disabled="!writable" @change="change" @remove="remove" @rest="rest" @drop="add" />
                 </div>
                 <div class="mt-3 flex items-start gap-3">
-                    <AppButton :variant="canSave ? 'primary' : 'secondary'" :icon="canSave ? undefined : 'lock'" :disabled="!canSave" aria-describedby="allocation-save-hint" @click="save">{{ t('allocation_page.save') }}</AppButton>
+                    <AppButton :variant="canSave ? 'primary' : 'secondary'" :icon="canSave ? undefined : 'lock'" :disabled="!canSave" :aria-describedby="saveHint ? 'allocation-save-hint' : undefined" @click="save">{{ t('allocation_page.save') }}</AppButton>
                     <p v-if="saveHint" id="allocation-save-hint" class="min-w-0 flex-1 pt-1.5 text-[12.5px] text-secondary">{{ saveHint }}</p>
                     <AppButton v-if="dirty" class="ml-auto shrink-0" @click="discard">{{ t('allocation_page.discard') }}</AppButton>
                 </div>

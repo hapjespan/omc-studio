@@ -15,6 +15,8 @@ test('Tekenen zooms in, out and to 100 percent with buttons that a keyboard can 
     await page.getByRole('button', { name: 'Inzoomen', exact: true }).focus();
     await page.keyboard.press('Enter');
     expect((await settled(page)).zoom).toBeGreaterThan(start.zoom);
+    await expect(page.locator('output').filter({ hasText: /^Zoom \d+%$/ })).not.toHaveAttribute('aria-live', 'polite');
+    await expect(page.getByRole('status').filter({ hasText: /^Zoom ingesteld op \d+%$/ })).toBeAttached();
 
     await page.getByRole('button', { name: 'Uitzoomen', exact: true }).click();
     await page.getByRole('button', { name: 'Uitzoomen', exact: true }).click();

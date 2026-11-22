@@ -44,7 +44,7 @@ test('changing the Area closes a clean panel', async ({ page }) => {
 
     await rowButton(page, 'Facilitair').click();
     await expect(page.getByRole('complementary')).toBeVisible();
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Koers/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Koers/ }).click();
     await expect(page.getByRole('complementary')).toBeHidden();
     await expect(page.getByRole('status').filter({ hasText: 'Alles opgeslagen' })).toHaveCount(0);
 });
@@ -76,7 +76,7 @@ test('changing the Area with unsaved edits keeps the panel and its edits until t
     await rowButton(page, 'Spelen').click();
     const panel = page.getByRole('complementary');
     await panel.getByLabel('Naam').fill('Spelen anders');
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Koers/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Koers/ }).click();
     await expect(panel.getByRole('alertdialog')).toBeVisible();
     await panel.getByRole('button', { name: 'Verder bewerken' }).click();
     await expect(panel.getByLabel('Naam')).toHaveValue('Spelen anders');

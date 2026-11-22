@@ -13,8 +13,11 @@ test('one labelled year select switches the table to another year', async ({ pag
     await page.goto(`/organisations/${organisation}/cost-records?year=2026`);
     await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('geen jaarwaarden');
 
-    await page.getByLabel('Boekjaar', { exact: true }).selectOption('2025');
+    const selector = page.locator('#year-selector');
+    await selector.focus();
+    await selector.selectOption('2025');
     await expect(page).toHaveURL(/year=2025/);
+    await expect(selector).toBeFocused();
     await expect(page.getByRole('row', { name: /Licentie/ })).toContainText('€ 1.000,00');
     await expectNoAxeViolations(page);
 });

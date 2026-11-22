@@ -37,7 +37,7 @@ test('FR-096 with delivery 3: create, structure, cost, allocate, overlay by hand
     await page.waitForURL(/\/canvases\/\d+\/entry/);
     const canvas = Number(/canvases\/(\d+)/.exec(page.url())?.[1]);
 
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
     await page.getByRole('button', { name: 'Domein', exact: true }).click();
     const domain = page.getByLabel('+ Domein');
     await domain.fill('Inkoop');
