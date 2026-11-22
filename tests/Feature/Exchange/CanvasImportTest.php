@@ -262,7 +262,8 @@ class CanvasImportTest extends CanvasExchangeTestCase
         $entries = array_values(array_filter($logged, fn (MessageLogged $event) => $event->message === 'canvas_imported'));
 
         $this->assertCount(1, $entries);
-        $this->assertSame(['organisation_id' => $response->json('organisation_id'), 'canvas_id' => $response->json('canvas_id'), 'user_id' => auth()->id()], $entries[0]->context);
+        $this->assertSame(['organisation_id' => $response->json('organisation_id'), 'canvas_id' => $response->json('canvas_id'), 'user_id' => auth()->id(), 'session_ref' => $entries[0]->context['session_ref']], $entries[0]->context);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{12}$/', $entries[0]->context['session_ref']);
     }
 
     public function test_a_commit_of_a_file_with_errors_writes_nothing(): void

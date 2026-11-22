@@ -183,7 +183,8 @@ class CostRecordImportCommitTest extends TestCase
 
         $entries = array_values(array_filter($logged, fn (MessageLogged $event) => $event->message === 'cost_records_imported'));
         $this->assertCount(1, $entries);
-        $this->assertSame(['organisation_id' => $this->organisation->id, 'new' => 1, 'updated' => 0, 'unchanged' => 0, 'errors' => 0, 'user_id' => auth()->id()], $entries[0]->context);
+        $this->assertSame(['organisation_id' => $this->organisation->id, 'new' => 1, 'updated' => 0, 'unchanged' => 0, 'errors' => 0, 'user_id' => auth()->id(), 'session_ref' => $entries[0]->context['session_ref']], $entries[0]->context);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{12}$/', $entries[0]->context['session_ref']);
         $this->assertStringNotContainsString('Ada', (string) json_encode($entries[0]->context));
     }
 
