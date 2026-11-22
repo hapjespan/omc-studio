@@ -16,6 +16,7 @@ import SummaryCards, { type Cards } from './SummaryCards.vue';
 import YearlyFiguresForm from './YearlyFiguresForm.vue';
 import { routes } from '../../routes';
 import { formatAmount } from '../../format';
+import { useDeferredLoad } from '../../shell/useDeferredLoad';
 import { exportCsv } from '../../canvas/csvDownload';
 import { useQuietStatus } from '../../shell/layout';
 
@@ -84,6 +85,7 @@ const delta = (row: ListRow): string => {
 };
 const allRows = computed(() => [...props.rows, ...(props.moreRows ?? [])]);
 const complete = computed(() => props.moreRows !== undefined);
+const deferred = useDeferredLoad(['moreRows'], () => !complete.value);
 const shownRows = computed(() => allRows.value.map((row) => ({ ...row, kindText: row.cost_kind ? t(`cost_kind.${row.cost_kind}`) : '', ownerText: nameOf(props.owners, row.owner_id), applicationText: nameOf(props.applications, row.application_id), budgetText: row.has_figures ? row.budget : t('cost_records.no_figures'), forecastText: row.forecast ?? '', allocationText: props.canvas ? (row.allocation === 'allocated' ? '100%' : t('cost_records.allocation_unknown')) : t(`cost_records.allocation_${row.allocation}`) })));
 const fresh = (row: ListRow): ListRow => shownRows.value.find((candidate) => candidate.id === row.id) ?? row;
 const options = (items: Option[]) => items.map((item) => ({ value: String(item.id), label: item.name }));
@@ -144,7 +146,7 @@ function load(query: ListState, year: number | null = props.year): void {
                 <FinaliseCard v-if="year !== null" :canvas-id="canvas.id" :year="year" :remaining="cards.unknown.count" :finalised="yearFinalised" :writable="!organisation.archived" />
             </div>
             <div v-if="listError.rule" role="alert"><ErrorSummary :errors="listError" /></div>
-            <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :complete="complete" :count="count" :query="query" :filters="filters" :dock="dock" :eyebrow="eyebrow" :search-placeholder="t('cost_records.search_placeholder')" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
+            <ListView ref="list" :title="t('cost_records.title')" :columns="columns" :rows="shownRows" :complete="complete" :failed="deferred.failed.value" :count="count" :query="query" :filters="filters" :dock="dock" :eyebrow="eyebrow" :search-placeholder="t('cost_records.search_placeholder')" archivable :can-delete="!organisation.archived" :consequence="consequence" :undo="undo.state.value" :bulk-actions="[{ key: 'delete', label: t('list.delete') }]" :bulk-result="bulkResult" :can-create="!organisation.archived" :create-title="t('cost_records.new')" @change="load($event)" @retry="deferred.retry" @delete="remove" @restore="restore" @undo="undo.run" @dismiss-undo="undo.dismiss" @bulk="bulk">
                 <template #cell="{ row, column }">
                     <span v-if="column.key === 'allocationText'" :class="['inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] font-semibold', row.allocation === 'allocated' ? 'text-success' : 'text-warning']"><span aria-hidden="true" :class="['inline-block h-[7px] w-[7px] rounded-full', row.allocation === 'allocated' ? 'bg-success' : 'border-[1.5px] border-warning']" />{{ row[column.key] }}</span>
                     <span v-else-if="column.key === 'budgetText'" class="whitespace-nowrap font-semibold">{{ row[column.key] }}</span>
