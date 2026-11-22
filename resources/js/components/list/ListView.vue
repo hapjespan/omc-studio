@@ -186,7 +186,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
             <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="onFilters" />
             <div class="ml-auto flex min-h-control flex-wrap items-center justify-end gap-x-3">
                 <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
-                <p :id="rowsStatusId" role="status" :class="complete ? 'sr-only' : 'text-[12.5px] text-secondary'">{{ complete ? '' : failed ? t('list.rows_failed') : t('list.rows_loading') }}</p>
+                <p v-if="!complete" :id="rowsStatusId" role="status" class="text-[12.5px] text-secondary">{{ failed ? t('list.rows_failed') : t('list.rows_loading') }}</p>
                 <AppButton v-if="!complete && failed" size="dense" @click="emit('retry')">{{ t('list.retry') }}</AppButton>
                 <p role="status" aria-live="polite" aria-atomic="true" class="text-[12.5px] text-secondary">{{ count === 1 ? t('list.count_one') : t('list.count', { count }) }}</p>
             </div>
