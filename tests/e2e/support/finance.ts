@@ -1,11 +1,11 @@
 import type { Page } from '@playwright/test';
-import { seedPhp } from './seed';
+import { marked, seedPhp } from './seed';
 
 export function seedOrganisation(name: string, years: number[] = [2026]): number {
     const create = years.map((year) => `App\\Models\\FiscalYear::factory()->create(['organisation_id' => $o->id, 'year' => ${year}]);`).join(' ');
     const output = seedPhp(`$o = App\\Models\\Organisation::factory()->create(['name' => '${name}']); ${create} echo 'ID=' . $o->id;`);
 
-    return Number(/ID=(\d+)/.exec(output)?.[1]);
+    return Number(marked(output, 'ID'));
 }
 
 export function seedCostRecord(organisation: number, name: string, options: { code?: string; budgetCents?: number; year?: number; sets?: number } = {}): void {
@@ -26,7 +26,7 @@ export function seedAllocation(name: string, records: Record<string, number>, st
     const elementCode = structure.map(({ domain, activities }) => `$d = App\\Models\\Element::factory()->create(['canvas_id' => $c->id, 'area_id' => $a->id, 'kind' => 'domain', 'name' => '${domain}']); ${activities.map((activity, index) => `App\\Models\\Element::factory()->create(['canvas_id' => $c->id, 'area_id' => $a->id, 'kind' => 'activity', 'parent_id' => $d->id, 'position' => ${index}, 'name' => '${activity}']);`).join(' ')}`).join(' ');
     const output = seedPhp(`app(App\\Services\\Operations\\Steps\\ReferenceDataStep::class)(); $o = App\\Models\\Organisation::factory()->create(['name' => '${name}']); $f = App\\Models\\FiscalYear::factory()->create(['organisation_id' => $o->id, 'year' => 2026]); $w = App\\Models\\Owner::factory()->create(['organisation_id' => $o->id]); $c = App\\Models\\Canvas::factory()->create(['organisation_id' => $o->id, 'name' => '${name} canvas']); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); $a = App\\Models\\Area::where('key', 'primary_activities')->first(); $ids = []; ${recordCode} ${elementCode} echo 'OUT=' . json_encode(['organisation' => $o->id, 'canvas' => $c->id, 'records' => $ids]);`);
 
-    return JSON.parse(/OUT=(.*)/.exec(output)?.[1] ?? '{}') as AllocationSeed;
+    return JSON.parse(marked(output, 'OUT')) as AllocationSeed;
 }
 
 export async function expandTarget(page: Page, name: string): Promise<void> {

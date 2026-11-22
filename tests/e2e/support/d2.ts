@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { seedCostRecord, seedOrganisation } from './finance';
-import { seedPhp } from './seed';
+import { marked, seedPhp } from './seed';
 
 export const unique = (prefix = 'Org'): string => `${prefix} ${randomUUID().slice(0, 8)}`;
 
@@ -10,7 +10,7 @@ export interface Prepared {
 }
 
 export function seedCanvasFor(organisation: number): number {
-    return Number(/ID=(\d+)/.exec(seedPhp(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); echo 'ID=' . $c->id;`))?.[1]);
+    return Number(marked(seedPhp(`$c = App\\Models\\Canvas::factory()->create(['organisation_id' => ${organisation}]); App\\Services\\Canvas\\UnknownAllocationDomain::ensure($c); echo 'ID=' . $c->id;`), 'ID'));
 }
 
 export function seedWorkspace(): Prepared {
