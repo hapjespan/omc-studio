@@ -25,7 +25,7 @@ export function wrapText(text: string, maxWidth: number, font: FontSpec, measure
         for (let start = 0; start < chars.length; ) {
             const take = (count: number): string => chars.slice(start, start + count).join('');
             let high = chars.length - start;
-            if (width(take(high)) <= maxWidth) {
+            if (start > 0 && width(take(high)) <= maxWidth) {
                 current = take(high);
                 break;
             }
