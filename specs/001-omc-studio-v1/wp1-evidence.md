@@ -11,6 +11,13 @@ Development container, PHP built-in server on `http://127.0.0.1:8099` with `SESS
 
 - chromium: Secure session cookie accepted
 
+## Clean start proof (2026-11-21)
+
+host: macOS met Docker Desktop, door de orchestrator. Commit: release f8a778e. `scripts/prove-clean-start.sh` ended with exit 0.
+
+- Build time: 60 seconds
+- First answer of / after `docker compose up -d`: 2 seconds (limit 180)
+
 ## Clean start proof (2026-11-19)
 
 - Build time: 7 seconds
