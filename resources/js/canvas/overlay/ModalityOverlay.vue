@@ -14,5 +14,5 @@ defineProps<{ block: DrawnBlock; counts: ModalityCounts; letters: string[] }>();
 </script>
 
 <template>
-    <p class="absolute inset-x-0 bottom-0 truncate px-3 pb-0.5 text-[11px] font-semibold leading-[14px]" :style="{ background: block.style.fill ?? 'transparent', color: block.style.textColour }" data-modality-counts>{{ countsLine(counts, letters) }}</p>
+    <p class="absolute inset-x-0 bottom-0 truncate px-3 pb-1 pt-0.5 text-[11px] font-semibold leading-[14px]" :style="{ background: block.style.fill ?? 'transparent', color: block.style.textColour }" data-modality-counts>{{ countsLine(counts, letters) }}</p>
 </template>

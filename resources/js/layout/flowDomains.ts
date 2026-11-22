@@ -25,6 +25,7 @@ export const CARD_GAP = 12;
 const CHILD_GAP = 6;
 export const CLUSTER_INDENT = 8;
 export const AMOUNT_ROOM = 39;
+export const COUNTS_STRIP = 18;
 const depth: Record<ElementKind, number> = { domain: 1, cluster: 2, activity: 3 };
 
 export const columnCount = (width: number): number => Math.max(1, Math.floor((width + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
@@ -68,7 +69,7 @@ function place(node: TreeNode, area: AreaKey, x: number, y: number, width: numbe
         const placed = place(child, area, x + pad.x + indent, y + cursor + CHILD_GAP, width - 2 * pad.x - indent, out, context, null, backdrop);
         cursor += CHILD_GAP + placed.drawnHeight;
     }
-    block.drawnHeight = Math.max(own?.height ?? 0, element.kind === 'domain' ? Math.max(2 * pad.y + textLines.length * style.lineHeight + AMOUNT_ROOM, cursor + pad.y) : cursor + pad.y);
+    block.drawnHeight = Math.max(own?.height ?? 0, element.kind === 'domain' ? Math.max(2 * pad.y + textLines.length * style.lineHeight + AMOUNT_ROOM, cursor + pad.y + COUNTS_STRIP) : cursor + pad.y);
 
     return block;
 }

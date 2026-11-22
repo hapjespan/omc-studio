@@ -13,7 +13,22 @@ test('the modality overlay marks Elements with their letter, lists the legend an
     const legend = page.locator('[data-legend="modality"]');
     for (const text of ['C: Common', 'A: Adaptive', 'S: Specialized', 'D: Distinct']) await expect(legend).toContainText(text);
 
-    await expect(page.locator('[data-modality-counts]').filter({ hasText: 'C 2, A 1, S 0, D 0, geen 2' })).toHaveCount(1);
+    const counts = page.locator('[data-modality-counts]').filter({ hasText: 'C 2, A 1, S 0, D 0, geen 2' });
+    await expect(counts).toHaveCount(1);
+    await expect(counts).toBeVisible();
+    const clear = await page.evaluate(() => {
+        const strip = document.querySelector('[data-modality-counts]')!;
+        const rect = strip.getBoundingClientRect();
+        const layer = Number(getComputedStyle(strip.closest('[data-overlay-card]')!).zIndex);
+        const blocks = [...document.querySelectorAll('[data-block]')];
+        const above = blocks.every((node) => Number(getComputedStyle(node).zIndex) < layer);
+        const free = [...document.querySelectorAll('[data-kind="activity"], [data-kind="cluster"]')].every((node) => {
+            const box = node.getBoundingClientRect();
+            return box.bottom <= rect.top + 1 || box.top >= rect.bottom || box.right <= rect.left || box.left >= rect.right;
+        });
+        return above && free;
+    });
+    expect(clear).toBe(true);
     await expect(page.locator('[data-block]', { hasText: 'Toetsen' }).locator('[aria-hidden="true"]', { hasText: 'A' }).first()).toBeVisible();
     await expect(page.locator('[data-financial-card]')).toHaveCount(0);
     await expectNoAxeViolations(page);

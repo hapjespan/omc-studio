@@ -1147,7 +1147,7 @@ Go: every point P1 to P10 met, where P4, P5, P10 and the alignment and distribut
 - **FR-074**: Bekijken MUST offer the overlays "Geen", "Modaliteit" and "Financieel"; the financial overlay MUST use the Fiscal year of the top-bar selector (default: the current calendar year when it is a Fiscal year of the Organisation, otherwise its latest) and offer filters on Cost kind, Owner and Application, each a single choice including "Alle".
 - **FR-075**: The financial overlay MUST show per Domain card in activity Areas its Total amount, Share and a Forecast against Budget bar with both amounts as text, a colour intensity rising with Share, per activity Area its Total, on hover or focus the per Cost record breakdown, and in the side panel the figures of User Story 25 scenario 5.
 - **FR-076**: In the financial overlay the Unknown allocation Domain MUST show its amount and Share like any Domain card, count in the Supporting activities Area Total, and appear as its own line in the side panel and breakdowns (ADR 0008).
-- **FR-077**: The modality overlay MUST show per Element its Modality mark with colour and letter, a legend, and per Domain card the count of its Clusters and Activities per Modality and without one.
+- **FR-077**: The modality overlay MUST show per Element its Modality mark with colour and letter, a legend, and per Domain card the count of its Clusters and Activities per Modality and without one. Every Domain reserves a fixed strip of 18 pixels at its bottom for that count line, in the layout engine and therefore in Tekenen and Bekijken, so the counts never cover an Activity or Cluster `[ASSUMPTION T312-1]`.
 
 #### Snapshots (D3)
 

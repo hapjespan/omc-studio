@@ -111,7 +111,9 @@ const stripe = computed(() => `${(props.figures.total.budget / scale.value) * 10
                 </p>
                 <div v-if="parts.has('bar')" class="relative h-1.5 w-full shrink-0 rounded-[3px] bg-hairline" data-bar>
                     <div class="absolute inset-y-0 left-0 rounded-[3px] bg-current" :style="{ width: within }" data-bar-fill />
-                    <div v-if="figures.total.forecast > figures.total.budget" class="absolute inset-y-0 rounded-r-[3px]" :style="{ left: within, width: over, background: OVER_BUDGET }" data-bar-over />
+                    <div v-if="figures.total.forecast > figures.total.budget" class="absolute -inset-y-0.5 bg-white" :style="{ left: within, width: over }" data-bar-over-strip>
+                        <div class="absolute inset-x-0 inset-y-0.5 rounded-r-[3px]" :style="{ background: OVER_BUDGET }" data-bar-over />
+                    </div>
                     <div class="absolute -top-[3px] h-3 w-0.5 bg-current" :style="{ left: stripe }" data-bar-budget />
                 </div>
                 <p v-if="parts.has('forecast')" class="truncate text-[11.5px] leading-[16.1px]" :style="{ color: secondary }" data-forecast>{{ lines.forecast }}</p>
