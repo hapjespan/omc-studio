@@ -221,6 +221,14 @@ class CanvasImportTest extends CanvasExchangeTestCase
         $this->assertNull($finalised->finalised_by);
     }
 
+    public function test_an_imported_finalised_year_is_marked_imported_and_the_source_year_is_not(): void
+    {
+        $response = $this->commit(['organisation_name' => 'Doelorganisatie', 'canvas_name' => 'Kopie'])->assertOk();
+
+        $this->assertTrue(FinalisedYear::where('canvas_id', $response->json('canvas_id'))->sole()->imported);
+        $this->assertFalse(FinalisedYear::where('canvas_id', $this->canvas->getKey())->sole()->imported);
+    }
+
     public function test_a_second_import_into_the_same_organisation_makes_a_second_canvas_and_reuses_the_cost_records(): void
     {
         $organisation = $this->canvas->organisation;
