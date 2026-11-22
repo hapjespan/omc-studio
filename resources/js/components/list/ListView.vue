@@ -184,7 +184,7 @@ defineExpose({ focusSearch: () => searchField.value?.focus(), create: (from?: HT
             <div class="w-[220px] max-w-full"><SearchField :id="searchId" ref="searchField" v-model="search" :label="t('list.search')" :placeholder="searchPlaceholder ?? t('list.search')" @input="onSearch" /></div>
             <AppButton v-if="$slots.form && canCreate && !dock" variant="primary" icon="plus" @click="open('new', $event.currentTarget as HTMLElement)">{{ createLabel ?? t('list.new') }}</AppButton>
             <FilterBar v-if="filters?.length" :filters="filters" :active="query.filters" @change="onFilters" />
-            <div class="ml-auto flex h-control items-center gap-3 whitespace-nowrap">
+            <div class="ml-auto flex min-h-control flex-wrap items-center justify-end gap-x-3">
                 <ArchiveToggle v-if="archivable" :model-value="query.archived" @update:model-value="change({ archived: $event })" />
                 <p :id="rowsStatusId" role="status" :class="complete ? 'sr-only' : 'text-[12.5px] text-secondary'">{{ complete ? '' : failed ? t('list.rows_failed') : t('list.rows_loading') }}</p>
                 <AppButton v-if="!complete && failed" size="dense" @click="emit('retry')">{{ t('list.retry') }}</AppButton>
