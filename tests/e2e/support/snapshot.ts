@@ -1,5 +1,5 @@
 import { seedOverlay, type OverlaySeed } from './overlay';
-import { seedPhp } from './seed';
+import { marked, seedPhp } from './seed';
 
 export interface SnapshotSeed extends OverlaySeed {
     snapshot: number;
@@ -9,7 +9,7 @@ export function seedSnapshot(name: string): SnapshotSeed {
     const seed = seedOverlay(name);
     const output = seedPhp(`auth()->login(App\\Models\\User::factory()->create(['role' => 'administrator'])); $c = App\\Models\\Canvas::find(${seed.canvas}); $f = App\\Models\\FiscalYear::where('organisation_id', $c->organisation_id)->where('year', 2026)->first(); $s = app(App\\Services\\Snapshot\\Snapshots::class)->take($c, $f, 'Stand voor de stuurgroep'); echo 'ID=' . $s->id;`);
 
-    return { ...seed, snapshot: Number(/ID=(\d+)/.exec(output)?.[1]) };
+    return { ...seed, snapshot: Number(marked(output, 'ID')) };
 }
 
 export function changeLiveCanvas(canvas: number): void {

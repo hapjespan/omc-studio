@@ -1,4 +1,4 @@
-import { seedPhp } from './seed';
+import { marked, seedPhp } from './seed';
 
 export interface OverlaySeed {
     organisation: number;
@@ -38,11 +38,11 @@ export function seedOverlay(name: string): OverlaySeed {
         "echo 'OUT=' . json_encode(['organisation' => $o->id, 'canvas' => $c->id, 'domain' => 'Onderwijs', 'records' => ['Salarissen' => $r['Salarissen']->id, 'Licentie' => $r['Licentie']->id]]);",
     ].join(' ');
 
-    return JSON.parse(/OUT=(.*)/.exec(seedPhp(code))?.[1] ?? '{}') as OverlaySeed;
+    return JSON.parse(marked(seedPhp(code), 'OUT')) as OverlaySeed;
 }
 
 export function seedPerformanceCanvas(): number {
     const output = seedPhp("if (! App\\Models\\Modality::exists()) { app(App\\Services\\Operations\\Steps\\ReferenceDataStep::class)(); } $d = (new Database\\Factories\\PerformanceDatasetFactory(500, 1000, 2026, random_int(1, 2000000000)))->create(); echo 'ID=' . $d['canvas']->id;");
 
-    return Number(/ID=(\d+)/.exec(output)?.[1]);
+    return Number(marked(output, 'ID'));
 }

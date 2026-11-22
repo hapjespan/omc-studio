@@ -13,4 +13,9 @@ require $root.'/vendor/autoload.php';
 $app = require $root.'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
-eval((string) stream_get_contents(STDIN));
+try {
+    eval((string) stream_get_contents(STDIN));
+} catch (Throwable $failure) {
+    fwrite(STDERR, (string) $failure);
+    exit(1);
+}

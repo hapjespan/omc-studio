@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { signInAs } from './shell';
-import { seedPhp } from './seed';
+import { marked, seedPhp } from './seed';
 
 export type Seed = [kind: 'domain' | 'cluster' | 'activity', name: string, parent?: string];
 
@@ -10,7 +10,7 @@ export function seedEntryCanvas(area: string, seed: Seed[] = [], extra = ''): nu
         .join(' ');
     const output = seedPhp(`app(App\\Services\\Operations\\InstallSteps::class)->run(); $c = App\\Models\\Canvas::factory()->create(); $a = App\\Models\\Area::where('key', '${area}')->firstOrFail(); $e = []; ${rows} ${extra} echo 'ID=' . $c->id;`);
 
-    return Number(/ID=(\d+)/.exec(output)?.[1]);
+    return Number(marked(output, 'ID'));
 }
 
 export async function openEntry(page: Page, canvas: number, area = 'Primaire activiteiten'): Promise<void> {

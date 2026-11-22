@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Organisation;
+use Faker\Generator;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
@@ -38,6 +39,19 @@ class OrganisationTest extends TestCase
         $this->expectException(UniqueConstraintViolationException::class);
 
         Organisation::factory()->create(['name' => 'Gemeente den Haag - Omstreken']);
+    }
+
+    public function test_the_factory_makes_a_separate_organisation_when_faker_starts_over(): void
+    {
+        $slugs = [];
+
+        for ($i = 0; $i < 200; $i++) {
+            $this->app->forgetInstance(Generator::class.':'.config('app.faker_locale'));
+            mt_srand(2026);
+            $slugs[] = Organisation::factory()->create()->slug;
+        }
+
+        $this->assertCount(200, array_unique($slugs));
     }
 
     public function test_the_archive_state_is_indexed_and_defaults_to_active(): void

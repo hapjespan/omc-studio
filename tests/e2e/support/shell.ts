@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
-import { seedPhp } from './seed';
+import { marked, seedPhp } from './seed';
 
 export function createAccount(role: 'administrator' | 'reader'): { email: string; password: string } {
     const email = `${randomUUID()}@example.test`;
@@ -29,5 +29,5 @@ export function createCanvas(names?: { organisation: string; canvas: string }): 
         : "$c = App\\Models\\Canvas::factory()->create(); echo 'ID=' . $c->id;";
     const output = seedPhp(code);
 
-    return Number(/ID=(\d+)/.exec(output)?.[1]);
+    return Number(marked(output, 'ID'));
 }
