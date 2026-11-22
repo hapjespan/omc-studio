@@ -18,6 +18,10 @@ test('every mode has its own page title and the sign-in page has one', async ({ 
     }
     expect(new Set(titles).size).toBe(3);
 
+    await page.goto(`/canvases/${canvas.id}/cost-records`);
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await expect(page).toHaveTitle(`${canvas.name} - Kostenposten - OMC Studio`);
+
     await page.context().clearCookies();
     const account = createAccount('reader');
     seedPhp(`App\\Models\\User::where('email', '${account.email}')->update(['must_change_password' => true]);`);
