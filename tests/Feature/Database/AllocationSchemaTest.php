@@ -73,7 +73,7 @@ class AllocationSchemaTest extends TestCase
             Schema::getColumnListing('allocation_lines'),
         );
         $this->assertEqualsCanonicalizing(
-            ['id', 'canvas_id', 'fiscal_year_id', 'finalised_at', 'finalised_by'],
+            ['id', 'canvas_id', 'fiscal_year_id', 'finalised_at', 'finalised_by', 'imported'],
             Schema::getColumnListing('finalised_years'),
         );
         $this->assertEqualsCanonicalizing([
