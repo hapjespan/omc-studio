@@ -114,7 +114,7 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 | Actor reference in Audit log, "Definitief door", "Gemaakt door" | As long as the record | Pseudonymised at user deletion; removed with its Canvas or Organisation |
 | Session record and session payload (encrypted at rest; holds the user reference, sign-in time and flashed one-time passwords or recovery codes) | 120 minutes idle or sign-out | R-6 |
 | Throttle key | Expires after 60 seconds; the file is removed on the next read or on a cache clear | R-7 |
-| Undo record (user identifier and deleted rows) | 10 minutes, removed at restore and at sign-out | ADR 0033 |
+| Undo record (user identifier and deleted rows) | Usable for 10 minutes; removed at the next deletion, undo or sign-in by any user, and the user's own records at restore and at sign-out | ADR 0033 |
 | User identifier in the application error log | 14 days | R-5 |
 | First Administrator e-mail address in the container log | As long as the operator keeps the container log | R-25 |
 | Account state columns (one-time password expiry, must-change flag, second-factor times) | Until the account is deleted | Row deleted with the account |

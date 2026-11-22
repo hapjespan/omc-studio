@@ -4,6 +4,7 @@ namespace App\Services\Accounts;
 
 use App\Models\User;
 use App\Services\Audit\SecurityLog;
+use App\Services\Undo\UndoStore;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,7 @@ class SignInService
         }
 
         $this->throttle->clear($email);
+        app(UndoStore::class)->prune();
         app(SecondFactorService::class)->discardUnconfirmed($user);
 
         if ($user->two_factor_confirmed_at !== null) {

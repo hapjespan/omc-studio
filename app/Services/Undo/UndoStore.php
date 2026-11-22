@@ -169,7 +169,7 @@ class UndoStore
         });
     }
 
-    private function prune(): void
+    public function prune(): void
     {
         UndoRecord::query()->where('expires_at', '<', now())->delete();
     }
