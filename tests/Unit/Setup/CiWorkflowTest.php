@@ -62,12 +62,27 @@ class CiWorkflowTest extends TestCase
 
     public function test_a_pull_request_that_only_touches_documentation_skips_both_playwright_jobs(): void
     {
-        foreach (['e2e', 'e2e-performance'] as $name) {
-            $job = $this->job($name);
+        $job = $this->job('e2e');
 
-            $this->assertSame('scope', $job['needs']);
-            $this->assertSame("needs.scope.outputs.documentation_only != 'true'", $job['if']);
-        }
+        $this->assertSame('scope', $job['needs']);
+        $this->assertSame("needs.scope.outputs.documentation_only != 'true'", $job['if']);
+
+        $job = $this->job('e2e-performance');
+
+        $this->assertSame('scope', $job['needs']);
+        $this->assertSame("github.event_name != 'pull_request' && needs.scope.outputs.documentation_only != 'true'", $job['if']);
+    }
+
+    public function test_a_pull_request_runs_chromium_alone_and_a_push_runs_the_three_engines(): void
+    {
+        $job = $this->job('e2e');
+
+        $this->assertSame(
+            '${{ github.event_name == \'pull_request\' && \'chromium\' || \'chromium firefox webkit\' }}',
+            $job['env']['ENGINES'],
+        );
+        $this->assertSame('Playwright on three engines', $job['name']);
+        $this->assertStringContainsString('for engine in $ENGINES; do', $this->commands('e2e'));
     }
 
     public function test_a_push_to_release_always_counts_as_a_code_change(): void
@@ -90,12 +105,12 @@ class CiWorkflowTest extends TestCase
         $this->assertArrayNotHasKey('DB_CONNECTION', (array) ($this->job('php-sqlite')['env'] ?? []));
     }
 
-    public function test_playwright_installs_the_three_engines(): void
+    public function test_playwright_installs_the_engines_of_the_event(): void
     {
         $commands = $this->commands('e2e');
 
         $this->assertMatchesRegularExpression(
-            '/playwright install .*chromium firefox webkit/',
+            '/playwright install --with-deps \$ENGINES/',
             $commands,
         );
         $this->assertStringContainsString('playwright test', $commands);
@@ -103,7 +118,7 @@ class CiWorkflowTest extends TestCase
 
     public function test_the_browser_download_is_retried_a_bounded_number_of_times(): void
     {
-        $this->assertMatchesRegularExpression('/until npx playwright install .*chromium firefox webkit; do.*-ge 3.*exit 1/s', $this->commands('e2e'));
+        $this->assertMatchesRegularExpression('/until npx playwright install --with-deps \$ENGINES; do.*-ge 3.*exit 1/s', $this->commands('e2e'));
     }
 
     public function test_both_audits_run(): void

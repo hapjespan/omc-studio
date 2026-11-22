@@ -9,7 +9,7 @@ The one-second limit of SC-020 stays. The end-to-end specs that check it (`@perf
 
 Times are taken inside the page where possible, so the test harness does not count: the add-an-Element sample runs from the Enter key press to the new row in the DOM through a `MutationObserver`, and Bekijken uses `performance.now()` of the page; Playwright's own locator polling over 500 rows cost 0.5 to 0.8 seconds on Firefox and made the same code look slow. Invoeren opening is timed from the navigation to the first row, with the click on the Area included.
 
-CI runs these specs in their own job, "Playwright performance on three engines", with one worker and no retries, after nothing else has run on that runner. The functional job excludes them with `--grep-invert '@performance|Secure session cookie'`. A pull request that only changes files under `specs/`, `docs/` or `*.md` skips both Playwright jobs through the job `scope`; every push to `release` runs them.
+CI runs these specs in their own job, "Playwright performance on three engines", with one worker and no retries, after nothing else has run on that runner. The functional job excludes them with `--grep-invert '@performance|Secure session cookie'`. A pull request that only changes files under `specs/`, `docs/` or `*.md` skips both Playwright jobs through the job `scope`; every push to `release` runs them. ADR 0049 limits a pull request to Chromium and skips the performance job there.
 
 ## Motivation
 
