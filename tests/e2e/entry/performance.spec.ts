@@ -13,7 +13,7 @@ test('Invoeren opens within one second on a Canvas of 500 Elements', { tag: PERF
         await page.goto('about:blank');
         const opened = Date.now();
         await page.goto(`/canvases/${canvas}/entry`);
-        await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+        await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
         await expect(page.getByTestId('entry-row').first()).toBeVisible();
 
         return Date.now() - opened;

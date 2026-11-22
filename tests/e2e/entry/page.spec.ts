@@ -13,7 +13,8 @@ test('Invoeren lists the eight Areas with count lines and chooses the first acti
     await page.goto(`/canvases/${canvasId(name)}/entry`);
 
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
-    const panel = page.getByRole('navigation', { name: 'Areas' });
+    const panel = page.getByRole('navigation', { name: 'Area’s' });
+    await expect(panel.getByRole('heading', { level: 2 })).toHaveText('Area’s');
     await expect(panel.getByRole('button')).toHaveCount(8);
     await expect(panel.getByRole('button', { name: /Richten/ })).toContainText('0 domeinen · 0 activiteiten');
     await expect(panel.getByRole('button', { name: /Richten/ })).toHaveAttribute('aria-current', 'true');
