@@ -282,4 +282,19 @@ describe('ListView staged rendering', () => {
         expect(frames).toHaveLength(1);
         expect(timeouts.mock.calls.map((call) => call[1])).not.toContain(400);
     });
+
+    it('takes every further chunk on an animation frame too, so no timer delays the rest of a long list', async () => {
+        vi.useFakeTimers();
+        const frames: (() => void)[] = [];
+        vi.stubGlobal('requestAnimationFrame', (callback: () => void) => frames.push(callback));
+        vi.stubGlobal('cancelAnimationFrame', () => undefined);
+        const timeouts = vi.spyOn(globalThis, 'setTimeout');
+        const many = Array.from({ length: 1000 }, (_, index) => ({ id: index, name: `Rij ${index}`, email: 'x@example.test' }));
+
+        await render({ title: 'Eigenaren', columns, rows: many, count: 1000, query: idle });
+        for (let step = 0; step < 6; step++) frames[step]?.();
+
+        expect(frames).toHaveLength(5);
+        expect(timeouts.mock.calls.map((call) => call[1])).not.toContain(40);
+    });
 });

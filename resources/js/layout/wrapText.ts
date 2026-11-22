@@ -10,19 +10,37 @@ export function wrapText(text: string, maxWidth: number, font: FontSpec, measure
     };
 
     for (const word of text.split(/\s+/).filter(Boolean)) {
-        const candidate = current === '' ? word : `${current} ${word}`;
-        if (width(candidate) <= maxWidth) {
-            current = candidate;
+        const joined = current === '' ? word : `${current} ${word}`;
+        if (width(joined) <= maxWidth) {
+            current = joined;
             continue;
         }
+        const alone = current === '';
         flush();
-        if (width(word) <= maxWidth) {
+        if (!alone && width(word) <= maxWidth) {
             current = word;
             continue;
         }
-        for (const char of word) {
-            if (current !== '' && width(current + char) > maxWidth) flush();
-            current += char;
+        const chars = [...word];
+        for (let start = 0; start < chars.length; ) {
+            const take = (count: number): string => chars.slice(start, start + count).join('');
+            let high = chars.length - start;
+            if (width(take(high)) <= maxWidth) {
+                current = take(high);
+                break;
+            }
+            let low = 1;
+            while (high - low > 1) {
+                const middle = (low + high) >> 1;
+                if (width(take(middle)) <= maxWidth) low = middle;
+                else high = middle;
+            }
+            if (start + low === chars.length) {
+                current = take(low);
+                break;
+            }
+            lines.push(take(low));
+            start += low;
         }
     }
     flush();
