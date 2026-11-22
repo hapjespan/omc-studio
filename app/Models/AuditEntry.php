@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Table(timestamps: false)]
 #[Fillable([
-    'occurred_at', 'actor_type', 'actor_id', 'action', 'subject_type', 'subject_id',
+    'occurred_at', 'actor_type', 'actor_id', 'deleted_user_number', 'action', 'subject_type', 'subject_id',
     'subject_label', 'organisation_id', 'canvas_id', 'changes',
 ])]
 class AuditEntry extends Model

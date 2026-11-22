@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuditObserver
 {
-    private const TECHNICAL = ['created_at', 'updated_at', 'structure_version', 'layout_version', 'layout_saved_at'];
+    private const TECHNICAL = ['created_at', 'updated_at', 'structure_version', 'layout_version', 'layout_saved_at', 'deleted_user_number'];
 
     private const SECRETS = [
         User::class => [

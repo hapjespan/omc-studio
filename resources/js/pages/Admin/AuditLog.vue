@@ -72,7 +72,7 @@ function reset(): void {
 }
 
 const label = (prefix: string, key: string): string => (hasMessage(`${prefix}.${key}`) ? t(`${prefix}.${key}`) : key);
-const actor = (entry: Entry): string => (entry.actor.kind === 'user' ? (entry.actor.name ?? '') : t(`audit_log.actor.${entry.actor.kind}`));
+const actor = (entry: Entry): string => (entry.actor.name ?? (entry.actor.kind === 'user' ? '' : t(`audit_log.actor.${entry.actor.kind}`)));
 const value = (text: string | null): string => (text === null || text === '' ? t('audit_log.empty_value') : text);
 </script>
 

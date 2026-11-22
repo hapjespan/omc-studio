@@ -147,7 +147,8 @@ Uniqueness of active names under one parent and the single Unknown allocation Do
 | id | integer pk | |
 | occurred_at | datetime | |
 | actor_type | string | `user` or `system` (first start, install) |
-| actor_id | fk users set null, null | with `actor_type = user`, null shows "verwijderde gebruiker" (FR-011) |
+| actor_id | fk users set null, null | with `actor_type = user`, null shows "verwijderde gebruiker N" (FR-011) |
+| deleted_user_number | integer null, index | set to the former user id when that user is deleted (before the set null); the stable pseudonym number N, no personal data. Same column on `finalised_years` and `snapshots`, set from `finalised_by` and `created_by` |
 | action | string | `created`, `changed`, `deleted`, `archived`, `restored`, `undone`, `finalised`, `reopened`, `redistributed`, `carried_over`, `imported`, event names for secrets |
 | subject_type | string | English kind name |
 | subject_id | string | |
@@ -246,7 +247,7 @@ The sum of 10000 is enforced by the allocation service, which replaces the whole
 
 ### finalised_years
 
-`id`, `canvas_id` (fk cascade), `fiscal_year_id` (fk restrict), `finalised_at`, `finalised_by` (fk users set null), `imported` (boolean, default false; true for rows written by an import, which never had a finaliser; a null `finalised_by` on a non-imported row means the finaliser was deleted, shown as "verwijderde gebruiker"). Index: unique(canvas_id, fiscal_year_id); index(fiscal_year_id) for "Finalised in any Canvas of the Organisation" (FR-051).
+`id`, `canvas_id` (fk cascade), `fiscal_year_id` (fk restrict), `finalised_at`, `finalised_by` (fk users set null), `imported` (boolean, default false; true for rows written by an import, which never had a finaliser; a null `finalised_by` on a non-imported row means the finaliser was deleted, shown as "verwijderde gebruiker N" from `deleted_user_number`). Index: unique(canvas_id, fiscal_year_id); index(fiscal_year_id) for "Finalised in any Canvas of the Organisation" (FR-051).
 
 ### system_notices
 
@@ -312,7 +313,7 @@ Invariant checked by the server on every save: an Element's stored x plus width 
 | fiscal_year | integer | |
 | remark | text null | editable |
 | archived_at | datetime null | editable |
-| created_by | fk users set null, null | "Gemaakt door" |
+| created_by | fk users set null, null | "Gemaakt door"; shows "verwijderde gebruiker N" from `deleted_user_number` |
 | created_at | datetime | |
 | imported | boolean | marked "Geïmporteerd" (FR-083) |
 | schema_version | integer | |

@@ -59,11 +59,12 @@ class AuditLogPageTest extends TestCase
     public function test_a_deleted_user_and_the_system_are_labelled(): void
     {
         $this->actingAs(User::factory()->administrator()->create());
-        AuditEntry::create(['occurred_at' => now(), 'actor_type' => 'user', 'actor_id' => null, 'action' => 'changed', 'subject_type' => 'canvas', 'subject_id' => '1', 'subject_label' => 'x', 'changes' => []]);
+        AuditEntry::create(['occurred_at' => now(), 'actor_type' => 'user', 'actor_id' => null, 'deleted_user_number' => 7, 'action' => 'changed', 'subject_type' => 'canvas', 'subject_id' => '1', 'subject_label' => 'x', 'changes' => []]);
         AuditEntry::create(['occurred_at' => now()->subMinute(), 'actor_type' => 'system', 'action' => 'created', 'subject_type' => 'canvas', 'subject_id' => '1', 'subject_label' => 'x', 'changes' => []]);
 
         $this->get('/admin/audit-log')->assertInertia(fn (Assert $page) => $page
             ->where('entries.0.actor.kind', 'deleted')
+            ->where('entries.0.actor.name', __('users.deleted_user_numbered', ['number' => 7]))
             ->where('entries.1.actor.kind', 'system'));
     }
 

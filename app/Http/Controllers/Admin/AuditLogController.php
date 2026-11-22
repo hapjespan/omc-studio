@@ -8,6 +8,7 @@ use App\Models\AuditEntry;
 use App\Models\Canvas;
 use App\Models\Organisation;
 use App\Models\User;
+use App\Services\Accounts\DeletedUserLabel;
 use App\Services\Audit\AuditLogQuery;
 use App\Support\DateRangeFilter;
 use App\Support\Format;
@@ -70,7 +71,7 @@ class AuditLogController extends Controller
             'occurred_at' => Format::formatDate($entry->occurred_at->toIso8601String()).' '.Format::formatTime($entry->occurred_at->toIso8601String()),
             'actor' => match (true) {
                 $entry->actor_type === ActorType::System => ['kind' => 'system', 'name' => null],
-                $entry->actor === null => ['kind' => 'deleted', 'name' => null],
+                $entry->actor === null => ['kind' => 'deleted', 'name' => DeletedUserLabel::for($entry->deleted_user_number)],
                 default => ['kind' => 'user', 'name' => $entry->actor->name],
             },
             'action' => $entry->action,

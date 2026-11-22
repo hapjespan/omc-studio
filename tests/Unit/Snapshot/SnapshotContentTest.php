@@ -84,7 +84,7 @@ class SnapshotContentTest extends AllocationTestCase
     public function test_the_snapshots_table_has_the_columns_and_the_versions_index(): void
     {
         $this->assertSame(
-            ['id', 'canvas_id', 'name', 'fiscal_year', 'remark', 'archived_at', 'created_by', 'created_at', 'imported', 'schema_version', 'content', 'checksum'],
+            ['id', 'canvas_id', 'name', 'fiscal_year', 'remark', 'archived_at', 'created_by', 'created_at', 'imported', 'schema_version', 'content', 'checksum', 'deleted_user_number'],
             Schema::getColumnListing('snapshots'),
         );
         $this->assertContains(['canvas_id', 'archived_at', 'created_at'], array_column(Schema::getIndexes('snapshots'), 'columns'));
