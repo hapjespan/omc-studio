@@ -50,6 +50,17 @@ describe('Placement in a parent with Manual children', () => {
         expect(canvas.warnings.filter((warning) => warning.kind === 'adjusted')).toEqual([]);
     });
 
+    it('reports nothing when every child is automatic, however far the parent grows', () => {
+        const canvas = run([domain, activity('a', 1), activity('b', 2)], { d: manual(10, 40, 300, 20) });
+        expect(find(canvas, 'd').drawnHeight).toBeGreaterThan(20);
+        expect(canvas.warnings.filter((warning) => warning.kind === 'adjusted')).toEqual([]);
+    });
+
+    it('reports nothing when every child is Manual', () => {
+        const canvas = run([domain, activity('a', 1), activity('b', 2)], { d: manual(10, 40, 300, 20), a: manual(8, 30, 120, 40), b: manual(8, 90, 120, 40) });
+        expect(canvas.warnings.filter((warning) => warning.kind === 'adjusted')).toEqual([]);
+    });
+
     it('writes nothing to the Layout', () => {
         const layouts = { d: manual(10, 40, 300, 60), a: manual(8, 30, 120, 40) };
         const copy = structuredClone(layouts);

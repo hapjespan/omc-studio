@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, expectNoAxeViolations, test } from '../support/guards';
 import { createCanvas, signInAs } from '../support/shell';
 import { HARNESS_URL } from '../support/ports';
+import { seedViewCanvas } from '../support/view';
 
 type PageType = import('@playwright/test').Page;
 
@@ -38,6 +39,17 @@ const clippedText = (page: PageType): Promise<string[]> =>
             })
             .map((node) => `${node.tagName.toLowerCase()}: ${node.textContent?.trim().slice(0, 40)}`),
     );
+
+const modeScreens = async (page: PageType, adjust: (page: PageType) => Promise<unknown>): Promise<void> => {
+    const canvas = seedViewCanvas();
+    for (const mode of ['entry', 'view', 'cost-records']) {
+        await page.goto(`/canvases/${canvas.id}/${mode}`);
+        await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+        await adjust(page);
+        expect(await horizontalOverflow(page), mode).toBeLessThanOrEqual(0);
+        expect(await clippedText(page), mode).toEqual([]);
+    }
+};
 
 const horizontalOverflow = (page: import('@playwright/test').Page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
@@ -84,6 +96,8 @@ test.describe('at 320 CSS pixels', () => {
         expect(account.after).toBeCloseTo(account.before * 2, 1);
         expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
         expect(await clippedText(page)).toEqual([]);
+
+        await modeScreens(page, (current) => enlargeText(current, 2));
     });
 
     test('with the WCAG 1.4.12 text spacing the shell neither scrolls horizontally nor clips text', async ({ page }) => {
@@ -97,6 +111,8 @@ test.describe('at 320 CSS pixels', () => {
         await applyTextSpacing(page);
         expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
         expect(await clippedText(page)).toEqual([]);
+
+        await modeScreens(page, applyTextSpacing);
     });
 
     test.describe('on the harness', () => {

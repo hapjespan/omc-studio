@@ -20,6 +20,10 @@ test('an empty X value is refused with a message that names the field and keeps 
     await expect(x).toHaveAttribute('aria-invalid', 'true');
     await expect(x).toHaveValue(before);
 
+    await x.pressSequentially('1');
+    await expect(page.locator('#box-x-error')).toHaveCount(0);
+    await expect(x).not.toHaveAttribute('aria-invalid', 'true');
+
     await x.fill(String(Number(before) + 2));
     await x.press('Enter');
     await expect(page.locator('#box-x-error')).toHaveCount(0);

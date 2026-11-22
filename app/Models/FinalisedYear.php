@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['canvas_id', 'fiscal_year_id', 'finalised_at', 'finalised_by'])]
+#[Fillable(['canvas_id', 'fiscal_year_id', 'finalised_at', 'finalised_by', 'imported'])]
 class FinalisedYear extends Model
 {
     /** @use HasFactory<FinalisedYearFactory> */
@@ -17,7 +17,9 @@ class FinalisedYear extends Model
 
     public $timestamps = false;
 
-    protected $casts = ['finalised_at' => 'datetime'];
+    protected $attributes = ['imported' => false];
+
+    protected $casts = ['finalised_at' => 'datetime', 'imported' => 'boolean'];
 
     /** @return BelongsTo<Canvas, $this> */
     public function canvas(): BelongsTo

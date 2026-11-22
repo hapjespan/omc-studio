@@ -35,7 +35,7 @@ test('FR-096: a Canvas is created, structured, costed, allocated, checked, final
     await page.waitForURL(/\/canvases\/\d+\/entry/);
     const canvas = Number(/canvases\/(\d+)/.exec(page.url())?.[1]);
 
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
     await page.getByRole('button', { name: 'Domein', exact: true }).click();
     const domain = page.getByLabel('+ Domein');
     await domain.fill('Inkoop');
@@ -118,7 +118,7 @@ const firstRow = (selector: string) => async (page: Page): Promise<void> => {
 const PRIMARY_AREA_ROWS = 499;
 
 const entryRows = async (page: Page): Promise<void> => {
-    await page.getByRole('navigation', { name: 'Areas' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
+    await page.getByRole('navigation', { name: 'Area’s' }).getByRole('button', { name: /Primaire activiteiten/ }).click();
     await expect(page.getByTestId('entry-row')).toHaveCount(PRIMARY_AREA_ROWS, { timeout: 10000 });
 };
 

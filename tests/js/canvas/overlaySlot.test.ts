@@ -35,6 +35,21 @@ describe('CanvasView card slot', () => {
     it('draws no layer without slot content', async () => {
         expect(await render()).not.toContain('data-overlay-card');
     });
+
+    const withChild = [element('d', 'primary_activities', 'domain', 'Onderwijs'), element('a', 'primary_activities', 'activity', 'Les geven', 'd')];
+    const overlaid = (extra: Record<string, unknown>): Promise<string> =>
+        renderToString(createSSRApp({ render: () => h(CanvasView, { drawn: computeCanvasLayout({ ...emptyInput(), elements: withChild }, fakeMeasurer), areas: eightAreas, elements: withChild, statements: [], modalities: [], ...extra }, { card: () => h('i', 'inhoud') }) }));
+
+    it('draws a layer only on the blocks that carry overlay content', async () => {
+        const html = await overlaid({ cardIds: new Set(['d']) });
+        expect(html).toContain('data-overlay-card="d"');
+        expect(html).not.toContain('data-overlay-card="a"');
+        expect(html).not.toContain('data-overlay-card="primary_activities"');
+    });
+
+    it('keeps a layer on the selected block so its ring stays above the drawn blocks', async () => {
+        expect(await overlaid({ cardIds: new Set(['d']), selectedId: 'a' })).toContain('data-overlay-card="a"');
+    });
 });
 
 describe('OverlaySwitch', () => {

@@ -66,7 +66,7 @@ class FullExportTest extends CanvasExchangeTestCase
     public function test_the_export_is_logged_without_file_contents(): void
     {
         Log::shouldReceive('channel')->with('security')->andReturnSelf();
-        Log::shouldReceive('info')->once()->with('full_exported', \Mockery::on(fn (array $context) => array_keys($context) === ['user_id']));
+        Log::shouldReceive('info')->once()->with('full_exported', \Mockery::on(fn (array $context) => array_keys($context) === ['user_id', 'session_ref']));
         $this->actingAs(User::factory()->administrator()->create());
 
         $this->get('/admin/export/full')->assertOk();

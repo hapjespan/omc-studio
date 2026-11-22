@@ -162,13 +162,14 @@ test('unsaved edits are never dropped silently: switching rows, Nieuw, Annuleren
     await expect(ask).toBeVisible();
     await expect(ask.getByRole('button', { name: 'Verder bewerken' })).toBeFocused();
     await ask.getByRole('button', { name: 'Verder bewerken' }).click();
+    await expect(page.getByRole('button', { name: 'Beheer', exact: true })).toBeFocused();
     await expect(panel.getByLabel('Naam')).toHaveValue('Licentie nieuw');
     await page.getByRole('button', { name: 'Beheer', exact: true }).click();
     await ask.getByRole('button', { name: 'Weggooien' }).click();
-    const beheer = page.getByRole('dialog', { name: 'Beheer' });
-    await expect(beheer.getByLabel('Naam')).toHaveValue('Beheer');
+    const adminDialog = page.getByRole('dialog', { name: 'Beheer' });
+    await expect(adminDialog.getByLabel('Naam')).toHaveValue('Beheer');
 
-    await beheer.getByLabel('Naam').fill('Beheer nieuw');
+    await adminDialog.getByLabel('Naam').fill('Beheer nieuw');
     await page.getByRole('button', { name: 'Nieuw', exact: true }).click();
     await expect(ask).toBeVisible();
     await ask.getByRole('button', { name: 'Weggooien' }).click();

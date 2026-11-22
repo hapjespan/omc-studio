@@ -22,9 +22,15 @@ export const createBrowserMeasurer = async (): Promise<TextMeasurer> => {
     const context = document.createElement('canvas').getContext('2d');
     if (!context) throw new Error('Canvas 2D is not available');
     context.textRendering = 'geometricPrecision';
+    let selected = '';
     return {
         width(text: string, font: FontSpec): number {
-            context.font = fontShorthand(font);
+            const shorthand = fontShorthand(font);
+            if (shorthand !== selected) {
+                context.font = shorthand;
+                selected = shorthand;
+            }
+
             return context.measureText(text).width;
         },
     };

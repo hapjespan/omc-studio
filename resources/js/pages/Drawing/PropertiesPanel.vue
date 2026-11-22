@@ -80,7 +80,7 @@ function commit(key: (typeof keys)[number]): void {
                 <div v-for="key in keys" :key="key" class="flex flex-col gap-1">
                     <div class="flex items-center gap-2">
                         <label :for="`box-${key}`" class="w-3 text-[13px] font-semibold text-ink"><span aria-hidden="true">{{ shortLabels[key] }}</span><span class="sr-only">{{ t(labels[key], { name }) }}</span></label>
-                        <input :id="`box-${key}`" v-model="values[key]" type="number" :aria-describedby="errorOf(key) ? `box-${key}-error` : undefined" :aria-invalid="errorOf(key) ? 'true' : undefined" class="h-control min-w-0 flex-1 rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink" @change="commit(key)" />
+                        <input :id="`box-${key}`" v-model="values[key]" type="number" :aria-describedby="errorOf(key) ? `box-${key}-error` : undefined" :aria-invalid="errorOf(key) ? 'true' : undefined" class="h-control min-w-0 flex-1 rounded-control border border-edge bg-white px-2.5 text-[13px] text-ink" @input="missing = null" @change="commit(key)" />
                     </div>
                     <p v-if="errorOf(key)" :id="`box-${key}-error`" class="text-[12.5px] font-medium text-danger">{{ errorOf(key) }}</p>
                 </div>

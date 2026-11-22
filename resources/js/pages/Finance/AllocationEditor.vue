@@ -56,8 +56,8 @@ function dropped(event: DragEvent): void {
                         <p class="text-[15px] font-semibold">{{ target(line).name }}</p>
                     </div>
                     <div class="ml-auto flex shrink-0 items-center gap-3">
-                    <InlineField :id="`allocation-line-${index}`" :label="t('allocation_page.percentage_of', { target: target(line).path })" :model-value="text(line.basisPoints)" suffix="%" inputmode="decimal" :disabled="disabled" :error="invalid === index ? t('allocation_page.invalid_percentage') : undefined" alert @change="commit(index, $event)" />
-                    <span :aria-label="t('allocation_page.amount')" class="w-28 shrink-0 text-right font-display text-[13px] font-bold">{{ formatAmount(amounts[index]) }}</span>
+                    <InlineField :id="`allocation-line-${index}`" :label="t('allocation_page.percentage_of', { target: target(line).path })" :model-value="text(line.basisPoints)" suffix="%" inputmode="decimal" :disabled="disabled" :error="invalid === index ? t('allocation_page.invalid_percentage', { target: target(line).path }) : undefined" alert @change="commit(index, $event)" />
+                    <span class="w-28 shrink-0 text-right font-display text-[13px] font-bold"><span class="sr-only">{{ t('allocation_page.amount') }}: </span>{{ formatAmount(amounts[index]) }}</span>
                     </div>
                 </div>
                 <div class="mt-2 flex items-center gap-2 pl-[22px]">

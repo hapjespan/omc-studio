@@ -36,7 +36,7 @@ class EnglishExchangeKeysTest extends TestCase
         }
     }
 
-    public function test_no_invoeren_identifier_remains_in_app_and_scripts(): void
+    public function test_no_dutch_entry_identifier_remains_in_app_and_scripts(): void
     {
         $found = [];
 

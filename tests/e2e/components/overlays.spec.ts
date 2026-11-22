@@ -32,6 +32,7 @@ for (const [opener, title, input] of [['Open dialoog', 'Dialoog', 'dialog-text']
             await expect(page.getByRole('button', { name: 'Verder bewerken' })).toBeFocused();
             await page.keyboard.press('Enter');
             await expect(page.getByText('Wijzigingen weggooien?')).toBeHidden();
+            await expect(page.locator(`#${input}`)).toBeFocused();
             await expect(page.locator(`#${input}`)).toHaveValue('ongeslagen');
             await expect(page.getByRole('dialog', { name: title })).toBeVisible();
         });

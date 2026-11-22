@@ -75,6 +75,7 @@ test('Escape with a half typed password asks to discard, and a dismissed dialog 
     await expect(dialog.getByText('Wijzigingen weggooien?')).toBeVisible();
     await dialog.getByRole('button', { name: 'Verder bewerken' }).click();
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByLabel('Wachtwoord', { exact: true })).toBeFocused();
     await expect(dialog.getByLabel('Wachtwoord', { exact: true })).toHaveValue('half');
 
     await page.keyboard.press('Escape');

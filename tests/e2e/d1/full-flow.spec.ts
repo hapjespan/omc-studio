@@ -36,7 +36,7 @@ test('an Administrator creates an Organisation and a Canvas, fills it through In
     await expectNoAxeViolations(page);
     await guards.assertNoCspViolation();
 
-    const areas = page.getByRole('navigation', { name: 'Areas' });
+    const areas = page.getByRole('navigation', { name: 'Area’s' });
     await areas.getByRole('button', { name: /Primaire activiteiten/ }).click();
     await page.getByRole('button', { name: 'Domein', exact: true }).click();
     const field = page.getByLabel('+ Domein');

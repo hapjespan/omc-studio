@@ -41,6 +41,7 @@ const { domainCounts, cardFigures, modalityCard, areaTotal, cardColours, figureL
     selectedId,
 );
 
+const cardIds = computed(() => new Set((props.drawn?.blocks ?? []).filter((block) => cardFigures(block) ?? modalityCard(block) ?? areaTotal(block)).map((block) => block.id)));
 const content = computed(() => (selectedId.value ? detailOf(selectedId.value, { areas: props.areas, elements: props.elements, statements: props.statements, modalities: props.modalities }) : null));
 const kickerOf = (id: string): string => {
     const element = props.elements.find((candidate) => candidate.id === id);
@@ -91,7 +92,7 @@ onBeforeUnmount(() => observer?.disconnect());
     </div>
     <div class="flex flex-wrap items-start gap-4 lg:flex-nowrap">
         <div ref="scroller" class="max-h-[calc(100vh-8rem)] min-w-0 flex-1 basis-full overflow-auto lg:basis-0" tabindex="-1" data-scroller>
-            <CanvasView v-if="drawn" :drawn="drawn" :areas="areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :layers-above="!!figures" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="plain ? {} : cardColours" :inert-ids="inertIds" @select="select">
+            <CanvasView v-if="drawn" :drawn="drawn" :areas="areas" :elements="elements" :statements="statements" :modalities="modalities" :zoom="zoom" :layers-above="!!figures" :selected-id="selectedId" :figure-lines="figureLines" :card-colours="plain ? {} : cardColours" :inert-ids="inertIds" :card-ids="cardIds" @select="select">
                 <template v-if="!plain && (figures || overlay === 'modality')" #card="{ block }">
                     <FinancialCard v-if="cardFigures(block)" :block="block" :figures="cardFigures(block)!" :counts="domainCounts.get(block.id) ?? { activities: 0, clusters: 0 }" :year="year" :colour="cardColours[block.id]" />
                     <ModalityOverlay v-else-if="modalityCard(block)" :block="block" :counts="modalityCard(block)!" :letters="letters" />

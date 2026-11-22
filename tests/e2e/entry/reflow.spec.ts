@@ -9,7 +9,7 @@ test('Invoeren fits at 320 px without horizontal scrolling and keeps the Area li
     await expect(page.getByRole('heading', { level: 2, name: 'Primaire activiteiten' })).toBeVisible();
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-    const list = await page.getByRole('navigation', { name: 'Areas' }).boundingBox();
+    const list = await page.getByRole('navigation', { name: 'Area’s' }).boundingBox();
     const work = await page.getByRole('region', { name: 'Primaire activiteiten' }).boundingBox();
     expect(list!.x + list!.width).toBeLessThanOrEqual(320);
     expect(work!.x + work!.width).toBeLessThanOrEqual(320);

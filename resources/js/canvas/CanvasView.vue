@@ -30,6 +30,7 @@ const props = defineProps<{
     cardColours?: Record<string, { background: string; text: string }>;
     figureLines?: (id: string) => string[];
     inertIds?: Set<string>;
+    cardIds?: Set<string>;
 }>();
 const slots = useSlots();
 const scale = computed(() => (props.zoom ?? 100) / 100);
@@ -78,6 +79,7 @@ const colours = computed(() => new Map(props.modalities.map((modality) => [modal
 const modalityNames = computed(() => new Map(props.modalities.map((modality) => [modality.letter, t(`view.modality.${modality.key}`)])));
 const band = computed(() => props.drawn.blocks.find((block) => block.id === 'direction'));
 const blocks = computed(() => props.drawn.blocks);
+const layers = computed(() => (props.cardIds ? blocks.value.filter((block) => props.cardIds?.has(block.id) || props.selectedId === block.id) : blocks.value));
 const layerOrder = computed(() => (!props.layersAbove ? 40 : blocks.value.reduce((top, block) => Math.max(top, block.z + 2), 40)));
 const segments = computed(() => new Map(props.drawn.direction.map((column) => [column.key, column.lines.map((line, index) => splitDirectionLine(line, column.marks[index]))])));
 </script>
@@ -103,7 +105,7 @@ const segments = computed(() => new Map(props.drawn.direction.map((column) => [c
         />
         <template v-if="slots.card">
             <div
-                v-for="block in blocks"
+                v-for="block in layers"
                 :key="block.id"
                 class="pointer-events-none absolute overflow-hidden"
                 :class="{ 'outline-2 -outline-offset-2 outline-ink': selectedId === block.id }"

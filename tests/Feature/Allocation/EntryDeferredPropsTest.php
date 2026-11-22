@@ -6,7 +6,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 class EntryDeferredPropsTest extends AllocationTestCase
 {
-    public function test_the_first_response_of_invoeren_carries_neither_the_costs_nor_the_targets(): void
+    public function test_the_first_response_of_entry_carries_neither_the_costs_nor_the_targets(): void
     {
         $domain = $this->domain();
         $activity = $this->activity($domain, 'A1');
