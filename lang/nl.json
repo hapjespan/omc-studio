@@ -580,6 +580,7 @@
     "drawing.tool_align": "Uitlijnen",
     "drawing.tool_distribute": "Gelijk verdelen",
     "drawing.zoom": "Zoom :percent%",
+    "drawing.zoom_set": "Zoom ingesteld op :percent%",
     "drawing.artboard": "Tekenvlak van :name",
     "drawing.loading": "Tekenvlak laden",
     "drawing.failed": "Het tekenvlak kon niet worden geladen",
