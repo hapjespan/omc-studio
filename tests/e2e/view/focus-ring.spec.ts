@@ -46,10 +46,11 @@ test('the focus ring stays at least 2 CSS px on screen after Passend maken when 
     await signInAs(page, 'reader');
     await page.goto(`/canvases/${canvas.id}/view`);
     await expect(page.locator('[data-block="steering"]')).toBeVisible();
-    await page.getByRole('button', { name: 'Passend maken' }).click();
+    await page.keyboard.press('Shift');
+    await page.getByRole('button', { name: 'Passend maken' }).focus();
+    await page.keyboard.press('Enter');
     await expect(page.locator('[data-zoom]')).toHaveText(/\b([1-4]?\d)\s*%/);
 
-    await page.keyboard.press('Shift');
     await page.locator('[data-block="steering"]').focus();
     await expect(page.locator('[data-block="steering"]')).toHaveCSS('outline-style', 'solid');
     const ring = await renderedRing(page);
