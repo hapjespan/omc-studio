@@ -39,3 +39,20 @@ test('the focus ring on the Bekijken canvas is at least 2 CSS px on screen at ev
     }
     expect(seen.size).toBeGreaterThan(10);
 });
+
+test('the focus ring stays at least 2 CSS px on screen after Passend maken when the fit is below 50 percent', async ({ page }) => {
+    await page.setViewportSize({ width: 600, height: 400 });
+    const canvas = seedViewCanvas();
+    await signInAs(page, 'reader');
+    await page.goto(`/canvases/${canvas.id}/view`);
+    await expect(page.locator('[data-block="steering"]')).toBeVisible();
+    await page.getByRole('button', { name: 'Passend maken' }).click();
+    await expect(page.locator('[data-zoom]')).toHaveText(/\b([1-4]?\d)\s*%/);
+
+    await page.keyboard.press('Shift');
+    await page.locator('[data-block="steering"]').focus();
+    await expect(page.locator('[data-block="steering"]')).toHaveCSS('outline-style', 'solid');
+    const ring = await renderedRing(page);
+    expect(ring.width).toBeGreaterThanOrEqual(1.99);
+    expect(ring.offset).toBeGreaterThanOrEqual(1.99);
+});
