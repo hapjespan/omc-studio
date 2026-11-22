@@ -50,7 +50,7 @@ const remove = (): void => {
                     <li v-for="canvas in canvases" :key="canvas.id" class="flex items-center gap-2">
                         <span>{{ canvas.name }}:</span>
                         <template v-if="stateOf(canvas.id, item.year)">
-                            <span>{{ t('fiscal_years.canvas_final', { date: stateOf(canvas.id, item.year)?.at ?? '', name: stateOf(canvas.id, item.year)?.by ?? '' }) }}</span>
+                            <span>{{ stateOf(canvas.id, item.year)?.by ? t('fiscal_years.canvas_final', { date: stateOf(canvas.id, item.year)?.at ?? '', name: stateOf(canvas.id, item.year)?.by ?? '' }) : t('fiscal_years.canvas_final_imported', { date: stateOf(canvas.id, item.year)?.at ?? '' }) }}</span>
                             <AppButton v-if="writable" size="small" :aria-label="`${t('fiscal_years.reopen')} ${item.year} ${canvas.name}`" @click="reopening = { canvas, year: item.year }">{{ t('fiscal_years.reopen') }}</AppButton>
                         </template>
                         <span v-else>{{ t('fiscal_years.canvas_open') }}</span>

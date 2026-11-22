@@ -246,7 +246,7 @@ The sum of 10000 is enforced by the allocation service, which replaces the whole
 
 ### finalised_years
 
-`id`, `canvas_id` (fk cascade), `fiscal_year_id` (fk restrict), `finalised_at`, `finalised_by` (fk users set null). Index: unique(canvas_id, fiscal_year_id); index(fiscal_year_id) for "Finalised in any Canvas of the Organisation" (FR-051).
+`id`, `canvas_id` (fk cascade), `fiscal_year_id` (fk restrict), `finalised_at`, `finalised_by` (fk users set null), `imported` (boolean, default false; true for rows written by an import, which never had a finaliser; a null `finalised_by` on a non-imported row means the finaliser was deleted, shown as "verwijderde gebruiker"). Index: unique(canvas_id, fiscal_year_id); index(fiscal_year_id) for "Finalised in any Canvas of the Organisation" (FR-051).
 
 ### system_notices
 

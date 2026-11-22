@@ -80,7 +80,7 @@ class CostRecordController extends Controller
         return FinalisedYear::with(['fiscalYear', 'finaliser'])
             ->whereIn('canvas_id', $organisation->canvases()->select('id'))
             ->orderBy('id')->get()
-            ->map(fn (FinalisedYear $row) => ['canvas_id' => $row->canvas_id, 'year' => $row->fiscalYear->year, 'at' => $row->finalised_at->format('d-m-Y'), 'by' => $row->finaliser?->name])->all();
+            ->map(fn (FinalisedYear $row) => ['canvas_id' => $row->canvas_id, 'year' => $row->fiscalYear->year, 'at' => $row->finalised_at->format('d-m-Y'), 'by' => $row->finaliser?->name ?? ($row->imported ? null : __('users.deleted_user'))])->all();
     }
 
     public function store(CostRecordRequest $request, Organisation $organisation): RedirectResponse

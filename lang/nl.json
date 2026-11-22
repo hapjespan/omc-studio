@@ -978,6 +978,7 @@
     "finalise.reopened": ":year is heropend",
     "fiscal_years.canvas_open": "Open",
     "fiscal_years.canvas_final": "Definitief sinds :date door :name",
+    "fiscal_years.canvas_final_imported": "Definitief sinds :date",
     "fiscal_years.reopen": "Heropenen",
     "fiscal_years.reopen_title": "Jaar :year heropenen in canvas :canvas?",
     "fiscal_years.reopen_description": "De cijfers van dit jaar zijn daarna weer te wijzigen. Het heropenen wordt vastgelegd in het auditlog.",

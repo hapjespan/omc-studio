@@ -33,7 +33,7 @@ class SnapshotController extends Controller
             $request->query(),
         );
 
-        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Format::formatDate(Carbon::parse($row['created_at'])->toIso8601String()), 'imported' => (bool) $row['imported']], $list['rows']);
+        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Format::formatDate(Carbon::parse($row['created_at'])->toIso8601String()), 'imported' => (bool) $row['imported'], 'maker' => $row['maker'] ?? ($row['imported'] ? null : __('users.deleted_user'))], $list['rows']);
 
         return Inertia::render('Versions/Index', $list + [
             'canWrite' => $request->user()?->can('administer') ?? false,
