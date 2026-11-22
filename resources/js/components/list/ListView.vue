@@ -35,23 +35,19 @@ const FIRST_CHUNK = 60;
 const NEXT_CHUNK = 200;
 const shown = ref(FIRST_CHUNK);
 const visibleRows = computed(() => props.rows.slice(0, shown.value));
-let growing: ReturnType<typeof setTimeout> | undefined;
 let framing: number | undefined;
 function stopGrowing(): void {
-    clearTimeout(growing);
     if (framing !== undefined) cancelAnimationFrame(framing);
     framing = undefined;
 }
 function grow(): void {
     stopGrowing();
     if (shown.value >= props.rows.length) return;
-    const step = (): void => {
+    framing = requestAnimationFrame(() => {
         framing = undefined;
         shown.value += NEXT_CHUNK;
         grow();
-    };
-    if (shown.value === FIRST_CHUNK) framing = requestAnimationFrame(step);
-    else growing = setTimeout(step, 40);
+    });
 }
 const allSelected = computed(() => props.rows.length > 0 && selected.value.length === props.rows.length);
 const allChecked = computed({ get: () => allSelected.value, set: (checked: boolean) => toggleAll(checked) });
