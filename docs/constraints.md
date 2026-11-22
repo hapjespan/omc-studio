@@ -145,7 +145,12 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 
 **Notification**: the warned Administrator informs the product owner; the product owner starts the ISO notification policy of their organisation, which sets the windows, the parties to notify and the channels (GATE-U2). The application names no window or contact of its own.
 
-**Reconstruction**: the Audit log answers who changed what; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026). "From where" a session came is not recorded by the application (SD-20); the host's sshd log of the SSH tunnel (ADR 0024) shows which connection was open at that time.
+**Reconstruction**: the Audit log answers what changed and when, and who changed it as long as that person's account exists; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026). The limits, in plain sentences:
+- The actions of a deleted user can no longer be attributed to that person in the Audit log: `actor_id` becomes null, and several deleted users cannot be told apart. The security log keeps the numeric user identifier for 90 days.
+- The hard deletion of a Canvas or an Organisation keeps only the deletion entry (FR-021, AuditRemoval); its earlier state and history are in backups only.
+- Concurrent sessions of one account are separable through the session reference in the security log (SD-20 allows a random reference).
+- "From where" a session came is not recorded by the application (SD-20); it exists only in the host's sshd log of the SSH tunnel (ADR 0024), which shows which connection was open at that time.
+- Slow guessing below the lockout limit raises no notice; it is visible only as `sign_in_failed` lines in the security log.
 
 ## 9. ADRs that close off design options
 
