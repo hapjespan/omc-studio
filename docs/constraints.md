@@ -119,6 +119,7 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 | First Administrator e-mail address in the container log | As long as the operator keeps the container log | R-25 |
 | Account state columns (one-time password expiry, must-change flag, second-factor times) | Until the account is deleted | Row deleted with the account |
 | User identifiers inside Audit values | As long as the Audit entry | Pseudonymised at user deletion |
+| Session reference in the security log (random value, not derived from the browser, linkable to a person only through the log itself) | 90 days | R-4 |
 | User identifier in the security log | 90 days | R-4 |
 | Personal data in backups | The product owner's | R-9 |
 
