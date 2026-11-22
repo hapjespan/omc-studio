@@ -4,9 +4,8 @@ One decision per file, numbered: `NNNN-short-kebab-title.md`. Record the
 decision and its motivation, never the discussion around it. A superseded
 decision stays in place and points at its replacement.
 
-Every ADR written here is a decision nobody has to type into a prompt again:
-CLAUDE.md indexes this directory, so every future session starts already
-knowing it.
+Every ADR written here is a decision nobody has to settle again: the project
+index lists this directory, so every future session starts already knowing it.
 
 Format:
 

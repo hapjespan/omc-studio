@@ -96,8 +96,11 @@ them, and a task that violates one is not done.
      article: `.claude/` (agents, commands, settings), `CLAUDE.md`, and the
      development-container wiring (the agent install line in
      `.devcontainer/Dockerfile`, the `DEV_CLAUDE_HOME` and `DEV_CLAUDE_JSON`
-     variables in `.devcontainer/README.md` and `docker-compose.yml`). The
-     exemption covers only these tooling files. It never covers product code,
+     variables in `.devcontainer/README.md` and `docker-compose.yml`). By
+     decision of 2026-11-22 (review P5, option A) the exemption also names
+     `.specify/`, `.workflow/`, `scripts/vendored-urls.txt` and
+     `proof/wp-e0/asset-report.mjs`: development tooling and strings from
+     third-party libraries. The exemption covers only these tooling files. It never covers product code,
      tests, documents of the product, or commit messages going forward.
    - Two commits, `d66a78c` and `d0fc304`, carry an attribution trailer and a
      session link. They are already on `release` and on the remote, and history
