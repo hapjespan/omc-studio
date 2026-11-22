@@ -46,7 +46,6 @@ class DeletedUserLabelsTest extends AllocationTestCase
         app(UserDeletion::class)->delete($maker, $administrator);
 
         $this->get("/canvases/{$this->canvas->id}/versions")->assertInertia(fn (Assert $page) => $page
-            ->where('rows', fn ($rows) => collect($rows)->firstWhere('name', 'Door ex')['maker'] === __('users.deleted_user')
-                && collect($rows)->firstWhere('name', 'Geimporteerd')['maker'] === null));
+            ->where('rows', fn ($rows) => array_column($rows->toArray(), 'maker', 'name') == ['Door ex' => __('users.deleted_user'), 'Geimporteerd' => null]));
     }
 }
