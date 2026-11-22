@@ -73,6 +73,7 @@ describe('FinancialCard', () => {
         const block = { ...drawn.blocks.find((candidate) => candidate.id === 'd')!, drawnHeight: 200 };
         const html = await renderToString(createSSRApp({ render: () => h(FinancialCard, { block, figures: figures(1000, 1100, 1000), counts: { activities: 0, clusters: 0 }, year: 2026 }) }));
         expect(html).toContain('data-bar-over');
+        expect(html).toMatch(/data-bar-over-strip[^>]*>\s*<div[^>]*data-bar-over/);
         expect(html).toContain('#9A7811');
     });
 });

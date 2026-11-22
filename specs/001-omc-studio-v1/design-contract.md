@@ -36,7 +36,7 @@ Roles, with the contrast measured against their usual background (WCAG 2.2: 4.5:
 | Warning callout background | `#FFF3D6` | |
 | Danger text and outline (Verwijderen) | `#A12A1E` on white, outline `#C0645A` (design: `#D9B4AF`) | text 7.3:1; outline 4.0:1, decision 45 |
 | Focus and selection accent | `#2459D6` | 6.0:1 on white; selected layer row `#E3EBFB` |
-| Forecast above budget (bar part) | `#9A7811` (design: `#C9A227`), token `over-budget` | 4.1:1 on white, 3.1:1 on the track, decision 45 |
+| Forecast above budget (bar part) | `#9A7811` (design: `#C9A227`), token `over-budget` | 4.1:1 on white; the part is drawn on a white strip 2 px taller than the bar on both sides, never on the track or a tinted card, decision 45 and PO decision P1 (2026-11-22) |
 | Danger callout and pill background | `#FDECEA`, token `danger-soft` | danger text `#A12A1E` on it 6.4:1 |
 | Drop zone and third line stripe grey | `#9AA1AA`, token `drop-zone` | 2.6:1 on white: decorative only, never a control edge or the only carrier of a meaning |
 | Bar track | `#DCDFE2` | |
@@ -110,6 +110,7 @@ Financial overlay: Domain cards are tinted `#0E4D64` at an opacity rising with S
 - **Table**: row checkbox, sortable headers, the name with its code on a second line, right-aligned amounts, and a forecast delta in green or warning colour.
 - **Side-panel form**: kind and path above the title, fields, "Opslaan" and "Annuleren", then the consequence text, then "Archiveren" and "Verwijderen".
 - **Domain card (financial overlay)**: title and modality badge, the amount, "x van totaal", and a bar where the track is the budget, the fill is the forecast and a stripe marks the budget. Below that, "Prognose € … · 101% van budget" and the counts. A card without costs reads "Geen kosten toegewezen in 2026". On hover or focus, a popover "Uitsplitsing per kostenpost" shows the allocated percentage and amount per cost record.
+- **Domain card (modality overlay)**: the count line "C 3, A 1, S 0, D 0, geen 2" sits in a fixed strip of 18 pixels at the bottom of every Domain (reserved by the layout, T312), above the Domain fill and clear of the Activities and Clusters.
 - **Allocation**: an amber "Nog te verdelen" block with the percentage and amount, and a stacked bar of the lines plus a dashed rest. Each line card shows its colour stripe, kind and path, name, percentage input, amount, "Rest naar deze regel" and remove. Below them sits a dashed drop zone.
 - **Target tree** (Toewijzen): the Area heading with its total, rows of kind, name, amount and a "+" button, and "In set" for Targets already in the set.
 - **Layers panel** (Tekenen): the Element tree with disclosure arrows, the selected row in accent tint with the 2-pixel ink border of every other selected state (product owner decision 2026-11-21, review finding M12; the tint alone measures 1.20:1 against white, below WCAG 1.4.11), and the "nieuw" pill.

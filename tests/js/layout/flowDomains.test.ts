@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { computeCanvasLayout } from '../../../resources/js/layout';
-import { flowDomains, type FlowContext } from '../../../resources/js/layout/flowDomains';
+import { COUNTS_STRIP, flowDomains, type FlowContext } from '../../../resources/js/layout/flowDomains';
 import { resolveStyle } from '../../../resources/js/layout/resolveStyle';
 import { buildDomains } from '../../../resources/js/layout/tree';
 import { fakeMeasurer } from './fakeMeasurer';
@@ -67,6 +67,15 @@ describe('flowDomains', () => {
 
     it('is empty without Domains', () => {
         expect(flow([])).toEqual({ blocks: [], height: 0 });
+    });
+});
+
+describe('counts strip reserve', () => {
+    it('keeps the bottom of a Domain with Activities free for the counts strip', () => {
+        const blocks = flow([domain('a', 'Alfa'), element('x', 'primary_activities', 'activity', 'Taak', 'a', 1)]).blocks;
+        const card = block(blocks, 'a');
+        const activity = block(blocks, 'x');
+        expect(card.y + card.drawnHeight - (activity.y + activity.drawnHeight)).toBeGreaterThanOrEqual(COUNTS_STRIP);
     });
 });
 
