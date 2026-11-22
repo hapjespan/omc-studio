@@ -61,10 +61,10 @@ class UserDeletionTest extends TestCase
         $about = AuditEntry::query()->where('subject_type', 'user')->where('subject_id', (string) $target->getKey())->get();
         $this->assertCount(3, $about);
         foreach ($about as $entry) {
-            $this->assertSame(__('users.deleted_user'), $entry->subject_label);
+            $this->assertSame($this->pseudonym($target), $entry->subject_label);
             foreach (['name', 'email'] as $key) {
                 foreach ($entry->changes[$key] ?? [] as $value) {
-                    $this->assertContains($value, [null, __('users.deleted_user')]);
+                    $this->assertContains($value, [null, $this->pseudonym($target)]);
                 }
             }
         }
@@ -153,6 +153,33 @@ class UserDeletionTest extends TestCase
 
         $this->assertStringNotContainsString('Target Person', (string) json_encode($byTarget->fresh()?->getAttributes()));
         $this->assertSame($otherBefore, (array) $byOther->fresh()?->getAttributes());
+    }
+
+    public function test_the_pseudonym_is_the_same_in_every_entry_and_differs_between_deleted_users(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+        Auth::login($administrator);
+        $first = User::factory()->create(['name' => 'First Person', 'email' => 'first@example.test']);
+        $second = User::factory()->create(['name' => 'Second Person', 'email' => 'second@example.test']);
+        $byFirst = $this->canvasEntry('Canvas', ['note' => [null, 'x']]);
+        $byFirst->forceFill(['actor_type' => 'user', 'actor_id' => $first->getKey()])->save();
+        $byFirstAgain = $this->canvasEntry('Canvas', ['note' => [null, 'y']]);
+        $byFirstAgain->forceFill(['actor_type' => 'user', 'actor_id' => $first->getKey()])->save();
+        $bySecond = $this->canvasEntry('Canvas', ['note' => [null, 'z']]);
+        $bySecond->forceFill(['actor_type' => 'user', 'actor_id' => $second->getKey()])->save();
+
+        app(UserDeletion::class)->delete($first, $administrator);
+        app(UserDeletion::class)->delete($second, $administrator);
+
+        $this->assertSame($first->getKey(), $byFirst->fresh()?->deleted_user_number);
+        $this->assertSame($first->getKey(), $byFirstAgain->fresh()?->deleted_user_number);
+        $this->assertSame($second->getKey(), $bySecond->fresh()?->deleted_user_number);
+        $this->assertNotSame($this->pseudonym($first), $this->pseudonym($second));
+    }
+
+    private function pseudonym(User $user): string
+    {
+        return __('users.deleted_user_numbered', ['number' => $user->getKey()]);
     }
 
     /** @param array<string, array{mixed, mixed}> $changes */

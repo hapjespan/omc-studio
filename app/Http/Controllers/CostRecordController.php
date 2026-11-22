@@ -10,6 +10,7 @@ use App\Models\CostRecord;
 use App\Models\FinalisedYear;
 use App\Models\Organisation;
 use App\Models\User;
+use App\Services\Accounts\DeletedUserLabel;
 use App\Services\Finance\CostRecordList;
 use App\Services\Finance\CostRecords;
 use App\Services\Finance\FigureService;
@@ -80,7 +81,7 @@ class CostRecordController extends Controller
         return FinalisedYear::with(['fiscalYear', 'finaliser'])
             ->whereIn('canvas_id', $organisation->canvases()->select('id'))
             ->orderBy('id')->get()
-            ->map(fn (FinalisedYear $row) => ['canvas_id' => $row->canvas_id, 'year' => $row->fiscalYear->year, 'at' => $row->finalised_at->format('d-m-Y'), 'by' => $row->finalised_by !== null ? $row->finaliser->name : ($row->imported ? null : __('users.deleted_user'))])->all();
+            ->map(fn (FinalisedYear $row) => ['canvas_id' => $row->canvas_id, 'year' => $row->fiscalYear->year, 'at' => $row->finalised_at->format('d-m-Y'), 'by' => $row->finalised_by !== null ? $row->finaliser->name : ($row->imported ? null : DeletedUserLabel::for($row->deleted_user_number))])->all();
     }
 
     public function store(CostRecordRequest $request, Organisation $organisation): RedirectResponse

@@ -45,7 +45,7 @@ class AuditLabelsTest extends AllocationTestCase
 
     public function test_every_written_subject_type_action_and_field_has_a_label(): void
     {
-        $technical = ['created_at', 'updated_at', 'structure_version', 'layout_version', 'layout_saved_at', 'name_normalised', 'scope_key', 'password', 'two_factor_secret', 'two_factor_last_time_step', 'remember_token', 'code_normalised'];
+        $technical = ['created_at', 'updated_at', 'structure_version', 'layout_version', 'layout_saved_at', 'name_normalised', 'scope_key', 'password', 'two_factor_secret', 'two_factor_last_time_step', 'remember_token', 'code_normalised', 'deleted_user_number'];
         $subjects = ['area'];
         $fields = ['lines', 'sessions', 'place', 'size', 'style'];
 

@@ -3,6 +3,8 @@
 namespace App\Services\Accounts;
 
 use App\Models\AuditEntry;
+use App\Models\FinalisedYear;
+use App\Models\Snapshot;
 use App\Models\User;
 use App\Services\Audit\SecurityLog;
 use App\Services\Support\SerialisedWrite;
@@ -27,29 +29,31 @@ class UserDeletion
             $this->guard->assertCanDelete($actor instanceof User ? $actor : null, $user);
 
             $identifier = (int) $user->getKey();
-            $byUser = AuditEntry::query()->where('actor_id', $identifier)->pluck('id')->all();
+            $this->number($identifier);
             $ended = $this->sessions->endAll($user);
             $user->delete();
 
-            $this->pseudonymise($identifier, [$user->name, $user->email], $byUser);
+            $this->pseudonymise($identifier, [$user->name, $user->email]);
 
             SecurityLog::record('user_deleted', ['subject_id' => $identifier, 'sessions_ended' => $ended]);
         });
     }
 
-    /**
-     * @param  array<int, string>  $known
-     * @param  array<int, int>  $byUser
-     */
-    private function pseudonymise(int $identifier, array $known, array $byUser): void
+    private function number(int $identifier): void
     {
-        $pseudonym = (string) __('users.deleted_user');
+        foreach ([[AuditEntry::class, 'actor_id'], [FinalisedYear::class, 'finalised_by'], [Snapshot::class, 'created_by']] as [$model, $column]) {
+            $model::query()->where($column, $identifier)->update(['deleted_user_number' => $identifier]);
+        }
+    }
+
+    /** @param array<int, string> $known */
+    private function pseudonymise(int $identifier, array $known): void
+    {
+        $pseudonym = DeletedUserLabel::for($identifier);
         $patterns = $this->patterns($identifier, $known);
 
-        AuditEntry::query()->where('actor_id', $identifier)->update(['actor_id' => null]);
-
         AuditEntry::query()
-            ->where(fn ($query) => $query->whereIn('id', $byUser)->orWhere(fn ($about) => $about->where('subject_type', 'user')->where('subject_id', (string) $identifier)))
+            ->where(fn ($query) => $query->where('deleted_user_number', $identifier)->orWhere(fn ($about) => $about->where('subject_type', 'user')->where('subject_id', (string) $identifier)))
             ->lazyById()->each(function (AuditEntry $entry) use ($patterns, $pseudonym): void {
                 $label = Str::limit((string) $this->replace((string) $entry->subject_label, $patterns, $pseudonym), 150, '');
                 $changes = $this->replace($entry->changes, $patterns, $pseudonym);

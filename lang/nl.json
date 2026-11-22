@@ -158,6 +158,7 @@
     "users.last_administrator": "Er moet minstens één beheerder blijven",
     "users.own_account": "Je kunt je eigen account niet verwijderen of je eigen rol wijzigen",
     "users.deleted_user": "verwijderde gebruiker",
+    "users.deleted_user_numbered": "verwijderde gebruiker :number",
     "users.own_row_action": "Gebruik Mijn account voor je eigen tweede factor en sessies",
     "users.second_factor_reset": "De tweede factor is gereset en de sessies zijn beëindigd",
     "users.sessions_ended": "De sessies van deze gebruiker zijn beëindigd",

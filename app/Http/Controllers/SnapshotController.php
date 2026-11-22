@@ -7,6 +7,7 @@ use App\Http\Requests\StoreSnapshotRequest;
 use App\Http\Requests\UpdateSnapshotRequest;
 use App\Models\Canvas;
 use App\Models\Snapshot;
+use App\Services\Accounts\DeletedUserLabel;
 use App\Services\Lists\ListQuery;
 use App\Services\Snapshot\Snapshots;
 use App\Support\Format;
@@ -28,12 +29,12 @@ class SnapshotController extends Controller
         $list = (new ListQuery(['name'], ['name', 'fiscal_year', 'created_at'], [], 'archived_at'))->run(
             Snapshot::query()
                 ->where('canvas_id', $canvas->getKey())
-                ->select(['id', 'name', 'fiscal_year', 'remark', 'archived_at', 'created_at', 'imported', DB::raw('(SELECT name FROM users WHERE users.id = snapshots.created_by) AS maker')])
+                ->select(['id', 'name', 'fiscal_year', 'remark', 'archived_at', 'created_at', 'imported', 'deleted_user_number', DB::raw('(SELECT name FROM users WHERE users.id = snapshots.created_by) AS maker')])
                 ->orderByDesc('created_at')->orderByDesc('id'),
             $request->query(),
         );
 
-        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Format::formatDate(Carbon::parse($row['created_at'])->toIso8601String()), 'imported' => (bool) $row['imported'], 'maker' => $row['maker'] ?? ($row['imported'] ? null : __('users.deleted_user'))], $list['rows']);
+        $list['rows'] = array_map(fn (array $row) => [...$row, 'created' => Format::formatDate(Carbon::parse($row['created_at'])->toIso8601String()), 'imported' => (bool) $row['imported'], 'maker' => $row['maker'] ?? ($row['imported'] ? null : DeletedUserLabel::for($row['deleted_user_number']))], $list['rows']);
 
         return Inertia::render('Versions/Index', $list + [
             'canWrite' => $request->user()?->can('administer') ?? false,

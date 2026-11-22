@@ -21,7 +21,7 @@ class DeletedUserLabelsTest extends AllocationTestCase
         app(UserDeletion::class)->delete($maker, $administrator);
 
         $this->get("/organisations/{$this->canvas->organisation_id}/cost-records")->assertInertia(fn (Assert $page) => $page
-            ->where('finalised.0.by', __('users.deleted_user')));
+            ->where('finalised.0.by', __('users.deleted_user_numbered', ['number' => $maker->id])));
     }
 
     public function test_an_imported_finalised_year_names_nobody(): void
@@ -46,6 +46,6 @@ class DeletedUserLabelsTest extends AllocationTestCase
         app(UserDeletion::class)->delete($maker, $administrator);
 
         $this->get("/canvases/{$this->canvas->id}/versions")->assertInertia(fn (Assert $page) => $page
-            ->where('rows', fn ($rows) => array_column($rows->toArray(), 'maker', 'name') == ['Door ex' => __('users.deleted_user'), 'Geimporteerd' => null]));
+            ->where('rows', fn ($rows) => array_column($rows->toArray(), 'maker', 'name') == ['Door ex' => __('users.deleted_user_numbered', ['number' => $maker->id]), 'Geimporteerd' => null]));
     }
 }
