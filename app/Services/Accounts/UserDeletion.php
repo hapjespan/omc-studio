@@ -27,33 +27,39 @@ class UserDeletion
             $this->guard->assertCanDelete($actor instanceof User ? $actor : null, $user);
 
             $identifier = (int) $user->getKey();
+            $byUser = AuditEntry::query()->where('actor_id', $identifier)->pluck('id')->all();
             $ended = $this->sessions->endAll($user);
             $user->delete();
 
-            $this->pseudonymise($identifier, [$user->name, $user->email]);
+            $this->pseudonymise($identifier, [$user->name, $user->email], $byUser);
 
             SecurityLog::record('user_deleted', ['subject_id' => $identifier, 'sessions_ended' => $ended]);
         });
     }
 
-    /** @param array<int, string> $known */
-    private function pseudonymise(int $identifier, array $known): void
+    /**
+     * @param  array<int, string>  $known
+     * @param  array<int, int>  $byUser
+     */
+    private function pseudonymise(int $identifier, array $known, array $byUser): void
     {
         $pseudonym = (string) __('users.deleted_user');
         $patterns = $this->patterns($identifier, $known);
 
         AuditEntry::query()->where('actor_id', $identifier)->update(['actor_id' => null]);
 
-        AuditEntry::query()->lazyById()->each(function (AuditEntry $entry) use ($patterns, $pseudonym): void {
-            $label = Str::limit((string) $this->replace((string) $entry->subject_label, $patterns, $pseudonym), 150, '');
-            $changes = $this->replace($entry->changes, $patterns, $pseudonym);
+        AuditEntry::query()
+            ->where(fn ($query) => $query->whereIn('id', $byUser)->orWhere(fn ($about) => $about->where('subject_type', 'user')->where('subject_id', (string) $identifier)))
+            ->lazyById()->each(function (AuditEntry $entry) use ($patterns, $pseudonym): void {
+                $label = Str::limit((string) $this->replace((string) $entry->subject_label, $patterns, $pseudonym), 150, '');
+                $changes = $this->replace($entry->changes, $patterns, $pseudonym);
 
-            if ($label === $entry->subject_label && $changes === $entry->changes) {
-                return;
-            }
+                if ($label === $entry->subject_label && $changes === $entry->changes) {
+                    return;
+                }
 
-            $entry->forceFill(['subject_label' => $label, 'changes' => $changes])->save();
-        });
+                $entry->forceFill(['subject_label' => $label, 'changes' => $changes])->save();
+            });
     }
 
     /**

@@ -43,7 +43,7 @@ class UserDeletionTest extends TestCase
         $this->assertSame(0, DB::table('sessions')->where('user_id', $target->getKey())->count());
         $this->assertDatabaseHas('sessions', ['id' => self::OTHER_DEVICE]);
 
-        foreach (AuditEntry::query()->get() as $entry) {
+        foreach (AuditEntry::query()->where('subject_type', 'user')->where('subject_id', (string) $target->getKey())->orWhere('actor_id', $target->getKey())->orWhereNull('actor_id')->where('actor_type', 'user')->get() as $entry) {
             $written = (string) json_encode($entry->getAttributes());
             foreach ([self::NAME, self::RENAMED, self::EMAIL] as $identifying) {
                 $this->assertStringNotContainsStringIgnoringCase($identifying, $written);
@@ -130,17 +130,29 @@ class UserDeletionTest extends TestCase
         $unrelated = $this->canvasEntry('Education Fund', ['name' => [null, 'Edward Edison'], 'note' => [null, 'edition of the Education Fund']]);
         $mentioning = $this->canvasEntry(str_repeat('a', 140).' Ed', ['note' => [null, 'Ed wrote to ed@example.test.']]);
         $untouched = (array) $unrelated->fresh()?->getAttributes();
+        $mentioningBefore = (array) $mentioning->fresh()?->getAttributes();
 
         app(UserDeletion::class)->delete($target, $administrator);
 
         $this->assertSame($untouched, (array) $unrelated->fresh()?->getAttributes());
+        $this->assertSame($mentioningBefore, (array) $mentioning->fresh()?->getAttributes());
+    }
 
-        $mentioning->refresh();
-        $pseudonym = (string) __('users.deleted_user');
-        $this->assertSame(150, mb_strlen((string) $mentioning->subject_label));
-        $this->assertStringNotContainsString(' Ed', (string) $mentioning->subject_label);
-        $this->assertStringContainsString(mb_substr($pseudonym, 0, 9), (string) $mentioning->subject_label);
-        $this->assertSame($pseudonym.' wrote to '.$pseudonym.'.', $mentioning->changes['note'][1]);
+    public function test_an_entry_by_the_deleted_user_about_another_subject_is_rewritten_and_one_by_another_actor_is_not(): void
+    {
+        $administrator = User::factory()->administrator()->create();
+        Auth::login($administrator);
+        $target = User::factory()->create(['name' => 'Target Person', 'email' => 'target@example.test']);
+        $byTarget = $this->canvasEntry('Canvas of Target Person', ['note' => [null, 'Target Person asked']]);
+        $byTarget->forceFill(['actor_type' => 'user', 'actor_id' => $target->getKey()])->save();
+        $byOther = $this->canvasEntry('Canvas of Target Person', ['note' => [null, 'Target Person asked']]);
+        $byOther->forceFill(['actor_type' => 'user', 'actor_id' => $administrator->getKey()])->save();
+        $otherBefore = (array) $byOther->fresh()?->getAttributes();
+
+        app(UserDeletion::class)->delete($target, $administrator);
+
+        $this->assertStringNotContainsString('Target Person', (string) json_encode($byTarget->fresh()?->getAttributes()));
+        $this->assertSame($otherBefore, (array) $byOther->fresh()?->getAttributes());
     }
 
     /** @param array<string, array{mixed, mixed}> $changes */
