@@ -132,6 +132,7 @@ class CanvasWriter
                 'fiscal_year_id' => $years[$finalised['year']],
                 'finalised_at' => Carbon::parse($finalised['finalised_at'])->utc(),
                 'finalised_by' => null,
+                'imported' => true,
             ]);
         }
 

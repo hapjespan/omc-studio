@@ -42,7 +42,7 @@ Every entry carries a number or a verdict and its origin: **PO** (product owner 
 | R-4 | Security log | 90 days | Daily files; files older than 90 days are removed at rotation, without a scheduler (ADR 0023) | FR-022 |
 | R-5 | Application error log | 14 days | Daily files, removed at rotation | orch |
 | R-6 | Sessions | Until sign-out or 120 minutes idle | Expired rows removed by the session store's own clean-up during requests | FR-005 |
-| R-7 | Throttle keys | At most 60 seconds | Expire in the cache store | FR-004 |
+| R-7 | Throttle keys | Entries expire after 60 seconds; the file is removed on the next read or on a cache clear, so it can outlive 60 seconds on disk | Expire in the cache store | FR-004 |
 | R-8 | Deleted user | Account row hard-deleted at once; every place that named them shows "verwijderde gebruiker" | Users screen (FR-011); console command for the last Administrator's password only (FR-008) | PO, FR-011 |
 | R-9 | Backups | The product owner's; outside the application | Deleted by hand; README says so | PO, ADR 0026 |
 | R-10 | Exports after download | The product owner's | Outside the application | pii-inventory |
@@ -110,15 +110,16 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 |---|---|---|
 | User name, e-mail address, role | Until the account is deleted | Administrator deletes the user (FR-011); name and e-mail replaced by "verwijderde gebruiker" everywhere |
 | Password hash | Until changed or the account is deleted | Overwritten on change; row deleted with the account |
-| Second-factor key, recovery code hashes | Until turned off, reset, used (codes), regenerated, or account deleted | Removed by the user, by an Administrator's reset, by the console command (FR-008), or with the account |
+| Second-factor key, recovery code hashes | While turned on, or while an enrolment is pending; a pending secret is discarded at the next sign-in or sign-out. Until turned off, reset, used (codes), regenerated, or account deleted | Removed by the user, by an Administrator's reset, by the console command (FR-008), or with the account |
 | Actor reference in Audit log, "Definitief door", "Gemaakt door" | As long as the record | Pseudonymised at user deletion; removed with its Canvas or Organisation |
 | Session record and session payload (encrypted at rest; holds the user reference, sign-in time and flashed one-time passwords or recovery codes) | 120 minutes idle or sign-out | R-6 |
-| Throttle key | Expires after 60 seconds; the file is removed on the next read or on a cache clear | R-7 |
-| Undo record (user identifier and deleted rows) | 10 minutes, removed at restore and at sign-out | ADR 0033 |
+| Throttle key (per hashed e-mail address at sign-in; per user identifier for password change, re-authentication, second-factor password and the second-factor challenge) | Expires after 60 seconds; the file is removed on the next read or on a cache clear | R-7 |
+| Undo record (user identifier and deleted rows) | Usable for 10 minutes; removed at the next deletion, undo or sign-in by any user, and the user's own records at restore and at sign-out | ADR 0033 |
 | User identifier in the application error log | 14 days | R-5 |
 | First Administrator e-mail address in the container log | As long as the operator keeps the container log | R-25 |
 | Account state columns (one-time password expiry, must-change flag, second-factor times) | Until the account is deleted | Row deleted with the account |
-| User identifiers inside Audit values | As long as the Audit entry | Pseudonymised at user deletion |
+| User identifiers inside Audit values | As long as the Audit entry | The numeric identifier stays and no longer resolves to a person in the application; the security log keeps it for 90 days |
+| Session reference in the security log (random value, not derived from the browser, linkable to a person only through the log itself) | 90 days | R-4 |
 | User identifier in the security log | 90 days | R-4 |
 | Personal data in backups | The product owner's | R-9 |
 
@@ -144,7 +145,12 @@ Target level 2 with two exemptions (ADR 0025). Each chapter has requirements or 
 
 **Notification**: the warned Administrator informs the product owner; the product owner starts the ISO notification policy of their organisation, which sets the windows, the parties to notify and the channels (GATE-U2). The application names no window or contact of its own.
 
-**Reconstruction**: the Audit log answers who changed what; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026). "From where" a session came is not recorded by the application (SD-20); the host's sshd log of the SSH tunnel (ADR 0024) shows which connection was open at that time.
+**Reconstruction**: the Audit log answers what changed and when, and who changed it as long as that person's account exists; the security log answers who signed in and was refused when; backups restore the state of a date (ADR 0026). The limits, in plain sentences:
+- The actions of a deleted user can no longer be attributed to that person in the Audit log: `actor_id` becomes null, and several deleted users cannot be told apart. The security log keeps the numeric user identifier for 90 days.
+- The hard deletion of a Canvas or an Organisation keeps only the deletion entry (FR-021, AuditRemoval); its earlier state and history are in backups only.
+- Concurrent sessions of one account are separable through the session reference in the security log (SD-20 allows a random reference).
+- "From where" a session came is not recorded by the application (SD-20); it exists only in the host's sshd log of the SSH tunnel (ADR 0024), which shows which connection was open at that time.
+- Slow guessing below the lockout limit raises no notice; it is visible only as `sign_in_failed` lines in the security log.
 
 ## 9. ADRs that close off design options
 
