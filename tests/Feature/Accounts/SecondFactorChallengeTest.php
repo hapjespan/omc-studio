@@ -135,6 +135,7 @@ class SecondFactorChallengeTest extends TestCase
 
     public function test_a_reused_code_counts_towards_the_waiting_time(): void
     {
+        $this->freezeTime();
         $user = $this->user();
         $code = $this->code();
         $this->signInWithPassword($user);
