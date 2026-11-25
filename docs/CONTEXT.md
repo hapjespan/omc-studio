@@ -355,3 +355,57 @@ the product owner's kickoff v1.2 (`specs/kickoff-v1.2-po.md`), addendum A1
 product owner's gate answers recorded in repo version 1.3 go first; for screens and
 names v1.2 and the design lead; for technique the addendum leads. Every difference
 and its status is in `specs/001-omc-studio-v1/source-conflicts.md`.
+
+## Decision records
+
+Every ADR, in order. A superseded record names its replacement in its own status line.
+
+- [0001](adr/0001-automatic-canvas-layout.md): Lay out the canvas automatically, without a free drawing editor
+- [0002](adr/0002-costs-flow-directly-to-canvas-targets.md): Allocate costs directly to canvas targets, with application as an attribute
+- [0003](adr/0003-one-element-tree-for-every-area.md): Use one element tree for every area, with a domain layer everywhere
+- [0004](adr/0004-stack.md): Build on Laravel, Inertia, React, TypeScript, Tailwind and SQLite
+- [0005](adr/0005-integer-basis-points-and-cents.md): Store percentages as whole basis points and amounts as whole cents
+- [0006](adr/0006-cost-records-per-organisation-allocations-per-canvas.md): Keep cost records per organisation and allocations per canvas
+- [0007](adr/0007-finalise-fiscal-years-per-canvas.md): Finalise fiscal years per canvas
+- [0008](adr/0008-unknown-allocation-replaces-unassigned.md): Hold every unallocated cost in a fixed Unknown allocation Domain in Supporting activities
+- [0009](adr/0009-supplier-is-free-text.md): Keep supplier as free text, without a link to an Actor item
+- [0010](adr/0010-optional-totp-second-factor.md): Offer an optional TOTP second factor per account
+- [0011](adr/0011-fiscal-years-per-organisation-finalised-per-canvas.md): Keep fiscal years per organisation and their finalised state per canvas
+- [0012](adr/0012-vue-3-frontend.md): Build the front end in Vue 3, not React
+- [0013](adr/0013-automatic-layout-as-starting-position.md): Start every canvas in automatic layout and let Tekenen override it per element
+- [0014](adr/0014-three-canvas-modes.md): Work on a canvas in three modes: Invoeren, Tekenen and Bekijken
+- [0015](adr/0015-html-rendering-outside-tekenen.md): Draw Bekijken as HTML from the stored layout and load the drawing library only in Tekenen
+- [0016](adr/0016-layout-as-own-data-per-element.md): Store layout as our own data per Element, behind one adapter around a pinned drawing library
+- [0017](adr/0017-fixed-bundled-font-list.md): Use one fixed, bundled font list for both renderers
+- [0018](adr/0018-no-theme-screen.md): Ship default colours and set colours per Element in Tekenen, without a theme screen
+- [0019](adr/0019-design-navigation-mapping.md): Map the supplied design's navigation onto the product
+- [0020](adr/0020-fixed-artboard-free-areas-growing-cards.md): Lay out on a fixed A3 Artboard with free Areas and cards that grow with their names
+- [0021](adr/0021-tekenen-saves-automatically.md): Save Tekenen automatically after every finished action
+- [0022](adr/0022-sqlite-in-dev-and-tests-postgresql-in-ci.md): Develop and test on SQLite, run the suite once more on PostgreSQL in CI
+- [0023](adr/0023-no-redis-or-extra-services.md): Keep sessions, cache, throttling and queue in the database or files, no Redis
+- [0024](adr/0024-transport-via-loopback-and-ssh-tunnel.md): Secure transport through loopback and an SSH tunnel, no TLS in the application
+- [0025](adr/0025-asvs-5-level-2-with-recorded-exemptions.md): Target OWASP ASVS 5.0 level 2, with recorded exemptions
+- [0026](adr/0026-manual-backup-no-availability-target.md): Back up by hand, with no availability target
+- [0027](adr/0027-no-outgoing-connections.md): Make no outgoing connection and use no outside service
+- [0028](adr/0028-calculation-as-pure-server-module.md): Calculate every figure in one pure PHP module on the server
+- [0029](adr/0029-layout-engine-in-the-browser.md): Compute the canvas layout and its text lines in one TypeScript engine in the browser
+- [0030](adr/0030-own-authentication-on-laravel-primitives.md): Build sign-in and the second factor on Laravel's primitives, without Fortify
+- [0031](adr/0031-one-messages-file-for-server-and-client.md): Keep every Dutch text in one file, lang/nl.json, read by server and client
+- [0032](adr/0032-serialise-writes-with-immediate-transactions.md): Serialise guarded writes with IMMEDIATE SQLite transactions and row locks
+- [0033](adr/0033-undo-from-a-short-lived-table.md): Hold undo information in a short-lived table, not as soft deletes
+- [0034](adr/0034-audit-through-a-model-observer.md): Write the Audit log through a model observer, with explicit entries for sets and Layout
+- [0035](adr/0035-one-container-with-php-apache.md): Deliver one container on the official php-apache image with one storage volume
+- [0036](adr/0036-shift-move-in-tekenen.md): Let Tekenen move one Cluster, Activity or Item to another parent with Shift, confirmed, as its own structure request
+- [0037](adr/0037-session-lifetime-and-termination.md): Limit sessions to 12 hours and end them on every change of a sign-in factor
+- [0038](adr/0038-delivered-stack-at-the-root-dev-container-aside.md): Put the delivered stack at the repository root and the development container in .devcontainer
+- [0039](adr/0039-csp-image-sources-for-png-export.md): Allow data: and blob: image sources in the content security policy, for PNG export
+- [0040](adr/0040-wp-e0-decision.md): WP-E0 decision: go for Tekenen, with three sub-decisions
+- [0041](adr/0041-lines-deleted-before-canvas-cascade.md): Delete Allocation lines before the Canvas cascade
+- [0042](adr/0042-memory-limit-for-logo-re-encoding.md): Memory limit of 256M in the delivered image, for logo re-encoding
+- [0043](adr/0043-cost-record-import-timing-on-the-delivered-engine.md): The 10 second import limit (P-3) binds the delivered engine, PostgreSQL in CI only has a sanity limit
+- [0044](adr/0044-performance-specs-measure-the-95th-percentile-alone.md): Performance specs measure the 95th percentile of twenty samples, alone, in their own CI job
+- [0045](adr/0045-png-export-with-html-to-image.md): PNG export of the Canvas with html-to-image, loaded on demand
+- [0046](adr/0046-referrer-policy-same-origin.md): Referrer-Policy is same-origin, not no-referrer
+- [0047](adr/0047-snapshot-schema-version-and-stored-bytes.md): A newer Snapshot schema counts as damaged, and the full export keeps the stored bytes
+- [0048](adr/0048-firefox-e2e-runs-on-a-virtual-display.md): Firefox end-to-end runs on a virtual display
+- [0049](adr/0049-pull-request-ci-runs-chromium-only.md): # 0049 — Pull request CI runs Chromium only
