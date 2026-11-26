@@ -30,6 +30,7 @@ use App\Http\Controllers\OrganisationLogoController;
 use App\Http\Controllers\OverviewController;
 use App\Http\Controllers\QuickEntryController;
 use App\Http\Controllers\SampleDataController;
+use App\Http\Controllers\SampleFileController;
 use App\Http\Controllers\SecondFactorController;
 use App\Http\Controllers\SnapshotController;
 use App\Http\Controllers\SnapshotViewController;
@@ -38,6 +39,7 @@ use App\Http\Controllers\StructureImportController;
 use App\Http\Controllers\SystemNoticeController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UndoController;
+use App\Services\Exchange\SampleFile;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -151,6 +153,7 @@ Route::middleware(['auth', 'can:administer'])->prefix('admin/system-notices')->g
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/samples/{group}.csv', [SampleFileController::class, 'show'])->whereIn('group', SampleFile::GROUPS);
     Route::get('/organisations/{organisation}/export/cost-records.csv', [ExportController::class, 'costRecords']);
     Route::get('/canvases/{canvas}/export/allocations.csv', [ExportController::class, 'allocations']);
 });

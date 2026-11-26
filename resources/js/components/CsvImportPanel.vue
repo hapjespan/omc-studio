@@ -8,7 +8,7 @@ import ImportReport, { type ImportReportData } from './ImportReport.vue';
 import { postFile, refusalOf } from './upload';
 import { plural, t } from '../i18n';
 
-const props = defineProps<{ id: string; heading: string; hint: string; previewUrl: string; commitUrl: string }>();
+const props = defineProps<{ id: string; heading: string; hint: string; previewUrl: string; commitUrl: string; sampleUrl: string }>();
 const emit = defineEmits<{ done: [] }>();
 
 const open = ref(false);
@@ -73,7 +73,8 @@ function pick(picked: File | null): void {
             <h2 :id="`${id}-heading`" class="font-display text-[16px] font-semibold">{{ heading }}</h2>
             <form novalidate class="mt-4 flex flex-col gap-4" @submit.prevent="check">
                 <FileField :key="inputKey" :id="`${id}-file`" :label="t('import.file')" accept=".csv,text/csv,text/plain" :hint="hint" :error="refusal" @pick="pick" />
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
+                    <AppButton :href="sampleUrl">{{ t('csvx.sample_download') }}</AppButton>
                     <AppButton type="submit" variant="primary" :disabled="!file || busy">{{ t('import.check') }}</AppButton>
                     <AppButton :disabled="!canCommit" @click="commit">{{ t('import.commit') }}</AppButton>
                 </div>

@@ -8,5 +8,5 @@ defineProps<{ canvasId: number }>();
 </script>
 
 <template>
-    <CsvImportPanel id="import-structure" :heading="t('csvx.structure_import')" :hint="t('csvx.structure_hint')" :preview-url="routes.structureImportPreview(canvasId)" :commit-url="routes.structureImport(canvasId)" @done="router.reload()" />
+    <CsvImportPanel id="import-structure" :heading="t('csvx.structure_import')" :hint="t('csvx.structure_hint')" :preview-url="routes.structureImportPreview(canvasId)" :commit-url="routes.structureImport(canvasId)" :sample-url="routes.sampleFile('structure')" @done="router.reload()" />
 </template>

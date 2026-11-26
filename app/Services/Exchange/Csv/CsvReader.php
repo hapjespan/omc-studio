@@ -10,6 +10,8 @@ class CsvReader
 
     private const ENCLOSURE = '"';
 
+    public const EXPLANATION_MARK = '#';
+
     private const BYTE_ORDER_MARK = "\xEF\xBB\xBF";
 
     public function __construct(private readonly string $path) {}
@@ -42,6 +44,8 @@ class CsvReader
                 if ($first) {
                     $values[0] = self::stripped($values[0]);
                     $first = false;
+                } elseif (self::explains($values)) {
+                    continue;
                 }
 
                 yield $start => $values;
@@ -57,6 +61,15 @@ class CsvReader
     private static function breaks(array $fields): int
     {
         return array_sum(array_map(fn (?string $field): int => substr_count((string) $field, "\n"), $fields));
+    }
+
+    /**
+     * @param  list<string>  $values
+     */
+    private static function explains(array $values): bool
+    {
+        return str_starts_with($values[0], self::EXPLANATION_MARK)
+            && trim(implode('', array_slice($values, 1))) === '';
     }
 
     private static function unprotected(string $field): string
