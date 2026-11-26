@@ -89,4 +89,85 @@ class BackupTest extends TestCase
             $this->assertSame([], glob($this->storage.'/backups/*'));
         }
     }
+
+    private function organisationWithLogo(string $path): void
+    {
+        DB::table('organisations')->insert(['name' => 'Org', 'logo_path' => $path, 'created_at' => now(), 'updated_at' => now()]);
+    }
+
+    private function bindCopyHook(callable $hook): void
+    {
+        $this->app->bind(BackupService::class, fn () => new class($hook) extends BackupService
+        {
+            public int $calls = 0;
+
+            public function __construct(private $hook) {}
+
+            protected function copyUploads(string $from, string $to): void
+            {
+                $this->calls++;
+                ($this->hook)($this->calls);
+                parent::copyUploads($from, $to);
+            }
+        });
+    }
+
+    private function replaceLogoOnFirstCopy(): void
+    {
+        $this->organisationWithLogo('logos/a.png');
+        file_put_contents($this->storage.'/app/private/logos/b.png', 'logo-two');
+
+        $this->bindCopyHook(function (int $call) {
+            if ($call === 1) {
+                DB::table('organisations')->update(['logo_path' => 'logos/b.png']);
+                unlink($this->storage.'/app/private/logos/a.png');
+            }
+        });
+    }
+
+    public function test_a_logo_replaced_between_the_database_and_upload_copy_is_retried_from_a_fresh_database_copy(): void
+    {
+        $this->replaceLogoOnFirstCopy();
+
+        $folder = app(BackupService::class)->run();
+
+        $this->assertNull(BackupService::missingLogo($folder));
+        $this->assertSame('logo-two', file_get_contents($folder.'/uploads/logos/b.png'));
+        $copy = new \PDO('sqlite:'.$folder.'/database.sqlite');
+        $this->assertSame('logos/b.png', $copy->query('SELECT logo_path FROM organisations')->fetchColumn());
+    }
+
+    public function test_a_retried_backup_restores_with_its_logo(): void
+    {
+        $this->replaceLogoOnFirstCopy();
+        $folder = app(BackupService::class)->run();
+        unlink($this->storage.'/app/private/logos/b.png');
+
+        $this->artisan('app:restore', ['folder' => $folder])->assertSuccessful();
+
+        $this->assertSame('logo-two', file_get_contents($this->storage.'/app/private/logos/b.png'));
+    }
+
+    public function test_a_persistent_inconsistency_fails_cleans_up_and_keeps_earlier_backups_usable(): void
+    {
+        $good = app(BackupService::class)->run();
+        $this->organisationWithLogo('logos/a.png');
+        $this->bindCopyHook(function () {
+            @unlink($this->storage.'/app/private/logos/a.png');
+        });
+
+        $this->artisan('app:backup')->assertFailed();
+
+        $this->assertSame([$good], glob($this->storage.'/backups/*'));
+        $this->assertNull(BackupService::missingLogo($good));
+    }
+
+    public function test_a_persistent_copy_failure_fails_and_cleans_up(): void
+    {
+        $this->bindCopyHook(fn () => throw new \RuntimeException('disk full'));
+
+        $this->artisan('app:backup')->assertFailed();
+
+        $this->assertSame([], glob($this->storage.'/backups/*'));
+    }
 }
