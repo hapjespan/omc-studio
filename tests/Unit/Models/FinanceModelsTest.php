@@ -76,7 +76,7 @@ class FinanceModelsTest extends TestCase
     {
         $record = CostRecord::factory()->create(['name' => 'Licenties']);
         $figure = YearlyFigure::factory()->for($record)->create(['budget_cents' => 1000]);
-        $year = FiscalYear::factory()->create();
+        $year = FiscalYear::factory()->create(['year' => 2030]);
         $owner = Owner::factory()->create();
         $application = Application::factory()->create();
         AuditEntry::query()->delete();
