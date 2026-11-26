@@ -91,13 +91,10 @@ class RestoreService
 
     private function assertLogosPresent(string $folder, string $database): void
     {
-        $pdo = new PDO('sqlite:'.$database);
-        $paths = $pdo->query("SELECT logo_path FROM organisations WHERE logo_path IS NOT NULL AND logo_path != ''")->fetchAll(PDO::FETCH_COLUMN);
+        $missing = BackupService::missingLogo($folder);
 
-        foreach ($paths as $path) {
-            if (str_contains($path, '..') || str_starts_with($path, '/') || ! is_file($folder.'/'.BackupService::UPLOADS.'/'.$path)) {
-                throw new InvalidArgumentException(__('console.restore_logo_missing', ['path' => $path]));
-            }
+        if ($missing !== null) {
+            throw new InvalidArgumentException(__('console.restore_logo_missing', ['path' => $missing]));
         }
     }
 

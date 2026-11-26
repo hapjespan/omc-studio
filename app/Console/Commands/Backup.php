@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Operations\BackupService;
 use Illuminate\Console\Command;
+use RuntimeException;
 
 class Backup extends Command
 {
@@ -13,7 +14,13 @@ class Backup extends Command
 
     public function handle(BackupService $backup): int
     {
-        $this->line($backup->run());
+        try {
+            $this->line($backup->run());
+        } catch (RuntimeException $failure) {
+            $this->error($failure->getMessage());
+
+            return self::FAILURE;
+        }
 
         return self::SUCCESS;
     }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Operations;
 
 use App\Enums\Role;
+use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Operations\BackupService;
 use Illuminate\Support\Facades\Artisan;
@@ -92,7 +93,7 @@ class BackupTest extends TestCase
 
     private function organisationWithLogo(string $path): void
     {
-        DB::table('organisations')->insert(['name' => 'Org', 'logo_path' => $path, 'created_at' => now(), 'updated_at' => now()]);
+        Organisation::factory()->create(['logo_path' => $path]);
     }
 
     private function bindCopyHook(callable $hook): void
@@ -117,8 +118,10 @@ class BackupTest extends TestCase
         $this->organisationWithLogo('logos/a.png');
         file_put_contents($this->storage.'/app/private/logos/b.png', 'logo-two');
 
-        $this->bindCopyHook(function (int $call) {
-            if ($call === 1) {
+        $fired = false;
+        $this->bindCopyHook(function () use (&$fired) {
+            if (! $fired) {
+                $fired = true;
                 DB::table('organisations')->update(['logo_path' => 'logos/b.png']);
                 unlink($this->storage.'/app/private/logos/a.png');
             }
@@ -141,7 +144,7 @@ class BackupTest extends TestCase
     {
         $this->replaceLogoOnFirstCopy();
         $folder = app(BackupService::class)->run();
-        unlink($this->storage.'/app/private/logos/b.png');
+        file_put_contents($this->storage.'/app/private/logos/b.png', 'changed');
 
         $this->artisan('app:restore', ['folder' => $folder])->assertSuccessful();
 

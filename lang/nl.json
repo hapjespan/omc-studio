@@ -740,6 +740,7 @@
     "console.restore_foreign": "De database in deze back-up hoort niet bij deze applicatie",
     "console.restore_key_invalid": "De sleutel in deze back-up is ongeldig",
     "console.restore_key_mismatch": "De sleutel in deze back-up past niet bij de tweede factor in de database",
+    "console.backup_inconsistent": "De back-up is mislukt: het logo :path veranderde tijdens het kopieren",
     "console.restore_logo_missing": "De back-up mist het logo :path dat de database noemt",
     "console.restore_staging_failed": "Voorbereiden van het herstel is mislukt: :reason. De bestaande gegevens zijn ongewijzigd",
     "console.restore_swap_failed": "Wisselen is mislukt (:reason) en de vorige installatie is automatisch teruggezet",
