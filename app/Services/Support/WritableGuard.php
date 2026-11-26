@@ -27,7 +27,7 @@ trait WritableGuard
 
     protected function assertCostRecordActive(CostRecord $record): void
     {
-        if ($record->archived_at !== null) {
+        if ($record->refresh()->archived_at !== null) {
             $this->refuse('cost_record_archived');
         }
     }
