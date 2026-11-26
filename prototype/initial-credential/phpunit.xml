@@ -1,0 +1,2 @@
+<phpunit bootstrap="../../vendor/autoload.php" colors="false"><testsuites><testsuite name="p"><directory>.</directory></testsuite></testsuites>
+<php><env name="APP_ENV" value="testing"/><env name="DB_CONNECTION" value="sqlite"/><env name="DB_DATABASE" value=":memory:"/><env name="DB_URL" value=""/><env name="LOG_CHANNEL" value="null"/></php></phpunit>
