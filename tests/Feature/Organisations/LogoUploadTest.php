@@ -5,7 +5,6 @@ namespace Tests\Feature\Organisations;
 use App\Models\AuditEntry;
 use App\Models\Organisation;
 use App\Models\User;
-use Tests\Support\ActsAsAdministrator;
 use App\Services\Canvas\LogoStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -14,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Mockery;
 use RuntimeException;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class LogoUploadTest extends TestCase
