@@ -90,6 +90,26 @@ them, and a task that violates one is not done.
    project settings strip attribution trailers, and the review blocks on any
    that slip through. The code must read as deliberately engineered, not as
    generated.
+   Exceptions to article 4, recorded by decision of the product owner
+   (2026-11-21, option A):
+   - The tracked workflow tooling is development tooling and exempt from this
+     article: `.claude/` (agents, commands, settings), `CLAUDE.md`, and the
+     development-container wiring (the agent install line in
+     `.devcontainer/Dockerfile`, the `DEV_CLAUDE_HOME` and `DEV_CLAUDE_JSON`
+     variables in `.devcontainer/README.md` and `docker-compose.yml`). By
+     decision of 2026-11-22 (review P5, option A) the exemption also names
+     `.specify/`, `.workflow/`, `scripts/vendored-urls.txt` and
+     `proof/wp-e0/asset-report.mjs`: development tooling and strings from
+     third-party libraries. The exemption covers only these tooling files. It never covers product code,
+     tests, documents of the product, or commit messages going forward.
+   - Two commits, `d66a78c` and `d0fc304`, carry an attribution trailer and a
+     session link. They are already on `release` and on the remote, and history
+     is not rewritten. Nothing else is excused.
+   - From now on the tracked hook `.githooks/commit-msg` refuses a commit
+     message that has a line starting with an attribution trailer (any case)
+     or contains a session link. Only those two shapes are refused; the same
+     words inside a sentence are accepted. Activate it once per clone with
+     `make hooks` (`git config core.hooksPath .githooks`).
 5. **One file per component, compact files.** Each model, service, controller,
    repository and UI component lives in its own file that does that one thing.
    A file approaching 300 lines is a split waiting to happen; a file over 400

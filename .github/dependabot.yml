@@ -1,45 +1,19 @@
-# Install as: .github/dependabot.yml
-#
-# The CI templates pin action majors, and a pinned major goes stale on its own:
-# three of them were a full major behind within weeks of being written. This is
-# what keeps them honest without anyone remembering to check.
-#
-# The ecosystems below cover a scaffolded project. Drop the one your stack does
-# not use rather than leaving it to open pull requests against a manifest that
-# never appears.
-#
-# Groups carry update-types minor+patch on purpose: a grouped pull request that
-# includes majors becomes unmergeable as a unit the moment two of them need
-# their own migration (seen 2026-08-22: TypeScript 7 + ESLint 10 + Vite 8 in one
-# batch, each failing for its own reason). Majors arrive one per pull request,
-# so each can be judged on its own evidence. github-actions is the exception:
-# chasing action majors is exactly what that entry exists for.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-    groups:
-      actions:
-        patterns: ['*']
+    open-pull-requests-limit: 0
 
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      npm-minor-patch:
-        patterns: ['*']
-        update-types: ['minor', 'patch']
+    open-pull-requests-limit: 0
 
   - package-ecosystem: composer
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      composer-minor-patch:
-        patterns: ['*']
-        update-types: ['minor', 'patch']
+    open-pull-requests-limit: 0

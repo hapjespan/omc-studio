@@ -1,0 +1,82 @@
+{
+  "pairs": [
+    {
+      "kind": "drag",
+      "ms": 1,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 1,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 1,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 1,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "drag",
+      "ms": 0,
+      "ids": [
+        "dom-1"
+      ]
+    },
+    {
+      "kind": "nudge-debounced",
+      "ms": 303,
+      "ids": [
+        "act-1"
+      ]
+    },
+    {
+      "kind": "nudge-flushed",
+      "ms": 1,
+      "ids": [
+        "act-1"
+      ]
+    },
+    {
+      "kind": "command",
+      "ms": 1,
+      "ids": [
+        "act-5"
+      ]
+    }
+  ],
+  "notices": 11
+}

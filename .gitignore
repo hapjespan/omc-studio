@@ -35,3 +35,9 @@ __pycache__/
 coverage/
 playwright-report/
 test-results/
+.forbidden-names
+.playwright-browsers/
+.scratch/
+/proof/wp-e0/dist
+/proof/wp-e0/dist-page
+.worktrees/

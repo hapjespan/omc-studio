@@ -2,23 +2,51 @@
 
 namespace App\Providers;
 
+use App\Services\Accounts\OneTimePassword;
+use App\Services\Audit\AuditContext;
+use App\Services\Operations\InstallSteps;
+use App\Services\Operations\Steps\BlankTemplateStep;
+use App\Services\Operations\Steps\FirstAdministratorStep;
+use App\Services\Operations\Steps\ReferenceDataStep;
+use App\Services\Operations\Steps\SampleDataStep;
+use App\Support\Session\DatabaseSessionHandler;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        config([
+            'logging.channels' => Arr::except((array) config('logging.channels'), ['slack', 'papertrail']),
+            'mail.mailers' => Arr::only((array) config('mail.mailers'), ['log', 'array']),
+            'services' => Arr::except((array) config('services'), ['postmark', 'resend', 'ses', 'slack']),
+        ]);
+
+        $this->app->singleton(AuditContext::class);
+        $this->app->singleton(InstallSteps::class, function (Container $app) {
+            $steps = new InstallSteps;
+            $steps->add(new ReferenceDataStep);
+            $steps->add(new BlankTemplateStep);
+            $steps->add(new FirstAdministratorStep(new OneTimePassword));
+            $steps->add($app->make(SampleDataStep::class));
+
+            return $steps;
+        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        Model::preventLazyLoading(! $this->app->isProduction());
+
+        Session::extend('database', fn (Container $app) => new DatabaseSessionHandler(
+            $app->make('db')->connection(config('session.connection')),
+            (string) config('session.table'),
+            (int) config('session.lifetime'),
+            $app,
+        ));
     }
 }

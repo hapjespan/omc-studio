@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Enums\CanvasKind;
+use App\Rules\TrimmedText;
+use App\Support\FieldLimits;
+use Illuminate\Validation\Rule;
+
+class CanvasRequest extends AppFormRequest
+{
+    public const SOURCES = ['template', 'copy', 'save_template'];
+
+    public function authorize(): bool
+    {
+        return $this->user()?->can('administer') ?? false;
+    }
+
+    /** @return array<string, array<int, mixed>> */
+    public function rules(): array
+    {
+        $name = ['required', 'string', new TrimmedText(__('fields.name'), FieldLimits::NAME)];
+
+        return match ($this->method()) {
+            'POST' => [
+                'source' => ['required', Rule::in(static::SOURCES)],
+                'name' => $name,
+                'organisation_id' => [Rule::requiredIf($this->input('source') !== 'save_template'), 'integer', Rule::exists('organisations', 'id')],
+                'template_id' => [Rule::requiredIf($this->input('source') === 'template'), 'integer', Rule::exists('canvases', 'id')->where('kind', CanvasKind::Template->value)],
+                'canvas_id' => [Rule::requiredIf(in_array($this->input('source'), ['copy', 'save_template'], true)), 'integer', Rule::exists('canvases', 'id')->where('kind', CanvasKind::Canvas->value)],
+            ],
+            'DELETE' => ['confirmation' => ['required', 'string']],
+            default => ['name' => $name],
+        };
+    }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return ['name.required' => __('canvas_lifecycle.name_required'), 'confirmation.required' => __('rule.canvas_confirmation_mismatch')];
+    }
+}

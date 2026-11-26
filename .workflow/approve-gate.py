@@ -61,6 +61,37 @@ def refuse_if_agent():
         )
 
 
+def not_released(state, phase):
+    """Why the orchestrator has not opened this gate, or None when it has.
+
+    Same rule as gate_hold in the orchestrator's dashboard.py: a gate opens on
+    a `gate-release` event logged after the phase completed and closes on a
+    `gate-hold`. Without a log no orchestrator watches this project.
+    """
+    log = pathlib.Path(os.environ.get("DEV_EVENT_LOG", "/root/.claude/dev-events.jsonl"))
+    try:
+        lines = log.read_text().splitlines()
+    except OSError:
+        return None
+    project = STATE.parent.parent.name
+    last = None
+    for line in lines:
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if (isinstance(entry, dict) and entry.get("project") == project
+                and entry.get("event") in ("gate-hold", "gate-release")):
+            last = entry
+    if last and last["event"] == "gate-hold":
+        return str(last.get("reason") or "work on this phase is not finished")
+    completed = str((state.get("completed_at") or {}).get(str(phase), ""))
+    # Both stamps are UTC ISO strings, so they compare as text.
+    if last and str(last.get("ts", "")) >= completed:
+        return None
+    return "the orchestrator has not released it since the phase completed"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("phase", type=int, help=f"the phase the gate follows, 0 to {LAST_PHASE}")
@@ -83,6 +114,14 @@ def main():
     gates = GATES.get(mode, set(range(LAST_PHASE)))
     if args.phase not in gates:
         print(f"Note: {mode} mode has no gate after phase {args.phase}. Recording it anyway.")
+
+    reason = not_released(state, args.phase)
+    if reason:
+        sys.exit(
+            f"Gate {args.phase} is not ready to approve: {reason}.\n"
+            "Work on this phase may still be going on. The orchestrator opens the gate, on the host, with:\n"
+            f"    dev.py release {STATE.parent.parent.name}"
+        )
 
     approved = sorted(set(state.get("gates_approved", [])) | {args.phase})
     state["gates_approved"] = approved

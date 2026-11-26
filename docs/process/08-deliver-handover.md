@@ -25,7 +25,7 @@ could take over from them alone.
 2. Deploy to the `deploy_target` from `specs/PROFILE.md`, or record why not.
    - `coolify`: create the application in Coolify on the development host, point it
      at the GitHub repository and at `main`, set the environment variables from
-     `.env.example` (never the values from `.env`), attach it to the database it
+     `env.example` (never the values from `.env`), attach it to the database it
      needs, and deploy. Write down the resulting URL, the Coolify project name and
      how a rollback is triggered.
    - `none`: state in one line that this project is deliberately not deployed, and

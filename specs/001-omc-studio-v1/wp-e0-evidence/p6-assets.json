@@ -1,0 +1,51 @@
+{
+  "total": 38,
+  "grouped": {
+    "XML namespace identifiers": [
+      "https://www.w3.org/TR/WGSL/#finite-math-assumption (ssets/core-DgrSIzwu.js)",
+      "https://www.w3.org/TR/WGSL/#address-space-layout-constraints (ssets/core-DgrSIzwu.js)",
+      "http://www.w3.org/XML/1998/namespace (ssets/page-BLaSwh19.js)",
+      "http://www.w3.org/2000/xmlns/ (ssets/page-BLaSwh19.js)"
+    ],
+    "documentation and example links": [
+      "https://github.com/software-mansion/TypeGPU/issues (ssets/core-DgrSIzwu.js)",
+      "https://github.com/WICG/html-in-canvas (ssets/core-DgrSIzwu.js)",
+      "https://shaders.com/sample.jpg (ssets/core-DgrSIzwu.js)",
+      "https://shaders.com/sample.mp4 (ssets/core-DgrSIzwu.js)",
+      "https://api.example.com/v1. (ssets/ru-DAOtdQfS.js)",
+      "http://localhost:11434/v1 (ssets/ru-DAOtdQfS.js)",
+      "https://api.example.com/v1 (ssets/ja-BpotV1Ic.js)",
+      "https://github.com/csstree/csstree/issues (ssets/layout-VfCsTgeH.js)",
+      "https://github.com/opentypejs/opentype.js/issues/183#issuecomment-1147228025 (ssets/layout-VfCsTgeH.js)",
+      "https://github.com/opentypejs/opentype.js/issues/675 (ssets/layout-VfCsTgeH.js)",
+      "https://vuejs.org/error-reference/#runtime- (ssets/page-BLaSwh19.js)",
+      "https://www.speedscope.app/file-format-schema.json (ssets/page-BLaSwh19.js)",
+      "https://api.example.com/v1。 (ssets/zh-cn-Ddr-7qnV.js)",
+      "http://localhost:11434/v1） (ssets/zh-cn-Ddr-7qnV.js)"
+    ],
+    "provider endpoints that would be requested if enabled": [
+      "https://fonts.googleapis.com/css2?family=${e.trim( (ssets/core-DgrSIzwu.js)",
+      "https://fonts.googleapis.com/css2?family= (ssets/core-DgrSIzwu.js)",
+      "https://use.typekit.net (ssets/layout-VfCsTgeH.js)",
+      "https://typekit.com/api/v1/json/kits/ (ssets/layout-VfCsTgeH.js)",
+      "https://fonts.bunny.net (ssets/layout-VfCsTgeH.js)",
+      "https://api.fontshare.com/v2 (ssets/layout-VfCsTgeH.js)",
+      "https://api.fontsource.org/v1 (ssets/layout-VfCsTgeH.js)",
+      "https://cdn.jsdelivr.net/fontsource/fonts/ (ssets/layout-VfCsTgeH.js)",
+      "https://fonts.google.com/metadata/fonts (ssets/layout-VfCsTgeH.js)",
+      "https://fonts.googleapis.com (ssets/layout-VfCsTgeH.js)",
+      "https://fonts.google.com/metadata/icons?key=material_symbols&incomplete=true (ssets/layout-VfCsTgeH.js)",
+      "https://cdn.jsdelivr.net/npm (ssets/layout-VfCsTgeH.js)",
+      "https://api.iconify.design (ssets/page-BLaSwh19.js)"
+    ],
+    "AI provider key pages": [
+      "https://openrouter.ai/keys (ssets/layout-VfCsTgeH.js)",
+      "https://console.anthropic.com/settings/keys (ssets/layout-VfCsTgeH.js)",
+      "https://platform.openai.com/api-keys (ssets/layout-VfCsTgeH.js)",
+      "https://aistudio.google.com/apikey (ssets/layout-VfCsTgeH.js)",
+      "https://platform.deepseek.com/api_keys (ssets/layout-VfCsTgeH.js)",
+      "https://docs.z.ai/devpack/quick-start (ssets/layout-VfCsTgeH.js)",
+      "https://platform.minimax.io/user-center/basic-information/interface-key (ssets/layout-VfCsTgeH.js)"
+    ]
+  }
+}

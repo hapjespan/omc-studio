@@ -1,58 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# OMC Studio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+OMC Studio is een lokale webtoepassing om een Operating Model Canvas op te bouwen, er kosten aan te koppelen, het te tekenen en er momentopnamen van te bewaren. Alles draait op uw eigen machine en maakt nooit verbinding met internet.
 
-## About Laravel
+## Starten
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Zet Docker klaar en voer in deze map twee commando's uit:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+cp env.example .env
+docker compose up -d
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+De eerste keer heeft de machine eenmalig internet nodig om de installatie te bouwen. De bouw duurde 7 seconden met een warme Docker-cache; op een schone machine duurt hij langer, afhankelijk van uw verbinding. Daarna werkt alles zonder internet. Open http://localhost:8080. Stoppen kan met `docker compose down`; uw gegevens blijven bewaard.
 
-## Contributing
+## Eerste keer inloggen
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Het eerste wachtwoord staat eenmalig in het logboek van de toepassing. Lees het met `docker compose logs app`. Log in als `admin@localhost` en kies meteen een nieuw wachtwoord van minstens 12 tekens. Het eerste wachtwoord vervalt na 24 uur.
 
-## Code of Conduct
+## Wachtwoord kwijt
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Een nieuw eenmalig wachtwoord maakt u zo:
 
-## Security Vulnerabilities
+```
+docker compose exec -u www-data app php artisan app:reset-admin-password admin@localhost
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Voeg `--second-factor` toe als ook de tweede stap van het inloggen kwijt is. Het commando toont het nieuwe wachtwoord en beëindigt alle sessies van die gebruiker.
 
-## License
+## Back-up en terugzetten
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+make backup
+make restore FOLDER=<map>
+```
+
+`make backup` maakt in het opslagvolume van de toepassing een map `storage/backups/<datum_tijd>` met de database, de geüploade bestanden en de sleutel van de toepassing, en toont die map. Die map staat dus nog in dezelfde container: kopieer hem naar een andere plek met `docker compose cp app:/var/www/html/storage/backups/<datum_tijd> .`. Bewaar de kopie veilig: de sleutel zit erin, en zonder die sleutel zijn de gegevens van de tweede stap niet terug te lezen. Maak elke week een back-up en altijd vóór een import. Verwijder back-ups die u niet meer nodig hebt; ze bevatten ook de gebruikersgegevens.
+
+De beveiligingslogboeken (`storage/logs/security-*.log`, 90 dagen) staan niet in de back-up: kopieer ze mee met `docker compose cp app:/var/www/html/storage/logs .` als je ze langer wilt bewaren dan die 90 dagen of bij een incident nodig hebt.
+
+Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/`. Zet de map over naar de gebruiker van de toepassing met `docker compose exec -u root app chown -R www-data:www-data storage/backups` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
+
+## Importeren
+
+Op het Overzicht kiest u Importeren uit JSON voor een canvas. Een volledige import van alles staat op de beheerpagina Volledige export en import en werkt alleen in een lege applicatie; de voorbeelddata (Voorbeelddata) moet dan eerst weg. Kostenposten, structuur en verdelingen kunnen met een CSV-bestand van hoogstens 5 MB; een JSON-bestand mag tot 50 MB zijn. U ziet eerst een controle per regel. Importeren kan pas als er geen fouten meer zijn, en gebeurt dan helemaal of niet.
+
+## Als de browser niet wil inloggen
+
+De toepassing zet veilige cookies. Weigert uw browser die op http://localhost:8080, dan komt de inlogpagina steeds terug. Zet in het bestand `.env` de regel `SESSION_SECURE_COOKIE=false` en start opnieuw met `docker compose up -d`. Chrome en Edge zijn getest met Chromium; voor Firefox en Safari is dit niet vastgesteld.
+
+## Veelgestelde vragen
+
+**Kan een collega meekijken?** Ja, via een SSH-tunnel naar uw machine: `ssh -L 8080:127.0.0.1:8080 gebruiker@machine`, daarna http://localhost:8080 op de eigen computer. De toepassing luistert alleen op uw eigen machine.
+
+**Waar staan mijn gegevens?** In één Docker-volume op uw machine en in uw back-ups.
+
+**Hoe verwijder ik de voorbeeldgegevens?** In het beheerscherm, onder Voorbeelddata.
+
+**Wat als een momentopname beschadigd is?** U krijgt een melding bij de systeemmeldingen en die momentopname is dan niet te openen. De rest werkt gewoon.

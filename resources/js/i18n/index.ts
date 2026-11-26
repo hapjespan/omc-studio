@@ -1,0 +1,18 @@
+import messages from '../../../lang/nl.json';
+
+const catalogue: Record<string, string> = messages;
+
+export function t(key: string, params: Record<string, string | number> = {}): string {
+    const message = catalogue[key];
+    if (message === undefined) throw new Error(`Missing message key: ${key}`);
+    return message.replace(/:(\w+)/g, (match, name: string) => (name in params ? String(params[name]) : match));
+}
+
+export function hasMessage(key: string): boolean {
+    return key in catalogue;
+}
+
+export function plural(key: string, count: number): string {
+    const [one, other] = t(key, { count }).split('|');
+    return count === 1 ? one : other;
+}

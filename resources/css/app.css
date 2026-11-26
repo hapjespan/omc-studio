@@ -1,9 +1,187 @@
 @import 'tailwindcss';
+@import './fonts.css';
+@import './focus.css';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@source '../js/**/*.vue';
+@source '../views/**/*.blade.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+
+    --color-ink: #171b21;
+    --color-secondary: #454c57;
+    --color-muted: #5f6772;
+    --color-page: #f2f3f1;
+    --color-surface: #f6f7f5;
+    --color-hairline: #dcdfe2;
+    --color-edge: #848b95;
+    --color-dashed: #8a919b;
+    --color-success: #1f7a4d;
+    --color-success-soft: #e7f3ec;
+    --color-warning: #8a5200;
+    --color-warning-soft: #fff3d6;
+    --color-danger: #a12a1e;
+    --color-danger-edge: #c0645a;
+    --color-danger-soft: #fdecea;
+    --color-over-budget: #9a7811;
+    --color-drop-zone: #9aa1aa;
+    --color-accent: #2459d6;
+    --color-accent-soft: #e3ebfb;
+    --color-disabled: #e6e8e6;
+    --color-common: #1f7a4d;
+    --color-adaptive: #1e5fbf;
+    --color-specialized: #b4540a;
+    --color-distinct: #6b3fb5;
+
+    --text-body: 13px;
+    --text-small: 12.5px;
+    --text-hint: 11.5px;
+    --text-type: 10.5px;
+    --text-label: 11px;
+    --text-card-title: 14px;
+    --text-page-title: 22px;
+    --text-amount: 22px;
+    --text-figure: 30px;
+
+    --shadow-float: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+    --radius-control: 6px;
+    --radius-card: 8px;
+    --radius-panel: 10px;
+    --radius-badge: 4px;
+
+    --spacing-control: 36px;
+    --spacing-dense: 32px;
+    --spacing-mark: 28px;
+    --spacing-bar: 56px;
+    --spacing-left-panel: 224px;
+    --spacing-detail-panel: 360px;
+}
+
+@utility selected-ring {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+
+@layer base {
+    html {
+        line-height: 1.4;
+    }
+
+    body {
+        background-color: var(--color-page);
+        color: var(--color-ink);
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-display);
+    }
+}
+
+@layer components {
+    .check-target > input {
+        appearance: none;
+        position: relative;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--color-edge);
+        border-radius: var(--radius-badge);
+        background-color: #ffffff;
+        accent-color: var(--color-ink);
+    }
+
+    .check-target > input:checked,
+    .check-target > input:indeterminate {
+        border-color: var(--color-ink);
+        background-color: var(--color-ink);
+    }
+
+    .check-target > input:checked::after {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        width: 4px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .check-target > input:indeterminate::after {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 5.5px;
+        width: 8px;
+        height: 2px;
+        border: 0;
+        background-color: #ffffff;
+        transform: none;
+    }
+
+    .check-target > input:disabled {
+        border-color: var(--color-edge);
+        background-color: var(--color-disabled);
+    }
+
+    .check-target > input:disabled:checked,
+    .check-target > input:disabled:indeterminate {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+    }
+
+    @media (forced-colors: active) {
+        .check-target > input {
+            border-color: ButtonText;
+            background-color: Field;
+        }
+
+        .check-target > input:checked,
+        .check-target > input:indeterminate {
+            border-color: Highlight;
+            background-color: Highlight;
+            forced-color-adjust: none;
+        }
+
+        .check-target > input:checked::after {
+            border-color: HighlightText;
+        }
+
+        .check-target > input:indeterminate::after {
+            background-color: HighlightText;
+        }
+    }
+}
+
+#nprogress {
+    position: fixed;
+    inset: unset;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    overflow: visible;
+    pointer-events: none;
+}
+
+#nprogress::backdrop {
+    display: none;
+}
+
+#nprogress .bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1031;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
 }

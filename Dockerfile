@@ -1,28 +1,32 @@
-FROM php:8.4-cli
+FROM node:24-slim AS assets
+WORKDIR /build
+COPY package.json package-lock.json vite.config.js ./
+RUN npm ci
+COPY resources resources
+COPY public public
+COPY lang lang
+RUN npm run build
 
-# System packages, PHP extensions for Laravel on Postgres, and Node for the
-# React frontend (Vite). Debian 13 (trixie) carries gh in its own repos.
-#
-# python3 is not in php:8.4-cli and the workflow scripts in .workflow/ need it,
-# so it is installed here explicitly rather than assumed.
+FROM php:8.4-apache
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git gh curl ca-certificates unzip python3 \
-        libpq-dev libzip-dev libicu-dev \
-    && docker-php-ext-install -j"$(nproc)" pdo_pgsql pgsql zip intl bcmath \
-    && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://claude.ai/install.sh | bash
-
+        git unzip libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libsqlite3-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" gd pdo_sqlite zip \
+    && a2enmod rewrite headers \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-ENV PATH="/root/.local/bin:$PATH"
-
-# uv and the Spec Kit CLI, baked into the image so the toolchain version travels
-# with the project instead of with the host. Spec Kit is pinned, because an
-# unpinned install makes every rebuild a silent upgrade of the tool the whole
-# workflow graph runs on. Upgrading is a deliberate bump here plus a rebuild.
-# Claude Code is deliberately not pinned: it updates itself either way.
-ARG SPECIFY_VERSION=0.16.4
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && uv tool install "specify-cli==${SPECIFY_VERSION}"
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+WORKDIR /var/www/html
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --no-interaction
+COPY . .
+COPY --from=assets /build/public/build public/build
+RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && composer dump-autoload --optimize --no-dev
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && printf 'variables_order=EGPCS\nexpose_php=Off\nzend.exception_ignore_args=On\nmemory_limit=256M\nupload_max_filesize=51M\npost_max_size=56M\n' > "$PHP_INI_DIR/conf.d/zz-app.ini"
+ENV APP_ENV=production APP_DEBUG=false
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]

@@ -1,0 +1,56 @@
+<script setup lang="ts">
+import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
+import { nextTick, ref, useId, watch } from 'vue';
+import { t } from '../../i18n';
+import DiscardConfirm from '../ui/DiscardConfirm.vue';
+import IconButton from '../ui/IconButton.vue';
+
+const props = defineProps<{ title: string; description?: string; kind?: string; dirty?: boolean; variant?: 'dialog' | 'panel' }>();
+const open = defineModel<boolean>('open', { default: false });
+const confirming = ref(false);
+const discardTitleId = useId();
+const keepEditing = ref<InstanceType<typeof DiscardConfirm>>();
+
+watch(open, () => (confirming.value = false));
+watch(confirming, async (asking) => {
+    if (!asking) return;
+    await nextTick();
+    keepEditing.value?.focus();
+});
+
+function requestClose(): void {
+    if (props.dirty) confirming.value = true;
+    else open.value = false;
+}
+
+function onOpenChange(next: boolean): void {
+    if (next) open.value = true;
+    else requestClose();
+}
+
+function discard(): void {
+    confirming.value = false;
+    open.value = false;
+}
+</script>
+
+<template>
+    <DialogRoot :open="open" @update:open="onOpenChange">
+        <DialogPortal>
+            <DialogOverlay v-if="variant !== 'panel'" class="fixed inset-0 bg-ink/40" />
+            <DialogContent
+                :class="variant === 'panel' ? 'fixed right-4 top-[calc(var(--spacing-bar)+16px)] max-h-[calc(100vh-var(--spacing-bar)-32px)] w-detail-panel overflow-y-auto rounded-panel border border-hairline max-[47.99rem]:inset-0 max-[47.99rem]:max-h-none max-[47.99rem]:w-full max-[47.99rem]:rounded-none max-[47.99rem]:border-0' : 'fixed left-1/2 top-1/2 max-h-[90vh] w-[min(32rem,100vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto'"
+                class="bg-white p-4 text-ink"
+                @escape-key-down.prevent="requestClose"
+                @pointer-down-outside.prevent="requestClose"
+            >
+                <p v-if="kind" class="pr-9 text-[11.5px] text-muted">{{ kind }}</p>
+                <DialogTitle class="pr-9 font-display text-[18px] font-semibold">{{ title }}</DialogTitle>
+                <DialogDescription v-if="description" class="mt-1 text-[12.5px] text-secondary">{{ description }}</DialogDescription>
+                <div class="mt-3"><slot :request-close="requestClose" /></div>
+                <DiscardConfirm v-if="confirming" ref="keepEditing" :title-id="discardTitleId" @keep="confirming = false" @discard="discard" />
+                <IconButton :label="t('dialog.close')" icon="close" class="absolute right-3 top-3" @click="requestClose" />
+            </DialogContent>
+        </DialogPortal>
+    </DialogRoot>
+</template>

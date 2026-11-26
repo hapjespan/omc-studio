@@ -1,0 +1,12 @@
+# 0020: Lay out on a fixed A3 Artboard with free Areas and cards that grow with their names
+
+Date: 2026-11-18
+Status: accepted (product owner, decisions 34, 35, 36, 48 and 51, 2026-11-18; for a full Artboard as the orchestrator's recorded reading of the product owner's words)
+
+## Decision
+
+Every Canvas is laid out on a fixed Artboard of 1680 by 1188 pixels (landscape A3), in Automatic layout from delivery 1 and in Manual layout from Tekenen on. The Direction band (the Area Direction) with the logo is fixed across the top in four columns, 180 pixels high. The other seven Areas can be moved and resized in Tekenen within the Artboard below the Direction band; they cannot be added, removed or renamed (H2). Every child stays inside its parent horizontally. Names always break onto a further line within the block's width, and a block grows in height, never in width, to hold its name and its children, also when its size was set by hand: a stored height is a minimum, and growth is drawn only, never written to it. Growth pushes its parents taller and never moves other Elements; Elements that end up overlapping are listed as a Warning. An Element or Area cannot be made narrower than the largest x plus width of its children. The server checks stored places and sizes. The Artboard never grows or scales: content that grows beyond its bottom edge is drawn beyond the edge on a hatched background below a line "Rand A3", with a notice and a Warning per block; nothing is refused or made smaller, and the Administrator resolves it by resizing or rearranging Domains, Clusters and Activities in Tekenen. Until Tekenen ships it can only be shown. Printing puts the Artboard one to one on an A3 page and content beyond it on the next pages; the PNG holds everything. The 500-Element speed requirement holds whether or not the Elements fit.
+
+## Motivation
+
+The product owner wants a picture that prints as one A3 page, free arrangement of the Areas, and names that are never cut off. Storing the height as a minimum lets names grow without the server having to measure text, and keeps the check "child inside parent" decidable on stored values. Not moving other Elements keeps a hand-made arrangement intact; a Warning makes the overlap visible instead. Rejected: locked Areas (addendum K13, A9) and cutting names off (addendum 6.2). Also rejected: a growing Artboard (the advice on point 36), and, in the recorded reading of point 51, scaling content down and refusing a Layout that does not fit.
