@@ -1,18 +1,19 @@
 import { router } from '@inertiajs/vue3';
+import type { RequestPayload } from '@inertiajs/core';
 
 const isDrawing = (path: string): boolean => /^\/canvases\/[^/]+\/drawing$/.test(path);
 
 export interface LeaveVisit {
     url: string;
     method: string;
-    data: Record<string, unknown>;
+    data: RequestPayload;
 }
 
 export const leaveGuards = new Set<(visit: LeaveVisit) => boolean>();
 
 export function proceed(visit: LeaveVisit): void {
     if (visit.method === 'get') window.location.assign(visit.url);
-    else void router.visit(visit.url, { method: visit.method as 'post', data: visit.data as Record<string, never> });
+    else void router.visit(visit.url, { method: visit.method as 'post', data: visit.data });
 }
 
 export function loadDrawingWithFullPages(): void {

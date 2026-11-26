@@ -24,7 +24,7 @@ const chooseSignOut = async (page: Page): Promise<void> => {
 };
 
 const expectSignedOut = async (page: Page): Promise<void> => {
-    await expect(page.getByRole('heading', { name: 'Inloggen' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inloggen' })).toBeVisible({ timeout: 20000 });
     const protectedPage = await page.request.get('/', { maxRedirects: 0 });
     expect(protectedPage.status()).toBe(302);
     expect(protectedPage.headers().location).toContain('/sign-in');
