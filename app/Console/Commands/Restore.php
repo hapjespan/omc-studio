@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\Operations\RestoreService;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
+use RuntimeException;
 
 class Restore extends Command
 {
@@ -16,7 +17,7 @@ class Restore extends Command
     {
         try {
             $restored = $restore->run((string) $this->argument('folder'));
-        } catch (InvalidArgumentException $refusal) {
+        } catch (InvalidArgumentException|RuntimeException $refusal) {
             $this->error($refusal->getMessage());
 
             return self::FAILURE;
