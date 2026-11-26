@@ -1,0 +1,167 @@
+{
+  "round": 1,
+  "approved": true,
+  "items": [
+    {
+      "id": 1,
+      "round": 1,
+      "feature": "Backup, restore and manual (US33): restore verifies the backup",
+      "points": [
+        {
+          "what": "Story 1 (Highest, section 1 of docs/audit-remediation-stories.md): restore verifies the complete backup before replacing live data. AC: backup whose database references a missing logo makes restore fail before replacement with records, key and uploads intact; valid backup without referenced uploads restores even without an uploads dir; failure during replacement reports failure and the previous installation is recoverable from the reported location. Tests: missing dir, one missing referenced file, empty installation, injected failure after first replacement, byte comparison, Makefile entry point on a disposable volume. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 1: restore removes live files before replacements are copied and accepts backups with missing logos",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 2,
+      "round": 1,
+      "feature": "Sign in (US1): sign out from the drawing screen",
+      "points": [
+        {
+          "what": "Story 2 (Highest, section 2): full-page navigation only for GET visits; a delayed sign-out keeps its original POST action and runs once. AC: saved drawing sign-out reaches sign-in and protected pages need authentication; save in progress waits; failed save keeps session and edit, explicit discard completes sign-out. Tests: browser regression via user menu for saved, delayed and failed save, request method, single request, ordinary GET navigation to and from Tekenen. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 2: drawing navigation turns the sign-out POST into a GET, session stays active",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 3,
+      "round": 1,
+      "feature": "Sign in (US1): full passphrase",
+      "points": [
+        {
+          "what": "Story 3 (High, section 3): Argon2id for new credentials, explicit legacy hash identification and upgrade path, long legacy credentials replaced via change or reset; review sign-in, reauthentication, recovery codes and the dummy hash for unknown users together. AC: change beyond byte 72 fails with the 12-128 policy intact; existing accounts, one-time passwords and recovery codes keep working. Tests: ASCII and multibyte around 72 bytes and 128 chars through setup, change, sign-in, reauthentication; legacy hashes, unknown accounts, reset, recovery codes on the delivered PHP image. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 3: bcrypt only protects the first 72 bytes though 128 characters are accepted",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 4,
+      "round": 1,
+      "feature": "Manage organisations (US6): logo replacement",
+      "points": [
+        {
+          "what": "Story 4 (High, section 4): check the storage write before saving the new path, remove the staged file if the database update fails, delete the old file only after commit. AC: refused storage write reports an error and original logo loads with same bytes; database failure preserves path and image; success serves new image and removes the old file after commit. Tests: upload and logo routes with injected false storage return and database failure, asserting path, bytes, response, cleanup. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 4: upload service ignores a false storage result and deletes the old file",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 5,
+      "round": 1,
+      "feature": "Backup, restore and manual (US33): consistent live backup",
+      "points": [
+        {
+          "what": "Story 5 (High, section 5): check copied uploads against references in the copied SQLite database; retry from a fresh copy or fail clearly and clean up. AC: every successful backup contains the exact referenced file; unrecoverable inconsistency exits unsuccessfully and earlier backups stay usable. Tests: coordinated logo replacement between database and upload copy, restore each successful result, persistent copy failure cleanup and exit status. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 5: database copied before uploads, concurrent logo replacement leaves dangling reference",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 6,
+      "round": 1,
+      "feature": "Fiscal years, cost records and yearly figures (US18): archived record rule",
+      "points": [
+        {
+          "what": "Story 6 (High, section 6): reload the record after acquiring the organisation write lock; apply the active-record check to edits and to the existing parent on undo before restoring rows. AC: edit pending behind an archive is refused with the archived message; undo of a yearly-figure delete after parent archive is refused and restores zero rows; active records still work. Tests: separate connections or coordinated transactions, delete-archive-undo via endpoints, assert figures, allocations, audit entries, no partial writes. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 6: stale check on a waiting save and undo restores figures under an archived parent",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 7,
+      "round": 1,
+      "feature": "Import cost records from CSV (US19): duplicate fiscal years",
+      "points": [
+        {
+          "what": "Story 7 (High, section 7): duplicate key from normalised cost code and resolved fiscal-year id, same scan for preview and commit, original line numbers kept. AC: 2026 and 02026 flagged naming both lines; commit refuses without writing; different costs same year and same cost different years stay valid. Tests: identical and differently formatted years for new and existing records, preview feedback, direct commit refusal, unchanged database, both valid combinations. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 7: 2026 and 02026 pass as different but resolve to one fiscal-year row",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 8,
+      "round": 1,
+      "feature": "Import cost records from CSV (US19): literal zero",
+      "points": [
+        {
+          "what": "Story 8 (High, section 8): convert only the trimmed empty string to null in cost centre and supplier, consistent across preview, comparison and commit. AC: 0 creates or updates the literal string; blank keeps current behaviour; export and re-import preserves both and preview counts unchanged. Tests: each field with new record, update, blank cell, round trip; assert strings and preview status. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 8: PHP treats the string 0 as false so valid values become empty",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 9,
+      "round": 1,
+      "feature": "Canvas export and import as JSON (US27, US28): consistent snapshot",
+      "points": [
+        {
+          "what": "Story 9 (Medium, section 9): build full and single-canvas export in one consistent snapshot with repeatable reads on each supported engine; encoding and download outside the transaction. AC: concurrent fiscal-year-plus-first-figure edit appears complete or not at all; concurrent allocation change yields existing targets; both downloads import with exported totals. Tests: two real connections synchronised between export reads on SQLite and PostgreSQL, import result and compare references and totals. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 9: separate queries can mix states around a concurrent edit",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 10,
+      "round": 1,
+      "feature": "Manage users and roles (US5): initial credential",
+      "points": [
+        {
+          "what": "Story 10 (Medium, section 10): pass the unsaved user to the existing one-time-password issuer as the first-administrator installer does; log creation after persistence. AC: one password, expiry and mandatory-change flag set, opens first-password flow; failed credential save leaves no account and no user-created security event. Tests: admin create, first sign-in, mandatory change, injected save failure, single user insert and no second credential update. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 10: creation saves a random password then generates and saves a second one",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 11,
+      "round": 1,
+      "feature": "Tekenen: select, move and resize (US35): selection history",
+      "points": [
+        {
+          "what": "Story 11 (Low, section 11): track seen element ids in a reactive Set, use membership to find elements still needing highlight. AC: selecting clears that element's new highlight, others keep theirs including multi-select and deselect; repeated selection keeps stored count equal to distinct ids. Tests: drawing-state regression with repeated and multi selection on a 500-element canvas checking distinct count and visible new-element list. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "Audit finding 11: every selection appends ids and copies the whole history",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    },
+    {
+      "id": 12,
+      "round": 1,
+      "feature": "Import cost records from CSV (US19, US29): sample file",
+      "points": [
+        {
+          "what": "Per CSV import (kostenposten, structuur, verdelingen) a 'Voorbeeldbestand downloaden' button: sample file with the exact FR-084 headers and a few realistic rows without the client name, plus one explanatory line per column (content, required or not, format such as decimal comma). Measure: all points of this item, tests first, CI green. Measure: shared Definition of Done of docs/audit-remediation-stories.md (regression test failing on old code, CI green, reviewed, zero known bugs, owner acceptance). Never reset, seed or migrate:fresh the omc-studio database; tests and restore trials only on disposable data or a disposable volume.",
+          "why": "PO wish 2026-11-26: helps filling in the file",
+          "source": "martien"
+        },
+        {
+          "what": "Decision 2b: the sample file also carries the per-column explanation as lines inside the file itself, so every CSV importer (cost records, structure, allocations) must learn to skip those explanation lines, in the shared CsvReader, with tests that a skipped line never reaches validation and a real row is never skipped.",
+          "why": "Martien 2026-11-26: akkoord op 2b",
+          "source": "martien"
+        }
+      ],
+      "step": "queued"
+    }
+  ]
+}
