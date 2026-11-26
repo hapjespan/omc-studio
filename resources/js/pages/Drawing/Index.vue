@@ -20,6 +20,7 @@ import { moveTargets, pathOf } from './moveTargets';
 import ConflictDialog from './ConflictDialog.vue';
 import LeaveDialog from './LeaveDialog.vue';
 import ResetDialogs from './ResetDialogs.vue';
+import { proceed, type LeaveVisit } from '../../shell/fullLoad';
 import { createLeaveGuard } from './leaveGuard';
 import { SaveQueue, type SaveFailure, type SaveStatus } from './SaveQueue';
 import { useEngineLifecycle } from './useEngineLifecycle';
@@ -158,7 +159,7 @@ const onFailure = (failure: SaveFailure): void => {
 const onStatus = (next: SaveStatus): void => {
     saveStatus.value = next;
     if (next === 'layoutChanged') void refresh(false, moveFlow.hasLost() ? `${t('drawing.layout_changed')}. ${t('drawing.move_not_saved')}` : t('drawing.layout_changed'));
-    if (next === 'saved' && leave.destination()) window.location.assign(leave.destination() as string);
+    if (next === 'saved' && leave.destination()) proceed(leave.destination() as LeaveVisit);
 };
 
 const leave = createLeaveGuard(saveStatus, () => queue?.retry());

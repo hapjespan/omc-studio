@@ -1,12 +1,12 @@
 import { ref, type Ref } from 'vue';
-import { leaveGuards } from '../../shell/fullLoad';
+import { leaveGuards, proceed, type LeaveVisit } from '../../shell/fullLoad';
 import type { SaveStatus } from './SaveQueue';
 
 export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
-    const target = ref<string | null>(null);
+    const target = ref<LeaveVisit | null>(null);
     const retried = ref(false);
-    let waiting: string | null = null;
-    const guard = (destination: string): boolean => {
+    let waiting: LeaveVisit | null = null;
+    const guard = (destination: LeaveVisit): boolean => {
         if (status.value === 'saving') {
             waiting = destination;
 
@@ -36,7 +36,12 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
         retried,
         install,
         uninstall,
-        destination: (): string | null => target.value ?? waiting,
+        destination: (): LeaveVisit | null => {
+            const next = target.value ?? waiting;
+            waiting = null;
+
+            return next;
+        },
         retry: (): void => {
             retried.value = true;
             retry();
@@ -44,7 +49,7 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
         discard: (): void => {
             const destination = target.value;
             uninstall();
-            if (destination) window.location.assign(destination);
+            if (destination) proceed(destination);
         },
     };
 }
