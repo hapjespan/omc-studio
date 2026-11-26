@@ -53,9 +53,9 @@ class CostRecordRowValidator
         $fields = [
             'name' => $row['name'],
             'kind' => $kind?->value,
-            'supplier' => $row['supplier'] ?: null,
+            'supplier' => $row['supplier'] === '' ? null : $row['supplier'],
             'owner' => mb_strtolower($row['owner']),
-            'cost_centre' => $row['cost_centre'] ?: null,
+            'cost_centre' => $row['cost_centre'] === '' ? null : $row['cost_centre'],
             'application' => $row['application'] === '' ? null : mb_strtolower($row['application']),
         ];
 
