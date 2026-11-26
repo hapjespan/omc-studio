@@ -7,9 +7,12 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use RuntimeException;
+use Throwable;
 
 class RestoreService
 {
@@ -28,11 +31,17 @@ class RestoreService
 
         $this->validate($database, trim((string) file_get_contents($key)));
 
+        $this->assertLogosPresent($folder, $database);
+
         $safety = app(BackupService::class)->run();
 
         $this->application->maintenanceMode()->activate([]);
-        $restored = $this->replace($folder, $database, $key);
-        $this->application->maintenanceMode()->deactivate();
+
+        try {
+            $restored = $this->replace($folder, $database, $key);
+        } finally {
+            $this->application->maintenanceMode()->deactivate();
+        }
 
         return [...$restored, $safety];
     }
@@ -80,26 +89,127 @@ class RestoreService
         }
     }
 
+    private function assertLogosPresent(string $folder, string $database): void
+    {
+        $pdo = new PDO('sqlite:'.$database);
+        $paths = $pdo->query("SELECT logo_path FROM organisations WHERE logo_path IS NOT NULL AND logo_path != ''")->fetchAll(PDO::FETCH_COLUMN);
+
+        foreach ($paths as $path) {
+            if (str_contains($path, '..') || str_starts_with($path, '/') || ! is_file($folder.'/'.BackupService::UPLOADS.'/'.$path)) {
+                throw new InvalidArgumentException(__('console.restore_logo_missing', ['path' => $path]));
+            }
+        }
+    }
+
     /** @return list<string> */
     private function replace(string $folder, string $database, string $key): array
     {
         DB::purge();
 
         $live = BackupService::databasePath();
-        File::delete([$live, $live.'-wal', $live.'-shm']);
-        File::copy($database, $live);
-
         $uploads = BackupService::uploadsPath();
-        File::deleteDirectory($uploads);
-        File::ensureDirectoryExists($uploads);
+        $keyPath = storage_path(BackupService::KEY);
+        $recovery = storage_path('recovery/'.now()->format('Y-m-d_His').'-'.Str::random(6));
+        $items = [
+            ['name' => 'db-wal', 'live' => $live.'-wal', 'stage' => null],
+            ['name' => 'db-shm', 'live' => $live.'-shm', 'stage' => null],
+            ['name' => BackupService::DATABASE, 'live' => $live, 'stage' => $live.'.restore'],
+            ['name' => BackupService::UPLOADS, 'live' => $uploads, 'stage' => $uploads.'.restore'],
+            ['name' => BackupService::KEY, 'live' => $keyPath, 'stage' => $keyPath.'.restore'],
+        ];
 
-        if (is_dir($folder.'/'.BackupService::UPLOADS)) {
-            File::copyDirectory($folder.'/'.BackupService::UPLOADS, $uploads);
+        $this->discardStage($items);
+
+        try {
+            File::copy($database, $items[2]['stage']);
+            File::ensureDirectoryExists($items[3]['stage']);
+
+            if (is_dir($folder.'/'.BackupService::UPLOADS)) {
+                File::copyDirectory($folder.'/'.BackupService::UPLOADS, $items[3]['stage']);
+            }
+
+            File::copy($key, $items[4]['stage']);
+            chmod($items[4]['stage'], 0600);
+        } catch (Throwable $failure) {
+            $this->discardStage($items);
+
+            throw new RuntimeException(__('console.restore_staging_failed', ['reason' => $failure->getMessage()]));
         }
 
-        File::copy($key, storage_path(BackupService::KEY));
-        chmod(storage_path(BackupService::KEY), 0600);
+        File::ensureDirectoryExists($recovery);
+        $placed = [];
 
-        return [BackupService::DATABASE, BackupService::UPLOADS, BackupService::KEY];
+        try {
+            foreach ($items as $item) {
+                if (file_exists($item['live'])) {
+                    $this->move($item['live'], $recovery.'/'.$item['name']);
+                }
+
+                if ($item['stage'] !== null) {
+                    $this->move($item['stage'], $item['live']);
+                    $placed[] = $item['name'];
+                }
+            }
+        } catch (Throwable $failure) {
+            $complete = $this->rollBack($items, $recovery, $placed);
+            $this->discardStage($items);
+
+            if ($complete) {
+                File::deleteDirectory($recovery);
+            }
+
+            throw new RuntimeException(__($complete ? 'console.restore_swap_failed' : 'console.restore_rollback_failed', ['reason' => $failure->getMessage(), 'folder' => $recovery]));
+        }
+
+        return [BackupService::DATABASE, BackupService::UPLOADS, BackupService::KEY, __('console.restore_recovery', ['folder' => $recovery])];
+    }
+
+    protected function move(string $from, string $to): void
+    {
+        if (! rename($from, $to)) {
+            throw new RuntimeException(__('console.restore_move_failed', ['path' => $from]));
+        }
+    }
+
+    /**
+     * @param  list<array{name: string, live: string, stage: ?string}>  $items
+     * @param  list<string>  $placed
+     */
+    private function rollBack(array $items, string $recovery, array $placed): bool
+    {
+        $complete = true;
+
+        foreach (array_reverse($items) as $item) {
+            $kept = $recovery.'/'.$item['name'];
+
+            try {
+                if (in_array($item['name'], $placed, true)) {
+                    $this->remove($item['live']);
+                }
+
+                if (file_exists($kept)) {
+                    $this->move($kept, $item['live']);
+                }
+            } catch (Throwable) {
+                $complete = false;
+            }
+        }
+
+        return $complete;
+    }
+
+    private function remove(string $path): void
+    {
+        is_dir($path) ? File::deleteDirectory($path) : File::delete($path);
+    }
+
+    /** @param list<array{name: string, live: string, stage: ?string}> $items */
+    private function discardStage(array $items): void
+    {
+        foreach ($items as $item) {
+            if ($item['stage'] !== null && file_exists($item['stage'])) {
+                $this->remove($item['stage']);
+            }
+        }
     }
 }

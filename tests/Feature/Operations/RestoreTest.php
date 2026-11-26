@@ -3,9 +3,11 @@
 namespace Tests\Feature\Operations;
 
 use App\Enums\Role;
+use App\Models\Organisation;
 use App\Models\User;
 use App\Services\Accounts\TotpVerifier;
 use App\Services\Operations\BackupService;
+use App\Services\Operations\RestoreService;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Crypt;
@@ -169,6 +171,127 @@ class RestoreTest extends TestCase
         $this->useKey(trim((string) file_get_contents($this->storage.'/app.key')));
         $this->assertTrue(app(TotpVerifier::class)->verify($user->fresh(), $google->getCurrentOtp($secret)));
         $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    public function test_it_refuses_a_backup_whose_database_references_a_missing_logo(): void
+    {
+        $this->organisationWithLogo('logos/a.png');
+        $folder = $this->backup();
+        unlink($folder.'/uploads/logos/a.png');
+        $this->administrator('live@example.test');
+        file_put_contents($this->storage.'/app/private/logos/a.png', 'live-bytes');
+        $liveKey = file_get_contents($this->storage.'/app.key');
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain('logos/a.png')->assertFailed();
+
+        $this->assertTrue(User::query()->where('email', 'live@example.test')->exists());
+        $this->assertSame('live-bytes', file_get_contents($this->storage.'/app/private/logos/a.png'));
+        $this->assertSame($liveKey, file_get_contents($this->storage.'/app.key'));
+        $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    public function test_a_backup_without_referenced_logos_restores_without_an_uploads_directory(): void
+    {
+        $folder = $this->backup();
+        File::deleteDirectory($folder.'/uploads');
+
+        $this->artisan('app:restore', ['folder' => $folder])->assertSuccessful();
+
+        $this->assertDirectoryExists($this->storage.'/app/private');
+        $this->assertFileDoesNotExist($this->storage.'/app/private/logos/a.png');
+    }
+
+    public function test_a_failure_during_the_swap_rolls_back_the_complete_previous_installation(): void
+    {
+        $folder = $this->backup();
+        $this->administrator('live@example.test');
+        DB::disconnect();
+        file_put_contents($this->storage.'/app/private/logos/a.png', 'live-bytes');
+        $liveKey = file_get_contents($this->storage.'/app.key');
+        $liveDatabase = file_get_contents($this->storage.'/live.sqlite');
+
+        $this->app->bind(RestoreService::class, fn ($app) => new class($app) extends RestoreService
+        {
+            private int $moves = 0;
+
+            protected function move(string $from, string $to): void
+            {
+                if (++$this->moves === 4) {
+                    throw new \RuntimeException('injected');
+                }
+
+                parent::move($from, $to);
+            }
+        });
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain('automatisch teruggezet')->assertFailed();
+
+        $this->assertSame($liveDatabase, file_get_contents($this->storage.'/live.sqlite'));
+        $this->assertSame('live-bytes', file_get_contents($this->storage.'/app/private/logos/a.png'));
+        $this->assertSame($liveKey, file_get_contents($this->storage.'/app.key'));
+        $this->assertFileDoesNotExist($this->storage.'/live.sqlite.restore');
+        $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    public function test_a_failure_while_staging_leaves_the_live_data_alone(): void
+    {
+        $folder = $this->backup();
+        $this->administrator('live@example.test');
+        unlink($folder.'/uploads/logos/a.png');
+        symlink('/nonexistent/target', $folder.'/uploads/logos/a.png');
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain('Voorbereiden van het herstel is mislukt')->assertFailed();
+
+        $this->assertTrue(User::query()->where('email', 'live@example.test')->exists());
+        $this->assertSame('logo-one', file_get_contents($this->storage.'/app/private/logos/a.png'));
+        $this->assertDirectoryDoesNotExist($this->storage.'/app/private.restore');
+        $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    public function test_it_refuses_a_logo_path_that_leaves_the_uploads_directory(): void
+    {
+        $this->organisationWithLogo('../app.key');
+        $folder = $this->backup();
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain('../app.key')->assertFailed();
+    }
+
+    public function test_an_empty_installation_restores(): void
+    {
+        $folder = $this->backup();
+        File::deleteDirectory($this->storage.'/app/private');
+
+        $this->artisan('app:restore', ['folder' => $folder])->assertSuccessful();
+
+        $this->assertDirectoryExists($this->storage.'/app/private/logos');
+    }
+
+    public function test_an_incomplete_rollback_reports_the_recovery_location(): void
+    {
+        $folder = $this->backup();
+        $this->app->bind(RestoreService::class, fn ($app) => new class($app) extends RestoreService
+        {
+            private int $moves = 0;
+
+            protected function move(string $from, string $to): void
+            {
+                if (++$this->moves >= 4) {
+                    throw new \RuntimeException('injected');
+                }
+
+                parent::move($from, $to);
+            }
+        });
+
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain($this->storage.'/recovery/')->assertFailed();
+
+        $this->assertNotEmpty(glob($this->storage.'/recovery/*/*'));
+        $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
+    private function organisationWithLogo(string $path): void
+    {
+        Organisation::factory()->create(['logo_path' => $path]);
     }
 
     private function backup(): string
