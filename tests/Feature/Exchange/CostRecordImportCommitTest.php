@@ -102,6 +102,18 @@ class CostRecordImportCommitTest extends TestCase
         $this->assertSame(['Portal'], Application::pluck('name')->all());
     }
 
+    public function test_a_file_with_differently_formatted_years_of_one_fiscal_year_is_refused_without_writes(): void
+    {
+        $this->commit([
+            'K1;A;Project;;Ada;;;2026;1,00;;;;',
+            'K1;A;Project;;Ada;;;02026;1,00;;;;',
+        ])->assertUnprocessable();
+
+        $this->assertSame(0, CostRecord::count());
+        $this->assertSame(0, YearlyFigure::count());
+        $this->assertSame(0, Owner::count());
+    }
+
     public function test_every_imported_record_gets_an_audit_entry_with_the_action_imported(): void
     {
         $this->commit(['K1;Licenties;Project;;Ada;;Portal;2026;10,00;;;;'])->assertOk();
