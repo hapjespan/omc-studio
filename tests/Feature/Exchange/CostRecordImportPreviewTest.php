@@ -138,13 +138,13 @@ class CostRecordImportPreviewTest extends TestCase
 
     public function test_differently_formatted_years_of_one_fiscal_year_are_flagged_for_new_and_existing_records(): void
     {
-        $existing = CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'E1']);
+        CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'E1', 'name' => 'A', 'cost_kind' => 'project']);
 
         $response = $this->preview([
             'K1;A;Project;;Ada;;;2026;1,00;;;;',
             'K1;A;Project;;Ada;;;02026;1,00;;;;',
-            'E1;'.$existing->name.';'.$existing->cost_kind->value.';;;;;2026;1,00;;;;',
-            'e1;'.$existing->name.';'.$existing->cost_kind->value.';;;;;002026;1,00;;;;',
+            'E1;A;Project;;Ada;;;2026;1,00;;;;',
+            'e1;A;Project;;Ada;;;002026;1,00;;;;',
         ]);
 
         $this->assertSame(['Regel 3: code K1 en jaar 02026 staan ook op regel 2. Laat een van beide regels weg'], $this->messages($response, 1));
