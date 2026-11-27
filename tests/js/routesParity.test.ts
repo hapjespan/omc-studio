@@ -27,7 +27,11 @@ describe('routes.ts against the registered routes', () => {
         const fixed = outputs.filter(([, path]) => !path.includes('7') && path !== '/').map(([, path]) => path);
         const offenders = sources('resources/js')
             .filter((file) => !file.endsWith('resources/js/routes.ts') && !file.endsWith('resources/js/shell/tabs.ts'))
-            .flatMap((file) => fixed.filter((path) => new RegExp(`['"\`]${path}(['"\`?])`).test(readFileSync(file, 'utf8'))).map((path) => `${file} ${path}`));
+            .flatMap((file) => {
+                const source = readFileSync(file, 'utf8');
+
+                return fixed.filter((path) => new RegExp(`['"\`]${path}(['"\`?])`).test(source)).map((path) => `${file} ${path}`);
+            });
 
         expect(offenders).toEqual([]);
     });

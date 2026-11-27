@@ -287,6 +287,20 @@ class BackupTest extends TestCase
         $this->assertNull(BackupService::missingLogo($good));
     }
 
+    public function test_a_copy_that_returns_false_after_writing_a_partial_logo_fails(): void
+    {
+        $this->organisationWithLogo('logos/a.png');
+        File::partialMock()->shouldReceive('copyDirectory')->once()->andReturnUsing(function (string $from, string $to): bool {
+            mkdir($to.'/logos', 0755, true);
+            file_put_contents($to.'/logos/a.png', 'lo');
+
+            return false;
+        });
+
+        $this->artisan('app:backup')->assertFailed();
+        $this->assertSame([], glob($this->storage.'/backups/*'));
+    }
+
     public function test_a_persistent_copy_failure_fails_and_cleans_up(): void
     {
         $this->bindCopyHook(fn () => throw new \RuntimeException('disk full'));

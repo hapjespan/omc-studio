@@ -287,3 +287,35 @@ Track seen element IDs in a reactive Set and use membership checks to calculate 
 
 **Definition of Done**
 Apply the shared Definition of Done above.
+
+## Release verification for stories 1, 5 and 9
+
+- **Story 1.** Inject a failed upload copy after creating the safety backup and verify the live logo bytes. Fail both a swap and its rollback. Verify maintenance mode stays active, the recovery location is reported and Make leaves the service stopped. Check the Make target with restore exit codes 0, 3, 1 and 137.
+- **Story 5.** Write a prefix of a logo and make the filesystem report a failed copy. Require the backup command to fail and remove the incomplete backup directory.
+- **Story 9.** Bind a canvas, rename it before export and change the organisation slug after export. The exported name, contents and download filename must agree with the same database snapshot.
+
+## Open and edit a large canvas within one second
+
+**Issue type** Story · **Priority** High · **Component** Canvas entry
+
+**User story**
+
+As a canvas editor, I want to open Invoeren and add an element on a 500-element canvas within one second, so I can continue entering activities without losing my place.
+
+**Problem and fix approach**
+
+Firefox exceeded the opening budget on release commit `a70eb9ee` (p95 1,236 ms). Read only the row fields required by Invoeren, skip loading elements and layouts on deferred detail requests, and allow the browser to defer painting offscreen rows.
+
+**Acceptance criteria**
+
+- [ ] Opening and adding an element each have a p95 below 1,000 ms across 20 samples on the release benchmark.
+- [ ] All 500 elements remain available, including the last row. An editor can reach it, open its details and operate the entry form with the keyboard.
+
+**Test criteria**
+
+- [ ] Run the existing opening and addition benchmarks on Chromium, Firefox and WebKit with the release thresholds. Check row count and keyboard activation after the opening measurement.
+- [ ] Run the keyboard-only entry workflow and its accessibility assertions. Attach the timing distribution and engine to the ticket.
+
+**Definition of Done**
+
+Apply the shared Definition of Done above.

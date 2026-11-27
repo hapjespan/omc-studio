@@ -40,13 +40,21 @@ class RestoreService
         $safety = $backup->run();
         $this->warning = $backup->warning;
 
+        $alreadyDown = $this->application->maintenanceMode()->active();
         $this->application->maintenanceMode()->activate([]);
 
         try {
             $restored = $this->replace($folder, $database, $key);
-        } finally {
-            $this->application->maintenanceMode()->deactivate();
+        } catch (IncompleteRestore $failure) {
+            throw new IncompleteRestore($failure->getMessage().' '.__('console.restore_safety', ['folder' => $safety]), previous: $failure);
+        } catch (Throwable $failure) {
+            if (! $alreadyDown) {
+                $this->application->maintenanceMode()->deactivate();
+            }
+            throw $failure;
         }
+
+        $this->application->maintenanceMode()->deactivate();
 
         return [...$restored, $safety];
     }
@@ -112,33 +120,35 @@ class RestoreService
         $uploads = BackupService::uploadsPath();
         $keyPath = storage_path(BackupService::KEY);
         $recovery = storage_path('recovery/'.now()->format('Y-m-d_His').'-'.Str::random(6));
+        $stage = $recovery.'/staged';
         $items = [
             ['name' => 'db-wal', 'live' => $live.'-wal', 'stage' => null],
             ['name' => 'db-shm', 'live' => $live.'-shm', 'stage' => null],
-            ['name' => BackupService::DATABASE, 'live' => $live, 'stage' => $live.'.restore'],
-            ['name' => BackupService::UPLOADS, 'live' => $uploads, 'stage' => $uploads.'.restore'],
-            ['name' => BackupService::KEY, 'live' => $keyPath, 'stage' => $keyPath.'.restore'],
+            ['name' => BackupService::DATABASE, 'live' => $live, 'stage' => $stage.'/'.BackupService::DATABASE],
+            ['name' => BackupService::UPLOADS, 'live' => $uploads, 'stage' => $stage.'/'.BackupService::UPLOADS],
+            ['name' => BackupService::KEY, 'live' => $keyPath, 'stage' => $stage.'/'.BackupService::KEY],
         ];
 
-        $this->discardStage($items);
-
         try {
-            File::copy($database, $items[2]['stage']);
-            File::ensureDirectoryExists($items[3]['stage']);
+            File::ensureDirectoryExists($stage, 0700);
+            BackupFiles::copy($database, $stage.'/'.BackupService::DATABASE);
+            File::ensureDirectoryExists($stage.'/'.BackupService::UPLOADS);
 
             if (is_dir($folder.'/'.BackupService::UPLOADS)) {
-                File::copyDirectory($folder.'/'.BackupService::UPLOADS, $items[3]['stage']);
+                BackupFiles::copyDirectory($folder.'/'.BackupService::UPLOADS, $stage.'/'.BackupService::UPLOADS);
             }
 
-            File::copy($key, $items[4]['stage']);
-            chmod($items[4]['stage'], 0600);
+            $stagedKey = $stage.'/'.BackupService::KEY;
+            BackupFiles::copy($key, $stagedKey);
+            chmod($stagedKey, 0600);
+            $this->validate($stage.'/'.BackupService::DATABASE, trim((string) file_get_contents($stagedKey)));
+            $this->assertLogosPresent($stage);
         } catch (Throwable $failure) {
-            $this->discardStage($items);
+            File::deleteDirectory($recovery);
 
             throw new RuntimeException(__('console.restore_staging_failed', ['reason' => $failure->getMessage()]));
         }
 
-        File::ensureDirectoryExists($recovery);
         $placed = [];
 
         try {
@@ -154,14 +164,16 @@ class RestoreService
             }
         } catch (Throwable $failure) {
             $complete = $this->rollBack($items, $recovery, $placed);
-            $this->discardStage($items);
-
-            if ($complete) {
-                File::deleteDirectory($recovery);
+            if (! $complete) {
+                throw new IncompleteRestore(__('console.restore_rollback_failed', ['reason' => $failure->getMessage(), 'folder' => $recovery]));
             }
 
-            throw new RuntimeException(__($complete ? 'console.restore_swap_failed' : 'console.restore_rollback_failed', ['reason' => $failure->getMessage(), 'folder' => $recovery]));
+            File::deleteDirectory($recovery);
+
+            throw new RuntimeException(__('console.restore_swap_failed', ['reason' => $failure->getMessage(), 'folder' => $recovery]));
         }
+
+        File::deleteDirectory($stage);
 
         return [BackupService::DATABASE, BackupService::UPLOADS, BackupService::KEY, __('console.restore_recovery', ['folder' => $recovery])];
     }
@@ -202,16 +214,8 @@ class RestoreService
 
     private function remove(string $path): void
     {
-        is_dir($path) ? File::deleteDirectory($path) : File::delete($path);
-    }
-
-    /** @param list<array{name: string, live: string, stage: ?string}> $items */
-    private function discardStage(array $items): void
-    {
-        foreach ($items as $item) {
-            if ($item['stage'] !== null && file_exists($item['stage'])) {
-                $this->remove($item['stage']);
-            }
+        if (! (is_dir($path) ? File::deleteDirectory($path) : File::delete($path))) {
+            throw new RuntimeException(__('console.restore_remove_failed', ['path' => $path]));
         }
     }
 }

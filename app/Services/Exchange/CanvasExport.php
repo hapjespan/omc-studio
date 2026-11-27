@@ -30,7 +30,9 @@ class CanvasExport
     /** @return array<string, mixed> */
     private function read(Canvas $canvas): array
     {
+        $canvas->refresh();
         $organisation = $canvas->organisation()->firstOrFail();
+        $canvas->setRelation('organisation', $organisation);
         $years = $this->years($organisation);
 
         return [
@@ -75,7 +77,7 @@ class CanvasExport
 
     public function fileName(Canvas $canvas): string
     {
-        return $canvas->organisation()->firstOrFail()->slug.'-'.Str::slug($canvas->name).'-'.now()->format('Y-m-d').'.json';
+        return $canvas->organisation?->slug.'-'.Str::slug($canvas->name).'-'.now()->format('Y-m-d').'.json';
     }
 
     /**

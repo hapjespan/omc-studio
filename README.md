@@ -40,6 +40,8 @@ De beveiligingslogboeken (`storage/logs/security-*.log`, 90 dagen) staan niet in
 
 Terugzetten gaat met een map die in het volume staat. Kopieer een bewaarde map eerst terug met `docker compose cp <map> app:/var/www/html/storage/backups/`. Zet de map over naar de gebruiker van de toepassing met `docker compose exec -u root app chown -R www-data:www-data storage/backups` en geef dan `make restore FOLDER=storage/backups/<datum_tijd>`. `make restore` maakt eerst een veiligheidskopie van de huidige gegevens en zet daarna precies de gegevens van die map terug. Wat na de laatste back-up is gedaan, gaat verloren.
 
+Als ook het automatisch terugzetten van de vorige installatie mislukt, blijft de toepassing gestopt. Bewaar het volume en de gemelde herstelmap. De melding noemt ook de volledige veiligheidskopie. Zet die kopie terug op een schoon opslagvolume volgens de stappen hierboven en controleer de login, gegevens en logo’s voordat u het oorspronkelijke volume opruimt.
+
 ## Importeren
 
 Op het Overzicht kiest u Importeren uit JSON voor een canvas. Een volledige import van alles staat op de beheerpagina Volledige export en import en werkt alleen in een lege applicatie; de voorbeelddata (Voorbeelddata) moet dan eerst weg. Kostenposten, structuur en verdelingen kunnen met een CSV-bestand van hoogstens 5 MB; een JSON-bestand mag tot 50 MB zijn. U ziet eerst een controle per regel. Importeren kan pas als er geen fouten meer zijn, en gebeurt dan helemaal of niet.
