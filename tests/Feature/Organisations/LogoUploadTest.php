@@ -217,8 +217,48 @@ class LogoUploadTest extends TestCase
 
         $this->assertSame($path, $organisation->fresh()?->logo_path);
         $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
-        $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk();
+        $served = $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk();
+        $this->assertSame($bytes, $served->getContent());
         $this->assertSame($bytes, Storage::disk('local')->get($path));
+    }
+
+    public function test_a_partially_written_file_is_removed_when_the_write_reports_failure(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $path = (string) $organisation->logo_path;
+        $disk = Mockery::mock(Storage::disk('local'))->makePartial();
+        $disk->shouldReceive('put')->andReturnUsing(function ($target, $contents) {
+            Storage::disk('local')->getDriver()->write($target, 'partial');
+
+            return false;
+        });
+        Storage::set('local', $disk);
+
+        $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
+            ->assertSessionHasErrors(['logo' => self::MESSAGE]);
+
+        $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
+    }
+
+    public function test_replacing_a_logo_through_the_route_serves_the_new_bytes_and_removes_the_old_file(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $previous = (string) $organisation->logo_path;
+
+        $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
+            ->assertSessionHasNoErrors();
+
+        $current = (string) $organisation->fresh()?->logo_path;
+        $this->assertNotSame($previous, $current);
+        Storage::disk('local')->assertMissing($previous);
+
+        $served = $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk();
+        $this->assertSame(Storage::disk('local')->get($current), $served->getContent());
+        $this->assertNotSame(Storage::disk('local')->get($previous), $served->getContent());
     }
 
     public function test_a_database_failure_after_the_write_keeps_the_original_logo_and_removes_the_staged_file(): void
@@ -241,6 +281,7 @@ class LogoUploadTest extends TestCase
         $this->assertSame($path, $organisation->fresh()?->logo_path);
         $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
         $this->assertSame($bytes, Storage::disk('local')->get($path));
+        $this->assertSame($bytes, $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk()->getContent());
     }
 
     public function test_the_superseded_file_is_removed_only_after_the_wider_transaction_commits(): void

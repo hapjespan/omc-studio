@@ -39,11 +39,11 @@ class LogoStore
             $replaced = $organisation->logo_path;
             $disk = Storage::disk(self::DISK);
 
+            DB::afterRollBack(fn () => $disk->delete($path));
+
             if ($disk->put($path, $image) === false) {
                 $this->refuseLogo();
             }
-
-            DB::afterRollBack(fn () => $disk->delete($path));
 
             $organisation->forceFill(['logo_path' => $path])->save();
 
