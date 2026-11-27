@@ -152,3 +152,37 @@ test('Tekenen, Bekijken, a Snapshot, a copy and an import draw every block at it
     await page.locator('[data-artboard]').waitFor();
     await expect(page.locator('[data-block="primary_activities"]')).toBeVisible();
 });
+
+test('saving a moved Area, Domain, Cluster and Activity keeps their snapped positions after a mode switch and reload', async ({ page }) => {
+    const canvas = seedMoveCanvas();
+    const layers = await openDrawing(page, canvas);
+    const activity = storedRows(canvas.id).find((row) => row.parentName === 'Lessen' && row.name === 'Les geven')!;
+    const edits = [
+        ['Primaire activiteiten', 773, 770],
+        ['Onderwijs', 33, 30],
+        ['Lessen', 17, 20],
+        ['Les geven', 13, 10],
+    ] as const;
+    for (const [name, x] of edits) {
+        const layer = name === 'Les geven' ? layers.locator(`[data-layer="${activity.key}"]`) : layers.getByRole('button', { name, exact: true });
+        await layer.click();
+        if (name === 'Primaire activiteiten') await page.getByRole('checkbox', { name: 'Raster' }).check();
+        const field = page.getByLabel(`X van ${name}`);
+        await field.fill(String(x));
+        await field.press('Enter');
+    }
+    const width = page.getByLabel('B (breedte) van Les geven');
+    await width.fill('217');
+    await width.press('Enter');
+    await page.getByRole('group', { name: 'Modus' }).getByRole('link', { name: 'Bekijken' }).click();
+    await page.locator('[data-artboard]').waitFor();
+    const rows = storedRows(canvas.id);
+    for (const [name, , snapped] of edits) {
+        const stored = rows.find((row) => name === 'Les geven' ? row.key === activity.key : row.name === (name === 'Primaire activiteiten' ? 'primary_activities' : name));
+        expect(stored?.x).toBe(snapped);
+    }
+    expect(rows.find(({ key }) => key === activity.key)?.width).toBe(220);
+    await expectDrawn(page, rows);
+    await page.reload();
+    await expectDrawn(page, rows);
+});

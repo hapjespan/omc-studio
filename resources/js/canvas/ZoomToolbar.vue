@@ -23,7 +23,7 @@ const inert = 'aria-disabled:cursor-not-allowed aria-disabled:border-hairline ar
 <template>
     <div role="toolbar" :aria-label="t('view.zoom.toolbar')" class="flex flex-wrap items-center gap-2">
         <IconButton icon="minus" :label="t('view.zoom.out')" :class="inert" :aria-disabled="zoom <= ZOOM_MIN" @click="zoom = zoomOut(zoom)" />
-        <output class="min-w-[4ch] text-center text-[13px] font-semibold" data-zoom aria-live="polite">{{ zoom }}%</output>
+        <output class="min-w-[4ch] text-center text-[13px] font-semibold" data-zoom aria-live="polite">{{ Math.round(zoom) }}%</output>
         <IconButton icon="plus" :label="t('view.zoom.in')" :class="inert" :aria-disabled="zoom >= ZOOM_MAX" @click="zoom = zoomIn(zoom)" />
         <AppButton size="small" @click="emit('fit')">{{ t('view.zoom.fit') }}</AppButton>
     </div>

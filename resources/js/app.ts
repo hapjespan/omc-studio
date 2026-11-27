@@ -2,10 +2,12 @@ import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { loadDrawingWithFullPages } from './shell/fullLoad';
+import { readModeDestination } from './canvas/viewport';
 import AppShell from './shell/AppShell.vue';
 
 let appName = '';
 
+readModeDestination();
 loadDrawingWithFullPages();
 
 createInertiaApp({

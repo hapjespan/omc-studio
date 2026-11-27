@@ -42,3 +42,34 @@ test('a Snapshot view keeps the mode switch with Bekijken active', async ({ page
     await expect(group).toHaveCount(1);
     await expect(group.getByRole('link', { name: 'Bekijken' })).toHaveAttribute('aria-current', 'page');
 });
+
+test('Tekenen and Bekijken keep the artboard at the same screen position and scale', async ({ page }) => {
+    const seed = seedAllocation(unique(), { Licentie: 23000 });
+    await signInAs(page, 'administrator');
+    await page.goto(`/canvases/${seed.canvas}/view`);
+    const group = page.getByRole('group', { name: 'Modus' });
+    const artboard = page.locator('[data-artboard]');
+    const viewPosition = () => artboard.evaluate((el) => {
+        const { x, y, width } = el.getBoundingClientRect();
+        return [x, y, width / (el as HTMLElement).offsetWidth];
+    });
+    const drawingPosition = () => page.locator('[data-view]').evaluate((el) => {
+        const bounds = el.querySelector('canvas')!.getBoundingClientRect();
+        const view = JSON.parse(el.getAttribute('data-view')!);
+        return [bounds.x + view.x, bounds.y + view.y, view.zoom];
+    });
+    const matches = (actual: number[], expected: number[]) => actual.every((value, i) => Math.abs(value - expected[i]) < (i === 2 ? 0.001 : 1));
+    await page.getByRole('button', { name: 'Inzoomen' }).click();
+    await page.locator('[data-scroller]').evaluate((el) => el.scrollTo(110, 80));
+    const before = await viewPosition();
+    await group.getByRole('link', { name: 'Tekenen' }).click();
+    await expect(page.locator('[data-view]')).toHaveAttribute('data-view', /zoom/);
+    await expect.poll(async () => matches(await drawingPosition(), before)).toBe(true);
+
+    await page.getByRole('button', { name: 'Beeld naar rechts' }).click();
+    await expect.poll(async () => (await drawingPosition())[0]).not.toBe(before[0]);
+    await group.getByRole('link', { name: 'Bekijken' }).scrollIntoViewIfNeeded();
+    const after = await drawingPosition();
+    await group.getByRole('link', { name: 'Bekijken' }).click();
+    await expect.poll(async () => matches(await viewPosition(), after)).toBe(true);
+});

@@ -89,6 +89,6 @@ describe('drawing adapter round trip', () => {
 
         expect(domain).toEqual({ mode: 'manual', x: 24, y: 80, width: 300, height: 204, z: 2, style: { fill: '#F6E6CC' } });
         expect(activity.mode).toBe('manual');
-        expect(activity).toMatchObject({ x: 20, y: 30 });
+        expect(activity).toMatchObject({ x: 20, y: 30, height: Math.round(canvas.blocks.find(({ id }) => id === 'act-1')!.drawnHeight) });
     });
 });

@@ -8,16 +8,16 @@ const tree = [element('d', 'primary_activities', 'domain', 'Domein'), element('a
 const layouts = { d: manual(16, 48, 600, 400), a: manual(10, 40, 100, 30) };
 
 describe('grid', () => {
-    it('rounds to multiples of 8', () => {
-        expect([snapToGrid(3), snapToGrid(5), snapToGrid(12), snapToGrid(-5)]).toEqual([0, 8, 16, -8]);
-        expect(snapChanges({ x: 13, width: 101 })).toEqual({ x: 16, width: 104 });
+    it('rounds to multiples of 10', () => {
+        expect([snapToGrid(3), snapToGrid(5), snapToGrid(12), snapToGrid(-6)]).toEqual([0, 10, 10, -10]);
+        expect(snapChanges({ x: 13, width: 101 })).toEqual({ x: 10, width: 100 });
     });
 
     it('snaps place and size with the grid on and leaves them off', () => {
         let on = true;
         const { editor } = open(tree, layouts, { snap: () => on });
         editor.graph.updateNodePreview('a', { x: 13, y: 21, width: 101, height: 45 });
-        expect(boxOf(editor, 'a')).toEqual({ x: 16, y: 24, width: 104, height: 48 });
+        expect(boxOf(editor, 'a')).toEqual({ x: 10, y: 20, width: 100, height: 50 });
         on = false;
         editor.graph.updateNodePreview('a', { x: 13, width: 101 });
         expect(boxOf(editor, 'a')).toMatchObject({ x: 13, width: 101 });
