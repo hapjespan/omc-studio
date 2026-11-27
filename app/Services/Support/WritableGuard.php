@@ -6,6 +6,7 @@ use App\Enums\CanvasKind;
 use App\Models\Canvas;
 use App\Models\CostRecord;
 use App\Models\Organisation;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 trait WritableGuard
@@ -27,8 +28,17 @@ trait WritableGuard
 
     protected function assertCostRecordActive(CostRecord $record): void
     {
-        if ($record->archived_at !== null) {
+        if ($this->reloadCostRecord($record)->archived_at !== null) {
             $this->refuse('cost_record_archived');
+        }
+    }
+
+    protected function reloadCostRecord(CostRecord $record): CostRecord
+    {
+        try {
+            return $record->refresh();
+        } catch (ModelNotFoundException) {
+            $this->refuse('cost_record_gone');
         }
     }
 

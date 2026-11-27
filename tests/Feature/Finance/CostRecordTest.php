@@ -8,9 +8,11 @@ use App\Models\CostRecord;
 use App\Models\Organisation;
 use App\Models\Owner;
 use App\Models\User;
+use App\Services\Finance\CostRecords;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
+use Illuminate\Validation\ValidationException;
 use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
@@ -125,6 +127,22 @@ class CostRecordTest extends TestCase
 
         $this->store()->assertSessionHasErrors('rule');
         $this->assertSame(0, CostRecord::count());
+    }
+
+    public function test_an_edit_holding_a_stale_cost_record_is_refused_once_the_record_was_archived(): void
+    {
+        $record = CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'owner_id' => $this->owner->id, 'name' => 'Before']);
+        $stale = CostRecord::findOrFail($record->id);
+        $record->update(['archived_at' => now()]);
+
+        try {
+            app(CostRecords::class)->update($stale, $this->payload(['name' => 'After']));
+            $this->fail('The archived record accepted an edit');
+        } catch (ValidationException $refusal) {
+            $this->assertSame('Deze kostenpost is gearchiveerd', $refusal->validator->errors()->first('rule'));
+        }
+
+        $this->assertSame('Before', $record->fresh()->name);
     }
 
     public function test_a_reader_is_refused(): void

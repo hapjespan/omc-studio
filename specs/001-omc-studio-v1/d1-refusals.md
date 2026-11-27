@@ -38,6 +38,7 @@ Refusals of deliveries 2 and 3 are listed with the rows of delivery 1, because t
 | `rule.cluster_lift_taken` | Terugzetten kan niet: :names staat al onder het domein | ClusterDeletionTest |
 | `rule.cluster_parent` | Een cluster hoort onder een domein | CreateElementTest |
 | `rule.cost_record_archived` | Deze kostenpost is gearchiveerd | D2ListRefusalsTest |
+| `rule.cost_record_gone` | Deze kostenpost bestaat niet meer | CostRecordDeleteTest |
 | `rule.direction_no_elements` | In Koers staan geen elementen | CreateElementTest |
 | `rule.domain_parent` | Een domein hoort direct onder een area | CreateElementTest |
 | `rule.element_archived` | Een gearchiveerd element kan niet worden verplaatst | ReviewFixesTest |

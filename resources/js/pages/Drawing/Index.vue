@@ -93,7 +93,7 @@ const styling = useStyleEditing({ engine, drawn, single, names, say });
 const { box, target, copied, applying, invalid, refused, scope, refreshBox, copyStyle, setStyle, setBox } = styling;
 const reset = useReset({ props, engine, host, single, names, queue: () => queue, say, reload: restart });
 const { scope: resetScope, name: resetName, count: resetCount, resetting, ask: askReset, perform: performReset } = reset;
-const fresh = computed(() => props.newElements.filter((id) => !seen.value.includes(id)));
+const fresh = computed(() => seen.unseen(props.newElements));
 const moveFlow = createMoveFlow({
     canvas: props.canvas.id,
     apply: (command) => engine.value?.apply(command),

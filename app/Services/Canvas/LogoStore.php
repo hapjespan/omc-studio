@@ -6,6 +6,7 @@ use App\Models\Organisation;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -32,20 +33,24 @@ class LogoStore
         $image = $this->reencoded($bytes, $type);
         $path = self::DIRECTORY.'/'.Str::random(40).'.'.self::extension($type);
 
-        $previous = $this->writes->run([$organisation], function () use ($organisation, $image, $path) {
+        $this->writes->run([$organisation], function () use ($organisation, $image, $path) {
             $this->assertWritable($organisation);
 
             $replaced = $organisation->logo_path;
+            $disk = Storage::disk(self::DISK);
 
-            Storage::disk(self::DISK)->put($path, $image);
+            DB::afterRollBack(fn () => $disk->delete($path));
+
+            if ($disk->put($path, $image) === false) {
+                throw ValidationException::withMessages(['logo' => __('organisations.logo_store_failed')]);
+            }
+
             $organisation->forceFill(['logo_path' => $path])->save();
 
-            return $replaced;
+            if (is_string($replaced) && $replaced !== '' && $replaced !== $path) {
+                DB::afterCommit(fn () => $disk->delete($replaced));
+            }
         });
-
-        if (is_string($previous) && $previous !== '' && $previous !== $path) {
-            Storage::disk(self::DISK)->delete($previous);
-        }
 
         return $organisation;
     }

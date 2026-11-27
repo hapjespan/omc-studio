@@ -66,7 +66,10 @@ class CostRecordUndo
         $this->assertPresent(Application::class, array_filter(array_column($payload['cost_records'], 'application_id')));
         $this->assertPresent(Canvas::class, array_column($payload['allocation_sets'], 'canvas_id'));
         $this->assertPresent(Element::class, array_column($payload['allocation_lines'], 'element_id'));
-        $this->assertPresent(CostRecord::class, array_diff(array_column($payload['yearly_figures'], 'cost_record_id'), array_column($payload['cost_records'], 'id')));
+
+        foreach ($this->assertPresent(CostRecord::class, array_diff(array_column($payload['yearly_figures'], 'cost_record_id'), array_column($payload['cost_records'], 'id'))) as $parent) {
+            $this->assertCostRecordActive($parent);
+        }
 
         $this->assertRestoredLinesCanCarry($payload);
 
