@@ -210,7 +210,7 @@ onBeforeUnmount(() => {
                 tabindex="0"
                 @keydown="onKey"
                 :aria-label="t('drawing.artboard', { name: canvas.name })"
-                class="h-[70vh] min-h-[480px] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#b4bbc2_1px,transparent_1px)] bg-[length:8px_8px] lg:h-[max(720px,calc(100vh-14rem))]"
+                class="h-[70vh] min-h-[480px] w-full overflow-hidden rounded-card border border-edge bg-[radial-gradient(#b4bbc2_1px,transparent_1px)] bg-[length:10px_10px] lg:h-[max(720px,calc(100vh-14rem))]"
                 :data-state="state"
                 :data-view="view"
             ></div>

@@ -1,4 +1,5 @@
-import { onBeforeUnmount, ref, shallowRef, type ComputedRef, type Ref } from 'vue';
+import { nextTick, onBeforeUnmount, ref, shallowRef, type ComputedRef, type Ref } from 'vue';
+import { takeViewport, useViewportSource } from '../../canvas/viewport';
 import { router } from '@inertiajs/vue3';
 import { computeCanvasLayout } from '../../layout';
 import { createBrowserMeasurer } from '../../layout/browserMeasurer';
@@ -50,6 +51,13 @@ export function useEngineLifecycle(deps: LifecycleDeps) {
     let stopChange = (): void => undefined;
     let stopVerdict = (): void => undefined;
 
+    const surfaceBounds = () => host.value?.querySelector('canvas')?.getBoundingClientRect();
+    useViewportSource(() => {
+        const bounds = surfaceBounds();
+        const position = engine.value?.getView();
+        if (bounds && position) return { x: bounds.left + position.x, y: bounds.top + position.y, zoom: position.zoom };
+    });
+
     const showHint = (): void => {
         hint.value = t('drawing.text_hint');
         window.clearTimeout(hintTimer);
@@ -93,7 +101,8 @@ export function useEngineLifecycle(deps: LifecycleDeps) {
                 onPushBack: (ids) => deps.say(t('drawing.pushed_back', { names: ids.map((id) => names.value.get(id) ?? id).join(', ') })),
             });
             if (unmounted) return release();
-            created.zoomToFit();
+            const position = takeViewport();
+            if (!position) created.zoomToFit();
             created.setTool(tool.value);
             created.apply({ kind: 'setGrid', on: grid.value });
             engine.value = created;
@@ -112,6 +121,15 @@ export function useEngineLifecycle(deps: LifecycleDeps) {
                 canRedo.value = live.canRedo();
             }, 200);
             state.value = 'ready';
+            if (position) {
+                await nextTick();
+                const bounds = surfaceBounds();
+                if (bounds && engine.value === live) {
+                    live.zoomTo(position.zoom);
+                    const pan = live.getView();
+                    live.panBy(position.x - bounds.left - pan.x, position.y - bounds.top - pan.y);
+                }
+            }
         } catch {
             release();
             state.value = 'failed';

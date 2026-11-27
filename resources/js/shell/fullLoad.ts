@@ -1,3 +1,4 @@
+import { modeDestination } from '../canvas/viewport';
 import { router } from '@inertiajs/vue3';
 import type { Method, RequestPayload } from '@inertiajs/core';
 
@@ -12,7 +13,7 @@ export interface LeaveVisit {
 export const leaveGuards = new Set<(visit: LeaveVisit) => boolean>();
 
 export function proceed(visit: LeaveVisit): void {
-    if (visit.method === 'get') window.location.assign(visit.url);
+    if (visit.method === 'get') window.location.assign(modeDestination(visit.url));
     else void router.visit(visit.url, { method: visit.method, data: visit.data });
 }
 
@@ -28,6 +29,6 @@ export function loadDrawingWithFullPages(): void {
         if (visit.method !== 'get') return;
         if (!isDrawing(target.pathname) && !isDrawing(window.location.pathname)) return;
         event.preventDefault();
-        window.location.assign(target.href);
+        proceed({ url: target.href, method: visit.method, data: visit.data });
     });
 }

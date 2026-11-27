@@ -23,13 +23,14 @@ export function toPayload(base: LayoutPayload, canvas: DrawnCanvas, places: Map<
             areas[block.id] = { x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? Math.min(block.drawnHeight, ARTBOARD_HEIGHT - place.y), z: orders.get(block.id) ?? stored?.z ?? 0, ...styleOf(block.id, stored) };
             continue;
         }
+        const geometryChanged = !same(place, built.get(block.id));
         const entry = base.elements[block.id];
         const stored = entry?.mode === 'manual' ? entry : null;
-        if (!stored && same(place, built.get(block.id)) && !orders.has(block.id) && !styleOf(block.id, null).style) {
+        if (!stored && !geometryChanged && !orders.has(block.id) && !styleOf(block.id, null).style) {
             elements[block.id] = { mode: 'automatic' };
             continue;
         }
-        elements[block.id] = { mode: 'manual', x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? MIN_HEIGHT, z: orders.get(block.id) ?? stored?.z ?? 0, ...styleOf(block.id, stored) };
+        elements[block.id] = { mode: 'manual', x: place.x, y: place.y, width: place.width, height: place.height ?? stored?.height ?? (geometryChanged ? Math.max(MIN_HEIGHT, Math.round(block.drawnHeight)) : MIN_HEIGHT), z: orders.get(block.id) ?? stored?.z ?? 0, ...styleOf(block.id, stored) };
     }
 
     return { structure_version: base.structure_version, layout_version: base.layout_version, format_version: base.format_version, areas, elements };
