@@ -99,6 +99,7 @@ Bekijken (`GET /canvases/{canvas}/view`) gains the query parameters `overlay`, `
 | GET /canvases/{canvas}/export/allocations.csv | R | | US29.2 |
 | POST /canvases/{canvas}/import/allocations/preview, /import/allocations | A | | US29.3 |
 | POST /canvases/{canvas}/import/structure/preview, /import/structure | A | | US29.4 |
+| GET /samples/{group}.csv | A | Sample file per CSV import | US19, US29 |
 | POST /admin/sample-data/remove | A | | US32.2 |
 
 PNG and print run in the browser on the Bekijken view (R-20); they need no route.

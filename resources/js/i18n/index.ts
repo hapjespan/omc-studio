@@ -16,3 +16,7 @@ export function plural(key: string, count: number): string {
     const [one, other] = t(key, { count }).split('|');
     return count === 1 ? one : other;
 }
+
+export function keysWithPrefix(prefix: string): string[] {
+    return Object.keys(catalogue).filter((key) => key.startsWith(prefix));
+}

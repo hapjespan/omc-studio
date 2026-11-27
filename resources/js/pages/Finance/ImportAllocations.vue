@@ -8,5 +8,5 @@ defineProps<{ canvasId: number }>();
 </script>
 
 <template>
-    <CsvImportPanel id="import-allocations" :heading="t('csvx.allocations_import')" :hint="t('csvx.allocations_hint')" :preview-url="routes.allocationImportPreview(canvasId)" :commit-url="routes.allocationImport(canvasId)" @done="router.reload()" />
+    <CsvImportPanel id="import-allocations" :heading="t('csvx.allocations_import')" :hint="t('csvx.allocations_hint')" :preview-url="routes.allocationImportPreview(canvasId)" :commit-url="routes.allocationImport(canvasId)" :sample-url="routes.sampleFile('allocation')" sample-group="allocation" @done="router.reload()" />
 </template>

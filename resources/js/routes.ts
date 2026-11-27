@@ -92,6 +92,7 @@ export const routes = {
     allocationImport: (canvas: Id) => `/canvases/${canvas}/import/allocations`,
     structureImportPreview: (canvas: Id) => `/canvases/${canvas}/import/structure/preview`,
     structureImport: (canvas: Id) => `/canvases/${canvas}/import/structure`,
+    sampleFile: (group: 'cost_record' | 'structure' | 'allocation') => `/samples/${group}.csv`,
     canvasImportPreview: () => '/imports/canvas/preview',
     canvasImport: () => '/imports/canvas',
 };

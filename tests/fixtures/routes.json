@@ -81,6 +81,7 @@
     "/organisations/{organisation}/logo",
     "/overview",
     "/password/new",
+    "/samples/{group}.csv",
     "/session/keep-alive",
     "/session/reauthenticate",
     "/sign-in",
