@@ -4,14 +4,11 @@ namespace Tests\Feature\Concurrency;
 
 use App\Enums\ElementKind;
 use App\Models\AllocationLine;
-use App\Models\AllocationSet;
-use App\Models\Area;
 use App\Models\Element;
 use App\Models\FiscalYear;
 use App\Models\YearlyFigure;
 use App\Services\Exchange\CanvasExport;
 use App\Services\Exchange\FullExport;
-use App\Services\Structure\ElementTree;
 use Closure;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +45,7 @@ class ExportSnapshotRaceTest extends RaceTestCase
         }
     }
 
+    /** @return array<string, mixed> */
     protected function exportWhileWriting(Closure $export): array
     {
         $writer = $this->writer();
@@ -99,7 +97,8 @@ class ExportSnapshotRaceTest extends RaceTestCase
     {
         Model::withoutEvents(fn () => $writer->transaction(function (): void {
             $activity = Element::on('writer')->where('canvas_id', $this->canvas->id)->where('kind', ElementKind::Activity)->firstOrFail();
-            $replacement = Element::on('writer')->create(['canvas_id' => $this->canvas->id, 'area_id' => $activity->area_id, 'parent_id' => $activity->parent_id, 'kind' => ElementKind::Activity, 'name' => 'Nieuw', 'position' => 9]);
+            $replacement = (new Element)->setConnection('writer')->forceFill(['canvas_id' => $this->canvas->id, 'area_id' => $activity->area_id, 'parent_id' => $activity->parent_id, 'kind' => ElementKind::Activity, 'name' => 'Nieuw', 'name_normalised' => 'nieuw', 'position' => 9]);
+            $replacement->save();
             AllocationLine::on('writer')->where('element_id', $activity->id)->update(['element_id' => $replacement->id]);
             Element::on('writer')->whereKey($activity->id)->update(['archived_at' => now()]);
         }));

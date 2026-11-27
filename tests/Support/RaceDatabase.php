@@ -10,9 +10,9 @@ class RaceDatabase
     private ?string $file = null;
 
     /** @return array<string, string> */
-    public function prepare(?string $connection = null): array
+    public function prepare(): array
     {
-        $connection ??= (string) config('database.default');
+        $connection = (string) config('database.default');
 
         if (config('database.connections.'.$connection.'.driver') !== 'sqlite') {
             config(['database.connections.race' => config('database.connections.'.$connection)]);
