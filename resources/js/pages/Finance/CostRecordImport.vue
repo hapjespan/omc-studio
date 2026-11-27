@@ -5,6 +5,7 @@ import { Head } from '@inertiajs/vue3';
 import ImportReport, { type ImportReportData } from '../../components/ImportReport.vue';
 import { announce } from '../../components/feedback/status';
 import FileField from '../../components/fields/FileField.vue';
+import SampleGuide from '../../components/SampleGuide.vue';
 import AppButton from '../../components/ui/AppButton.vue';
 import { plural, t } from '../../i18n';
 import { routes } from '../../routes';
@@ -75,8 +76,8 @@ function pick(picked: File | null): void {
         <h1 class="font-display text-page-title font-semibold tracking-[-0.2px]">{{ t('import.title') }}</h1>
         <form novalidate class="flex flex-col gap-4 rounded-panel border border-hairline bg-white p-6" @submit.prevent="check">
             <FileField id="import-file" :label="t('import.file')" accept=".csv,text/csv,text/plain" :hint="t('import.file_hint', { columns: columns.join(';') })" :error="refusal" @pick="pick" />
-            <div class="flex flex-wrap gap-2">
-                <AppButton :href="routes.sampleFile('cost_record')">{{ t('csvx.sample_download') }}</AppButton>
+            <SampleGuide group="cost_record" :url="routes.sampleFile('cost_record')" />
+            <div class="flex gap-2">
                 <AppButton type="submit" variant="primary" :disabled="!file || busy">{{ t('import.check') }}</AppButton>
                 <AppButton :disabled="!canCommit" @click="commit">{{ t('import.commit') }}</AppButton>
             </div>

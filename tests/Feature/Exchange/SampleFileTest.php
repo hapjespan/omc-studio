@@ -17,19 +17,17 @@ class SampleFileTest extends ExchangeTestCase
         return $this->get('/samples/'.$group.'.csv')->assertOk()->streamedContent();
     }
 
-    public function test_each_sample_starts_with_the_exact_headers_then_one_explanation_line_per_column(): void
+    public function test_each_sample_holds_the_exact_headers_then_only_data_rows(): void
     {
         foreach (self::HEADERS as $group => $header) {
             $lines = explode("\n", trim($this->sample($group)));
-            $columns = count(explode(';', $header));
 
             $this->assertSame($header, $lines[0]);
+            $this->assertCount(4, $lines);
 
-            foreach (array_slice($lines, 1, $columns) as $index => $line) {
-                $this->assertStringStartsWith('#'.explode(';', $header)[$index].':', $line);
+            foreach (array_slice($lines, 1) as $line) {
+                $this->assertStringStartsNotWith('#', $line);
             }
-
-            $this->assertStringStartsNotWith('#', $lines[$columns + 1]);
         }
     }
 
@@ -47,16 +45,13 @@ class SampleFileTest extends ExchangeTestCase
         $this->get('/samples/cost_record.csv')->assertRedirect();
     }
 
-    public function test_the_cost_record_sample_uploads_as_is_without_explanation_lines_reaching_validation(): void
+    public function test_the_cost_record_sample_uploads_as_is(): void
     {
         $file = UploadedFile::fake()->createWithContent('import.csv', $this->sample('cost_record'));
         $response = $this->post('/organisations/'.$this->organisation->id.'/cost-records/import/preview', ['file' => $file], ['Accept' => 'application/json'])->assertOk();
 
-        $lines = array_column($response->json('lines'), 'line');
-
         $this->assertSame(0, $response->json('totals.errors'), json_encode($response->json('lines')));
-        $this->assertSame(3, $response->json('totals.new'));
-        $this->assertNotContains(2, $lines);
+        $this->assertSame([2, 3, 4], array_column($response->json('lines'), 'line'));
     }
 
     public function test_the_structure_sample_uploads_as_is(): void
@@ -65,43 +60,28 @@ class SampleFileTest extends ExchangeTestCase
         $response = $this->post('/canvases/'.$this->canvas->id.'/import/structure/preview', ['file' => $file], ['Accept' => 'application/json'])->assertOk();
 
         $this->assertSame(0, $response->json('totals.errors'), json_encode($response->json('lines')));
-        $this->assertCount(3, $response->json('lines'));
+        $this->assertSame([2, 3, 4], array_column($response->json('lines'), 'line'));
     }
 
-    public function test_the_allocation_sample_reports_only_real_rows(): void
+    public function test_the_allocation_sample_reaches_validation_row_by_row(): void
     {
         $file = UploadedFile::fake()->createWithContent('import.csv', $this->sample('allocation'));
         $response = $this->post('/canvases/'.$this->canvas->id.'/import/allocations/preview', ['file' => $file], ['Accept' => 'application/json'])->assertOk();
 
-        $text = json_encode($response->json('lines'));
-
-        $this->assertStringContainsString('Regel 6, kostenpost_code', $text);
-        $this->assertStringNotContainsString('Regel 2,', $text);
-        $this->assertStringNotContainsString('Regel 5,', $text);
+        $this->assertStringContainsString('Regel 2, kostenpost_code', json_encode($response->json('lines')));
     }
 
-    public function test_a_real_row_starting_with_a_hash_still_reaches_validation_in_every_importer(): void
+    public function test_every_row_reaches_validation_in_every_importer_even_when_it_starts_with_a_hash(): void
     {
-        $cost = $this->upload(self::HEADERS['cost_record'], ['#1;Naam;Overig;;Ada;;;;;;;;'], '/organisations/'.$this->organisation->id.'/cost-records/import/preview');
-        $structure = $this->upload(self::HEADERS['structure'], ['#x;Inkoop;;;;'], '/canvases/'.$this->canvas->id.'/import/structure/preview');
-        $allocation = $this->upload(self::HEADERS['allocation'], ['#1;2026;pad;100'], '/canvases/'.$this->canvas->id.'/import/allocations/preview');
+        $cost = $this->upload(self::HEADERS['cost_record'], ['#1;Naam;Overig;;Ada;;;;;;;;', '#code: tekst;;;;;;;;;;;;'], '/organisations/'.$this->organisation->id.'/cost-records/import/preview');
+        $structure = $this->upload(self::HEADERS['structure'], ['#x;Inkoop;;;;', '#area: tekst;;;;;'], '/canvases/'.$this->canvas->id.'/import/structure/preview');
+        $allocation = $this->upload(self::HEADERS['allocation'], ['#1;2026;pad;100', '#kostenpost_code: tekst;;;'], '/canvases/'.$this->canvas->id.'/import/allocations/preview');
 
-        $this->assertSame(2, $cost->json('lines.0.line'));
-        $this->assertSame(2, $structure->json('lines.0.line'));
-        $this->assertNotEmpty($allocation->json('lines'));
-    }
+        $this->assertSame([2, 3], array_column($cost->json('lines'), 'line'));
+        $this->assertSame([2, 3], array_column($structure->json('lines'), 'line'));
+        $text = json_encode($allocation->json('lines'));
 
-    public function test_explanation_lines_never_reach_validation_in_any_importer(): void
-    {
-        $this->costRecord('K1');
-        $cost = $this->upload(self::HEADERS['cost_record'], ['#code: uitleg', 'K1;Naam;Overig;;Ada;;;;;;;;'], '/organisations/'.$this->organisation->id.'/cost-records/import/preview');
-        $structure = $this->upload(self::HEADERS['structure'], ['#area: uitleg', 'Primaire activiteiten;Inkoop;;;;'], '/canvases/'.$this->canvas->id.'/import/structure/preview');
-        $allocation = $this->upload(self::HEADERS['allocation'], ['#kostenpost_code: uitleg', 'K1;2026;Primaire activiteiten > Inkoop;100'], '/canvases/'.$this->canvas->id.'/import/allocations/preview');
-
-        $this->assertSame([3], array_column($cost->json('lines'), 'line'));
-        $this->assertSame([3], array_column($structure->json('lines'), 'line'));
-        $this->assertSame(0, $cost->json('totals.errors'));
-        $this->assertSame(0, $structure->json('totals.errors'));
-        $this->assertSame(0, $allocation->json('totals.errors'), json_encode($allocation->json('lines')));
+        $this->assertStringContainsString('Regel 2,', $text);
+        $this->assertStringContainsString('Regel 3,', $text);
     }
 }

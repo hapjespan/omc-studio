@@ -21,10 +21,6 @@ class SampleFile
         $writer = new CsvWriter($handle);
         $writer->write(Headers::row($group, $columns));
 
-        foreach ($columns as $column) {
-            $writer->write([Headers::label('sample', $group.'.'.$column)]);
-        }
-
         foreach ($this->rows($group) as $row) {
             $writer->write($row);
         }

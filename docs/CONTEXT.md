@@ -409,3 +409,4 @@ Every ADR, in order. A superseded record names its replacement in its own status
 - [0047](adr/0047-snapshot-schema-version-and-stored-bytes.md): A newer Snapshot schema counts as damaged, and the full export keeps the stored bytes
 - [0048](adr/0048-firefox-e2e-runs-on-a-virtual-display.md): Firefox end-to-end runs on a virtual display
 - [0049](adr/0049-pull-request-ci-runs-chromium-only.md): # 0049 — Pull request CI runs Chromium only
+- [0050](adr/0050-sample-file-explanations-live-beside-the-download-button.md): Sample file explanations live beside the download button, not in the file

@@ -98,44 +98,6 @@ class CsvReaderTest extends TestCase
         ], $this->read("code;naam\n\nLC-002;Licenties\n"));
     }
 
-    public function test_it_skips_explanation_lines_but_keeps_counting_them(): void
-    {
-        $this->assertSame([
-            1 => ['code', 'naam'],
-            4 => ['LC-001', 'Hosting'],
-        ], $this->read("code;naam\n#code: uitleg\n#naam: uitleg;;\nLC-001;Hosting\n"));
-    }
-
-    public function test_it_skips_explanation_lines_padded_by_a_spreadsheet_and_quoted_ones(): void
-    {
-        $this->assertSame([
-            1 => ['code', 'naam'],
-            4 => ['LC-001', 'Hosting'],
-        ], $this->read("code;naam\n\"#code: uitleg; met puntkomma\";\n#naam: uitleg;\nLC-001;Hosting\n"));
-    }
-
-    public function test_it_never_skips_a_row_that_carries_data_next_to_a_hash(): void
-    {
-        $this->assertSame([
-            1 => ['code', 'naam'],
-            2 => ['#42', 'Hosting'],
-            3 => ['LC-002', '#bijzonder'],
-        ], $this->read("code;naam\n#42;Hosting\nLC-002;#bijzonder\n"));
-    }
-
-    public function test_it_never_skips_the_header_line(): void
-    {
-        $this->assertSame([1 => ['#code', '']], $this->read("#code;\n"));
-    }
-
-    public function test_it_skips_explanation_lines_anywhere_after_the_header(): void
-    {
-        $this->assertSame([
-            1 => ['code', 'naam'],
-            2 => ['LC-001', 'Hosting'],
-        ], $this->read("code;naam\nLC-001;Hosting\n#code: uitleg\n"));
-    }
-
     public function test_it_yields_nothing_for_a_missing_file(): void
     {
         $this->assertSame([], iterator_to_array((new CsvReader(sys_get_temp_dir().'/absent.csv'))->lines()));
