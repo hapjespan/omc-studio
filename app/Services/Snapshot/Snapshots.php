@@ -68,21 +68,23 @@ class Snapshots
     /** @return array<string, mixed>|null */
     public function read(Snapshot $snapshot): ?array
     {
+        $content = $this->inspect($snapshot);
+
+        $content === null && $this->damaged($snapshot);
+
+        return $content;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function inspect(Snapshot $snapshot): ?array
+    {
         $encoded = (string) $snapshot->content;
 
         if (! hash_equals((string) $snapshot->checksum, $this->content->checksum($encoded))) {
-            $this->damaged($snapshot);
-
             return null;
         }
 
-        $content = $this->content->upgraded(json_decode($encoded, true, 512, JSON_THROW_ON_ERROR));
-
-        if ($content === null) {
-            $this->damaged($snapshot);
-        }
-
-        return $content;
+        return $this->content->upgraded(json_decode($encoded, true, 512, JSON_THROW_ON_ERROR));
     }
 
     public function damaged(Snapshot $snapshot): void
