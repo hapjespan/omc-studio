@@ -1,4 +1,4 @@
-# 0051 — Exports read one consistent snapshot
+# 0051: Exports read one consistent snapshot
 
 Date: 2026-11-27
 Status: accepted

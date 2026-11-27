@@ -14,19 +14,27 @@ class FullExport
 
     public int $omittedSnapshots = 0;
 
+    /** @var list<Snapshot> */
+    private array $damaged = [];
+
     public function __construct(private readonly CanvasExport $export, private readonly Snapshots $snapshots, private readonly ConsistentRead $consistent) {}
 
     /** @return array<string, mixed> */
     public function build(): array
     {
-        return $this->consistent->run(fn () => $this->read());
+        $this->omittedSnapshots = 0;
+        $this->damaged = [];
+
+        $data = $this->consistent->run(fn () => $this->read());
+
+        array_map($this->snapshots->damaged(...), $this->damaged);
+
+        return $data;
     }
 
     /** @return array<string, mixed> */
     private function read(): array
     {
-        $this->omittedSnapshots = 0;
-
         return [
             'format' => self::FORMAT,
             'format_version' => 1,
@@ -56,15 +64,21 @@ class FullExport
         ];
     }
 
+    private function omitted(Snapshot $snapshot): void
+    {
+        $this->omittedSnapshots++;
+        $this->damaged[] = $snapshot;
+    }
+
     /** @return list<array<string, mixed>> */
     private function canvasSnapshots(Canvas $canvas): array
     {
         $blocks = [];
 
         foreach (Snapshot::where('canvas_id', $canvas->getKey())->orderBy('id')->get() as $snapshot) {
-            $intact = $this->snapshots->read($snapshot) !== null;
+            $intact = $this->snapshots->inspect($snapshot) !== null;
 
-            $intact || $this->omittedSnapshots++;
+            $intact || $this->omitted($snapshot);
 
             $intact && $blocks[] = [
                 ...$snapshot->only(['name', 'fiscal_year', 'remark', 'schema_version']),

@@ -27,7 +27,10 @@ class ConsistentRead
         try {
             return $read();
         } finally {
-            $pdo->exec('ROLLBACK');
+            try {
+                $pdo->exec('ROLLBACK');
+            } catch (\Throwable) {
+            }
         }
     }
 }
