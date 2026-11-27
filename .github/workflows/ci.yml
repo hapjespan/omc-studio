@@ -217,4 +217,4 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: docker build --tag omc-studio:ci .
-      - run: docker run --rm omc-studio:ci php -r 'exit(defined("PASSWORD_ARGON2ID") ? 0 : 1);'
+      - run: docker run --rm --entrypoint php omc-studio:ci -r 'exit(defined("PASSWORD_ARGON2ID") ? 0 : 1);'

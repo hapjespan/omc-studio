@@ -174,7 +174,7 @@ class FullPassphraseTest extends TestCase
             return password_verify($plain, (string) $hash);
         });
 
-        $this->post('/sign-in', ['email' => $user?->email ?? 'nobody@example.test', 'password' => $right ? 'Modern-passphrase-1' : 'Wrong-passphrase-123']);
+        $this->post('/sign-in', ['email' => $user === null ? 'nobody@example.test' : $user->email, 'password' => $right ? 'Modern-passphrase-1' : 'Wrong-passphrase-123']);
 
         sort($seen);
         $this->assertSame(['argon2id', 'bcrypt'], $seen);
