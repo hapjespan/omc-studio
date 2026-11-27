@@ -847,6 +847,7 @@
     "yearly_figures.saved": "Jaarwaarden opgeslagen",
     "yearly_figures.deleted": "Jaarwaarden verwijderd",
     "rule.cost_record_archived": "Deze kostenpost is gearchiveerd",
+    "rule.cost_record_gone": "Deze kostenpost bestaat niet meer",
     "rule.year_finalised_cost_record": ":year is definitief in canvas :canvas. Heropen het jaar eerst, of archiveer de kostenpost",
     "cost_records.figure_count": ":count jaarwaarde|:count jaarwaarden",
     "cost_records.set_count": ":count toewijzingsset|:count toewijzingssets",

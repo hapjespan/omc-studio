@@ -59,6 +59,7 @@ class CostRecords
     {
         return $this->writes->run([$record->organisation], function () use ($record, $user) {
             $this->assertWritable($record->organisation);
+            $this->reloadCostRecord($record);
             $this->assertEveryYearOpen($record);
 
             return $this->undo->remember(UndoStore::COST_RECORD_DELETION, $this->remove($record->organisation, [$record]), $user);
@@ -79,6 +80,7 @@ class CostRecords
 
             foreach ($records as $record) {
                 try {
+                    $this->reloadCostRecord($record);
                     $this->assertEveryYearOpen($record);
                     $deletable[] = $record;
                 } catch (ValidationException $refusal) {
@@ -112,6 +114,7 @@ class CostRecords
     {
         return $this->writes->run([$record->organisation], function () use ($record, $moment, $action) {
             $this->assertWritable($record->organisation);
+            $this->reloadCostRecord($record);
 
             if (($record->archived_at === null) !== ($moment === null)) {
                 $this->context->during($action, fn () => $record->update(['archived_at' => $moment]));
