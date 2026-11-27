@@ -137,4 +137,16 @@ class FullPassphraseTest extends TestCase
         $dummy = (new \ReflectionClassConstant(\App\Services\Accounts\SignInService::class, 'ABSENT'))->getValue();
         $this->assertStringStartsWith('$argon2id$', $dummy);
     }
+
+    public function test_an_administrator_reset_replaces_a_legacy_hash_with_argon2id(): void
+    {
+        $user = $this->legacy('Legacy-passphrase-1');
+        DB::table('users')->where('id', $user->id)->update(['role' => \App\Enums\Role::Administrator->value]);
+
+        $this->artisan('app:reset-admin-password', ['email' => $user->email])->assertSuccessful();
+
+        $user->refresh();
+        $this->assertStringStartsWith('$argon2id$', $user->password);
+        $this->assertTrue($user->must_change_password);
+    }
 }
