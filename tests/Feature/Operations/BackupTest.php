@@ -97,13 +97,13 @@ class BackupTest extends TestCase
         Organisation::factory()->create(['logo_path' => $path]);
     }
 
-    private function bindCopyHook(callable $hook): void
+    private function bindCopyHook(\Closure $hook): void
     {
         $this->app->bind(BackupService::class, fn () => new class($hook) extends BackupService
         {
             public int $calls = 0;
 
-            public function __construct(private $hook) {}
+            public function __construct(private \Closure $hook) {}
 
             protected function copyUploads(string $from, string $to): void
             {
