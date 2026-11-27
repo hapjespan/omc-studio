@@ -5,7 +5,7 @@ Status: accepted (orchestrator, phase 4; phase 4 gate approved by the product ow
 
 ## Decision
 
-Sign-in, one-time passwords, the forced password change, throttling and the optional TOTP second factor are own controllers and services on Laravel's session guard, `Hash`, `RateLimiter` and the database session store, with `pragmarx/google2fa` for TOTP and `bacon/bacon-qr-code` for an inline SVG QR code. Recovery codes are stored as bcrypt hashes in their own table; throttle keys are hashes of the e-mail address.
+Sign-in, one-time passwords, the forced password change, throttling and the optional TOTP second factor are own controllers and services on Laravel's session guard, `Hash`, `RateLimiter` and the database session store, with `pragmarx/google2fa` for TOTP and `bacon/bacon-qr-code` for an inline SVG QR code. Recovery codes are stored as password hashes (bcrypt at the time of this decision, Argon2id since 0050) in their own table; throttle keys are hashes of the e-mail address.
 
 ## Motivation
 

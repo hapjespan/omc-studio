@@ -16,6 +16,8 @@ class SignInService
 
     private const NAMESPACE = 'sign-in';
 
+    private const ABSENT_BCRYPT = '$2y$12$ENUQFUrC/yof4OJTiIdBEeRDD/iN57SpBNTBrYXCIk7KtiTgZJaKO';
+
     private const ABSENT = '$argon2id$v=19$m=65536,t=4,p=1$VUJBcnNVZWpRRU90c2pCVw$yrtSutPTdTT243diw+9h7ZkfACEAV8mbxxqkEWBdLWU';
 
     private readonly Throttle $throttle;
@@ -40,12 +42,16 @@ class SignInService
         }
 
         if ($user === null) {
-            Hash::check($password, self::ABSENT);
+            $this->padCost($password, true, true);
 
             $this->refuse($email, $user, 'unknown_address');
         }
 
-        if (! Hash::check($password, $user->password)) {
+        $legacy = $user->hasLegacyPassword();
+        $matches = Hash::check($password, $user->password);
+        $this->padCost($password, ! $legacy, $legacy);
+
+        if (! $matches) {
             $this->refuse($email, $user, 'wrong_password');
         }
 
@@ -55,7 +61,7 @@ class SignInService
 
         $this->throttle->clear($email);
 
-        if ($user->hasLegacyPassword()) {
+        if ($legacy && ! $user->must_change_password) {
             $user->forceFill(['must_change_password' => true])->save();
             SecurityLog::record('legacy_password_flagged', ['user_id' => $user->getKey()]);
         }
@@ -104,6 +110,17 @@ class SignInService
     private function fingerprint(User $user): string
     {
         return hash_hmac('sha256', (string) $user->password, (string) config('app.key'));
+    }
+
+    private function padCost(string $password, bool $bcrypt, bool $argon): void
+    {
+        if ($bcrypt) {
+            Hash::check($password, self::ABSENT_BCRYPT);
+        }
+
+        if ($argon) {
+            Hash::check($password, self::ABSENT);
+        }
     }
 
     private function refuse(string $email, ?User $user, string $reason): never

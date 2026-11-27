@@ -9,10 +9,13 @@ use App\Services\Accounts\OneTimePassword;
 use App\Services\Accounts\PasswordService;
 use App\Services\Accounts\RecoveryCodes;
 use App\Services\Accounts\SignInService;
+use App\Services\Accounts\TotpVerifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PragmaRX\Google2FA\Google2FA;
 use Tests\TestCase;
 
 class FullPassphraseTest extends TestCase
@@ -132,12 +135,102 @@ class FullPassphraseTest extends TestCase
         $this->assertStringStartsWith('$argon2id$', $user->refresh()->password);
     }
 
-    public function test_unknown_accounts_are_refused_with_an_argon2id_dummy(): void
+    public function test_the_dummy_hashes_use_the_configured_production_cost(): void
     {
-        $this->post('/sign-in', ['email' => 'nobody@example.test', 'password' => str_repeat('a', 100)])->assertSessionHasErrors('email');
+        $argon = password_get_info((new \ReflectionClassConstant(SignInService::class, 'ABSENT'))->getValue());
+        $bcrypt = password_get_info((new \ReflectionClassConstant(SignInService::class, 'ABSENT_BCRYPT'))->getValue());
+        $defaults = ['memory_cost' => 65536, 'time_cost' => 4, 'threads' => 1];
 
-        $dummy = (new \ReflectionClassConstant(SignInService::class, 'ABSENT'))->getValue();
-        $this->assertStringStartsWith('$argon2id$', $dummy);
+        $this->assertSame('argon2id', $argon['algoName']);
+        $this->assertSame($defaults, $argon['options']);
+        $this->assertSame('bcrypt', $bcrypt['algoName']);
+        $this->assertSame(12, $bcrypt['options']['cost']);
+    }
+
+    /** @return array<string, array{string, bool}> */
+    public static function signInPaths(): array
+    {
+        return [
+            'unknown address' => ['unknown', true],
+            'argon2id account right password' => ['argon', true],
+            'argon2id account wrong password' => ['argon', false],
+            'legacy account right password' => ['legacy', true],
+            'legacy account wrong password' => ['legacy', false],
+        ];
+    }
+
+    #[DataProvider('signInPaths')]
+    public function test_every_sign_in_path_checks_one_bcrypt_and_one_argon2id_hash(string $kind, bool $right): void
+    {
+        $user = match ($kind) {
+            'argon' => User::factory()->create(['password' => 'Modern-passphrase-1']),
+            'legacy' => $this->legacy('Modern-passphrase-1'),
+            default => null,
+        };
+        $seen = [];
+        Hash::partialMock()->shouldReceive('check')->andReturnUsing(function (string $plain, ?string $hash) use (&$seen): bool {
+            $seen[] = str_starts_with((string) $hash, '$2y$') ? 'bcrypt' : 'argon2id';
+
+            return password_verify($plain, (string) $hash);
+        });
+
+        $this->post('/sign-in', ['email' => $user?->email ?? 'nobody@example.test', 'password' => $right ? 'Modern-passphrase-1' : 'Wrong-passphrase-123']);
+
+        sort($seen);
+        $this->assertSame(['argon2id', 'bcrypt'], $seen);
+    }
+
+    public function test_setup_and_change_store_the_whole_passphrase_through_the_routes(): void
+    {
+        foreach ([str_repeat('é', 36), str_repeat('é', 37)] as $passphrase) {
+            $user = $this->legacy('Legacy-passphrase-1');
+            $this->post('/sign-in', ['email' => $user->email, 'password' => 'Legacy-passphrase-1']);
+            $this->put('/password/new', ['password' => $passphrase, 'password_confirmation' => $passphrase])->assertSessionHasNoErrors();
+            $this->assertTrue(Hash::check($passphrase, $user->refresh()->password));
+            $this->assertStringStartsWith('$argon2id$', $user->password);
+            $this->assertFalse(Hash::check(str_repeat('é', 36).'x', $user->password));
+
+            $next = $passphrase.'Z';
+            $this->put('/account/password', ['current_password' => $passphrase, 'password' => $next, 'password_confirmation' => $next])->assertSessionHasNoErrors();
+            $this->assertTrue(Hash::check($next, $user->refresh()->password));
+            $this->assertFalse(Hash::check($passphrase.'Y', $user->password));
+            $this->post('/sign-out');
+        }
+    }
+
+    public function test_a_legacy_account_with_a_second_factor_is_flagged_before_the_challenge_and_lands_on_the_new_passphrase_screen(): void
+    {
+        $secret = 'ADUMJO5634NPDEKW';
+        $user = $this->legacy('Legacy-passphrase-1');
+        $user->forceFill(['two_factor_secret' => $secret, 'two_factor_confirmed_at' => now()])->save();
+
+        $this->post('/sign-in', ['email' => $user->email, 'password' => 'Legacy-passphrase-1'])->assertRedirect('/sign-in/second-factor');
+        $this->assertTrue($user->refresh()->must_change_password);
+        $this->assertGuest();
+
+        $code = (new Google2FA)->oathTotp($secret, app(TotpVerifier::class)->step());
+        $this->post('/sign-in/second-factor', ['code' => $code]);
+
+        $this->assertAuthenticatedAs($user);
+        $this->get('/')->assertRedirect('/password/new');
+    }
+
+    public function test_the_flag_is_logged_once_when_it_flips_and_not_for_other_accounts(): void
+    {
+        $log = storage_path('logs/security-'.now()->format('Y-m-d').'.log');
+        File::delete($log);
+        $legacy = $this->legacy('Legacy-passphrase-1');
+        $modern = User::factory()->create(['password' => 'Modern-passphrase-1']);
+
+        $this->post('/sign-in', ['email' => $modern->email, 'password' => 'Modern-passphrase-1']);
+        $this->assertStringNotContainsString('legacy_password_flagged', (string) File::get($log));
+        $this->post('/sign-out');
+
+        $this->post('/sign-in', ['email' => $legacy->email, 'password' => 'Legacy-passphrase-1']);
+        $this->post('/sign-out');
+        $this->post('/sign-in', ['email' => $legacy->email, 'password' => 'Legacy-passphrase-1']);
+
+        $this->assertSame(1, substr_count((string) File::get($log), 'legacy_password_flagged'));
     }
 
     public function test_an_administrator_reset_replaces_a_legacy_hash_with_argon2id(): void

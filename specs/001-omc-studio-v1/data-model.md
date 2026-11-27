@@ -15,7 +15,7 @@ Each table is created in the delivery that first needs it; no table or column ex
 | id | integer pk | |
 | name | string(150) | required |
 | email | string(254) | stored lower-cased, unique |
-| password | string | bcrypt hash |
+| password | string | Argon2id hash (legacy bcrypt until changed, ADR 0050) |
 | role | string | `administrator` or `reader` |
 | must_change_password | boolean | true after a one-time password |
 | one_time_password_expires_at | datetime null | 24 hours after creation or reset (FR-003) |
@@ -35,7 +35,7 @@ Each table is created in the delivery that first needs it; no table or column ex
 |---|---|---|
 | id | integer pk | |
 | user_id | fk users cascade | |
-| code_hash | string | bcrypt; row deleted when used |
+| code_hash | string | Argon2id (legacy bcrypt); row deleted when used |
 
 | Index | Serves |
 |---|---|
