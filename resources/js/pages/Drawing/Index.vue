@@ -143,7 +143,6 @@ const onKey = (event: KeyboardEvent): void => {
     else engine.value.apply(next);
     refreshBox();
 };
-
 const BYPASS_CODES = ['missing_element', 'unknown_element'];
 
 const onFailure = (failure: SaveFailure): void => {
