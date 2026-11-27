@@ -84,4 +84,15 @@ class SampleFileTest extends ExchangeTestCase
         $this->assertStringContainsString('Regel 2,', $text);
         $this->assertStringContainsString('Regel 3,', $text);
     }
+
+    public function test_the_three_samples_chain_into_an_error_free_allocation_preview(): void
+    {
+        $post = fn (string $group, string $url) => $this->post($url, ['file' => UploadedFile::fake()->createWithContent('import.csv', $this->sample($group))], ['Accept' => 'application/json']);
+
+        $post('cost_record', '/organisations/'.$this->organisation->id.'/cost-records/import')->assertOk();
+        $post('structure', '/canvases/'.$this->canvas->id.'/import/structure')->assertOk();
+        $preview = $post('allocation', '/canvases/'.$this->canvas->id.'/import/allocations/preview')->assertOk();
+
+        $this->assertSame(0, $preview->json('totals.errors'), json_encode($preview->json('lines')));
+    }
 }

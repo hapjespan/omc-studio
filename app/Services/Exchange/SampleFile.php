@@ -35,22 +35,9 @@ class SampleFile
         $project = Headers::label('cost_kind', 'project');
         $contract = Headers::label('cost_kind', 'supplier_contract');
 
-        return match ($group) {
-            'cost_record' => [
-                ['K-100', 'Hosting', $contract, 'Voorbeeld Hosting BV', 'A. Jansen', 'CC-10', 'Klantportaal', '2026', '12000,00', '13000,50', '80', '20', '0,5'],
-                ['K-101', 'Migratieproject', $project, '', 'B. de Vries', '', '', '2026', '45000,00', '', '', '', '1,5'],
-                ['K-102', 'Licenties', $contract, 'Voorbeeld Software BV', 'A. Jansen', 'CC-11', '', '', '', '', '', '', ''],
-            ],
-            'structure' => [
-                [$area, 'Inkoop', '', '', 'Alles rond het inkopen van diensten', ''],
-                [$area, 'Klantcontact', 'Service', 'Klachtenafhandeling', '', 'common'],
-                [$area, 'Klantcontact', 'Service', 'Vragen beantwoorden', '', 'adaptive'],
-            ],
-            default => [
-                ['K-100', '2026', $area.' > Inkoop', '60'],
-                ['K-100', '2026', $area.' > Klantcontact', '40'],
-                ['K-101', '2026', $area.' > Inkoop', '100'],
-            ],
-        };
+        return array_map(
+            fn (int $n): array => explode(';', (string) __('exchange.sample_row.'.$group.'.'.$n, ['area' => $area, 'project' => $project, 'contract' => $contract])),
+            range(1, 3),
+        );
     }
 }

@@ -9,8 +9,8 @@ const columns = keysWithPrefix(prefix).map((key) => ({ key, name: t(`exchange.${
 
 <template>
     <div class="flex flex-wrap items-start gap-4">
-        <AppButton :href="url">{{ t('csvx.sample_download') }}</AppButton>
-        <dl class="flex min-w-0 flex-1 flex-col gap-1 text-[13px]">
+        <AppButton :href="url" :aria-describedby="`sample-${group}`">{{ t('csvx.sample_download') }}</AppButton>
+        <dl :id="`sample-${group}`" :aria-label="t('csvx.sample_label')" class="flex min-w-0 flex-1 flex-col gap-1 text-[13px]">
             <div v-for="column in columns" :key="column.key" class="flex gap-2">
                 <dt class="w-32 shrink-0 font-semibold">{{ column.name }}</dt>
                 <dd>{{ t(column.key) }}</dd>
