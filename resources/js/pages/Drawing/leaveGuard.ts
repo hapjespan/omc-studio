@@ -31,7 +31,7 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
         window.removeEventListener('beforeunload', beforeUnload);
     };
 
-    return {
+    const api = {
         target,
         retried,
         install,
@@ -47,6 +47,10 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
             target.value = waiting;
             waiting = null;
         },
+        settle: (next: SaveStatus): LeaveVisit | null => {
+            if (next === 'failed' || next === 'layoutChanged' || next === 'structureChanged') api.failed();
+            return next === 'saved' ? api.destination() : null;
+        },
         retry: (): void => {
             retried.value = true;
             retry();
@@ -57,4 +61,6 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
             if (destination) proceed(destination);
         },
     };
+
+    return api;
 }

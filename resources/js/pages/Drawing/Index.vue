@@ -159,8 +159,7 @@ const onFailure = (failure: SaveFailure): void => {
 const onStatus = (next: SaveStatus): void => {
     saveStatus.value = next;
     if (next === 'layoutChanged') void refresh(false, moveFlow.hasLost() ? `${t('drawing.layout_changed')}. ${t('drawing.move_not_saved')}` : t('drawing.layout_changed'));
-    if (next === 'failed' || next === 'layoutChanged' || next === 'structureChanged') leave.failed();
-    const destination = next === 'saved' ? leave.destination() : null;
+    const destination = leave.settle(next);
     if (destination) proceed(destination);
 };
 

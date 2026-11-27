@@ -113,6 +113,33 @@ test('a save that fails while sign-out is held opens the dialog and never signs 
     expect(methods).toEqual(['POST']);
 });
 
+test('a save conflict while sign-out is held opens the dialog and a later save never signs out', async ({ page }) => {
+    const methods = signOutRequests(page);
+    await openDrawing(page, seedViewCanvas());
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    let conflicting = true;
+    await page.route('**/layout', async (route) => {
+        if (route.request().method() !== 'PUT' || !conflicting) return route.fallback();
+        await gate;
+        await route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ conflict: 'layout_changed' }) });
+    });
+    await editX(page);
+    await expect(page.locator('[data-save-state]')).toContainText('Opslaan');
+    await chooseSignOut(page);
+    release();
+    const leave = page.getByRole('dialog', { name: 'Wijziging niet opgeslagen' });
+    await expect(leave).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(leave).toBeHidden();
+    conflicting = false;
+    const saved = page.waitForResponse((response) => response.request().method() === 'PUT' && response.url().endsWith('/layout'));
+    await editX(page);
+    expect((await saved).status()).toBe(200);
+    expect(methods).toEqual([]);
+    expect((await page.request.get('/', { maxRedirects: 0 })).status()).toBe(200);
+});
+
 test('ordinary navigation to and from the drawing stays a GET with a full page load', async ({ page }) => {
     const canvas = seedViewCanvas();
     await openDrawing(page, canvas);

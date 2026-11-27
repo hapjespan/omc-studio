@@ -45,6 +45,21 @@ describe('leave guard', () => {
         expect(guard.destination()).toEqual(signOut);
     });
 
+    it.each(['layoutChanged', 'structureChanged'] as const)('opens the dialog on %s and sends nothing on a later saved', (conflict) => {
+        const { guard, run } = setup('saving');
+        run();
+        expect(guard.settle(conflict)).toBeNull();
+        expect(guard.target.value).toEqual(signOut);
+        guard.target.value = null;
+        expect(guard.settle('saved')).toBeNull();
+    });
+
+    it('hands a held visit over on saved', () => {
+        const { guard, run } = setup('saving');
+        run();
+        expect(guard.settle('saved')).toEqual(signOut);
+    });
+
     it('drops the held visit when staying, so a later save sends nothing', () => {
         const { guard, run } = setup('saving');
         run();
