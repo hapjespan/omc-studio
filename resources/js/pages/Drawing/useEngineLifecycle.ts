@@ -10,6 +10,7 @@ import { t } from '../../i18n';
 import type { MoveFlow } from './moveFlow';
 import type { SaveQueue } from './SaveQueue';
 import type { DrawingProps } from './drawingProps';
+import { SelectionHistory } from './selectionHistory';
 
 export interface LifecycleDeps {
     props: DrawingProps;
@@ -31,7 +32,7 @@ export function useEngineLifecycle(deps: LifecycleDeps) {
     const engine = shallowRef<DrawingEngine | null>(null);
     const drawn = shallowRef<DrawnCanvas | null>(null);
     const selected = ref<string[]>([]);
-    const seen = ref<string[]>([]);
+    const seen = new SelectionHistory();
     const zoom = ref(1);
     const view = ref('');
     const canUndo = ref(false);
@@ -99,7 +100,7 @@ export function useEngineLifecycle(deps: LifecycleDeps) {
             const live = created;
             stopSelection = live.onSelectionChange((ids) => {
                 selected.value = ids;
-                seen.value = [...seen.value, ...ids];
+                seen.record(ids);
                 deps.onSelect(ids);
             });
             stopChange = live.onChange(deps.onChange);

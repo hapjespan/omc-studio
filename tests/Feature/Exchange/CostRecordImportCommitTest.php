@@ -21,6 +21,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class CostRecordImportCommitTest extends TestCase
@@ -102,6 +103,18 @@ class CostRecordImportCommitTest extends TestCase
         $this->assertSame(['Portal'], Application::pluck('name')->all());
     }
 
+    public function test_a_file_with_differently_formatted_years_of_one_fiscal_year_is_refused_without_writes(): void
+    {
+        $this->commit([
+            'K1;A;Project;;Ada;;;2026;1,00;;;;',
+            'K1;A;Project;;Ada;;;02026;1,00;;;;',
+        ])->assertUnprocessable();
+
+        $this->assertSame(0, CostRecord::count());
+        $this->assertSame(0, YearlyFigure::count());
+        $this->assertSame(0, Owner::count());
+    }
+
     public function test_every_imported_record_gets_an_audit_entry_with_the_action_imported(): void
     {
         $this->commit(['K1;Licenties;Project;;Ada;;Portal;2026;10,00;;;;'])->assertOk();
@@ -151,6 +164,36 @@ class CostRecordImportCommitTest extends TestCase
 
         $figure = $record->yearlyFigures()->sole();
         $this->assertSame([1000, null, null], [$figure->budget_cents, $figure->forecast_cents, $figure->fte_hundredths]);
+    }
+
+    /**
+     * @return array<string, array{string, int}>
+     */
+    public static function zeroFields(): array
+    {
+        return ['supplier' => ['supplier', 3], 'cost centre' => ['cost_centre', 5]];
+    }
+
+    #[DataProvider('zeroFields')]
+    public function test_a_literal_zero_survives_new_update_blank_and_round_trip(string $field, int $column): void
+    {
+        $cells = fn (string $value) => implode(';', array_replace(['K1', 'Licenties', 'Project', '', 'Ada', '', '', '', '', '', '', '', ''], [$column => $value]));
+
+        $this->commit([$cells('0')])->assertOk()->assertJsonPath('totals.new', 1);
+        $this->assertSame('0', CostRecord::where('code_normalised', 'k1')->sole()->{$field});
+
+        $this->commit([$cells('')])->assertOk()->assertJsonPath('totals.updated', 1);
+        $this->assertNull(CostRecord::where('code_normalised', 'k1')->sole()->{$field});
+
+        $this->commit([$cells(' 0 ')])->assertOk()->assertJsonPath('totals.updated', 1);
+        $this->assertSame('0', CostRecord::where('code_normalised', 'k1')->sole()->{$field});
+
+        $this->commit([$cells('0')])->assertOk()->assertJsonPath('totals', ['new' => 0, 'updated' => 0, 'unchanged' => 1, 'errors' => 0]);
+
+        $export = $this->get('/organisations/'.$this->organisation->id.'/export/cost-records.csv')->assertOk()->streamedContent();
+        $preview = $this->post('/organisations/'.$this->organisation->id.'/cost-records/import/preview', ['file' => UploadedFile::fake()->createWithContent('import.csv', $export)], ['Accept' => 'application/json'])->assertOk();
+        $this->assertSame(['new' => 0, 'updated' => 0, 'unchanged' => 1, 'errors' => 0], $preview->json('totals'));
+        $this->assertSame('0', CostRecord::where('code_normalised', 'k1')->sole()->{$field});
     }
 
     public function test_a_file_with_an_error_is_refused_and_writes_nothing(): void

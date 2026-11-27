@@ -136,6 +136,45 @@ class CostRecordImportPreviewTest extends TestCase
         $this->assertSame(['Regel 4: code K1 heeft andere kostenpostgegevens dan regel 2. Maak de velden gelijk'], $this->messages($response, 2));
     }
 
+    public function test_differently_formatted_years_of_one_fiscal_year_are_flagged_for_new_and_existing_records(): void
+    {
+        CostRecord::factory()->create(['organisation_id' => $this->organisation->id, 'code' => 'E1', 'name' => 'A', 'cost_kind' => 'project']);
+
+        $response = $this->preview([
+            'K1;A;Project;;Ada;;;2026;1,00;;;;',
+            'K1;A;Project;;Ada;;;02026;1,00;;;;',
+            'E1;A;Project;;Ada;;;2026;1,00;;;;',
+            'e1;A;Project;;Ada;;;002026;1,00;;;;',
+        ]);
+
+        $this->assertSame(['Regel 3: code K1 en jaar 02026 staan ook op regel 2. Laat een van beide regels weg'], $this->messages($response, 1));
+        $this->assertSame(['Regel 5: code e1 en jaar 002026 staan ook op regel 4. Laat een van beide regels weg'], $this->messages($response, 3));
+        $this->assertSame([], $this->messages($response, 0));
+    }
+
+    public function test_an_invalid_year_cell_never_makes_a_valid_line_a_duplicate(): void
+    {
+        $response = $this->preview([
+            'K1;A;Project;;Ada;;;2026x;1,00;;;;',
+            'K1;A;Project;;Ada;;;2026;1,00;;;;',
+        ]);
+
+        $this->assertSame([], $this->messages($response, 1));
+    }
+
+    public function test_other_costs_in_one_year_and_one_cost_in_other_years_stay_valid(): void
+    {
+        FiscalYear::factory()->create(['organisation_id' => $this->organisation->id, 'year' => 2027]);
+
+        $response = $this->preview([
+            'K1;A;Project;;Ada;;;2026;1,00;;;;',
+            'K2;B;Project;;Ada;;;02026;1,00;;;;',
+            'K1;A;Project;;Ada;;;2027;1,00;;;;',
+        ]);
+
+        $response->assertJsonPath('totals.errors', 0);
+    }
+
     public function test_year_and_budget_go_together(): void
     {
         $response = $this->preview([

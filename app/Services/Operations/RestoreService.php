@@ -16,11 +16,14 @@ use Throwable;
 
 class RestoreService
 {
+    public ?string $warning = null;
+
     public function __construct(private readonly Application $application) {}
 
     /** @return list<string> */
     public function run(string $folder): array
     {
+        $this->warning = null;
         $folder = rtrim($folder, '/');
         $database = $folder.'/'.BackupService::DATABASE;
         $key = $folder.'/'.BackupService::KEY;
@@ -31,9 +34,11 @@ class RestoreService
 
         $this->validate($database, trim((string) file_get_contents($key)));
 
-        $this->assertLogosPresent($folder, $database);
+        $this->assertLogosPresent($folder);
 
-        $safety = app(BackupService::class)->run();
+        $backup = app(BackupService::class);
+        $safety = $backup->run();
+        $this->warning = $backup->warning;
 
         $this->application->maintenanceMode()->activate([]);
 
@@ -89,15 +94,12 @@ class RestoreService
         }
     }
 
-    private function assertLogosPresent(string $folder, string $database): void
+    private function assertLogosPresent(string $folder): void
     {
-        $pdo = new PDO('sqlite:'.$database);
-        $paths = $pdo->query("SELECT logo_path FROM organisations WHERE logo_path IS NOT NULL AND logo_path != ''")->fetchAll(PDO::FETCH_COLUMN);
+        $missing = BackupService::unsafeLogo($folder) ?? BackupService::missingLogo($folder);
 
-        foreach ($paths as $path) {
-            if (str_contains($path, '..') || str_starts_with($path, '/') || ! is_file($folder.'/'.BackupService::UPLOADS.'/'.$path)) {
-                throw new InvalidArgumentException(__('console.restore_logo_missing', ['path' => $path]));
-            }
+        if ($missing !== null) {
+            throw new InvalidArgumentException(__('console.restore_logo_missing', ['path' => $missing]));
         }
     }
 
