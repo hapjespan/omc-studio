@@ -80,8 +80,10 @@ class UserAdministrationTest extends TestCase
     public function test_a_failed_credential_save_leaves_no_account_and_no_security_event(): void
     {
         File::delete($this->securityLog());
-        User::creating(function (): void {
-            throw new \RuntimeException('save failed');
+        User::saving(function (User $user): void {
+            if ($user->must_change_password) {
+                throw new \RuntimeException('save failed');
+            }
         });
 
         try {
