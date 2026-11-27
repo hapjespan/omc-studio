@@ -53,6 +53,14 @@ describe('leave guard', () => {
         expect(guard.settle('saved')).toBeNull();
     });
 
+    it.each(['layoutChanged', 'structureChanged'] as const)('clears an open leave dialog on %s after a failed save', (conflict) => {
+        const { guard, run } = setup('failed');
+        run();
+        expect(guard.target.value).toEqual(signOut);
+        guard.settle(conflict);
+        expect(guard.target.value).toBeNull();
+    });
+
     it('opens the dialog on failed and keeps the visit', () => {
         const { guard, run } = setup('saving');
         run();
