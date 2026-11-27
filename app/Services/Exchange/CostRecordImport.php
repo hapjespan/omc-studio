@@ -118,7 +118,7 @@ class CostRecordImport
                     $messages[] = __('import.duplicate_fields', ['line' => $number, 'code' => $row['code'], 'other' => $other]);
                 }
 
-                if ($row['year'] !== '' && isset($years[(int) $row['year']])) {
+                if (ctype_digit($row['year']) && isset($years[(int) $row['year']])) {
                     $key = $code.'|'.$years[(int) $row['year']];
 
                     if (isset($seenYears[$key])) {

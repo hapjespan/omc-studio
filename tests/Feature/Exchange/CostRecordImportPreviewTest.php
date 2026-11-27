@@ -152,6 +152,16 @@ class CostRecordImportPreviewTest extends TestCase
         $this->assertSame([], $this->messages($response, 0));
     }
 
+    public function test_an_invalid_year_cell_never_makes_a_valid_line_a_duplicate(): void
+    {
+        $response = $this->preview([
+            'K1;A;Project;;Ada;;;2026x;1,00;;;;',
+            'K1;A;Project;;Ada;;;2026;1,00;;;;',
+        ]);
+
+        $this->assertSame([], $this->messages($response, 1));
+    }
+
     public function test_other_costs_in_one_year_and_one_cost_in_other_years_stay_valid(): void
     {
         FiscalYear::factory()->create(['organisation_id' => $this->organisation->id, 'year' => 2027]);
