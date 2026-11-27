@@ -82,7 +82,7 @@ test('a save that fails while sign-out is held opens the dialog and never signs 
     const methods = signOutRequests(page);
     await openDrawing(page, seedViewCanvas());
     let release: () => void = () => undefined;
-    const gate = new Promise<void>((resolve) => (release = resolve));
+    let gate = new Promise<void>((resolve) => (release = resolve));
     let failing = true;
     await page.route('**/layout', async (route) => {
         if (route.request().method() !== 'PUT' || !failing) return route.fallback();
@@ -103,17 +103,19 @@ test('a save that fails while sign-out is held opens the dialog and never signs 
     expect(methods).toEqual([]);
     expect((await page.request.get('/', { maxRedirects: 0 })).status()).toBe(200);
     failing = true;
+    gate = new Promise<void>((resolve) => (release = resolve));
     await page.getByLabel('X van Onderwijs').fill('60');
     await page.getByLabel('X van Onderwijs').press('Enter');
     await expect(page.locator('[data-save-state]')).toContainText('Opslaan');
     await chooseSignOut(page);
+    release();
     await expect(leave).toBeVisible();
     await leave.getByRole('button', { name: 'Wijziging weggooien' }).click();
     await expectSignedOut(page);
     expect(methods).toEqual(['POST']);
 });
 
-test('a save conflict while sign-out is held opens the dialog and a later save never signs out', async ({ page }) => {
+test('a save conflict while sign-out is held drops it and a later save never signs out', async ({ page }) => {
     const methods = signOutRequests(page);
     await openDrawing(page, seedViewCanvas());
     let release: () => void = () => undefined;
@@ -128,10 +130,8 @@ test('a save conflict while sign-out is held opens the dialog and a later save n
     await expect(page.locator('[data-save-state]')).toContainText('Opslaan');
     await chooseSignOut(page);
     release();
-    const leave = page.getByRole('dialog', { name: 'Wijziging niet opgeslagen' });
-    await expect(leave).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(leave).toBeHidden();
+    await expect(page.getByText('Iemand anders heeft de opmaak gewijzigd', { exact: false }).first()).toBeVisible();
+    await expect(page.getByRole('dialog', { name: 'Wijziging niet opgeslagen' })).toBeHidden();
     conflicting = false;
     const saved = page.waitForResponse((response) => response.request().method() === 'PUT' && response.url().endsWith('/layout'));
     await editX(page);

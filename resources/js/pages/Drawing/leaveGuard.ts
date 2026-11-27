@@ -48,7 +48,8 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
             waiting = null;
         },
         settle: (next: SaveStatus): LeaveVisit | null => {
-            if (next === 'failed' || next === 'layoutChanged' || next === 'structureChanged') api.failed();
+            if (next === 'failed') api.failed();
+            if (next === 'layoutChanged' || next === 'structureChanged') waiting = null;
             return next === 'saved' ? api.destination() : null;
         },
         retry: (): void => {
