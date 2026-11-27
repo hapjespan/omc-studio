@@ -57,8 +57,8 @@ class PasswordRuleTest extends TestCase
         $this->assertSame([], $this->errors("  a b\tc!#é€  d"));
     }
 
-    public function test_passwords_are_hashed_with_bcrypt(): void
+    public function test_passwords_are_hashed_with_argon2id(): void
     {
-        $this->assertStringStartsWith('$2y$', Hash::make('aaaaaaaaaaab'));
+        $this->assertStringStartsWith('$argon2id$', Hash::make('aaaaaaaaaaab'));
     }
 }
