@@ -1,4 +1,4 @@
-# 0050 — Sample file explanations live beside the download button
+# 0052: Sample file explanations live beside the download button
 
 Date: 2026-11-27
 Status: accepted
