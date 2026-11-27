@@ -8,15 +8,22 @@ use App\Models\User;
 use App\Services\Canvas\LogoStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Mockery;
+use RuntimeException;
+use Tests\Support\ActsAsAdministrator;
 use Tests\TestCase;
 
 class LogoUploadTest extends TestCase
 {
+    use ActsAsAdministrator;
     use RefreshDatabase;
 
     private const MESSAGE = 'Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels';
+
+    private const STORE_FAILED = 'Logo: het bestand kon niet worden opgeslagen, probeer het opnieuw';
 
     private const MARKER = 'camera-metadata-marker';
 
@@ -196,6 +203,119 @@ class LogoUploadTest extends TestCase
         $organisation = $this->organisationWithStoredLogo('png');
 
         $this->get('/organisations/'.$organisation->id.'/logo')->assertRedirect('/sign-in');
+    }
+
+    public function test_a_refused_storage_write_keeps_the_original_logo_and_reports_an_error(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $path = (string) $organisation->logo_path;
+        $bytes = Storage::disk('local')->get($path);
+        $this->refuseWrites();
+
+        $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
+            ->assertSessionHasErrors(['logo' => self::STORE_FAILED]);
+
+        $this->assertSame($path, $organisation->fresh()?->logo_path);
+        $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
+        $served = $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk();
+        $this->assertSame($bytes, $served->getContent());
+        $this->assertSame($bytes, Storage::disk('local')->get($path));
+    }
+
+    public function test_a_partially_written_file_is_removed_when_the_write_reports_failure(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $path = (string) $organisation->logo_path;
+        $disk = Mockery::mock(Storage::disk('local'))->makePartial();
+        $disk->shouldReceive('put')->andReturnUsing(function ($target, $contents) {
+            Storage::disk('local')->getDriver()->write($target, 'partial');
+
+            return false;
+        });
+        Storage::set('local', $disk);
+
+        $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
+            ->assertSessionHasErrors(['logo' => self::STORE_FAILED]);
+
+        $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
+    }
+
+    public function test_replacing_a_logo_through_the_route_serves_the_new_bytes_and_removes_the_old_file(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $previous = (string) $organisation->logo_path;
+
+        $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
+            ->assertSessionHasNoErrors();
+
+        $current = (string) $organisation->fresh()?->logo_path;
+        $this->assertNotSame($previous, $current);
+        Storage::disk('local')->assertMissing($previous);
+
+        $served = $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk();
+        $this->assertSame(Storage::disk('local')->get($current), $served->getContent());
+        $this->assertNotSame(Storage::disk('local')->get($previous), $served->getContent());
+    }
+
+    public function test_a_database_failure_after_the_write_keeps_the_original_logo_and_removes_the_staged_file(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $path = (string) $organisation->logo_path;
+        $bytes = Storage::disk('local')->get($path);
+        Organisation::updating(fn () => throw new RuntimeException('database failure'));
+
+        $this->withoutExceptionHandling();
+
+        try {
+            $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)]);
+            $this->fail('expected failure');
+        } catch (RuntimeException) {
+        }
+
+        $this->assertSame($path, $organisation->fresh()?->logo_path);
+        $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
+        $this->assertSame($bytes, Storage::disk('local')->get($path));
+        $this->assertSame($bytes, $this->actingAs(User::factory()->create())->get('/organisations/'.$organisation->id.'/logo')->assertOk()->getContent());
+    }
+
+    public function test_the_superseded_file_is_removed_only_after_the_wider_transaction_commits(): void
+    {
+        $this->requiresImageSupport();
+
+        $organisation = $this->organisationWithStoredLogo('png');
+        $previous = (string) $organisation->logo_path;
+
+        try {
+            DB::transaction(function () use ($organisation) {
+                $this->store->store($organisation, $this->upload(12, 8));
+
+                throw new RuntimeException('outer failure');
+            });
+        } catch (RuntimeException) {
+        }
+
+        $this->assertSame($previous, $organisation->fresh()?->logo_path);
+        $this->assertSame([$previous], Storage::disk('local')->allFiles('logos'));
+
+        $this->store->store($organisation, $this->upload(12, 8));
+
+        Storage::disk('local')->assertMissing($previous);
+        $this->assertCount(1, Storage::disk('local')->allFiles('logos'));
+    }
+
+    private function refuseWrites(): void
+    {
+        $disk = Mockery::mock(Storage::disk('local'))->makePartial();
+        $disk->shouldReceive('put')->andReturn(false);
+        Storage::set('local', $disk);
     }
 
     private function assertRefused(UploadedFile $file): void
