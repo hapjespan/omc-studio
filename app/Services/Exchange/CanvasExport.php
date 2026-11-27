@@ -19,10 +19,16 @@ class CanvasExport
 {
     public const FORMAT = 'omc-studio-canvas';
 
-    public function __construct(private readonly LayoutSnapshot $layouts) {}
+    public function __construct(private readonly LayoutSnapshot $layouts, private readonly ConsistentRead $consistent) {}
 
     /** @return array<string, mixed> */
     public function build(Canvas $canvas): array
+    {
+        return $this->consistent->run(fn () => $this->read($canvas));
+    }
+
+    /** @return array<string, mixed> */
+    private function read(Canvas $canvas): array
     {
         $organisation = $canvas->organisation()->firstOrFail();
         $years = $this->years($organisation);

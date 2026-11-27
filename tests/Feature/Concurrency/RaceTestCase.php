@@ -29,8 +29,8 @@ abstract class RaceTestCase extends TestCase
 
     protected const UNALLOCATED = 'Hosting';
 
-    private const TABLES = [
-        'audit_entries', 'undo_records', 'finalised_years', 'allocation_lines', 'allocation_sets',
+    protected const TABLES = [
+        'system_notices', 'snapshots', 'audit_entries', 'undo_records', 'finalised_years', 'allocation_lines', 'allocation_sets',
         'yearly_figures', 'cost_records', 'applications', 'owners', 'fiscal_years', 'elements',
         'statements', 'canvases', 'organisations', 'users',
     ];
@@ -80,6 +80,13 @@ abstract class RaceTestCase extends TestCase
         $this->race->clean(self::TABLES);
 
         parent::tearDown();
+    }
+
+    protected function emptyOrganisations(): void
+    {
+        foreach (array_diff(self::TABLES, ['users']) as $table) {
+            DB::connection('race')->table($table)->delete();
+        }
     }
 
     protected function onRace(Closure $work): void
