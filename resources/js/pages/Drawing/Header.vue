@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref, watchEffect } from 'vue';
+import type { DrawingEngine } from '../../edit-engine';
+import { defaultColours } from '../../colour';
 import AppButton from '../../components/ui/AppButton.vue';
 import Icon from '../../components/ui/Icon.vue';
 import IconButton from '../../components/ui/IconButton.vue';
@@ -6,8 +9,15 @@ import Pill from '../../components/ui/Pill.vue';
 import { t } from '../../i18n';
 import type { SaveStatus } from './SaveQueue';
 
-defineProps<{ status: SaveStatus; canUndo: boolean; canRedo: boolean }>();
+const props = defineProps<{ engine?: DrawingEngine | null; status: SaveStatus; canUndo: boolean; canRedo: boolean }>();
 defineEmits<{ undo: []; redo: []; fit: []; retry: []; reset: [] }>();
+const fill = ref(defaultColours.areas.direction.domain);
+watchEffect((clean) => {
+    const engine = props.engine;
+    const refresh = () => { fill.value = String(engine?.getStyle('direction').fill ?? defaultColours.areas.direction.domain); };
+    refresh();
+    if (engine) clean(engine.onChange(refresh));
+});
 </script>
 
 <template>
@@ -24,6 +34,9 @@ defineEmits<{ undo: []; redo: []; fit: []; retry: []; reset: [] }>();
             </p>
         </div>
         <div class="ml-auto flex flex-wrap items-center gap-2">
+            <label class="inline-flex items-center gap-2 text-[13px]">{{ t('drawing.header_colour') }}
+                <input type="color" :value="fill" :disabled="!engine" @change="engine?.apply({ kind: 'headerColour', fill: ($event.target as HTMLInputElement).value.toUpperCase() })" />
+            </label>
             <Pill>{{ t('drawing.engine_note') }}</Pill>
             <AppButton @click="$emit('reset')">{{ t('drawing.auto_all') }}</AppButton>
             <AppButton @click="$emit('fit')">{{ t('drawing.fit') }}</AppButton>

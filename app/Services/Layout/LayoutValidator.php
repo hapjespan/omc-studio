@@ -171,7 +171,11 @@ class LayoutValidator
             $key = (string) $key;
 
             if ($key === 'direction') {
-                $refused[] = $this->refusal('direction_layout', null, []);
+                $fixed = $area['x'] === 0 && $area['y'] === 0 && $area['width'] === LayoutLimits::artboardWidth()
+                    && $area['height'] === LayoutLimits::directionHeight() && ($area['z'] ?? 0) === 0;
+                if (! $fixed || array_keys($area['style'] ?? []) !== ['fill']) {
+                    $refused[] = $this->refusal('direction_layout', null, []);
+                }
             } elseif (! in_array($key, Area::KEYS, true)) {
                 $refused[] = $this->refusal('unknown_area', null, ['key' => $key]);
             } elseif ($area['x'] < 0 || $area['y'] < LayoutLimits::directionHeight() || LayoutLimits::artboardWidth() < $area['x'] + $area['width'] || LayoutLimits::artboardHeight() < $area['y'] + $area['height']) {

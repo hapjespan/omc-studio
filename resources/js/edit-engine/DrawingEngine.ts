@@ -90,6 +90,7 @@ export type DrawingCommand =
     | { kind: 'setBox'; id: string; box: Partial<BoxValues> }
     | { kind: 'nudge'; dx: number; dy: number }
     | { kind: 'resizeBy'; dw: number; dh: number }
+    | { kind: 'headerColour'; fill: string }
     | { kind: 'setGrid'; on: boolean }
     | { kind: 'align'; axis: 'horizontal' | 'vertical'; to: 'start' | 'centre' | 'end' }
     | { kind: 'distribute'; axis: 'horizontal' | 'vertical' }
