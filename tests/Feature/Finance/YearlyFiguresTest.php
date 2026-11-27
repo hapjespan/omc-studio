@@ -18,6 +18,7 @@ use App\Services\Finance\YearlyFigures;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class YearlyFiguresTest extends TestCase
@@ -247,6 +248,44 @@ class YearlyFiguresTest extends TestCase
         ]);
 
         $this->assertSame(1_250_000, YearlyFigure::firstOrFail()->budget_cents);
+    }
+
+    public function test_an_undo_is_refused_when_the_cost_record_was_archived_after_the_deletion(): void
+    {
+        $this->figure();
+        $set = AllocationSet::factory()->create([
+            'canvas_id' => Canvas::factory()->create(['organisation_id' => $this->organisation->id])->id,
+            'cost_record_id' => $this->record->id,
+            'fiscal_year_id' => $this->year->id,
+        ]);
+        AllocationLine::factory()->create(['allocation_set_id' => $set->id]);
+        $this->destroy()->assertSessionHasNoErrors();
+        $token = $this->token();
+        $this->admin()->post("/cost-records/{$this->record->id}/archive")->assertSessionHasNoErrors();
+        $audit = AuditEntry::count();
+
+        $this->admin()->post('/undo/'.$token)->assertSessionHasErrors(['rule' => 'Deze kostenpost is gearchiveerd']);
+
+        $this->assertSame(0, YearlyFigure::count());
+        $this->assertSame(0, AllocationSet::count());
+        $this->assertSame(0, AllocationLine::count());
+        $this->assertSame($audit, AuditEntry::count());
+        $this->assertNotNull(UndoRecord::find($token));
+    }
+
+    public function test_a_save_holding_a_stale_cost_record_is_refused_once_the_record_was_archived(): void
+    {
+        $stale = CostRecord::findOrFail($this->record->id);
+        $this->record->update(['archived_at' => now()]);
+
+        try {
+            $this->figures()->save($stale, $this->year, $this->payload());
+            $this->fail('The archived record accepted a save');
+        } catch (ValidationException $refusal) {
+            $this->assertSame('Deze kostenpost is gearchiveerd', $refusal->validator->errors()->first('rule'));
+        }
+
+        $this->assertSame(0, YearlyFigure::count());
     }
 
     public function test_a_year_outside_the_organisation_is_not_found(): void

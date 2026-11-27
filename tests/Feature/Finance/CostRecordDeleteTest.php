@@ -20,6 +20,7 @@ use App\Services\Finance\FigureService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Testing\TestResponse;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class CostRecordDeleteTest extends TestCase
@@ -269,6 +270,50 @@ class CostRecordDeleteTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         $this->assertSame('Andere naam', $this->record->fresh()->name);
+    }
+
+    public function test_a_deletion_with_a_stale_model_keeps_the_archive_through_an_undo(): void
+    {
+        $stale = CostRecord::query()->findOrFail($this->record->id);
+        $this->record->forceFill(['archived_at' => now()])->save();
+
+        $token = app(CostRecords::class)->delete($stale, $this->administrator);
+        $this->actingAs($this->administrator)->post('/undo/'.$token)->assertSessionHasNoErrors();
+
+        $this->assertNotNull($this->record->fresh()->archived_at);
+    }
+
+    public function test_a_bulk_deletion_with_stale_models_keeps_the_archive_through_an_undo(): void
+    {
+        $stale = CostRecord::query()->whereKey($this->record->id)->get();
+        $this->record->forceFill(['archived_at' => now()])->save();
+
+        $result = app(CostRecords::class)->deleteMany($this->organisation, $stale, $this->administrator);
+        $this->actingAs($this->administrator)->post('/undo/'.$result['token'])->assertSessionHasNoErrors();
+
+        $this->assertNotNull($this->record->fresh()->archived_at);
+    }
+
+    public function test_a_second_archive_on_a_stale_model_writes_no_second_audit_entry(): void
+    {
+        $stale = CostRecord::query()->findOrFail($this->record->id);
+        $this->actingAs($this->administrator)->post("/cost-records/{$this->record->id}/archive")->assertSessionHasNoErrors();
+        $before = AuditEntry::query()->count();
+
+        app(CostRecords::class)->archive($stale);
+
+        $this->assertSame($before, AuditEntry::query()->count());
+    }
+
+    public function test_a_cost_record_deleted_meanwhile_gives_a_rule_message(): void
+    {
+        $stale = CostRecord::query()->findOrFail($this->record->id);
+        app(CostRecords::class)->delete($this->record, $this->administrator);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Deze kostenpost bestaat niet meer');
+
+        app(CostRecords::class)->archive($stale);
     }
 
     public function test_a_reader_is_refused_on_every_route(): void
