@@ -9,4 +9,4 @@ Each CSV import (cost records, structure, allocations) offers a sample file that
 
 ## Motivation
 
-Explanation lines inside the file need a comment convention in the reader, and any such convention can swallow a real row that starts with the comment mark. A sample that uploads as is, with a reader that treats every line alike, removes that risk. The explanation is Dutch UI text, so it belongs in the messages file and on the page, where it stays readable without opening a spreadsheet. This supersedes no earlier decision.
+Explanation lines inside the file need a comment convention in the reader, and any such convention can swallow a real row that starts with the comment mark. A sample that uploads as is, with a reader that treats every line alike, removes that risk. The explanation is Dutch UI text, so it belongs in the messages file and on the page, where it stays readable without opening a spreadsheet. This reverses the earlier owner decision 2b of this line (explanation lines inside the file, skipped by the reader); the owner revised it on 2026-11-27.

@@ -18,6 +18,8 @@ describe('SampleGuide', () => {
         expect(html).toContain(t('csvx.sample_download'));
         expect(html.match(/<dt/g)).toHaveLength(count);
         expect(html).toContain(phrase);
+        expect(html).toContain(`aria-describedby="sample-${group}"`);
+        expect(html).toContain(`id="sample-${group}"`);
     });
 
     it('never puts a comment mark in front of an explanation', async () => {
