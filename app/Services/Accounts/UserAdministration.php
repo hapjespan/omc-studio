@@ -68,12 +68,11 @@ class UserAdministration
     public function create(array $data): array
     {
         $user = new User($data);
-        $user->password = $this->passwords->generate();
-        $user->save();
+        $password = $this->passwords->issueTo($user);
 
         SecurityLog::record('user_created', ['subject_id' => $user->getKey(), 'role' => $user->role->value]);
 
-        return [$user, $this->passwords->issueTo($user)];
+        return [$user, $password];
     }
 
     /** @param array{name: string, email: string, role: string} $data */

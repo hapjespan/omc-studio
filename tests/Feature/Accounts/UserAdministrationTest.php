@@ -57,6 +57,58 @@ class UserAdministrationTest extends TestCase
         $this->assertSame(1, AuditEntry::query()->where('subject_id', $user->getKey())->where('action', 'created')->count());
     }
 
+    public function test_create_inserts_one_user_row_with_the_credential_and_never_updates_it(): void
+    {
+        $inserts = 0;
+        $updates = 0;
+        User::creating(function () use (&$inserts): void {
+            $inserts++;
+        });
+        User::updating(function () use (&$updates): void {
+            $updates++;
+        });
+
+        [$user, $password] = $this->app->make(UserAdministration::class)->create([
+            'name' => 'Ann', 'email' => 'ann@example.org', 'role' => 'reader',
+        ]);
+
+        $this->assertSame(1, $inserts);
+        $this->assertSame(0, $updates);
+        $this->assertTrue(Hash::check($password, (string) User::query()->findOrFail($user->getKey())->password));
+    }
+
+    public function test_a_failed_credential_save_leaves_no_account_and_no_security_event(): void
+    {
+        File::delete($this->securityLog());
+        User::creating(function (): void {
+            throw new \RuntimeException('save failed');
+        });
+
+        try {
+            $this->app->make(UserAdministration::class)->create([
+                'name' => 'Ann', 'email' => 'ann@example.org', 'role' => 'reader',
+            ]);
+            $this->fail('expected failure');
+        } catch (\RuntimeException) {
+        }
+
+        $this->assertSame(0, User::query()->where('email', 'ann@example.org')->count());
+        $this->assertStringNotContainsString('user_created', (string) (File::exists($this->securityLog()) ? File::get($this->securityLog()) : ''));
+    }
+
+    public function test_a_created_user_signs_in_with_the_password_and_must_change_it(): void
+    {
+        [$user, $password] = $this->app->make(UserAdministration::class)->create([
+            'name' => 'Ann', 'email' => 'ann@example.org', 'role' => 'reader',
+        ]);
+
+        $this->post('/sign-in', ['email' => 'ann@example.org', 'password' => $password]);
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertTrue($user->fresh()->must_change_password);
+        $this->get('/')->assertRedirect('/password/new');
+    }
+
     public function test_update_changes_the_fields_and_the_role_applies_at_the_next_request(): void
     {
         $user = User::factory()->create();
