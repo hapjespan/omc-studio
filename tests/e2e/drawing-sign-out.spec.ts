@@ -68,6 +68,7 @@ test('a failed save keeps the session when staying and signs out when discarding
     await expect(leave).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(leave).toBeHidden();
+    await expect(page.getByLabel('X van Onderwijs')).toHaveValue('50');
     await context.setOffline(false);
     expect(methods).toEqual([]);
     expect((await page.request.get('/', { maxRedirects: 0 })).status()).toBe(200);
@@ -77,11 +78,48 @@ test('a failed save keeps the session when staying and signs out when discarding
     expect(methods).toEqual(['POST']);
 });
 
+test('a save that fails while sign-out is held opens the dialog and never signs out by itself', async ({ page }) => {
+    const methods = signOutRequests(page);
+    await openDrawing(page, seedViewCanvas());
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    let failing = true;
+    await page.route('**/layout', async (route) => {
+        if (route.request().method() !== 'PUT' || !failing) return route.fallback();
+        await gate;
+        await route.abort();
+    });
+    await editX(page);
+    await expect(page.locator('[data-save-state]')).toContainText('Opslaan');
+    await chooseSignOut(page);
+    release();
+    const leave = page.getByRole('dialog', { name: 'Wijziging niet opgeslagen' });
+    await expect(leave).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(leave).toBeHidden();
+    failing = false;
+    await page.locator('[data-save-state]').getByRole('button').click();
+    await expect(page.locator('[data-save-state]')).not.toContainText('niet opgeslagen');
+    expect(methods).toEqual([]);
+    expect((await page.request.get('/', { maxRedirects: 0 })).status()).toBe(200);
+    failing = true;
+    await page.getByLabel('X van Onderwijs').fill('60');
+    await page.getByLabel('X van Onderwijs').press('Enter');
+    await expect(page.locator('[data-save-state]')).toContainText('Opslaan');
+    await chooseSignOut(page);
+    await expect(leave).toBeVisible();
+    await leave.getByRole('button', { name: 'Wijziging weggooien' }).click();
+    await expectSignedOut(page);
+    expect(methods).toEqual(['POST']);
+});
+
 test('ordinary navigation to and from the drawing stays a GET with a full page load', async ({ page }) => {
     const canvas = seedViewCanvas();
     await openDrawing(page, canvas);
+    await page.evaluate(() => ((window as unknown as { marker: boolean }).marker = true));
     await page.getByRole('link', { name: 'Bekijken' }).click();
     await page.waitForURL(/\/view$/);
+    expect(await page.evaluate(() => (window as unknown as { marker?: boolean }).marker)).toBeUndefined();
     await page.getByRole('link', { name: 'Tekenen' }).click();
     await page.waitForURL(/\/drawing$/);
     await page.locator('[data-state="ready"]').waitFor({ timeout: 15000 });

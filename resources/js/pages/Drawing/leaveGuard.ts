@@ -42,6 +42,11 @@ export function createLeaveGuard(status: Ref<SaveStatus>, retry: () => void) {
 
             return next;
         },
+        failed: (): void => {
+            if (!waiting) return;
+            target.value = waiting;
+            waiting = null;
+        },
         retry: (): void => {
             retried.value = true;
             retry();
