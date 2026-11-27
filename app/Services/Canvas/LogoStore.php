@@ -42,7 +42,7 @@ class LogoStore
             DB::afterRollBack(fn () => $disk->delete($path));
 
             if ($disk->put($path, $image) === false) {
-                $this->refuseLogo();
+                throw ValidationException::withMessages(['logo' => __('organisations.logo_store_failed')]);
             }
 
             $organisation->forceFill(['logo_path' => $path])->save();

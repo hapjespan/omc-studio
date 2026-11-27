@@ -9,6 +9,7 @@ use App\Services\Audit\AuditContext;
 use App\Services\Audit\AuditRemoval;
 use App\Services\Support\SerialisedWrite;
 use App\Services\Support\WritableGuard;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -70,7 +71,7 @@ class OrganisationService
 
     public function delete(Organisation $organisation): void
     {
-        $logo = $this->writes->run([$organisation], function () use ($organisation) {
+        $this->writes->run([$organisation], function () use ($organisation) {
             if (Canvas::where('organisation_id', $organisation->getKey())->exists() || CostRecord::where('organisation_id', $organisation->getKey())->exists()) {
                 throw ValidationException::withMessages(['rule' => __('organisations.delete_blocked')]);
             }
@@ -80,12 +81,10 @@ class OrganisationService
             $organisation->deleteQuietly();
             $this->removal->purge($organisation);
 
-            return $path;
+            if (is_string($path) && $path !== '') {
+                DB::afterCommit(fn () => Storage::disk(LogoStore::DISK)->delete($path));
+            }
         });
-
-        if (is_string($logo) && $logo !== '') {
-            Storage::disk(LogoStore::DISK)->delete($logo);
-        }
     }
 
     private function assertNameFree(string $name, ?Organisation $except = null): void

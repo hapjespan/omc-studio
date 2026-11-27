@@ -23,6 +23,8 @@ class LogoUploadTest extends TestCase
 
     private const MESSAGE = 'Logo: kies een PNG- of JPEG-afbeelding van maximaal 1 MB en 4000 bij 4000 pixels';
 
+    private const STORE_FAILED = 'Logo: het bestand kon niet worden opgeslagen, probeer het opnieuw';
+
     private const MARKER = 'camera-metadata-marker';
 
     private const MAXIMUM_BYTES = 1048576;
@@ -213,7 +215,7 @@ class LogoUploadTest extends TestCase
         $this->refuseWrites();
 
         $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
-            ->assertSessionHasErrors(['logo' => self::MESSAGE]);
+            ->assertSessionHasErrors(['logo' => self::STORE_FAILED]);
 
         $this->assertSame($path, $organisation->fresh()?->logo_path);
         $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
@@ -237,7 +239,7 @@ class LogoUploadTest extends TestCase
         Storage::set('local', $disk);
 
         $this->admin()->patch('/admin/organisations/'.$organisation->id, ['name' => $organisation->name, 'logo' => $this->upload(12, 8)])
-            ->assertSessionHasErrors(['logo' => self::MESSAGE]);
+            ->assertSessionHasErrors(['logo' => self::STORE_FAILED]);
 
         $this->assertSame([$path], Storage::disk('local')->allFiles('logos'));
     }
