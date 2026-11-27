@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\Operations\BackupService;
 use Illuminate\Console\Command;
 use RuntimeException;
+use Throwable;
 
 class Backup extends Command
 {
@@ -20,6 +21,14 @@ class Backup extends Command
             $this->error($failure->getMessage());
 
             return self::FAILURE;
+        } catch (Throwable $failure) {
+            $this->error(__('console.backup_failed', ['reason' => $failure->getMessage()]));
+
+            return self::FAILURE;
+        }
+
+        if ($backup->warning !== null) {
+            $this->warn($backup->warning);
         }
 
         return self::SUCCESS;

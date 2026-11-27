@@ -9,6 +9,7 @@ use App\Services\Operations\BackupService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -134,10 +135,11 @@ class BackupTest extends TestCase
 
         $folder = app(BackupService::class)->run();
 
-        $this->assertNull(BackupService::missingLogo($folder));
+        $this->assertFileExists($folder.'/uploads/logos/b.png');
         $this->assertSame('logo-two', file_get_contents($folder.'/uploads/logos/b.png'));
         $copy = new \PDO('sqlite:'.$folder.'/database.sqlite');
         $this->assertSame('logos/b.png', $copy->query('SELECT logo_path FROM organisations')->fetchColumn());
+        $this->assertNull(BackupService::missingLogo($folder));
     }
 
     public function test_a_retried_backup_restores_with_its_logo(): void
@@ -151,12 +153,54 @@ class BackupTest extends TestCase
         $this->assertSame('logo-two', file_get_contents($this->storage.'/app/private/logos/b.png'));
     }
 
+    public function test_a_plain_backup_restores_and_serves_its_logo(): void
+    {
+        $this->organisationWithLogo('logos/a.png');
+        $folder = app(BackupService::class)->run();
+        file_put_contents($this->storage.'/app/private/logos/a.png', 'changed');
+        DB::table('organisations')->update(['logo_path' => null]);
+
+        $this->artisan('app:restore', ['folder' => $folder])->assertSuccessful();
+
+        $organisation = Organisation::query()->firstOrFail();
+        $this->assertSame('logos/a.png', $organisation->logo_path);
+        config(['filesystems.disks.local.root' => $this->storage.'/app/private']);
+        Storage::forgetDisk('local');
+        $admin = User::factory()->create(['role' => Role::Administrator]);
+        $this->actingAs($admin)->get('/organisations/'.$organisation->getKey().'/logo')->assertOk();
+        $this->assertSame('logo-one', file_get_contents($this->storage.'/app/private/logos/a.png'));
+    }
+
+    public function test_a_live_dangling_logo_is_backed_up_with_a_note(): void
+    {
+        $this->organisationWithLogo('logos/gone.png');
+
+        $folder = app(BackupService::class)->run();
+
+        $this->assertDirectoryExists($folder);
+        $this->artisan('app:backup')->expectsOutputToContain('gone.png')->assertSuccessful();
+    }
+
+    public function test_a_live_dangling_logo_does_not_block_restoring_a_good_backup(): void
+    {
+        $this->organisationWithLogo('logos/a.png');
+        $good = app(BackupService::class)->run();
+        DB::table('organisations')->update(['logo_path' => 'logos/gone.png']);
+
+        $this->artisan('app:restore', ['folder' => $good])->assertSuccessful();
+
+        $this->assertSame('logos/a.png', DB::table('organisations')->value('logo_path'));
+    }
+
     public function test_a_persistent_inconsistency_fails_cleans_up_and_keeps_earlier_backups_usable(): void
     {
         $good = app(BackupService::class)->run();
         $this->organisationWithLogo('logos/a.png');
-        $this->bindCopyHook(function () {
-            @unlink($this->storage.'/app/private/logos/a.png');
+        $this->bindCopyHook(function (int $call) {
+            $next = 'logos/c'.$call.'.png';
+            file_put_contents($this->storage.'/app/private/'.$next, 'x');
+            DB::table('organisations')->update(['logo_path' => $next]);
+            @unlink($this->storage.'/app/private/logos/'.($call === 1 ? 'a' : 'c'.($call - 1)).'.png');
         });
 
         $this->artisan('app:backup')->assertFailed();

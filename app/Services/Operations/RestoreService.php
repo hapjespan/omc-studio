@@ -31,9 +31,10 @@ class RestoreService
 
         $this->validate($database, trim((string) file_get_contents($key)));
 
-        $this->assertLogosPresent($folder, $database);
+        $this->assertLogosPresent($folder);
 
-        $safety = app(BackupService::class)->run();
+        $backup = app(BackupService::class);
+        $safety = $backup->run();
 
         $this->application->maintenanceMode()->activate([]);
 
@@ -43,7 +44,7 @@ class RestoreService
             $this->application->maintenanceMode()->deactivate();
         }
 
-        return [...$restored, $safety];
+        return [...$restored, $safety, ...($backup->warning === null ? [] : [$backup->warning])];
     }
 
     private function validate(string $database, string $key): void
@@ -89,9 +90,9 @@ class RestoreService
         }
     }
 
-    private function assertLogosPresent(string $folder, string $database): void
+    private function assertLogosPresent(string $folder): void
     {
-        $missing = BackupService::missingLogo($folder);
+        $missing = BackupService::unsafeLogo($folder) ?? BackupService::missingLogo($folder);
 
         if ($missing !== null) {
             throw new InvalidArgumentException(__('console.restore_logo_missing', ['path' => $missing]));

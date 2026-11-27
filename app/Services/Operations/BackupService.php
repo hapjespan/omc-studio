@@ -18,6 +18,8 @@ class BackupService
 
     private const ATTEMPTS = 3;
 
+    public ?string $warning = null;
+
     public static function uploadsPath(): string
     {
         return storage_path('app/private');
@@ -46,20 +48,34 @@ class BackupService
         return $folder;
     }
 
-    public static function missingLogo(string $folder, bool $refuseUnsafe = true): ?string
+    public static function unsafeLogo(string $folder): ?string
     {
-        $pdo = new PDO('sqlite:'.$folder.'/'.self::DATABASE);
-        $paths = $pdo->query("SELECT logo_path FROM organisations WHERE logo_path IS NOT NULL AND logo_path != ''")->fetchAll(PDO::FETCH_COLUMN);
-
-        foreach ($paths as $path) {
-            $unsafe = str_contains($path, '..') || str_starts_with($path, '/');
-
-            if ($unsafe ? $refuseUnsafe : ! is_file($folder.'/'.self::UPLOADS.'/'.$path)) {
+        foreach (self::logoPaths($folder) as $path) {
+            if (str_contains($path, '..') || str_starts_with($path, '/')) {
                 return $path;
             }
         }
 
         return null;
+    }
+
+    public static function missingLogo(string $folder): ?string
+    {
+        foreach (self::logoPaths($folder) as $path) {
+            if (! str_contains($path, '..') && ! str_starts_with($path, '/') && ! is_file($folder.'/'.self::UPLOADS.'/'.$path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return list<string> */
+    private static function logoPaths(string $folder): array
+    {
+        $pdo = new PDO('sqlite:'.$folder.'/'.self::DATABASE);
+
+        return $pdo->query("SELECT logo_path FROM organisations WHERE logo_path IS NOT NULL AND logo_path != ''")->fetchAll(PDO::FETCH_COLUMN);
     }
 
     protected function copyUploads(string $from, string $to): void
@@ -81,12 +97,24 @@ class BackupService
                 $this->copyUploads(self::uploadsPath(), $folder.'/'.self::UPLOADS);
             }
 
-            if (($missing = self::missingLogo($folder, false)) === null) {
+            if (($missing = self::missingLogo($folder)) === null) {
+                return;
+            }
+
+            if ($this->liveLogoDangles($missing)) {
+                $this->warning = __('console.backup_dangling_logo', ['path' => $missing]);
+
                 return;
             }
         }
 
         throw new RuntimeException(__('console.backup_inconsistent', ['path' => $missing]));
+    }
+
+    private function liveLogoDangles(string $path): bool
+    {
+        return DB::table('organisations')->where('logo_path', $path)->exists()
+            && ! is_file(self::uploadsPath().'/'.$path);
     }
 
     private function freshFolder(): string
