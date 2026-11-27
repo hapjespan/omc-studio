@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
 #[Fillable([
     'name', 'email', 'password', 'role', 'must_change_password', 'one_time_password_expires_at',
@@ -35,5 +36,19 @@ class User extends Authenticatable
     protected function email(): Attribute
     {
         return Attribute::set(fn (string $value) => mb_strtolower(trim($value)));
+    }
+
+    public function hasLegacyPassword(): bool
+    {
+        return str_starts_with((string) $this->password, '$2y$');
+    }
+
+    public function reusesPassword(string $plain): bool
+    {
+        if ($this->hasLegacyPassword() && strlen($plain) > 72) {
+            return false;
+        }
+
+        return Hash::check($plain, (string) $this->password);
     }
 }

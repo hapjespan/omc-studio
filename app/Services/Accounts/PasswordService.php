@@ -41,7 +41,7 @@ class PasswordService
             throw ValidationException::withMessages(['current_password' => __('account.current_password_wrong')]);
         }
 
-        if (Hash::check($password, (string) $user->password)) {
+        if ($user->reusesPassword($password)) {
             $throttle->refund($identifier);
 
             throw ValidationException::withMessages(['password' => __('account.password_reused')]);
@@ -56,7 +56,7 @@ class PasswordService
 
     public function setInitial(User $user, string $password, Session $session): void
     {
-        if (Hash::check($password, (string) $user->password)) {
+        if ($user->reusesPassword($password)) {
             throw ValidationException::withMessages(['password' => __('auth.password_reused')]);
         }
 

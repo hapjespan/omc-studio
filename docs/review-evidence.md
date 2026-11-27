@@ -84,7 +84,7 @@ Automated: every screen passes axe with the WCAG 2.2 AA tags through `expectNoAx
 | Category | Evidence |
 |---|---|
 | A01 Broken access control | `tests/Feature/Authorisation/D2RoutesTest.php`, `tests/Feature/Security/RouteEnumerationTest.php`, `tests/Feature/Layout/DrawingRouteTest.php` (Reader redirected, Template and archived Canvas) |
-| A02 Cryptographic failures | V11 above: encrypted second-factor secrets, checksummed Snapshots, bcrypt passwords in `tests/Feature/Accounts/SignInServiceTest.php` |
+| A02 Cryptographic failures | V11 above: encrypted second-factor secrets, checksummed Snapshots, Argon2id passwords (ADR 0050) in `tests/Feature/Accounts/SignInServiceTest.php` |
 | A03 Injection | V1 above: parameter binding, formula neutralisation, `tests/Feature/Exchange/CanvasImportHardeningTest.php` |
 | A04 Insecure design | the pure calculation module (`tests/Unit/Calculation/FigurePropertyTest.php`), serialised writes (`tests/Feature/Concurrency/SerialisedWriteTest.php`), server-side layout validation (`tests/Unit/Layout/LayoutValidatorTest.php`) |
 | A05 Security misconfiguration | `tests/Feature/Setup/DeliveredStackFilesTest.php`, `tests/Feature/Security/HeadersTest.php`, `tests/Feature/Security/DrawingCspTest.php` |

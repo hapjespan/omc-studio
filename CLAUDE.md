@@ -134,6 +134,7 @@ Skipped: `frontend-design` (off in project sessions) and `seo` (local app, H1).
     0047 a newer Snapshot schema counts as damaged, the full export keeps stored bytes;
     0048 Firefox end-to-end runs on a virtual display;
     0049 pull request CI runs Chromium only;
+    0050 Argon2id for credentials, legacy bcrypt accounts must change passphrase;
     0051 exports read one consistent snapshot;
     0052 sample file explanations live beside the download button
 - `docs/architecture.md`: module and seam map (phase 4)
