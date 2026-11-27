@@ -9,6 +9,8 @@ use RuntimeException;
 
 class Restore extends Command
 {
+    private const SAFE_REFUSAL = 3;
+
     protected $signature = 'app:restore {folder}';
 
     protected $description = 'Replace the database, uploads and application key with the contents of a backup folder';
@@ -20,7 +22,7 @@ class Restore extends Command
         } catch (InvalidArgumentException|RuntimeException $refusal) {
             $this->error($refusal->getMessage());
 
-            return self::FAILURE;
+            return app()->maintenanceMode()->active() ? self::FAILURE : self::SAFE_REFUSAL;
         }
 
         foreach ($restored as $item) {

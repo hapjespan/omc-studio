@@ -38,7 +38,7 @@ class BackupService
         try {
             $this->copyConsistently($folder);
 
-            File::copy(storage_path(self::KEY), $folder.'/'.self::KEY);
+            BackupFiles::copy(storage_path(self::KEY), $folder.'/'.self::KEY);
             chmod($folder.'/'.self::KEY, 0600);
         } catch (Throwable $failure) {
             File::deleteDirectory($folder);
@@ -84,7 +84,7 @@ class BackupService
 
     protected function copyUploads(string $from, string $to): void
     {
-        File::copyDirectory($from, $to);
+        BackupFiles::copyDirectory($from, $to);
     }
 
     private function copyConsistently(string $folder): void

@@ -248,6 +248,20 @@ class RestoreTest extends TestCase
         $this->assertFalse($this->app->maintenanceMode()->active());
     }
 
+    public function test_a_partial_directory_copy_never_replaces_live_uploads(): void
+    {
+        $this->organisationWithLogo('logos/a.png');
+        $folder = $this->backup();
+        File::partialMock()->shouldReceive('copyDirectory')
+            ->with($folder.'/uploads', \Mockery::type('string'))
+            ->once()->andReturn(false);
+
+        $this->artisan('app:restore', ['folder' => $folder])->assertExitCode(3);
+
+        $this->assertSame('logo-one', file_get_contents($this->storage.'/app/private/logos/a.png'));
+        $this->assertFalse($this->app->maintenanceMode()->active());
+    }
+
     public function test_it_refuses_a_logo_path_that_leaves_the_uploads_directory(): void
     {
         $this->organisationWithLogo('../app.key');
@@ -283,10 +297,10 @@ class RestoreTest extends TestCase
             }
         });
 
-        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain($this->storage.'/recovery/')->assertFailed();
+        $this->artisan('app:restore', ['folder' => $folder])->expectsOutputToContain($this->storage.'/recovery/')->assertExitCode(1);
 
         $this->assertNotEmpty(glob($this->storage.'/recovery/*/*'));
-        $this->assertFalse($this->app->maintenanceMode()->active());
+        $this->assertTrue($this->app->maintenanceMode()->active());
     }
 
     private function organisationWithLogo(string $path): void

@@ -42,8 +42,8 @@ class CanvasEntryController extends Controller
 
         return Inertia::render('Canvas/Entry', [
             'areas' => $areas->values(),
-            'elements' => $this->elements($canvas),
-            'layouts' => $layouts->for($canvas),
+            'elements' => fn () => $this->elements($canvas),
+            'layouts' => fn () => $layouts->for($canvas),
             'year' => $year,
             'targets' => Inertia::defer(fn () => app(AllocationPage::class)->targets($canvas, null), 'detail'),
             'costs' => Inertia::defer(fn () => (object) $this->costs($canvas, $year), 'detail'),
@@ -83,23 +83,19 @@ class CanvasEntryController extends Controller
     /** @return list<array<string, mixed>> */
     private function elements(Canvas $canvas): array
     {
-        $areas = Area::pluck('key', 'id');
-        $modalities = Modality::pluck('key', 'id');
+        return Element::where('canvas_id', $canvas->id)
+            ->join('areas', 'areas.id', '=', 'elements.area_id')
+            ->leftJoin('modalities', 'modalities.id', '=', 'elements.modality_id')
+            ->orderBy('elements.position')->orderBy('elements.id')->toBase()
+            ->get(['elements.id', 'areas.key as area', 'elements.parent_id as parent', 'elements.kind', 'elements.name',
+                'elements.description', 'modalities.key as modality', 'elements.rationale', 'elements.icon',
+                'elements.position', 'elements.is_unknown_allocation', 'elements.archived_at'])
+            ->map(function (object $element): array {
+                $row = (array) $element;
+                unset($row['is_unknown_allocation'], $row['archived_at']);
 
-        return Element::where('canvas_id', $canvas->id)->orderBy('position')->orderBy('id')->get()->map(fn (Element $element) => [
-            'id' => $element->id,
-            'area' => $areas[$element->area_id],
-            'parent' => $element->parent_id,
-            'kind' => $element->kind->value,
-            'name' => $element->name,
-            'description' => $element->description,
-            'modality' => $modalities[$element->modality_id] ?? null,
-            'rationale' => $element->rationale,
-            'icon' => $element->icon,
-            'position' => $element->position,
-            'unknownAllocation' => $element->is_unknown_allocation,
-            'archived' => $element->archived_at !== null,
-        ])->all();
+                return [...$row, 'unknownAllocation' => (bool) $element->is_unknown_allocation, 'archived' => $element->archived_at !== null];
+            })->all();
     }
 
     /** @param  Collection<int, Element>  $counts */

@@ -21,6 +21,12 @@ test('Invoeren opens within one second on a Canvas of 500 Elements', { tag: PERF
 
     await expect(page.getByTestId('entry-row')).toHaveCount(500);
     expectWithinBudget(samples, 'Invoeren opens', browserName);
+
+    const last = page.getByTestId('entry-row').last().getByRole('button').first();
+    await last.focus();
+    await expect(last).toBeInViewport();
+    await last.press('Enter');
+    await expect(page.getByRole('complementary').getByRole('button', { name: 'Opslaan', exact: true })).toBeVisible();
 });
 
 test('an Element is added within one second on a Canvas of 500 Elements', { tag: PERFORMANCE_TAG }, async ({ page, browserName }) => {

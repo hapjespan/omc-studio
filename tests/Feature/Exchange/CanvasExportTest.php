@@ -4,6 +4,7 @@ namespace Tests\Feature\Exchange;
 
 use App\Models\FinalisedYear;
 use App\Models\User;
+use App\Services\Exchange\CanvasExport;
 
 class CanvasExportTest extends CanvasExchangeTestCase
 {
@@ -26,6 +27,19 @@ class CanvasExportTest extends CanvasExchangeTestCase
         $this->assertNull($data['canvas']['layout']);
         $this->assertSame([['year' => 2027, 'finalised_at' => $data['canvas']['finalised_years'][0]['finalised_at']]], $data['canvas']['finalised_years']);
         $this->assertSame([3333, 3333, 3334], array_column($data['canvas']['allocation_sets'][0]['lines'], 'basis_points'));
+    }
+
+    public function test_the_route_model_and_download_name_use_the_export_snapshot(): void
+    {
+        $this->richCanvas();
+        $bound = $this->canvas->fresh();
+        $this->canvas->update(['name' => 'Current canvas']);
+        $export = app(CanvasExport::class);
+        $data = $export->build($bound);
+        $this->canvas->organisation->update(['slug' => 'later']);
+
+        $this->assertSame('Current canvas', $data['canvas']['name']);
+        $this->assertStringStartsWith('acme-zorg-current-canvas-', $export->fileName($bound));
     }
 
     public function test_every_element_is_exported_including_archived_and_the_unknown_allocation_domain(): void
