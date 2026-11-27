@@ -120,7 +120,7 @@ function addLogoBox(graph: SceneGraph, block: DrawnBlock, left: number, text: Te
         width: LOGO_BOX.width,
         height: LOGO_BOX.height,
         fills: [],
-        strokes: [{ ...strokePaint('#ffffff', 1, true), opacity: 0.4 }],
+        strokes: [{ ...strokePaint(block.style.textColour, 1, true), opacity: 0.4 }],
         cornerRadius: LOGO_BOX.radius,
         clipsContent: false,
     });

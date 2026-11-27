@@ -180,7 +180,7 @@ onBeforeUnmount(() => {
     <header class="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 class="font-display text-[22px] font-semibold">{{ canvas.name }}</h1>
         <ModeSwitch :role="page.props.auth.role" :canvas="shellCanvas" :url="page.url" />
-        <Header
+        <Header :engine="engine"
             :inert="moveFlow.busy.value || moveFlow.pending.value !== null || resetting"
             :status="saveStatus"
             :can-undo="canUndo"

@@ -134,7 +134,7 @@ const segments = computed(() => new Map(props.drawn.direction.map((column) => [c
                 @blur="column.truncated && peek(null, 'focus')"
             >
                 <p v-if="column.label" class="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.05em]" :style="{ color: band.style.labelColour }">{{ column.label }}</p>
-                <div v-if="column.key === 'logo'" class="flex h-[92px] w-[160px] items-center justify-center rounded-card border border-dashed border-white/40 text-[11px] font-semibold uppercase tracking-[0.05em]" :style="{ color: band.style.labelColour }" data-direction-logo>{{ t('view.direction.logo') }}</div>
+                <div v-if="column.key === 'logo'" class="flex h-[92px] w-[160px] items-center justify-center rounded-card border border-dashed border-current/40 text-[11px] font-semibold uppercase tracking-[0.05em]" :style="{ color: band.style.labelColour }" data-direction-logo>{{ t('view.direction.logo') }}</div>
                 <p v-for="(segment, index) in segments.get(column.key)" :key="index" class="whitespace-pre text-[13px] leading-[18px]" :class="{ 'mt-2': index === 0 && column.label, 'pl-[18px]': column.key === 'goals' && !segment.number }"><span v-if="segment.number" class="inline-block w-[18px]">{{ segment.number }}</span><strong v-if="segment.bold" class="font-semibold">{{ segment.bold }}</strong>{{ segment.rest }}</p>
             </div>
         </div>

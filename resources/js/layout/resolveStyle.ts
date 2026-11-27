@@ -1,4 +1,4 @@
-import { autoTextColour, defaultColours, effectiveFill } from '../colour';
+import { autoTextColour, contrastRatio, MINIMUM_CONTRAST, defaultColours, effectiveFill } from '../colour';
 import { supportsItalic } from './fonts';
 import { isListArea } from './arrangeAreas';
 import type { AreaKey, BlockStyle, ElementStyle, FontSpec } from './types';
@@ -46,7 +46,7 @@ export function resolveStyle(area: AreaKey, level: StyleLevel, stored: ElementSt
         alignHorizontal: override.align_horizontal ?? 'left',
         alignVertical: override.align_vertical ?? 'top',
         textColour,
-        labelColour: area === 'direction' && level === 'area' ? defaultColours.directionLabels : textColour,
+        labelColour: area === 'direction' && level === 'area' && contrastRatio(defaultColours.directionLabels, seen) >= MINIMUM_CONTRAST ? defaultColours.directionLabels : textColour,
         font: { family, size, weight, italic: (override.italic ?? false) && supportsItalic(family), ...(typed.font.tracking ? { tracking: typed.font.tracking } : {}) },
         lineHeight: override.font_size === undefined ? typed.lineHeight : Math.round(size * 1.4),
         radius: override.corner_radius ?? typed.radius,

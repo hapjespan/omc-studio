@@ -13,6 +13,7 @@ import { attachShiftMove, type ShiftMoveHandle } from './shiftGesture';
 import { buildMoveModel } from './shiftMove';
 import { toPayload } from './payload';
 import { align, distribute, equalSize } from './commands/align';
+import { installDomainResize } from './domainResize';
 import { snapChanges } from './commands/grid';
 import { backward, forward, stackOrders } from './commands/order';
 import { restrict, type Restrictions } from './restrictions';
@@ -20,7 +21,8 @@ import { applyStyleToSiblings } from './commands/applyStyle';
 import { copyStyle, pasteStyle, type CopiedStyle } from './commands/pasteStyle';
 import { setStyle, storedStyle, styleData, type StyleChange, type StylePatch } from './commands/style';
 import { boxOf, nudge, resizeBy, setBox } from './transform';
-import { ARTBOARD_ID, buildScene, readPlaces, TEXT_SUFFIX } from './scene';
+import { resolveStyle } from '../layout/resolveStyle';
+import { ARTBOARD_ID, buildScene, fillPaint, readPlaces, TEXT_SUFFIX } from './scene';
 import { keepSelectable, watchSelection } from './selection';
 
 const DIRECTION_ID = 'direction';
@@ -73,6 +75,7 @@ export class OpenPencilEngine implements DrawingEngine {
         this.measurer = options.measurer;
         this.stops.push(this.restrictions.release, keepSelectable(editor, [...locked, ARTBOARD_ID]));
         const restrictions = this.restrictions;
+        if (options.measurer && options.structure) this.stops.unshift(installDomainResize(editor, scene, options.structure.elements, options.measurer, restrictions, this.sized, () => this.grid));
         this.watch(editor, graph, scene);
         await new Promise<void>((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('The drawing surface did not become ready.')), READY_TIMEOUT);
@@ -141,6 +144,17 @@ export class OpenPencilEngine implements DrawingEngine {
                 return nudge(selection, command.dx, command.dy);
             case 'resizeBy':
                 return resizeBy(selection, command.dw, command.dh);
+            case 'headerColour': {
+                const style = resolveStyle('direction', 'area', { fill: command.fill });
+                return this.guarded(() => editor.undo.runBatch('Header colour', () => {
+                    editor.updateNodeWithUndo(DIRECTION_ID, { fills: [fillPaint(command.fill, 100)], pluginData: styleData({ fill: command.fill }) });
+                    for (const id of editor.graph.getNode(DIRECTION_ID)!.childIds) {
+                        const node = editor.graph.getNode(id);
+                        if (node?.type === 'TEXT') editor.updateNodeWithUndo(id, { fills: [fillPaint(id.includes('-label') ? style.labelColour : style.textColour, 100)] });
+                        if (node?.type === 'FRAME') editor.updateNodeWithUndo(id, { strokes: node.strokes.map((stroke) => ({ ...stroke, color: fillPaint(style.textColour, 100).color })) });
+                    }
+                }));
+            }
             case 'setGrid':
                 this.grid = command.on;
                 return;
