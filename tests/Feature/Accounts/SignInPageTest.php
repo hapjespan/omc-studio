@@ -62,6 +62,7 @@ class SignInPageTest extends TestCase
     public function test_the_sixth_attempt_states_the_waiting_time_in_text(): void
     {
         $user = User::factory()->create(['password' => 'a-long-enough-secret']);
+        $this->freezeTime();
 
         foreach (range(1, 5) as $attempt) {
             $this->post('/sign-in', ['email' => $user->email, 'password' => 'wrong']);
