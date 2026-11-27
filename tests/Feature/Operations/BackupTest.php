@@ -181,13 +181,91 @@ class BackupTest extends TestCase
         $this->artisan('app:backup')->expectsOutputToContain('gone.png')->assertSuccessful();
     }
 
+    public function test_a_warned_backup_is_without_the_logo_and_restores(): void
+    {
+        $this->organisationWithLogo('logos/gone.png');
+        $service = app(BackupService::class);
+        $folder = $service->run();
+
+        $this->assertStringContainsString('gone.png', $service->warning);
+        $this->assertSame([], BackupService::missingLogos($folder));
+        DB::table('organisations')->update(['logo_path' => 'logos/a.png']);
+
+        $this->artisan('app:restore', ['folder' => $folder])->assertSuccessful();
+
+        $this->assertNull(DB::table('organisations')->value('logo_path'));
+    }
+
+    public function test_a_race_missing_logo_next_to_a_live_dangling_one_is_retried(): void
+    {
+        $this->organisationWithLogo('logos/gone.png');
+        $second = Organisation::factory()->create(['logo_path' => 'logos/a.png']);
+        file_put_contents($this->storage.'/app/private/logos/b.png', 'logo-two');
+        $fired = false;
+        $this->bindCopyHook(function () use (&$fired, $second) {
+            if (! $fired) {
+                $fired = true;
+                DB::table('organisations')->where('id', $second->getKey())->update(['logo_path' => 'logos/b.png']);
+                unlink($this->storage.'/app/private/logos/a.png');
+            }
+        });
+
+        $service = app(BackupService::class);
+        $folder = $service->run();
+
+        $copy = new \PDO('sqlite:'.$folder.'/database.sqlite');
+        $this->assertSame(['logos/b.png'], $copy->query('SELECT logo_path FROM organisations WHERE logo_path IS NOT NULL')->fetchAll(\PDO::FETCH_COLUMN));
+        $this->assertFileExists($folder.'/uploads/logos/b.png');
+        $this->assertStringContainsString('gone.png', $service->warning);
+    }
+
+    public function test_a_persistent_race_next_to_a_live_dangling_logo_fails(): void
+    {
+        $this->organisationWithLogo('logos/gone.png');
+        $second = Organisation::factory()->create(['logo_path' => 'logos/a.png']);
+        $this->bindCopyHook(function (int $call) use ($second) {
+            $next = 'logos/r'.$call.'.png';
+            file_put_contents($this->storage.'/app/private/'.$next, 'x');
+            DB::table('organisations')->where('id', $second->getKey())->update(['logo_path' => $next]);
+            @unlink($this->storage.'/app/private/logos/'.($call === 1 ? 'a' : 'r'.($call - 1)).'.png');
+        });
+
+        $this->artisan('app:backup')->assertFailed();
+
+        $this->assertSame([], glob($this->storage.'/backups/*'));
+    }
+
+    public function test_the_warning_does_not_outlive_a_clean_run(): void
+    {
+        $this->organisationWithLogo('logos/gone.png');
+        $service = app(BackupService::class);
+        $service->run();
+        DB::table('organisations')->update(['logo_path' => null]);
+        $service->run();
+
+        $this->assertNull($service->warning);
+    }
+
+    public function test_an_unexpected_error_in_the_command_fails_with_the_reason(): void
+    {
+        $this->app->bind(BackupService::class, fn () => new class extends BackupService
+        {
+            public function run(): string
+            {
+                throw new \LogicException('boom');
+            }
+        });
+
+        $this->artisan('app:backup')->expectsOutputToContain('boom')->assertFailed();
+    }
+
     public function test_a_live_dangling_logo_does_not_block_restoring_a_good_backup(): void
     {
         $this->organisationWithLogo('logos/a.png');
         $good = app(BackupService::class)->run();
         DB::table('organisations')->update(['logo_path' => 'logos/gone.png']);
 
-        $this->artisan('app:restore', ['folder' => $good])->assertSuccessful();
+        $this->artisan('app:restore', ['folder' => $good])->expectsOutputToContain('gone.png')->assertSuccessful();
 
         $this->assertSame('logos/a.png', DB::table('organisations')->value('logo_path'));
     }

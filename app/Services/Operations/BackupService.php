@@ -32,6 +32,7 @@ class BackupService
 
     public function run(): string
     {
+        $this->warning = null;
         $folder = $this->freshFolder();
 
         try {
@@ -61,13 +62,16 @@ class BackupService
 
     public static function missingLogo(string $folder): ?string
     {
-        foreach (self::logoPaths($folder) as $path) {
-            if (! str_contains($path, '..') && ! str_starts_with($path, '/') && ! is_file($folder.'/'.self::UPLOADS.'/'.$path)) {
-                return $path;
-            }
-        }
+        return self::missingLogos($folder)[0] ?? null;
+    }
 
-        return null;
+    /** @return list<string> */
+    public static function missingLogos(string $folder): array
+    {
+        return array_values(array_filter(
+            self::logoPaths($folder),
+            fn (string $path) => ! str_contains($path, '..') && ! str_starts_with($path, '/') && ! is_file($folder.'/'.self::UPLOADS.'/'.$path),
+        ));
     }
 
     /** @return list<string> */
@@ -85,7 +89,7 @@ class BackupService
 
     private function copyConsistently(string $folder): void
     {
-        $missing = null;
+        $missing = [];
 
         for ($attempt = 1; $attempt <= self::ATTEMPTS; $attempt++) {
             File::delete($folder.'/'.self::DATABASE);
@@ -97,18 +101,40 @@ class BackupService
                 $this->copyUploads(self::uploadsPath(), $folder.'/'.self::UPLOADS);
             }
 
-            if (($missing = self::missingLogo($folder)) === null) {
+            $missing = self::missingLogos($folder);
+
+            if ($missing === []) {
                 return;
             }
 
-            if ($this->liveLogoDangles($missing)) {
-                $this->warning = __('console.backup_dangling_logo', ['path' => $missing]);
+            if ($this->allDangleLive($missing)) {
+                $this->detachLogos($folder, $missing);
+                $this->warning = __('console.backup_dangling_logo', ['path' => implode(', ', $missing)]);
 
                 return;
             }
         }
 
-        throw new RuntimeException(__('console.backup_inconsistent', ['path' => $missing]));
+        throw new RuntimeException(__('console.backup_inconsistent', ['path' => implode(', ', $missing)]));
+    }
+
+    /** @param list<string> $paths */
+    private function allDangleLive(array $paths): bool
+    {
+        foreach ($paths as $path) {
+            if (! $this->liveLogoDangles($path)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** @param list<string> $paths */
+    private function detachLogos(string $folder, array $paths): void
+    {
+        $pdo = new PDO('sqlite:'.$folder.'/'.self::DATABASE);
+        $pdo->prepare('UPDATE organisations SET logo_path = NULL WHERE logo_path IN ('.implode(',', array_fill(0, count($paths), '?')).')')->execute($paths);
     }
 
     private function liveLogoDangles(string $path): bool

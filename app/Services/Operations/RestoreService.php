@@ -16,11 +16,14 @@ use Throwable;
 
 class RestoreService
 {
+    public ?string $warning = null;
+
     public function __construct(private readonly Application $application) {}
 
     /** @return list<string> */
     public function run(string $folder): array
     {
+        $this->warning = null;
         $folder = rtrim($folder, '/');
         $database = $folder.'/'.BackupService::DATABASE;
         $key = $folder.'/'.BackupService::KEY;
@@ -35,6 +38,7 @@ class RestoreService
 
         $backup = app(BackupService::class);
         $safety = $backup->run();
+        $this->warning = $backup->warning;
 
         $this->application->maintenanceMode()->activate([]);
 
@@ -44,7 +48,7 @@ class RestoreService
             $this->application->maintenanceMode()->deactivate();
         }
 
-        return [...$restored, $safety, ...($backup->warning === null ? [] : [$backup->warning])];
+        return [...$restored, $safety];
     }
 
     private function validate(string $database, string $key): void
