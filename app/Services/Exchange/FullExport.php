@@ -14,11 +14,19 @@ class FullExport
 
     public int $omittedSnapshots = 0;
 
-    public function __construct(private readonly CanvasExport $export, private readonly Snapshots $snapshots) {}
+    public function __construct(private readonly CanvasExport $export, private readonly Snapshots $snapshots, private readonly ConsistentRead $consistent) {}
 
     /** @return array<string, mixed> */
     public function build(): array
     {
+        return $this->consistent->run(fn () => $this->read());
+    }
+
+    /** @return array<string, mixed> */
+    private function read(): array
+    {
+        $this->omittedSnapshots = 0;
+
         return [
             'format' => self::FORMAT,
             'format_version' => 1,

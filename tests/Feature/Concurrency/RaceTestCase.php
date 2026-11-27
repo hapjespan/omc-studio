@@ -51,7 +51,7 @@ abstract class RaceTestCase extends TestCase
         parent::setUp();
 
         $this->race = new RaceDatabase;
-        $this->environment = $this->race->prepare();
+        $this->environment = $this->race->prepare($this->raceConnection());
 
         $this->onRace(function (): void {
             app(ReferenceDataStep::class)();
@@ -73,6 +73,11 @@ abstract class RaceTestCase extends TestCase
 
             $this->unallocated = CostRecord::factory()->create(['organisation_id' => $organisation->id, 'name' => self::UNALLOCATED]);
         });
+    }
+
+    protected function raceConnection(): ?string
+    {
+        return null;
     }
 
     protected function tearDown(): void
