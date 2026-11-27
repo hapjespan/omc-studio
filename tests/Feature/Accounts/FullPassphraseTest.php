@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Accounts;
 
+use App\Enums\Role;
 use App\Models\RecoveryCode;
 use App\Models\User;
 use App\Services\Accounts\OneTimePassword;
 use App\Services\Accounts\PasswordService;
 use App\Services\Accounts\RecoveryCodes;
+use App\Services\Accounts\SignInService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -134,14 +136,14 @@ class FullPassphraseTest extends TestCase
     {
         $this->post('/sign-in', ['email' => 'nobody@example.test', 'password' => str_repeat('a', 100)])->assertSessionHasErrors('email');
 
-        $dummy = (new \ReflectionClassConstant(\App\Services\Accounts\SignInService::class, 'ABSENT'))->getValue();
+        $dummy = (new \ReflectionClassConstant(SignInService::class, 'ABSENT'))->getValue();
         $this->assertStringStartsWith('$argon2id$', $dummy);
     }
 
     public function test_an_administrator_reset_replaces_a_legacy_hash_with_argon2id(): void
     {
         $user = $this->legacy('Legacy-passphrase-1');
-        DB::table('users')->where('id', $user->id)->update(['role' => \App\Enums\Role::Administrator->value]);
+        DB::table('users')->where('id', $user->id)->update(['role' => Role::Administrator->value]);
 
         $this->artisan('app:reset-admin-password', ['email' => $user->email])->assertSuccessful();
 
