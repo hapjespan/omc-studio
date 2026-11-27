@@ -16,7 +16,7 @@ class SignInService
 
     private const NAMESPACE = 'sign-in';
 
-    private const ABSENT = '$2y$12$bTyp9.0Py5RIM5Fet/8fmuFi2PWzVcSlPm9UFVKzp5VgK0lkWUaFe';
+    private const ABSENT = '$argon2id$v=19$m=65536,t=4,p=1$VUJBcnNVZWpRRU90c2pCVw$yrtSutPTdTT243diw+9h7ZkfACEAV8mbxxqkEWBdLWU';
 
     private readonly Throttle $throttle;
 
@@ -54,6 +54,12 @@ class SignInService
         }
 
         $this->throttle->clear($email);
+
+        if ($user->hasLegacyPassword()) {
+            $user->forceFill(['must_change_password' => true])->save();
+            SecurityLog::record('legacy_password_flagged', ['user_id' => $user->getKey()]);
+        }
+
         app(UndoStore::class)->prune();
         app(SecondFactorService::class)->discardUnconfirmed($user);
 
